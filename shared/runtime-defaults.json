@@ -1,0 +1,72 @@
+{
+  "profiles": [
+    {
+      "id": "coding",
+      "labelKey": "profiles.coding",
+      "name": "Yazılım & Kodlama",
+      "categories": ["software"],
+      "shortcut": "CommandOrControl+Alt+1",
+      "icon": "code",
+      "visibleNames": []
+    },
+    {
+      "id": "gaming",
+      "labelKey": "profiles.gaming",
+      "name": "Oyun",
+      "categories": ["games"],
+      "shortcut": "CommandOrControl+Alt+2",
+      "icon": "gamepad",
+      "visibleNames": []
+    },
+    {
+      "id": "creative",
+      "labelKey": "profiles.creative",
+      "name": "Tasarım & Edit",
+      "categories": ["design", "media"],
+      "shortcut": "CommandOrControl+Alt+3",
+      "icon": "palette",
+      "visibleNames": []
+    },
+    {
+      "id": "clean",
+      "labelKey": "profiles.clean",
+      "name": "Temiz Masaüstü",
+      "categories": [],
+      "shortcut": "CommandOrControl+Alt+4",
+      "icon": "star",
+      "visibleNames": []
+    }
+  ],
+  "launcherShortcut": "Alt+Space",
+  "smartTagging": true,
+  "scanFilters": {
+    "excludedDirectories": [
+      "System32",
+      "AppData",
+      "Temp",
+      "node_modules",
+      ".git",
+      "cache",
+      "caches",
+      "locales",
+      "WinSxS"
+    ],
+    "excludedNames": [
+      "driver updater",
+      "driver booster",
+      "crashreporter",
+      "crashpad_handler",
+      "notification_helper"
+    ],
+    "allowedNames": [],
+    "maxDepth": 8
+  },
+  "automation": {
+    "archiveEnabled": false,
+    "archiveDays": 30,
+    "archiveCategoryId": "archive",
+    "downloadsEnabled": false,
+    "downloadMode": "copy",
+    "settleSeconds": 10
+  }
+}

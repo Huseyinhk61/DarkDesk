@@ -8,6 +8,7 @@ const { folders } = require('../electron/service.cjs');
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'darkdesk-electron-'));
   const desktop = path.join(root, 'Desktop');
   await fs.mkdir(desktop);
+  await fs.mkdir(path.join(root, 'Downloads'));
   await fs.mkdir(path.join(root, 'data'));
   await fs.writeFile(path.join(desktop, 'Rapor.pdf'), 'native IPC content');
   const programs = path.join(root, 'Program Files');
@@ -112,9 +113,83 @@ const { folders } = require('../electron/service.cjs');
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'cyberpunk');
     await page.getByRole('button', { name: 'Automation & Settings', exact: true }).click();
     await expect(page.getByLabel('Icon pack', { exact: true })).toHaveValue('tabler');
+
+    await page.getByRole('button', { name: 'Workspace Profiles', exact: true }).click();
+    await page.locator('.profile-activate').filter({ hasText: 'Clean Desktop' }).click();
+    await expect(page.locator('.activity-bar')).toHaveCount(0);
+    const { VisibilityAdapter } = require('../electron/runtime/visibility.cjs');
+    const visibility = new VisibilityAdapter(desktop, process.platform);
+    assert.equal(await visibility.get(path.join(desktop, 'Rapor.pdf')), true);
+    await page.getByRole('button', { name: 'Restore desktop visibility', exact: true }).click();
+    await expect(page.locator('.activity-bar')).toHaveCount(0);
+    assert.equal(await visibility.get(path.join(desktop, 'Rapor.pdf')), false);
+    const windowPromise = application.waitForEvent('window');
+    await page.evaluate(() => window.darkdesk.openLauncher());
+    const quick = await windowPromise;
+    await quick.getByRole('textbox', { name: 'Quick search' }).fill('Rapor');
+    await expect(quick.getByRole('option').first()).toContainText('Rapor');
+    await quick.getByRole('textbox', { name: 'Quick search' }).press('Enter');
+    await expect
+      .poll(async () => {
+        try {
+          return JSON.parse(await fs.readFile(path.join(root, 'launch-log.json'), 'utf8')).id;
+        } catch {
+          return null;
+        }
+      })
+      .toBe('Rapor.pdf');
+    const recorded = JSON.parse(await fs.readFile(path.join(root, 'data', 'usage.json'), 'utf8'));
+    assert.equal(recorded['Rapor.pdf'].count, 1);
+    const trayState = await page.evaluate(() => window.darkdesk.runtimeStatus());
+    if (trayState.trayAvailable) {
+      await page.getByRole('button', { name: 'Close', exact: true }).click();
+      assert.equal(
+        await application.evaluate(({ BrowserWindow }) =>
+          BrowserWindow.getAllWindows()
+            .find((w) => !w.webContents.getURL().includes('#launcher'))
+            .isVisible(),
+        ),
+        false,
+      );
+      await page.evaluate(() => window.darkdesk.runCommand({ type: 'show' }));
+    }
+    const oldFile = path.join(desktop, 'Old.txt'),
+      download = path.join(root, 'Downloads', 'Capture.png');
+    await fs.writeFile(oldFile, 'archive bytes');
+    await fs.writeFile(download, 'download bytes');
+    const oldDate = new Date(Date.now() - 90 * 86400000),
+      stable = new Date(Date.now() - 60000);
+    await fs.utimes(oldFile, oldDate, oldDate);
+    await fs.utimes(download, stable, stable);
+    await page.getByRole('button', { name: 'Automation Center', exact: true }).click();
+    await page.getByRole('checkbox', { name: 'Archive idle files', exact: true }).check();
+    await page.getByRole('checkbox', { name: 'Downloads routing', exact: true }).check();
+    await page.getByRole('button', { name: 'Save automation rules', exact: true }).click();
+    await expect(page.locator('.activity-bar')).toHaveCount(0);
+    await page.getByRole('button', { name: 'Run enabled rules now', exact: true }).click();
+    await expect(page.locator('.activity-bar')).toHaveCount(0);
+    assert.equal(
+      await fs.readFile(path.join(desktop, 'Arşiv', 'Old.txt'), 'utf8'),
+      'archive bytes',
+    );
+    assert.equal(
+      await fs.readFile(path.join(desktop, 'Video & Tasarım', 'Capture.png'), 'utf8'),
+      'download bytes',
+    );
+    await page.evaluate(() => window.darkdesk.undo());
+    await page.evaluate(() => window.darkdesk.undo());
+    assert.equal(await fs.readFile(oldFile, 'utf8'), 'archive bytes');
+    assert.equal(await fs.readFile(download, 'utf8'), 'download bytes');
+    await page.getByRole('button', { name: 'Workspace Profiles', exact: true }).click();
+    await page.locator('.profile-activate').filter({ hasText: 'Clean Desktop' }).click();
+    await expect(page.locator('.activity-bar')).toHaveCount(0);
+    assert.equal(await visibility.get(path.join(desktop, 'Rapor.pdf')), true);
     assert.deepEqual(errors, []);
+    await application.close();
+    application = null;
+    assert.equal(await visibility.get(path.join(desktop, 'Rapor.pdf')), false);
     console.log(
-      'PASS: production Electron renderer, isolated IPC, no Node in renderer, non-mutating preview, real move/undo, file watcher, installed-app shortcuts/undo, shortcut icon references and persistent theme/language/icon preferences.',
+      'PASS: production Electron renderer, isolated IPC, no Node in renderer, non-mutating preview, real move/undo, file watcher, installed-app shortcuts/undo, shortcut icons, focus visibility/quit restore, native Spotlight dispatch, tray hiding, archive/Downloads automation and persistent preferences.',
     );
   } finally {
     if (application) await application.close();

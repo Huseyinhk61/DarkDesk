@@ -52,5 +52,95 @@
     "parentId": null,
     "icon": "music",
     "color": "pink"
+  },
+  {
+    "id": "archive",
+    "name": "Arşiv",
+    "labelKey": "categories.archive",
+    "folder": "Arşiv",
+    "parentId": null,
+    "icon": "archive",
+    "color": "slate"
+  },
+  {
+    "id": "softwareide",
+    "name": "IDE & Editörler",
+    "labelKey": "categories.softwareide",
+    "folder": "IDE & Editörler",
+    "parentId": "software",
+    "icon": "code",
+    "color": "blue"
+  },
+  {
+    "id": "softwaredatabase",
+    "name": "Veritabanı",
+    "labelKey": "categories.softwaredatabase",
+    "folder": "Veritabanı",
+    "parentId": "software",
+    "icon": "archive",
+    "color": "purple"
+  },
+  {
+    "id": "softwaredevops",
+    "name": "DevOps & Docker",
+    "labelKey": "categories.softwaredevops",
+    "folder": "DevOps & Docker",
+    "parentId": "software",
+    "icon": "rocket",
+    "color": "blue"
+  },
+  {
+    "id": "softwareterminal",
+    "name": "Terminal",
+    "labelKey": "categories.softwareterminal",
+    "folder": "Terminal",
+    "parentId": "software",
+    "icon": "code",
+    "color": "slate"
+  },
+  {
+    "id": "systemdrivers",
+    "name": "Sürücüler",
+    "labelKey": "categories.systemdrivers",
+    "folder": "Sürücüler",
+    "parentId": "system",
+    "icon": "wrench",
+    "color": "slate"
+  },
+  {
+    "id": "systemnetwork",
+    "name": "Ağ & Security",
+    "labelKey": "categories.systemnetwork",
+    "folder": "Ağ & Security",
+    "parentId": "system",
+    "icon": "globe",
+    "color": "blue"
+  },
+  {
+    "id": "systemcompression",
+    "name": "Sıkıştırma",
+    "labelKey": "categories.systemcompression",
+    "folder": "Sıkıştırma",
+    "parentId": "system",
+    "icon": "archive",
+    "color": "orange"
+  },
+  {
+    "id": "systemutilities",
+    "name": "Sistem Araçları",
+    "labelKey": "categories.systemutilities",
+    "folder": "Sistem Araçları",
+    "parentId": "system",
+    "icon": "wrench",
+    "color": "slate"
+  },
+  {
+    "id": "systeminstallers",
+    "name": "Kurulumlar",
+    "labelKey": "categories.systeminstallers",
+    "folder": "Kurulumlar",
+    "parentId": "system",
+    "icon": "folder",
+    "color": "orange"
   }
 ]

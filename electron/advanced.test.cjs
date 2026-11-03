@@ -51,7 +51,7 @@ test('v1 preferences migrate numeric category overrides without losing mode or e
   });
   assert.equal(value.overrides['a.pdf'], 'office');
   assert.equal(value.theme, 'midnight');
-  assert.equal(value.categories.length, 6);
+  assert.equal(value.categories.length, defaults.categories.length);
   assert.equal(value.mode, 'copy');
 });
 test('theme, language, packs, item icons, rules and subgroups survive settings reload', async (t) => {

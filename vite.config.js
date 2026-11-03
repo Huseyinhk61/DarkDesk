@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 export default defineConfig(({ command }) => ({
   base: './',
+  build: { rollupOptions: { output: { manualChunks: { 'regex-engine': ['re2js'] } } } },
   plugins: [
     react(),
     tailwindcss(),

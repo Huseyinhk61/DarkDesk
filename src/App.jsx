@@ -30,6 +30,11 @@ import EmptyState from './components/EmptyState';
 import { api, native } from './service';
 import { canUndo, formatBytes, isShortcut } from './utils';
 import { usePreferences } from './preferences';
+import { isDescendant } from '../shared/domain';
+import { matchesAccelerator } from '../shared/hotkeys';
+import Profiles from './components/Profiles';
+import Launcher from './components/Launcher';
+import AutomationPanel from './components/AutomationPanel';
 export default function App() {
   const { settings, setSettings, t, locale, errorMessage, categoryLabel } = usePreferences();
   const [view, setView] = useState('groups'),
@@ -50,7 +55,10 @@ export default function App() {
     [progress, setProgress] = useState(null),
     [scope, setScopeState] = useState('desktop'),
     [scanProgress, setScanProgress] = useState(null),
-    [scanResult, setScanResult] = useState(null);
+    [scanResult, setScanResult] = useState(null),
+    [runtime, setRuntime] = useState(null),
+    [launcherOpen, setLauncherOpen] = useState(false);
+  const backendBusy = useRef(null);
   const [shown, setShown] = useState(48);
   useEffect(() => setShown(48), [query, filter, type, scope]);
   const knownIds = useRef(new Set()),
@@ -63,7 +71,7 @@ export default function App() {
     [],
   );
   const start = useCallback((name) => {
-    if (busyRef.current) return false;
+    if (busyRef.current || backendBusy.current) return false;
     busyRef.current = true;
     setBusy(name);
     return true;
@@ -74,10 +82,11 @@ export default function App() {
     setProgress(null);
   }, []);
   const refresh = useCallback(async () => {
-    const [data, batches, system] = await Promise.all([
+    const [data, batches, system, runtimeState] = await Promise.all([
       api.scan(scopeRef.current),
       api.history(),
       api.stats(),
+      api.runtimeStatus(),
     ]);
     const oldIds = knownIds.current;
     setSelected(
@@ -93,6 +102,8 @@ export default function App() {
     setItems(data);
     setHistory(batches);
     setStats(system);
+    setRuntime(runtimeState);
+    backendBusy.current = runtimeState.busy;
     setLast(new Date());
     setError('');
   }, []);
@@ -283,7 +294,7 @@ export default function App() {
         .filter(
           (item) =>
             (type === 'all' || (type === 'shortcuts' ? isShortcut(item) : !isShortcut(item))) &&
-            (filter === null || item.category === filter) &&
+            (filter === null || isDescendant(item.category, filter, settings.categories)) &&
             `${item.name} ${item.target || ''}`
               .toLocaleLowerCase(locale)
               .includes(query.toLocaleLowerCase(locale)),
@@ -295,7 +306,7 @@ export default function App() {
               ? b.modified - a.modified
               : a.name.localeCompare(b.name, locale),
         ),
-    [items, type, filter, query, sort, locale],
+    [items, type, filter, query, sort, locale, settings.categories],
   );
   const displayed = visible.slice(0, shown);
   const allVisibleSelected =
@@ -316,9 +327,155 @@ export default function App() {
       return next;
     });
   const closePlan = useCallback(() => setPlan(null), []);
+  const applyProfile = async (id) => {
+    if (!start('profile')) return;
+    try {
+      await api.applyProfile(id);
+      setRuntime(await api.runtimeStatus());
+      notify(t('profiles.applied'));
+    } catch (e) {
+      notify(errorMessage(e), 'error');
+    } finally {
+      finish();
+    }
+  };
+  const restoreProfile = async () => {
+    if (!start('profile')) return;
+    try {
+      await api.restoreProfile();
+      setRuntime(await api.runtimeStatus());
+      notify(t('profiles.restored'));
+    } catch (e) {
+      notify(errorMessage(e), 'error');
+    } finally {
+      finish();
+    }
+  };
+  const runAutomation = async () => {
+    if (!settings.automation.archiveEnabled && !settings.automation.downloadsEnabled)
+      return notify(t('automation.disabled'));
+    if (!start('automation')) return;
+    try {
+      await api.runAutomation();
+      await refresh();
+      notify(t('automation.completed'), 'success', true);
+    } catch (e) {
+      notify(errorMessage(e), 'error');
+    } finally {
+      finish();
+    }
+  };
+  const handleCommand = async (command) => {
+    if (command.type === 'launcher') {
+      setLauncherOpen(true);
+      return;
+    }
+    if (command.type === 'show') {
+      setView('groups');
+      return;
+    }
+    if (command.type === 'profile') return applyProfile(command.id);
+    if (command.type === 'restore') return restoreProfile();
+    if (command.type === 'organize') {
+      if (!start('preview')) return;
+      try {
+        scopeRef.current = 'desktop';
+        setScopeState('desktop');
+        setView('groups');
+        const data = await api.scan('desktop');
+        if (!data.length) return notify(t('notify.select'));
+        setItems(data);
+        setSelected(new Set(data.map((i) => i.id)));
+        knownIds.current = new Set(data.map((i) => i.id));
+        setLast(new Date());
+        setPlan(
+          await api.preview(
+            data.map(({ id, category }) => ({ id, category })),
+            settings.mode,
+          ),
+        );
+      } catch (e) {
+        notify(errorMessage(e), 'error');
+      } finally {
+        finish();
+      }
+    }
+  };
+  const commandRef = useRef(handleCommand);
+  commandRef.current = handleCommand;
+  useEffect(() => {
+    const off = api.onRuntimeChanged((value) => {
+      setRuntime(value);
+      backendBusy.current = value.busy;
+    });
+    const offCommand = api.onCommand((value) => commandRef.current(value));
+    const keydown = (e) => {
+      if (native) return;
+      const mac = /Mac/i.test(navigator.platform);
+      if (
+        matchesAccelerator(settings.launcherShortcut, e, mac) ||
+        matchesAccelerator('Control+Space', e, mac)
+      ) {
+        e.preventDefault();
+        setLauncherOpen((open) => !open);
+      }
+      const profile = settings.profiles.find((p) => matchesAccelerator(p.shortcut, e, mac));
+      if (profile) {
+        e.preventDefault();
+        commandRef.current({ type: 'profile', id: profile.id });
+      }
+    };
+    window.addEventListener('keydown', keydown);
+    return () => {
+      off();
+      offCommand();
+      window.removeEventListener('keydown', keydown);
+    };
+  }, [settings.profiles, settings.launcherShortcut]);
+  const navigate = (value) => {
+    if (value === 'launcher') {
+      api.openLauncher().catch((e) => notify(errorMessage(e), 'error'));
+      return;
+    }
+    setView(value);
+  };
+  const dropItem = async (id, category, files = []) => {
+    if (!start(files.length ? 'preview' : 'settings')) return;
+    try {
+      let dropped = [];
+      if (files.length) dropped = await api.registerDroppedFiles(files);
+      else {
+        const item = items.find((i) => i.id === id);
+        if (!item) throw Error('DROP_INVALID');
+        dropped = [item];
+      }
+      const overrides = { ...settings.overrides };
+      dropped.forEach((i) => (overrides[i.id] = category));
+      const saved = await api.setSettings({ ...settings, overrides });
+      setSettings(saved);
+      if (files.length) {
+        setPlan(
+          await api.preview(
+            dropped.map((i) => ({ id: i.id, category })),
+            saved.mode,
+          ),
+        );
+        notify(t('drag.external'));
+      } else {
+        await refresh();
+        notify(t('drag.assigned'));
+      }
+    } catch (e) {
+      notify(errorMessage(e), 'error');
+    } finally {
+      finish();
+    }
+  };
+  const blocked = busy || runtime?.busy;
+
   return (
     <div className="app-shell">
-      <Sidebar {...{ view, setView, stats, native }} />
+      <Sidebar {...{ view, stats, native }} setView={navigate} />
       <div className="main-shell">
         <div className="titlebar">
           <span>
@@ -348,7 +505,12 @@ export default function App() {
             ))}
           </div>
         </div>
-        <main aria-busy={!!busy}>
+        <main aria-busy={!!blocked}>
+          {runtime?.lastError && (
+            <div className="notice warning runtime-error" role="alert">
+              {errorMessage(runtime.lastError)}
+            </div>
+          )}
           {error && (
             <div className="error-banner" role="alert">
               <AlertTriangle size={20} />
@@ -359,13 +521,40 @@ export default function App() {
               </button>
             </div>
           )}
-          {view === 'settings' ? (
+          {view === 'profiles' ? (
+            <Profiles
+              runtime={runtime}
+              onApply={applyProfile}
+              onRestore={restoreProfile}
+              onSave={saveSettings}
+              busy={blocked}
+            />
+          ) : view === 'automation' ? (
+            <AutomationPanel
+              runtime={runtime}
+              onSave={saveSettings}
+              onRun={runAutomation}
+              busy={blocked}
+            />
+          ) : view === 'settings' ? (
             <Settings {...{ stats, history, undo, busy }} onSave={saveSettings} />
           ) : view === 'categories' ? (
             <CategoryManager onSave={saveSettings} busy={busy} />
           ) : (
             <>
-              <Header {...{ scan, busy, last, native }} count={items.length} organize={preview} />
+              <Header
+                {...{ scan, last, native }}
+                busy={blocked}
+                count={items.length}
+                organize={preview}
+              />
+              <Profiles
+                compact
+                runtime={runtime}
+                onApply={applyProfile}
+                onRestore={restoreProfile}
+                busy={blocked}
+              />
               {view === 'scan' && (
                 <ScannerPanel
                   platform={stats?.platform}
@@ -383,7 +572,11 @@ export default function App() {
                 </button>
               </div>
               <fieldset disabled={!!busy} className="category-fieldset">
-                <CategoryGrid {...{ items, filter, setFilter }} />
+                <CategoryGrid
+                  {...{ items, filter, setFilter }}
+                  disabled={!!blocked}
+                  onDropItem={dropItem}
+                />
               </fieldset>
               <section className="live-panel">
                 <div className="panel-header">
@@ -527,7 +720,13 @@ export default function App() {
                           itemIcons: { ...settings.itemIcons, [item.id]: icon },
                         })
                       }
-                      disabled={!!busy}
+                      disabled={!!blocked}
+                      onAcceptSuggestion={(category) =>
+                        saveSettings({
+                          ...settings,
+                          overrides: { ...settings.overrides, [item.id]: category },
+                        })
+                      }
                       reveal={() =>
                         api
                           .reveal(item.id)
@@ -618,6 +817,16 @@ export default function App() {
           <button onClick={() => setToast(null)} aria-label={t('notify.dismiss')}>
             <X size={16} />
           </button>
+        </div>
+      )}
+      {launcherOpen && (
+        <div
+          className="launcher-backdrop"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setLauncherOpen(false);
+          }}
+        >
+          <Launcher onClose={() => setLauncherOpen(false)} onCommand={handleCommand} />
         </div>
       )}
       {plan && <PreviewModal {...{ plan, native }} onClose={closePlan} onConfirm={execute} />}

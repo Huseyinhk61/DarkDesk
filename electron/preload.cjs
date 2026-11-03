@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, webUtils } = require('electron');
 const methods = [
   'scan',
   'scanSystem',
@@ -12,15 +12,33 @@ const methods = [
   'window',
   'getSettings',
   'setSettings',
+  'runtimeStatus',
+  'applyProfile',
+  'restoreProfile',
+  'automationPreview',
+  'runAutomation',
+  'launcherEntries',
+  'launch',
+  'runCommand',
+  'openLauncher',
+  'hideLauncher',
 ];
 const api = Object.fromEntries(
   methods.map((name) => [name, (...args) => ipcRenderer.invoke(name, ...args)]),
 );
+api.registerDroppedFiles = (files) =>
+  ipcRenderer.invoke(
+    'registerDrop',
+    files.map((file) => webUtils.getPathForFile(file)),
+  );
 for (const [method, channel] of [
   ['onProgress', 'progress'],
   ['onScanProgress', 'scanProgress'],
   ['onDesktopChanged', 'desktopChanged'],
   ['onWatchError', 'watchError'],
+  ['onRuntimeChanged', 'runtimeChanged'],
+  ['onCommand', 'command'],
+  ['onLauncherShown', 'launcherShown'],
 ]) {
   api[method] = (callback) => {
     const listener = (_event, value) => callback(value);

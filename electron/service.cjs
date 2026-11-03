@@ -9,6 +9,7 @@ const {
   categoryId,
   classify,
   defaultCategory,
+  enrichItem,
 } = require('../shared/domain.js');
 const folders = defaultCategories.map((c) => c.folder);
 const shortcutExtensions = new Set(['.lnk', '.url', '.desktop', '.webloc']);
@@ -51,6 +52,8 @@ class DesktopService {
     this.busy = false;
     this.settings = structuredClone(defaultSettings);
     this.scanner = options.scanner;
+    this.downloads = options.downloads ? path.resolve(options.downloads) : null;
+    this.externalCatalog = new Map();
     this.folderIcons = options.folderIcons;
     this.platform = options.platform || process.platform;
   }
@@ -81,7 +84,7 @@ class DesktopService {
   async scan(settings = this.settings) {
     this.settings = { ...structuredClone(defaultSettings), ...settings };
     settings = this.settings;
-    const ignored = new Set(settings.excludedExtensions || ['.ini', '.tmp']);
+    const ignored = new Set([...(settings.excludedExtensions || []), '.ini', '.dll', '.sys']);
     let entries;
     try {
       entries = await fs.readdir(this.desktop, { withFileTypes: true });
@@ -122,7 +125,70 @@ class DesktopService {
         if (e.code !== 'ENOENT') throw e;
       }
     }
-    return result.sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+    return result
+      .map((item) => enrichItem(item, settings))
+      .sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+  }
+  async registerPaths(paths) {
+    if (!Array.isArray(paths) || paths.length > 500) throw Error('DROP_INVALID');
+    const results = [];
+    for (const file of paths) {
+      if (typeof file !== 'string') throw Error('DROP_INVALID');
+      const source = path.resolve(file);
+      if (path.dirname(source) === this.desktop) {
+        const name = path.basename(source);
+        if (!validId(name)) throw Error('DROP_INVALID');
+        const item = (await this.scan()).find((i) => i.id === name);
+        if (!item) throw Error('SOURCE_MISSING');
+        results.push(item);
+        continue;
+      }
+      if (!this.downloads || path.dirname(source) !== this.downloads) throw Error('DROP_INVALID');
+      const stat = await fs.lstat(source);
+      if (!stat.isFile() || stat.isSymbolicLink() || !validId(path.basename(source)))
+        throw Error('DROP_INVALID');
+      const name = path.basename(source),
+        id = 'download:' + crypto.createHash('sha256').update(source).digest('hex').slice(0, 24);
+      const item = enrichItem(
+        {
+          id,
+          name,
+          source,
+          scope: 'downloads',
+          kind: 'file',
+          size: stat.size,
+          modified: stat.mtimeMs,
+          extension: path.extname(name).toLowerCase(),
+        },
+        this.settings,
+      );
+      this.externalCatalog.set(id, item);
+      results.push(item);
+    }
+    return results;
+  }
+  async scanDownloads() {
+    if (!this.downloads) return [];
+    let entries;
+    try {
+      entries = await fs.readdir(this.downloads, { withFileTypes: true });
+    } catch (e) {
+      if (e.code === 'ENOENT') return [];
+      throw e;
+    }
+    const paths = entries
+      .filter(
+        (e) =>
+          e.isFile() &&
+          !e.name.startsWith('.') &&
+          !/\.(crdownload|part|download|tmp|dll|sys|ini)$/i.test(e.name) &&
+          !this.settings.excludedExtensions.includes(path.extname(e.name).toLowerCase()),
+      )
+      .map((e) => path.join(this.downloads, e.name));
+    const result = [];
+    for (let i = 0; i < paths.length; i += 500)
+      result.push(...(await this.registerPaths(paths.slice(i, i + 500))));
+    return result;
   }
   async safeDirectory(directory, create = false, allowedPaths = []) {
     const relative = path.relative(this.desktop, directory);
@@ -167,19 +233,27 @@ class DesktopService {
       if (
         !(
           validId(item?.id) ||
-          (typeof item?.id === 'string' && this.scanner?.catalog.has(item.id))
+          (typeof item?.id === 'string' &&
+            (this.scanner?.catalog.has(item.id) || this.externalCatalog.has(item.id)))
         ) ||
         !this.settings.categories.some((c) => c.id === categoryId(item.category))
       )
         throw Error('CATEGORY_INVALID');
       const installed = this.scanner?.catalog.get(item.id);
-      const source = installed ? installed.source : path.join(this.desktop, item.id);
+      const external = this.externalCatalog.get(item.id);
+      const source = installed
+        ? installed.source
+        : external
+          ? external.source
+          : path.join(this.desktop, item.id);
       const cid = categoryId(item.category);
       const segments = categorySegments(cid, this.settings.categories);
       const targetName = installed
         ? path.basename(installed.name, path.extname(installed.name)) +
           (this.platform === 'win32' ? '.lnk' : '.desktop')
-        : item.id;
+        : external
+          ? external.name
+          : item.id;
       const target = path.join(this.desktop, ...segments, targetName);
       const stat = await exists(source);
       if (!stat?.isFile() || stat.isSymbolicLink()) throw Error(`SOURCE_MISSING: ${item.id}`);
@@ -194,7 +268,8 @@ class DesktopService {
         id: item.id,
         category: cid,
         categoryPath: segments.join(path.sep),
-        name: installed?.name || item.id,
+        name: installed?.name || external?.name || item.id,
+        sourceScope: external ? 'downloads' : 'desktop',
         action: installed ? 'shortcut' : mode,
         installed: installed || null,
         source,
@@ -229,7 +304,36 @@ class DesktopService {
       bytes: entries.filter((e) => !e.conflict).reduce((n, e) => n + e.size, 0),
     };
   }
-  async organize(token) {
+  async rebaseVisibility(token, restore) {
+    const plan = this.previews.get(token);
+    if (!plan || plan.expires < Date.now()) throw Error('PREVIEW_EXPIRED');
+    const snapshots = [];
+    for (const entry of plan.entries.filter(
+      (e) => !e.conflict && path.dirname(e.source) === this.desktop,
+    )) {
+      const stat = await fs.lstat(entry.source);
+      if (!stat.isFile() || stat.isSymbolicLink() || fingerprint(stat) !== entry.fingerprint)
+        throw Error('SOURCE_CHANGED');
+      snapshots.push({
+        entry,
+        stable: `${stat.dev}:${stat.ino}:${stat.size}:${stat.mtimeMs}`,
+        checksum: await digest(entry.source),
+      });
+    }
+    await restore();
+    for (const snapshot of snapshots) {
+      const stat = await fs.lstat(snapshot.entry.source);
+      if (
+        !stat.isFile() ||
+        stat.isSymbolicLink() ||
+        `${stat.dev}:${stat.ino}:${stat.size}:${stat.mtimeMs}` !== snapshot.stable ||
+        (await digest(snapshot.entry.source)) !== snapshot.checksum
+      )
+        throw Error('SOURCE_CHANGED');
+      snapshot.entry.fingerprint = fingerprint(stat);
+    }
+  }
+  async organize(token, origin = 'manual') {
     return this.exclusive(async () => {
       const plan = this.previews.get(token);
       this.previews.delete(token);
@@ -250,7 +354,8 @@ class DesktopService {
       }
       const log = await this.history();
       const batch = {
-        version: 3,
+        version: 4,
+        origin,
         id: crypto.randomUUID(),
         date: new Date().toISOString(),
         mode: plan.mode,
@@ -363,8 +468,9 @@ class DesktopService {
       throw Error('HISTORY_UNSAFE');
     if (
       entry.action !== 'shortcut' &&
-      (!validId(entry.id || path.basename(entry.source)) ||
-        path.dirname(entry.source) !== this.desktop ||
+      (!validId(path.basename(entry.source)) ||
+        path.dirname(entry.source) !==
+          (entry.sourceScope === 'downloads' ? this.downloads : this.desktop) ||
         path.basename(entry.source) !== path.basename(entry.target))
     )
       throw Error('HISTORY_UNSAFE');

@@ -1,6 +1,6 @@
 {
   "name": "darkdesk",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
   "type": "module",
   "main": "electron/main.cjs",
@@ -23,6 +23,7 @@
   "dependencies": {
     "@tabler/icons-react": "^3.50.0",
     "lucide-react": "^0.468.0",
+    "re2js": "^2.9.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
@@ -57,7 +58,8 @@
       "package.json",
       "build/icon.png",
       "shared/**/*",
-      "build/folder-icons/**/*.ico"
+      "build/folder-icons/**/*.ico",
+      "src/locales/*.json"
     ],
     "asar": true,
     "win": {

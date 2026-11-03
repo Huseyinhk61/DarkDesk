@@ -6,6 +6,7 @@ import {
   Square,
   FolderSearch,
   AlertTriangle,
+  Download,
 } from 'lucide-react';
 import { usePreferences } from '../preferences';
 export default function ScannerPanel({
@@ -49,6 +50,14 @@ export default function ScannerPanel({
         >
           <FolderSearch size={16} />
           {t('scan.system')}
+        </button>
+        <button
+          disabled={!!busy}
+          className={scope === 'downloads' ? 'active' : ''}
+          onClick={() => setScope('downloads')}
+        >
+          <Download size={16} />
+          {t('scan.downloads')}
         </button>
       </div>
       <div className="scan-source-chips">

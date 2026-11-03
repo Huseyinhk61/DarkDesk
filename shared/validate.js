@@ -7,6 +7,7 @@ import {
   categorySegments,
   categoryId,
 } from './domain.js';
+import { compileRule } from './regex.js';
 const defaults = defaultSettings;
 export function validateSettings(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw Error('SETTINGS_INVALID');
@@ -31,6 +32,20 @@ export function validateSettings(input) {
     value.categories.length > 2000
   )
     throw Error('CATEGORIES_INVALID');
+  if ((input.schemaVersion || 1) < 3) {
+    value.categories = [...value.categories];
+    for (const builtin of defaultCategories) {
+      if (
+        value.categories.some((c) => c.id === builtin.id) ||
+        value.categories.some((c) => c.folder === builtin.folder && c.parentId === builtin.parentId)
+      )
+        continue;
+      if (['software', 'design', 'games', 'office', 'system', 'media'].includes(builtin.id))
+        continue;
+      if (!builtin.parentId || value.categories.some((c) => c.id === builtin.parentId))
+        value.categories.push(structuredClone(builtin));
+    }
+  }
   const categories = value.categories.map((c) => {
     if (
       !c ||
@@ -93,15 +108,16 @@ export function validateSettings(input) {
       !r ||
       typeof r.id !== 'string' ||
       !r.id ||
-      !['contains', 'extension'].includes(r.match) ||
+      !['contains', 'extension', 'regex'].includes(r.match) ||
       typeof r.pattern !== 'string' ||
       !r.pattern.trim() ||
-      r.pattern.length > 120 ||
+      r.pattern.length > 256 ||
       (r.match === 'extension' && !/^\.?[a-z0-9]{1,12}$/i.test(r.pattern.trim())) ||
       !ids.has(r.categoryId) ||
       typeof r.enabled !== 'boolean'
     )
       throw Error('RULE_INVALID');
+    if (r.match === 'regex') compileRule(r.pattern);
     return {
       id: r.id,
       match: r.match,
@@ -111,8 +127,123 @@ export function validateSettings(input) {
     };
   });
   if (new Set(rules.map((r) => r.id)).size !== rules.length) throw Error('RULE_INVALID');
+  const textList = (list, max = 100) => {
+    if (
+      !Array.isArray(list) ||
+      list.length > max ||
+      list.some((v) => typeof v !== 'string' || !v.trim() || v.length > 100 || /[\r\n\0]/.test(v))
+    )
+      throw Error('FILTER_INVALID');
+    return [...new Set(list.map((v) => v.trim()))];
+  };
+  const accelerator = (value) => {
+    if (
+      typeof value !== 'string' ||
+      value.length > 80 ||
+      !/^(?:(?:CommandOrControl|Control|Ctrl|Alt|Shift|Super|Meta|Command|Cmd)\+)+(?:[A-Z0-9]|F(?:[1-9]|1[0-9]|2[0-4])|Space)$/i.test(
+        value,
+      )
+    )
+      throw Error('SHORTCUT_INVALID');
+    const parts = value.split('+'),
+      key = parts.pop();
+    const names = {
+      commandorcontrol: 'CommandOrControl',
+      ctrl: 'CommandOrControl',
+      control: 'CommandOrControl',
+      alt: 'Alt',
+      shift: 'Shift',
+      super: 'Super',
+      meta: 'Super',
+      command: 'Command',
+      cmd: 'Command',
+    };
+    const modifiers = [...new Set(parts.map((part) => names[part.toLowerCase()]))].sort(
+      (a, b) =>
+        ['CommandOrControl', 'Command', 'Alt', 'Shift', 'Super'].indexOf(a) -
+        ['CommandOrControl', 'Command', 'Alt', 'Shift', 'Super'].indexOf(b),
+    );
+    return [...modifiers, key.toLowerCase() === 'space' ? 'Space' : key.toUpperCase()].join('+');
+  };
+  if (!Array.isArray(value.profiles) || !value.profiles.length || value.profiles.length > 24)
+    throw Error('PROFILE_INVALID');
+  const profiles = value.profiles.map((p) => {
+    if (
+      !p ||
+      typeof p.id !== 'string' ||
+      !/^[a-zA-Z0-9_-]{1,80}$/.test(p.id) ||
+      typeof p.name !== 'string' ||
+      !p.name.trim() ||
+      p.name.length > 100 ||
+      !Array.isArray(p.categories) ||
+      !icons.includes(p.icon)
+    )
+      throw Error('PROFILE_INVALID');
+    return {
+      id: p.id,
+      name: p.name.trim(),
+      categories: [...new Set(p.categories.filter((id) => ids.has(id)))],
+      icon: p.icon,
+      visibleNames: textList(p.visibleNames || [], 500),
+      shortcut: accelerator(p.shortcut),
+      ...(defaults.profiles.some((d) => d.id === p.id && d.labelKey === p.labelKey)
+        ? { labelKey: p.labelKey }
+        : {}),
+    };
+  });
+  const launcherShortcut = accelerator(value.launcherShortcut);
+  if (
+    new Set(profiles.map((p) => p.id)).size !== profiles.length ||
+    new Set([launcherShortcut.toLowerCase(), ...profiles.map((p) => p.shortcut.toLowerCase())])
+      .size !==
+      profiles.length + 1
+  )
+    throw Error('SHORTCUT_DUPLICATE');
+  const filters = value.scanFilters;
+  if (
+    !filters ||
+    !Number.isInteger(filters.maxDepth) ||
+    filters.maxDepth < 1 ||
+    filters.maxDepth > 12
+  )
+    throw Error('FILTER_INVALID');
+  const scanFilters = {
+    excludedDirectories: textList(filters.excludedDirectories),
+    excludedNames: textList(filters.excludedNames),
+    allowedNames: textList(filters.allowedNames),
+    maxDepth: filters.maxDepth,
+  };
+  const auto = value.automation;
+  if (
+    !auto ||
+    typeof auto.archiveEnabled !== 'boolean' ||
+    typeof auto.downloadsEnabled !== 'boolean' ||
+    !Number.isInteger(auto.archiveDays) ||
+    auto.archiveDays < 1 ||
+    auto.archiveDays > 3650 ||
+    !['move', 'copy'].includes(auto.downloadMode) ||
+    !Number.isInteger(auto.settleSeconds) ||
+    auto.settleSeconds < 5 ||
+    auto.settleSeconds > 300
+  )
+    throw Error('AUTOMATION_INVALID');
+  const automation = {
+    ...auto,
+    archiveEnabled: auto.archiveEnabled && ids.has(auto.archiveCategoryId),
+    archiveCategoryId: ids.has(auto.archiveCategoryId)
+      ? auto.archiveCategoryId
+      : ids.has('archive')
+        ? 'archive'
+        : categories[0].id,
+  };
+  if (typeof value.smartTagging !== 'boolean') throw Error('SETTINGS_INVALID');
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
+    profiles,
+    launcherShortcut,
+    scanFilters,
+    automation,
+    smartTagging: value.smartTagging,
     mode: value.mode,
     autoScan: value.autoScan,
     excludedExtensions: [...new Set(value.excludedExtensions.map((x) => x.toLowerCase()))],

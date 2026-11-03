@@ -135,10 +135,11 @@ export default function CategoryManager({ onSave, busy }) {
           >
             <option value="contains">{t('manager.contains')}</option>
             <option value="extension">{t('manager.extension')}</option>
+            <option value="regex">{t('manager.regex')}</option>
           </select>
           <input
             required
-            maxLength={120}
+            maxLength={256}
             aria-label={t('manager.pattern')}
             placeholder={t('manager.pattern')}
             value={rule.pattern}
@@ -176,6 +177,7 @@ export default function CategoryManager({ onSave, busy }) {
             </button>
           )}
         </form>
+        <p className="muted">{t('manager.regexHelp')}</p>
         <div className="rules-list">
           {!settings.rules.length && <p className="muted">{t('manager.ruleEmpty')}</p>}
           {settings.rules.map((r, index) => (
@@ -197,8 +199,14 @@ export default function CategoryManager({ onSave, busy }) {
               <span>
                 <b>{r.pattern}</b>
                 <small>
-                  {t(r.match === 'contains' ? 'manager.contains' : 'manager.extension')} →{' '}
-                  {label(settings.categories.find((c) => c.id === r.categoryId))}
+                  {t(
+                    r.match === 'regex'
+                      ? 'manager.regex'
+                      : r.match === 'contains'
+                        ? 'manager.contains'
+                        : 'manager.extension',
+                  )}{' '}
+                  → {label(settings.categories.find((c) => c.id === r.categoryId))}
                 </small>
               </span>
               <button

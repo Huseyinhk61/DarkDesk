@@ -6,6 +6,8 @@ import {
   categoryId,
   classify,
   categorySegments,
+  enrichItem,
+  isDescendant,
 } from '../shared/domain';
 const delay = () => new Promise((resolve) => setTimeout(resolve, 250));
 let settings;
@@ -20,7 +22,7 @@ let demo = examples.map((item, index) => ({
   category: categoryId(item.category),
   scope: 'desktop',
   size: index === 7 ? 1245184 : 2048,
-  modified: Date.now() - index * 3600000,
+  modified: Date.now() - (index === 7 ? 40 * 86400000 : index * 3600000),
   kind: /\.(lnk|url)$/i.test(item.name) ? 'shortcut' : 'file',
 }));
 let apps = [],
@@ -33,11 +35,19 @@ export const native = !!window.darkdesk;
 export const api = window.darkdesk || {
   scan: async (scope) => {
     await delay();
-    return (scope === 'system' ? apps : demo)
+    return (scope === 'system' ? apps : scope === 'downloads' ? downloadItems : demo)
       .filter(
         (i) => !settings.excludedExtensions.includes('.' + i.name.split('.').at(-1).toLowerCase()),
       )
-      .map((i) => ({ ...i, category: classify(i, settings) }));
+      .map((i) => ({
+        ...enrichItem(i, settings),
+        usage: usage[i.id] || {
+          count: 0,
+          lastOpened: null,
+          inactive: false,
+          scope: 'darkdesk-only',
+        },
+      }));
   },
   scanSystem: async () => {
     cancelled = false;
@@ -87,7 +97,7 @@ export const api = window.darkdesk || {
     total: 16 * 1024 ** 3,
     free: 9.2 * 1024 ** 3,
     storage: null,
-    version: '2.0.0',
+    version: '3.0.0',
     platform: 'demo',
   }),
   getSettings: async () => structuredClone(settings),
@@ -99,7 +109,7 @@ export const api = window.darkdesk || {
   preview: async (items, mode) => {
     await delay();
     const entries = items.map((item) => {
-      const source = [...demo, ...apps].find((i) => i.id === item.id);
+      const source = [...demo, ...apps, ...downloadItems].find((i) => i.id === item.id);
       if (!source) throw Error('TARGET_INVALID');
       const categoryPath = categorySegments(item.category, settings.categories).join('\\');
       return {
@@ -134,10 +144,13 @@ export const api = window.darkdesk || {
       status: 'completed',
       entries: ready,
       snapshot: structuredClone(demo),
+      downloadSnapshot: structuredClone(downloadItems),
       copySnapshot: [...copies],
       skipped: entries.filter((e) => e.conflict).map((e) => e.id),
     });
     ready.forEach((i) => copies.add(i.categoryPath + '/' + i.id));
+    if (mode === 'move')
+      downloadItems = downloadItems.filter((i) => !ready.some((x) => x.id === i.id));
     if (mode === 'move')
       demo = demo.filter((i) => !ready.some((x) => x.id === i.id && x.action !== 'shortcut'));
     return history.at(-1);
@@ -147,6 +160,7 @@ export const api = window.darkdesk || {
     const batch = [...history].reverse().find((h) => h.status !== 'undone');
     if (!batch) throw Error('OPERATION_FAILED');
     demo = structuredClone(batch.snapshot);
+    if (batch.downloadSnapshot) downloadItems = structuredClone(batch.downloadSnapshot);
     copies.clear();
     batch.copySnapshot.forEach((x) => copies.add(x));
     batch.status = 'undone';
@@ -163,3 +177,179 @@ export const api = window.darkdesk || {
   onWatchError: () => () => {},
   window: () => {},
 };
+
+const runtimeListeners = new Set(),
+  commandListeners = new Set();
+const usage = {
+  'Steam.lnk': {
+    count: 3,
+    lastOpened: Date.now() - 210 * 86400000,
+    inactive: true,
+    scope: 'darkdesk-only',
+  },
+};
+let downloadItems = [
+  {
+    id: 'download:demo-one',
+    name: 'Capture.png',
+    source: 'Downloads/Capture.png',
+    size: 1800000,
+    modified: Date.now() - 86400000,
+    kind: 'file',
+    scope: 'downloads',
+  },
+  {
+    id: 'download:demo-two',
+    name: 'setup.exe',
+    source: 'Downloads/setup.exe',
+    size: 2400000,
+    modified: Date.now() - 86400000,
+    kind: 'file',
+    scope: 'downloads',
+  },
+  {
+    id: 'download:demo-vector',
+    name: 'migration_cluster.blob',
+    source: 'Downloads/migration_cluster.blob',
+    size: 200,
+    modified: Date.now() - 86400000,
+    kind: 'file',
+    scope: 'downloads',
+  },
+];
+let runtime = {
+  busy: null,
+  profile: { activeId: null, hidden: 0, tracked: 0 },
+  automation: { lastRun: null, lastError: null },
+  shortcuts: [],
+  visibilitySupported: true,
+  trayAvailable: false,
+  lastError: null,
+};
+const notifyRuntime = () => runtimeListeners.forEach((fn) => fn(structuredClone(runtime)));
+if (!native)
+  Object.assign(api, {
+    runtimeStatus: async () => structuredClone(runtime),
+    onRuntimeChanged: (fn) => {
+      runtimeListeners.add(fn);
+      return () => runtimeListeners.delete(fn);
+    },
+    onCommand: (fn) => {
+      commandListeners.add(fn);
+      return () => commandListeners.delete(fn);
+    },
+    onLauncherShown: () => () => {},
+    applyProfile: async (id) => {
+      await delay();
+      const profile = settings.profiles.find((p) => p.id === id);
+      if (!profile) throw Error('PROFILE_INVALID');
+      runtime.profile = {
+        activeId: id,
+        tracked: demo.length,
+        hidden: demo.filter(
+          (i) =>
+            !(profile.visibleNames || []).some(
+              (name) => name.toLowerCase() === i.name.toLowerCase(),
+            ) &&
+            !profile.categories.some((cid) =>
+              isDescendant(classify(i, settings), cid, settings.categories),
+            ),
+        ).length,
+      };
+      notifyRuntime();
+      return runtime.profile;
+    },
+    restoreProfile: async () => {
+      await delay();
+      runtime.profile = { activeId: null, hidden: 0, tracked: 0 };
+      notifyRuntime();
+      return runtime.profile;
+    },
+    launcherEntries: async () => ({
+      settings: structuredClone(settings),
+      items: (await api.scan())
+        .concat(await api.scan('system'))
+        .map((i) => ({ ...i, usage: usage[i.id] || { count: 0 } })),
+    }),
+    launch: async (id) => {
+      await delay();
+      usage[id] = {
+        count: (usage[id]?.count || 0) + 1,
+        lastOpened: Date.now(),
+        inactive: false,
+        scope: 'darkdesk-only',
+      };
+    },
+    runCommand: async (value) => {
+      if (value.type === 'profile') return api.applyProfile(value.id);
+      if (value.type === 'restore') return api.restoreProfile();
+      commandListeners.forEach((fn) => fn(value));
+    },
+    openLauncher: async () => commandListeners.forEach((fn) => fn({ type: 'launcher' })),
+    hideLauncher: async () => {},
+    registerDroppedFiles: async (files) => {
+      const result = [];
+      for (const file of files) {
+        let item =
+          demo.find((i) => i.name === file.name) || downloadItems.find((i) => i.name === file.name);
+        if (!item) {
+          item = {
+            id: 'download:' + crypto.randomUUID(),
+            name: file.name,
+            source: 'Downloads/' + file.name,
+            size: file.size,
+            modified: Date.now(),
+            kind: 'file',
+            scope: 'downloads',
+          };
+          downloadItems.push(item);
+        }
+        result.push(enrichItem(item, settings));
+      }
+      return result;
+    },
+    automationPreview: async (draft) => {
+      const value = validateSettings(draft || settings);
+      return {
+        archive: demo.filter(
+          (i) => i.modified < Date.now() - value.automation.archiveDays * 86400000,
+        ),
+        downloads: downloadItems.filter(
+          (i) => i.modified < Date.now() - value.automation.settleSeconds * 1000,
+        ),
+      };
+    },
+    runAutomation: async () => {
+      const candidate = await api.automationPreview(settings),
+        groups = [];
+      if (settings.automation.archiveEnabled)
+        groups.push({
+          items: candidate.archive.map((i) => ({
+            ...i,
+            category: settings.automation.archiveCategoryId,
+          })),
+          mode: 'move',
+          origin: 'automation-archive',
+        });
+      if (settings.automation.downloadsEnabled)
+        groups.push({
+          items: candidate.downloads.map((i) => enrichItem(i, settings)),
+          mode: settings.automation.downloadMode,
+          origin: 'automation-downloads',
+        });
+      for (const group of groups) {
+        if (!group.items.length) continue;
+        const plan = await api.preview(
+          group.items.map(({ id, category }) => ({ id, category })),
+          group.mode,
+        );
+        if (plan.ready) {
+          const batch = await api.organize(plan.token);
+          batch.origin = group.origin;
+        }
+      }
+      runtime.automation = { lastRun: new Date().toISOString(), lastError: null };
+      notifyRuntime();
+      return runtime.automation;
+    },
+  });

@@ -51,8 +51,19 @@ try {
   await settled();
   await dismiss();
   await page.screenshot({ path: 'docs/assets/scanner.png' });
+  await page.getByRole('button', { name: 'Çalışma Profilleri', exact: true }).click();
+  await page.locator('.profile-activate').filter({ hasText: 'Yazılım & Kodlama Modu' }).click();
+  await settled();
+  await dismiss();
+  await page.screenshot({ path: 'docs/assets/profiles.png' });
+  await page.getByRole('button', { name: 'Otomasyon Merkezi', exact: true }).click();
+  await page.screenshot({ path: 'docs/assets/automation.png' });
+  await page.getByRole('button', { name: 'Hızlı Başlatıcı', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Hızlı arama' }).fill('code');
+  await expect(page.locator('.launcher-panel').getByRole('option').first()).toContainText('Code');
+  await page.screenshot({ path: 'docs/assets/launcher.png' });
   console.log(
-    'Captured 2.0 workspace, preview, appearance, Cyberpunk, English Slate and scanner screenshots.',
+    'Captured 3.0 workspace, themes, scanner, profiles, automation and Spotlight screenshots.',
   );
 } finally {
   await browser.close();

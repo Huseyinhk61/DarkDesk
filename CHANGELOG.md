@@ -1,5 +1,19 @@
 # Değişiklikler
 
+## 3.0.0 — 3 Kasım 2026
+
+- Özgün Hidden niteliğini koruyan odak profilleri; Windows toplu nitelik API’si ve Linux `.hidden` adaptörü.
+- Global profil kısayolları, görünür kalacak özel dosya/klasör adları ve çıkış/kesinti kurtarması.
+- Ayrı glassmorphism Spotlight penceresi, fuzzy arama, klavye navigasyonu, kontrollü native açma ve sistem komutları.
+- Yerel kullanım sayacı ve yalnızca gözlenen altı aylık pasiflik için Arşiv önerileri.
+- Varsayılan IDE, Veritabanı, DevOps, Terminal, Sürücüler, Ağ, Sıkıştırma, Sistem Araçları ve Kurulumlar alt grupları.
+- RE2JS regex kuralları, istisna/izin listeleri ve ayarlanabilir tarama derinliği.
+- Bilinmeyen adlar için çevrimdışı vektör tabanlı etiket önerileri; kullanıcı onayı ve benzerlik açıklaması.
+- Kapalı başlayan arşiv/Downloads otomasyonları, kararlılık gecikmesi, geri alma ve geri alınan dosyayı yeniden işlememe.
+- İç ve native sürükle-bırak; dış dosyalarda kontrollü önizleme.
+- X ile tepsiye gizlenme, native sağ tık menüsü, sıradaki işi bekleyen güvenli çıkış.
+- Profil değişiminin `ctime` etkisini dosya içeriği hash’iyle yeniden doğrulayan önizleme köprüsü.
+
 ## 2.0.0 — 3 Kasım 2026
 
 - Program Files, Başlat Menüsü, App Paths ve kayıtlı kurulum konumları için salt okunur, durdurulabilir tarayıcı; Linux uygulama dizinleri desteği.

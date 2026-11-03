@@ -6,6 +6,7 @@ const { execFile } = require('node:child_process');
 const { promisify } = require('node:util');
 const exec = promisify(execFile);
 const { classify } = require('../shared/domain.js');
+const { skipDirectory, skipIndexedFile } = require('../shared/noise.js');
 const REGISTRY_SCRIPT = `$ErrorActionPreference='SilentlyContinue'; [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false); $OutputEncoding=[Console]::OutputEncoding; $result=@(); foreach($root in @('HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths','HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths','HKLM:\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\App Paths')) { Get-ChildItem -LiteralPath $root | ForEach-Object { $v=$_.GetValue(''); if($v){ $result+=@{executable=[string]$v} } } }; foreach($root in @('HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall','HKLM:\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall','HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall')) { Get-ItemProperty -Path ($root+'\\*') | ForEach-Object { if($_.InstallLocation){$result+=@{directory=[string]$_.InstallLocation}}; if($_.DisplayIcon){$result+=@{executable=[string]$_.DisplayIcon}} } }; ConvertTo-Json -InputObject @($result) -Compress`;
 async function registryApps(signal) {
   const { stdout } = await exec(
@@ -77,16 +78,17 @@ class DeepScanner {
           warnings.push({ origin, code: 'UNSAFE_NAME' });
           return;
         }
+        if (
+          !this.roots &&
+          !['startUser', 'startCommon'].includes(origin) &&
+          file.split(/[\\/]/).some((part) => skipDirectory(part, settings.scanFilters))
+        )
+          return;
         const stat = await fs.lstat(file);
         if (!stat.isFile() || stat.isSymbolicLink()) return;
         const extension = path.extname(file).toLowerCase();
         if (!['.exe', '.lnk', '.url', '.desktop', '.appimage'].includes(extension)) return;
-        if (
-          /^(unins\d*|uninstall|setup|install|crashpad_handler|crashreporter|update|updater|maintenance|notification_helper)\.(exe|lnk)$/i.test(
-            path.basename(file),
-          )
-        )
-          return;
+        if (skipIndexedFile(path.basename(file), settings.scanFilters)) return;
         let detail = {};
         if (extension === '.lnk' && this.resolveShortcut) {
           try {
@@ -153,6 +155,12 @@ class DeepScanner {
           break;
         }
         const root = queue[cursor++];
+        if (
+          !this.roots &&
+          !['startUser', 'startCommon'].includes(root.label) &&
+          root.path.split(/[\\/]/).some((part) => skipDirectory(part, settings.scanFilters))
+        )
+          continue;
         const canonical = keyOf(root.path);
         if (seenDirectories.has(canonical)) continue;
         seenDirectories.add(canonical);
@@ -164,15 +172,20 @@ class DeepScanner {
           for (const entry of entries) {
             if (this.cancelled) break;
             const full = path.join(root.path, entry.name);
-            if (entry.isDirectory() && root.depth >= this.limits.depth) {
+            if (
+              entry.isDirectory() &&
+              root.depth >=
+                Math.min(this.limits.depth, settings.scanFilters?.maxDepth ?? this.limits.depth)
+            ) {
               limited = true;
               continue;
             }
             if (
               entry.isDirectory() &&
-              root.depth < this.limits.depth &&
+              root.depth <
+                Math.min(this.limits.depth, settings.scanFilters?.maxDepth ?? this.limits.depth) &&
               !entry.name.startsWith('.') &&
-              !/^(node_modules|\.git|cache|caches|temp|locales|resources|winsxs)$/i.test(entry.name)
+              !skipDirectory(entry.name, settings.scanFilters)
             )
               queue.push({ path: full, label: root.label, depth: root.depth + 1 });
             else if (entry.isFile()) {

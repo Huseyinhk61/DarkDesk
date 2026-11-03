@@ -180,6 +180,16 @@ export default function Settings({ onSave, stats, history, undo, busy }) {
                 {t('common.save')}
               </button>
             </div>
+            <p className="muted">{t('tray.note')}</p>
+            <label className="field-label" htmlFor="launcher-shortcut">
+              {t('launcher.shortcut')}
+            </label>
+            <input
+              id="launcher-shortcut"
+              className="settings-input"
+              value={draft.launcherShortcut}
+              onChange={(e) => setDraft({ ...draft, launcherShortcut: e.target.value })}
+            />
             {error && (
               <p role="alert" className="warning-text">
                 {error}
@@ -223,6 +233,9 @@ export default function Settings({ onSave, stats, history, undo, busy }) {
                     {batch.skipped?.length > 0 &&
                       ` · ${t('history.skipped', { count: batch.skipped.length })}`}
                   </small>
+                  {batch.origin && batch.origin !== 'manual' && (
+                    <small>{t('history.' + batch.origin)}</small>
+                  )}
                   {batch.error && (
                     <small className="warning-text">{errorMessage(batch.error)}</small>
                   )}

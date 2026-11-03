@@ -8,6 +8,9 @@ import {
   MemoryStick,
   Sparkles,
   FolderTree,
+  Focus,
+  Workflow,
+  Search,
 } from 'lucide-react';
 import { usePreferences } from '../preferences';
 import { formatBytes } from '../utils';
@@ -35,8 +38,11 @@ export default function Sidebar({ view, setView, stats, native }) {
       <nav>
         {[
           ['groups', LayoutGrid],
+          ['profiles', Focus],
+          ['launcher', Search],
           ['scan', ScanLine],
           ['categories', FolderTree],
+          ['automation', Workflow],
           ['settings', Settings2],
         ].map(([id, Icon]) => (
           <button
@@ -91,7 +97,7 @@ export default function Sidebar({ view, setView, stats, native }) {
           <span className="avatar">DD</span>
           <div>
             {t('sidebar.local')}
-            <small>v2.0.0 · {t(native ? 'sidebar.desktop' : 'sidebar.web')}</small>
+            <small>v3.0.0 · {t(native ? 'sidebar.desktop' : 'sidebar.web')}</small>
           </div>
           <span className="online" />
         </footer>

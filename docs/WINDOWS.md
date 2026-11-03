@@ -80,7 +80,7 @@ ZIP ile indirdiysen yeni ZIP’i farklı bir klasöre çıkarıp aynı kurulum a
 İndirdiğin EXE özetini kontrol etmek için:
 
 ```powershell
-Get-FileHash .\DarkDesk-Setup-2.0.0.exe -Algorithm SHA256
+Get-FileHash .\DarkDesk-Setup-3.0.0.exe -Algorithm SHA256
 ```
 
 Sonucu aynı paketteki `SHA256SUMS.txt` ile karşılaştır. Paket şu aşamada kod imzalı değildir; Windows yayıncı uyarısı gösterebilir.
@@ -93,3 +93,11 @@ Sonucu aynı paketteki `SHA256SUMS.txt` ile karşılaştır. Paket şu aşamada 
 - Kurulu `.exe` dosyaları orijinal konumunda kalır. Onayladığında kategori klasöründe `.lnk` oluşturulur; geri alma bu kısayolu kaldırır.
 - Seçilen ikon, yeni kısayollara uygulanır. Windows’ta yeni kategori klasörlerinde `desktop.ini` ve `.darkdesk.ico` kullanılır. Explorer ikon önbelleği nedeniyle görüntü gecikebilir; klasörü yenilemeyi dene. Mevcut kategori klasörlerine ve dosya ikonlarına geriye dönük müdahale edilmez.
 - Sürüme geçişte eski taşı/kopyala ayarı ve kategori atamaları korunur. Eski işlem geçmişi geri alınabilir. Dil değiştirmek klasörleri yeniden adlandırmaz.
+
+## Profiller, Spotlight ve arka plan (3.0)
+
+[Ekosistem rehberi](ECOSYSTEM.md) tüm ayarları ve sınırları açıklar. Global başlatıcı varsayılanı Alt+Space; profil kısayolları Ctrl+Alt+1…4’tür. OS başka bir uygulamaya ayırmışsa kısayolu ayarlardan değiştir.
+
+X artık uygulamayı tepsiye gizler; tamamen çıkmak için sistem tepsisindeki DarkDesk menüsünden Çıkış seç. Çıkış, aktif profilin değiştirdiği görünürlüğü geri yükler. Uygulama zorla kapatılırsa yeniden açıp kurtarmayı bekle veya Tümünü geri göster kullan. Profil gizlemesi ACL/güvenlik izolasyonu değildir; Explorer gizli dosya tercihi sonucu etkiler.
+
+Otomasyonlar kapalı başlar. Önizle, hedefleri kontrol et, sonra etkinleştirip kaydet. Downloads varsayılanı kopyalamadır; taşıma ayrıca seçilebilir. Kullanım sıklığı yalnızca DarkDesk’ten açılışları ölçer; Windows genelindeki kullanım değildir.

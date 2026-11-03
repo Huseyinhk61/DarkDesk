@@ -3,13 +3,30 @@ import { usePreferences } from '../preferences';
 import AppIcon from './AppIcon';
 import { icons } from '../../shared/domain';
 import { formatBytes, isShortcut } from '../utils';
-export default function ItemCard({ item, selected, toggle, onCategory, onIcon, reveal, disabled }) {
+export default function ItemCard({
+  item,
+  selected,
+  toggle,
+  onCategory,
+  onIcon,
+  reveal,
+  disabled,
+  onAcceptSuggestion,
+}) {
   const { settings, t, label, locale } = usePreferences();
   const category =
       settings.categories.find((c) => c.id === item.category) || settings.categories[0],
     icon = settings.itemIcons[item.id] || category.icon;
   return (
-    <article className={`item-card ${selected ? 'checked' : ''}`}>
+    <article
+      className={`item-card ${selected ? 'checked' : ''}`}
+      draggable={!disabled}
+      onDragStart={(e) => {
+        e.dataTransfer.setData('application/x-darkdesk-item', item.id);
+        e.dataTransfer.effectAllowed = 'move';
+      }}
+      title={t('drag.hint')}
+    >
       <div className="item-top">
         <div className={`app-icon ${category.color}`}>
           <AppIcon name={icon} size={25} />
@@ -40,6 +57,32 @@ export default function ItemCard({ item, selected, toggle, onCategory, onIcon, r
         </span>
         <span>{formatBytes(item.size, locale)}</span>
       </div>
+      {item.suggestion && (
+        <div className="smart-suggestion">
+          <span>
+            {t('smart.suggestion', {
+              name: label(settings.categories.find((c) => c.id === item.suggestion.categoryId)),
+            })}
+          </span>
+          <small title={t('smart.note')}>
+            {t('smart.similarity', { score: Math.round(item.suggestion.score * 100) + '%' })}
+          </small>
+          <button
+            disabled={disabled}
+            onClick={() => onAcceptSuggestion(item.suggestion.categoryId)}
+          >
+            {t('smart.accept')}
+          </button>
+        </div>
+      )}
+      {item.usage?.inactive && settings.categories.some((c) => c.id === 'archive') && (
+        <div className="inactivity-note">
+          <span>{t('usage.inactive')}</span>
+          <button disabled={disabled} onClick={() => onCategory('archive')}>
+            {t('usage.archive')}
+          </button>
+        </div>
+      )}
       <div className="destination">
         <Folder size={13} />
         <span>{t('panel.destination')}</span>

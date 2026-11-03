@@ -4,6 +4,8 @@ Node.js 24 LTS kullanarak `npm ci` çalıştır. Web demosu `npm run dev`, gerç
 
 ## Değişiklik yaparken
 
+- Profil, zamanlayıcı, tepsi ve launcher değiştirici işlemlerini `DesktopRuntime` koordinatöründen geçir.
+- Profil gizleme günlüğünü, özgün nitelikleri ve kesinti/çıkış kurtarmasını koru. Launcher keyfi shell veya dosya yolu kabul etmemeli.
 - Gerçek dosya işlemlerini yalnızca Electron ana sürecinde tut. Renderer’a genel dosya sistemi veya sınırsız IPC erişimi verme.
 - Taşıma/kopyalama öncesi açık önizleme ve kullanıcı onayını koru. Otomatik tarama dosya taşımamalı.
 - Dosyaların üzerine yazma. Geri alma ve kesinti senaryolarını yeni dosya işlemleriyle birlikte değerlendir.

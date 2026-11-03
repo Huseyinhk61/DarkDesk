@@ -3,6 +3,7 @@ const { app } = require('electron');
 const path = require('node:path');
 if (!process.env.DARKDESK_TEST_ROOT) throw Error('Missing isolated test directory.');
 app.setPath('desktop', path.join(process.env.DARKDESK_TEST_ROOT, 'Desktop'));
+app.setPath('downloads', path.join(process.env.DARKDESK_TEST_ROOT, 'Downloads'));
 app.setPath('userData', path.join(process.env.DARKDESK_TEST_ROOT, 'data'));
 process.argv.push('--production');
 const base = process.env.DARKDESK_TEST_PACKAGE || path.resolve(__dirname, '../..');
@@ -16,6 +17,24 @@ scanner.DeepScanner = class extends Original {
         { path: path.join(process.env.DARKDESK_TEST_ROOT, 'Program Files'), label: 'programFiles' },
       ],
     });
+  }
+};
+const runtimes = require(path.join(base, 'electron/runtime/controller.cjs'));
+const OriginalRuntime = runtimes.DesktopRuntime;
+runtimes.DesktopRuntime = class extends OriginalRuntime {
+  constructor(options) {
+    super({
+      ...options,
+      launch: async (item) =>
+        require('node:fs/promises').writeFile(
+          path.join(process.env.DARKDESK_TEST_ROOT, 'launch-log.json'),
+          JSON.stringify({ id: item.id, source: item.source }),
+        ),
+    });
+  }
+  async initialize() {
+    await super.initialize();
+    clearInterval(this.timer);
   }
 };
 require(path.join(base, 'electron/main.cjs'));

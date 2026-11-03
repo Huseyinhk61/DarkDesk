@@ -1,4 +1,7 @@
 import catalog from './catalog.json' with { type: 'json' };
+import runtimeDefaults from './runtime-defaults.json' with { type: 'json' };
+import { regexMatches } from './regex.js';
+import { suggestTags } from './smart-tags.js';
 export const icons = [
   'code',
   'palette',
@@ -16,7 +19,8 @@ export const icons = [
 export const colors = ['blue', 'purple', 'green', 'orange', 'slate', 'pink'];
 export const defaultCategories = catalog;
 export const defaultSettings = {
-  schemaVersion: 2,
+  schemaVersion: 3,
+  ...runtimeDefaults,
   mode: 'move',
   autoScan: true,
   excludedExtensions: ['.ini', '.tmp'],
@@ -85,19 +89,31 @@ export function classify(item, settings = defaultSettings) {
   const known = new Set(categories.map((c) => c.id));
   const override = categoryId(settings.overrides?.[item.id]);
   if (known.has(override)) return override;
-  const text = normalize(`${item.name} ${item.target || ''}`);
-  const extension = normalize(item.name).split('.').at(-1);
-  for (const rule of settings.rules || []) {
-    if (
-      rule.enabled !== false &&
-      known.has(rule.categoryId) &&
-      (rule.match === 'extension'
-        ? extension === normalize(rule.pattern).replace(/^\./, '')
-        : text.includes(normalize(rule.pattern)))
-    )
+  for (const rule of settings.rules || [])
+    if (rule.enabled !== false && known.has(rule.categoryId) && matchesRule(rule, item))
       return rule.categoryId;
-  }
-  const inferred = defaultCategory(item.name, item.target);
+  let inferred = defaultCategory(item.name, item.target);
+  const name = normalize(item.name + ' ' + (item.target || ''));
+  const sub = /setup|installer|driver.*update|update|install/.test(name)
+    ? 'systeminstallers'
+    : /driver|nvidia|radeon/.test(name)
+      ? 'systemdrivers'
+      : /vpn|firewall|network|wireshark|security/.test(name)
+        ? 'systemnetwork'
+        : /7-?zip|winrar|compress|unzip/.test(name)
+          ? 'systemcompression'
+          : /docker|kubernetes|devops|terraform/.test(name)
+            ? 'softwaredevops'
+            : /mysql|postgres|sqlite|database|mongodb|dbeaver/.test(name)
+              ? 'softwaredatabase'
+              : /terminal|powershell|cmd|putty|shell/.test(name)
+                ? 'softwareterminal'
+                : /vscode|visual studio|code|intellij|pycharm|webstorm|editor|android studio/.test(
+                      name,
+                    )
+                  ? 'softwareide'
+                  : null;
+  if (sub && known.has(sub)) inferred = sub;
   return known.has(inferred) ? inferred : categories[0].id;
 }
 export function safeSegment(value) {
@@ -110,4 +126,39 @@ export function safeSegment(value) {
     !['.', '..'].includes(value) &&
     !/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(value)
   );
+}
+
+export function matchesRule(rule, item) {
+  const text = normalize(`${item.name} ${item.target || ''}`),
+    extension = normalize(item.name).split('.').at(-1);
+  return rule.match === 'regex'
+    ? regexMatches(rule.pattern, item.name) ||
+        (!!item.target && regexMatches(rule.pattern, item.target))
+    : rule.match === 'extension'
+      ? extension === normalize(rule.pattern).replace(/^\./, '')
+      : text.includes(normalize(rule.pattern));
+}
+export function enrichItem(item, settings = defaultSettings) {
+  const category = classify(item, settings);
+  const explicit =
+    Object.hasOwn(settings.overrides || {}, item.id) ||
+    (settings.rules || []).some((r) => r.enabled && matchesRule(r, item));
+  const fallback =
+    defaultCategory(item.name, item.target) === 'system' &&
+    !/system|utility|tool|chrome|browser|backup|security|network|driver|setup|installer|update|zip|rar/i.test(
+      item.name,
+    );
+  return {
+    ...item,
+    category,
+    suggestion: !explicit && fallback ? suggestTags(item, settings) : null,
+  };
+}
+export function isDescendant(id, parent, categories) {
+  let c = categories.find((c) => c.id === id);
+  while (c) {
+    if (c.id === parent) return true;
+    c = c.parentId ? categories.find((x) => x.id === c.parentId) : null;
+  }
+  return false;
 }
