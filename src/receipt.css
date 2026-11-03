@@ -1,0 +1,85 @@
+.operation-receipt {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin: 0 0 16px;
+  background: var(--surface);
+  color: var(--ink);
+}
+.receipt-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.receipt-heading > svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.receipt-heading > div {
+  flex: 1;
+  min-width: 0;
+}
+.receipt-heading h2 {
+  margin: 0 0 4px;
+  font-size: calc(14px * var(--ui-scale));
+}
+.receipt-heading p {
+  margin: 0;
+  font-size: calc(12px * var(--ui-scale));
+  color: var(--muted);
+}
+.operation-receipt details {
+  margin-top: 10px;
+  font-size: calc(12px * var(--ui-scale));
+}
+.operation-receipt summary {
+  cursor: pointer;
+  color: var(--accent);
+  padding: 5px 0;
+}
+.operation-receipt summary:focus-visible {
+  outline: 2px solid var(--accent);
+}
+.receipt-folder {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+}
+.receipt-folder code {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: calc(11px * var(--ui-scale));
+}
+.receipt-folder button {
+  min-height: 36px;
+  flex-shrink: 0;
+}
+.receipt-warning,
+.receipt-skip {
+  color: var(--muted);
+  font-size: calc(12px * var(--ui-scale));
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.receipt-skip {
+  padding-left: 8px;
+  border-left: 2px solid var(--border);
+}
+@media (max-width: 650px) {
+  .receipt-heading {
+    flex-wrap: wrap;
+  }
+  .receipt-heading > div {
+    flex-basis: 70%;
+  }
+  .receipt-heading .btn {
+    width: 100%;
+  }
+  .receipt-folder {
+    flex-wrap: wrap;
+  }
+}

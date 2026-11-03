@@ -16,7 +16,7 @@ export default function ItemCard({
   disabled,
   onAcceptSuggestion,
 }) {
-  const { settings, t, label, locale } = usePreferences();
+  const { settings, t, label, locale, language } = usePreferences();
   const [showDetails, setShowDetails] = useState(false);
   const closeDetails = useCallback(() => setShowDetails(false), []);
   const category =
@@ -39,7 +39,7 @@ export default function ItemCard({
             onClick={() => setShowDetails(true)}
             aria-label={t('info.open', { name: item.name })}
           >
-            <NativeItemIcon item={item} fallback={icon} size={30} />
+            <NativeItemIcon item={item} fallback={icon} size={40} />
           </button>
           <button
             disabled={disabled}
@@ -60,6 +60,14 @@ export default function ItemCard({
             {item.name.replace(/\.(lnk|exe|url|desktop)$/i, '')}
           </button>
         </h3>
+        {item.insight?.description?.[language] && (
+          <div className="item-purpose">
+            <span className={`purpose-badge ${item.insight.confidence === 'known' ? 'known' : ''}`}>
+              {t(item.insight.confidence === 'known' ? 'purpose.known' : 'purpose.inferred')}
+            </span>
+            <p title={item.insight.description[language]}>{item.insight.description[language]}</p>
+          </div>
+        )}
         <p className="file-path" title={item.target || item.source}>
           {item.target || item.source}
         </p>

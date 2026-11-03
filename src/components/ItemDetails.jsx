@@ -8,7 +8,7 @@ import NativeItemIcon from './NativeItemIcon';
 import '../details.css';
 
 export default function ItemDetails({ item, fallback, onClose }) {
-  const { t, locale } = usePreferences();
+  const { t, locale, language } = usePreferences();
   const [details, setDetails] = useState(null);
   const [error, setError] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -46,6 +46,19 @@ export default function ItemDetails({ item, fallback, onClose }) {
             <p>{details?.description || (!details && !error ? t('info.loading') : unknown)}</p>
           </div>
         </div>
+        {item.insight?.description?.[language] && (
+          <section className="item-purpose-detail" aria-labelledby="item-purpose-title">
+            <h3 id="item-purpose-title">{t('purpose.title')}</h3>
+            <p>{item.insight.description[language]}</p>
+            <small>
+              {t(
+                item.insight.confidence === 'known'
+                  ? 'purpose.catalogNote'
+                  : 'purpose.inferenceNote',
+              )}
+            </small>
+          </section>
+        )}
         {!details && !error && (
           <p className="item-details-loading" role="status">
             <LoaderCircle size={18} className="spin" />

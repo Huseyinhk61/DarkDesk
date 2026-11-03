@@ -97,7 +97,7 @@ export const api = window.darkdesk || {
     total: 16 * 1024 ** 3,
     free: 9.2 * 1024 ** 3,
     storage: null,
-    version: '3.2.0',
+    version: '3.3.0',
     platform: 'demo',
   }),
   getSettings: async () => structuredClone(settings),
@@ -142,7 +142,21 @@ export const api = window.darkdesk || {
       date: new Date().toISOString(),
       mode,
       status: 'completed',
-      entries: ready,
+      entries: ready.map((item) => ({
+        ...item,
+        stage: item.action === 'shortcut' ? 'copied' : mode === 'move' ? 'moved' : 'copied',
+      })),
+      warnings: [],
+      skippedDetails: entries
+        .filter((item) => item.conflict)
+        .map((item) => ({ id: item.id, code: item.conflict, target: item.target })),
+      summary: {
+        moved: mode === 'move' ? ready.filter((item) => item.action !== 'shortcut').length : 0,
+        copied: mode === 'copy' ? ready.filter((item) => item.action !== 'shortcut').length : 0,
+        shortcuts: ready.filter((item) => item.action === 'shortcut').length,
+        skipped: entries.filter((item) => item.conflict).length,
+        failed: 0,
+      },
       snapshot: structuredClone(demo),
       downloadSnapshot: structuredClone(downloadItems),
       copySnapshot: [...copies],
@@ -165,7 +179,7 @@ export const api = window.darkdesk || {
     batch.copySnapshot.forEach((x) => copies.add(x));
     batch.status = 'undone';
   },
-  itemIcon: async (id) => {
+  itemIcon: async (id, _refresh = false) => {
     if (![...demo, ...apps, ...downloadItems].some((item) => item.id === id))
       throw Error('SOURCE_MISSING');
     return { id, icon: null };
@@ -186,6 +200,9 @@ export const api = window.darkdesk || {
       usageScope: 'darkdesk-only',
       metadataSource: 'demo',
     };
+  },
+  revealOutput: async () => {
+    throw Error('DEMO_REVEAL');
   },
   reveal: async () => {
     throw Error('DEMO_REVEAL');

@@ -9,6 +9,7 @@ const methods = [
   'undo',
   'stats',
   'reveal',
+  'revealOutput',
   'window',
   'windowState',
   'getSettings',

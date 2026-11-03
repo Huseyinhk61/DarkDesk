@@ -1,0 +1,872 @@
+[
+  {
+    "id": "chrome",
+    "name": "Google Chrome",
+    "categoryId": "systemnetwork",
+    "aliases": ["chrome", "google chrome"],
+    "description": {
+      "tr": "Web sitelerini açmak, internette arama yapmak ve web uygulamalarını kullanmak için kullanılan tarayıcı.",
+      "en": "A web browser for visiting websites, searching the internet and using web apps."
+    }
+  },
+  {
+    "id": "edge",
+    "name": "Microsoft Edge",
+    "categoryId": "systemnetwork",
+    "aliases": ["msedge", "microsoft edge", "edge"],
+    "description": {
+      "tr": "Web sitelerine, çevrimiçi hizmetlere ve PDF içeriklerine erişmek için kullanılan Microsoft tarayıcısı.",
+      "en": "Microsoft’s web browser for websites, online services and PDF content."
+    }
+  },
+  {
+    "id": "firefox",
+    "name": "Mozilla Firefox",
+    "categoryId": "systemnetwork",
+    "aliases": ["firefox", "mozilla firefox"],
+    "description": {
+      "tr": "Web sitelerini ve web uygulamalarını açan, gizlilik seçenekleri sunan internet tarayıcısı.",
+      "en": "A web browser for websites and web apps with privacy controls."
+    }
+  },
+  {
+    "id": "brave",
+    "name": "Brave",
+    "categoryId": "systemnetwork",
+    "aliases": ["brave", "brave browser"],
+    "description": {
+      "tr": "Web sitelerini açan ve yerleşik izleme engelleme seçenekleri sunan internet tarayıcısı.",
+      "en": "A web browser with built-in options to block tracking."
+    }
+  },
+  {
+    "id": "opera",
+    "name": "Opera",
+    "categoryId": "systemnetwork",
+    "aliases": ["opera", "opera browser", "opera gx"],
+    "description": {
+      "tr": "Web siteleri ve çevrimiçi içerik için kullanılan internet tarayıcısı.",
+      "en": "A web browser for websites and online content."
+    }
+  },
+  {
+    "id": "vivaldi",
+    "name": "Vivaldi",
+    "categoryId": "systemnetwork",
+    "aliases": ["vivaldi"],
+    "description": {
+      "tr": "Sekmelerini ve görünümünü özelleştirebildiğiniz internet tarayıcısı.",
+      "en": "A web browser with customizable tabs and interface."
+    }
+  },
+  {
+    "id": "word",
+    "name": "Microsoft Word",
+    "categoryId": "office",
+    "aliases": ["winword", "microsoft word", "word"],
+    "description": {
+      "tr": "Metin belgeleri, raporlar ve mektuplar hazırlamak ve düzenlemek için kullanılan kelime işlemci.",
+      "en": "A word processor for creating and editing documents, reports and letters."
+    }
+  },
+  {
+    "id": "excel",
+    "name": "Microsoft Excel",
+    "categoryId": "office",
+    "aliases": ["excel", "microsoft excel"],
+    "description": {
+      "tr": "Tablolar, formüller, bütçeler ve veri analizleri hazırlamak için kullanılan elektronik tablo uygulaması.",
+      "en": "A spreadsheet app for tables, formulas, budgets and data analysis."
+    }
+  },
+  {
+    "id": "powerpoint",
+    "name": "Microsoft PowerPoint",
+    "categoryId": "office",
+    "aliases": ["powerpnt", "powerpoint", "microsoft powerpoint"],
+    "description": {
+      "tr": "Slayt tabanlı sunumlar hazırlamak ve göstermek için kullanılan uygulama.",
+      "en": "An app for creating and presenting slide-based presentations."
+    }
+  },
+  {
+    "id": "outlook",
+    "name": "Microsoft Outlook",
+    "categoryId": "office",
+    "aliases": ["outlook", "microsoft outlook"],
+    "description": {
+      "tr": "E-posta, takvim, kişiler ve toplantıları yönetmek için kullanılan uygulama.",
+      "en": "An app for email, calendars, contacts and meetings."
+    }
+  },
+  {
+    "id": "onenote",
+    "name": "Microsoft OneNote",
+    "categoryId": "office",
+    "aliases": ["onenote", "microsoft onenote"],
+    "description": {
+      "tr": "Notları, çizimleri ve çalışma bilgilerini dijital not defterlerinde toplar.",
+      "en": "An app for organizing notes, drawings and work information in digital notebooks."
+    }
+  },
+  {
+    "id": "libreoffice",
+    "name": "LibreOffice",
+    "categoryId": "office",
+    "aliases": [
+      "soffice",
+      "libreoffice",
+      "libreoffice writer",
+      "libreoffice calc",
+      "libreoffice impress"
+    ],
+    "description": {
+      "tr": "Metin belgeleri, elektronik tablolar ve sunumlar hazırlayan ofis araçları paketi.",
+      "en": "An office suite for documents, spreadsheets and presentations."
+    }
+  },
+  {
+    "id": "acrobat",
+    "name": "Adobe Acrobat",
+    "categoryId": "office",
+    "aliases": [
+      "acrobat",
+      "acrord32",
+      "adobe acrobat",
+      "adobe acrobat reader",
+      "adobe reader",
+      "acrobat reader"
+    ],
+    "description": {
+      "tr": "PDF belgelerini görüntülemek, açıklama eklemek ve desteklenen sürümlerde düzenlemek için kullanılır.",
+      "en": "An app to view and annotate PDFs, with editing available in supported editions."
+    }
+  },
+  {
+    "id": "foxit",
+    "name": "Foxit PDF Reader",
+    "categoryId": "office",
+    "aliases": ["foxitpdfreader", "foxit reader", "foxit pdf reader", "foxit pdf editor"],
+    "description": {
+      "tr": "PDF belgelerini okumak, not eklemek ve desteklenen sürümlerde düzenlemek için kullanılır.",
+      "en": "A PDF reader and annotator, with editing in supported editions."
+    }
+  },
+  {
+    "id": "sumatra",
+    "name": "SumatraPDF",
+    "categoryId": "office",
+    "aliases": ["sumatrapdf", "sumatra pdf"],
+    "description": {
+      "tr": "PDF ve desteklenen e-kitap biçimlerini açan hafif belge okuyucu.",
+      "en": "A lightweight reader for PDFs and supported ebook formats."
+    }
+  },
+  {
+    "id": "notion",
+    "name": "Notion",
+    "categoryId": "office",
+    "aliases": ["notion"],
+    "description": {
+      "tr": "Notlar, belgeler, listeler ve ortak çalışma alanları düzenlemek için kullanılır.",
+      "en": "A workspace for notes, documents, lists and collaboration."
+    }
+  },
+  {
+    "id": "obsidian",
+    "name": "Obsidian",
+    "categoryId": "office",
+    "aliases": ["obsidian"],
+    "description": {
+      "tr": "Yerel Markdown notlarını bağlantılarla düzenleyen kişisel bilgi ve not uygulaması.",
+      "en": "A note-taking app for organizing local Markdown notes with links."
+    }
+  },
+  {
+    "id": "notepad",
+    "name": "Windows Notepad",
+    "categoryId": "office",
+    "aliases": ["notepad", "not defteri", "windows notepad"],
+    "description": {
+      "tr": "Düz metin dosyalarını ve kısa notları açıp düzenleyen temel metin editörü.",
+      "en": "A basic editor for plain text files and short notes."
+    }
+  },
+  {
+    "id": "steam",
+    "name": "Steam",
+    "categoryId": "games",
+    "aliases": ["steam"],
+    "description": {
+      "tr": "Bilgisayar oyunlarını satın almak, indirmek, güncellemek ve başlatmak için kullanılan oyun platformu.",
+      "en": "A platform for purchasing, downloading, updating and launching PC games."
+    }
+  },
+  {
+    "id": "epic",
+    "name": "Epic Games Launcher",
+    "categoryId": "games",
+    "aliases": ["epicgameslauncher", "epic games launcher", "epic games"],
+    "description": {
+      "tr": "Epic Games kitaplığındaki oyunları indirmek, güncellemek ve başlatmak için kullanılır.",
+      "en": "A launcher for downloading, updating and starting games in the Epic Games library."
+    }
+  },
+  {
+    "id": "riot",
+    "name": "Riot Client",
+    "categoryId": "games",
+    "aliases": ["riotclientservices", "riot client", "riotclient", "riot games"],
+    "description": {
+      "tr": "Riot Games oyunlarını kurmak, güncellemek ve başlatmak için kullanılan istemci.",
+      "en": "A client for installing, updating and launching Riot Games titles."
+    }
+  },
+  {
+    "id": "valorant",
+    "name": "VALORANT",
+    "categoryId": "games",
+    "aliases": ["valorant", "valorant win64 shipping"],
+    "description": {
+      "tr": "Takım tabanlı, rekabetçi birinci şahıs nişancı oyunu.",
+      "en": "A team-based competitive first-person shooter."
+    }
+  },
+  {
+    "id": "league",
+    "name": "League of Legends",
+    "categoryId": "games",
+    "aliases": ["leagueclient", "league of legends", "leagueclientux"],
+    "description": {
+      "tr": "Takımların birbirine karşı stratejik mücadele verdiği çevrimiçi çok oyunculu oyun.",
+      "en": "An online multiplayer game focused on team strategy and combat."
+    }
+  },
+  {
+    "id": "ea",
+    "name": "EA app",
+    "categoryId": "games",
+    "aliases": ["eadesktop", "ea app", "ea desktop", "origin"],
+    "description": {
+      "tr": "EA oyun kitaplığını yönetmek, oyunları indirmek ve başlatmak için kullanılan istemci.",
+      "en": "A client for managing, downloading and launching games in an EA library."
+    }
+  },
+  {
+    "id": "ubisoft",
+    "name": "Ubisoft Connect",
+    "categoryId": "games",
+    "aliases": ["ubisoftconnect", "ubisoft connect", "upc", "uplay"],
+    "description": {
+      "tr": "Ubisoft oyun kitaplığını, güncellemeleri ve oyun başlatmayı yöneten istemci.",
+      "en": "A client for Ubisoft game libraries, updates and launching games."
+    }
+  },
+  {
+    "id": "battlenet",
+    "name": "Battle.net",
+    "categoryId": "games",
+    "aliases": ["battle.net", "battle net", "battlenet", "battle.net launcher"],
+    "description": {
+      "tr": "Battle.net oyunlarını kurmak, güncellemek ve başlatmak için kullanılan oyun istemcisi.",
+      "en": "A game client for installing, updating and launching Battle.net titles."
+    }
+  },
+  {
+    "id": "gog",
+    "name": "GOG GALAXY",
+    "categoryId": "games",
+    "aliases": ["galaxyclient", "gog galaxy", "gog galaxy client"],
+    "description": {
+      "tr": "Oyun kitaplığını, kurulumları ve oyun başlatmayı yönetmek için kullanılan istemci.",
+      "en": "A client for managing game libraries, installations and launching games."
+    }
+  },
+  {
+    "id": "roblox",
+    "name": "Roblox",
+    "categoryId": "games",
+    "aliases": ["robloxplayerbeta", "robloxplayerlauncher", "roblox player", "roblox"],
+    "description": {
+      "tr": "Roblox platformundaki kullanıcı yapımı oyun ve deneyimleri çalıştırır.",
+      "en": "A player for user-created games and experiences on Roblox."
+    }
+  },
+  {
+    "id": "minecraft",
+    "name": "Minecraft",
+    "categoryId": "games",
+    "aliases": ["minecraft", "minecraftlauncher", "minecraft launcher"],
+    "description": {
+      "tr": "Minecraft oyununu veya oyun sürümlerini seçip başlatan başlatıcıyı açar.",
+      "en": "Minecraft or its launcher for selecting and starting game versions."
+    }
+  },
+  {
+    "id": "discord",
+    "name": "Discord",
+    "categoryId": "games",
+    "aliases": ["discord", "discordptb", "discordcanary"],
+    "description": {
+      "tr": "Topluluklar ve arkadaşlarla yazılı, sesli ve görüntülü iletişim kurmak için kullanılır.",
+      "en": "An app for text, voice and video communication with friends and communities."
+    }
+  },
+  {
+    "id": "vscode",
+    "name": "Visual Studio Code",
+    "categoryId": "softwareide",
+    "aliases": [
+      "code",
+      "code insiders",
+      "visual studio code",
+      "visual studio code insiders",
+      "vscode"
+    ],
+    "description": {
+      "tr": "Kod yazmak, projeleri düzenlemek ve geliştirme eklentileri kullanmak için kullanılan kaynak kod editörü.",
+      "en": "A source code editor for writing code, organizing projects and using development extensions."
+    }
+  },
+  {
+    "id": "visualstudio",
+    "name": "Microsoft Visual Studio",
+    "categoryId": "softwareide",
+    "aliases": [
+      "devenv",
+      "visual studio",
+      "microsoft visual studio",
+      "visual studio 2022",
+      "visual studio 2019"
+    ],
+    "description": {
+      "tr": "Uygulama geliştirme, derleme ve hata ayıklama için kullanılan tümleşik geliştirme ortamı.",
+      "en": "An integrated environment for developing, building and debugging applications."
+    }
+  },
+  {
+    "id": "rider",
+    "name": "JetBrains Rider",
+    "categoryId": "softwareide",
+    "aliases": ["rider", "rider64", "jetbrains rider"],
+    "description": {
+      "tr": "Özellikle .NET ve C# projeleri geliştirmek ve hata ayıklamak için kullanılan geliştirme ortamı.",
+      "en": "An IDE for developing and debugging applications, especially .NET and C# projects."
+    }
+  },
+  {
+    "id": "intellij",
+    "name": "IntelliJ IDEA",
+    "categoryId": "softwareide",
+    "aliases": [
+      "idea",
+      "idea64",
+      "intellij idea",
+      "intellij idea community edition",
+      "intellij idea ultimate"
+    ],
+    "description": {
+      "tr": "Java, Kotlin ve ilgili projeler için kod geliştirme ve hata ayıklama ortamı.",
+      "en": "An IDE for developing and debugging Java, Kotlin and related projects."
+    }
+  },
+  {
+    "id": "pycharm",
+    "name": "PyCharm",
+    "categoryId": "softwareide",
+    "aliases": [
+      "pycharm",
+      "pycharm64",
+      "pycharm community edition",
+      "pycharm professional edition"
+    ],
+    "description": {
+      "tr": "Python projeleri yazmak, çalıştırmak ve hata ayıklamak için kullanılan geliştirme ortamı.",
+      "en": "An IDE for writing, running and debugging Python projects."
+    }
+  },
+  {
+    "id": "webstorm",
+    "name": "WebStorm",
+    "categoryId": "softwareide",
+    "aliases": ["webstorm", "webstorm64"],
+    "description": {
+      "tr": "JavaScript, TypeScript ve web projeleri geliştirmek için kullanılan geliştirme ortamı.",
+      "en": "An IDE for JavaScript, TypeScript and web development."
+    }
+  },
+  {
+    "id": "androidstudio",
+    "name": "Android Studio",
+    "categoryId": "softwareide",
+    "aliases": ["studio64", "android studio"],
+    "description": {
+      "tr": "Android uygulamaları geliştirmek, derlemek ve emülatörde denemek için kullanılan geliştirme ortamı.",
+      "en": "An IDE for developing, building and testing Android apps in an emulator."
+    }
+  },
+  {
+    "id": "notepadplusplus",
+    "name": "Notepad++",
+    "categoryId": "softwareide",
+    "aliases": ["notepad++", "notepad plus plus"],
+    "description": {
+      "tr": "Kod ve düz metin dosyalarını sekmeler, arama ve sözdizimi vurgulamasıyla düzenleyen editör.",
+      "en": "An editor for code and text files with tabs, search and syntax highlighting."
+    }
+  },
+  {
+    "id": "sublime",
+    "name": "Sublime Text",
+    "categoryId": "softwareide",
+    "aliases": ["sublime_text", "sublime text"],
+    "description": {
+      "tr": "Kaynak kodu ve metin dosyalarını düzenlemek için kullanılan metin editörü.",
+      "en": "A text editor for source code and plain text files."
+    }
+  },
+  {
+    "id": "git",
+    "name": "Git",
+    "categoryId": "software",
+    "aliases": ["git", "git gui", "git bash", "git bash here", "git-gui"],
+    "description": {
+      "tr": "Kaynak kodundaki değişiklikleri sürüm kontrolüyle izlemek ve paylaşmak için kullanılan araçlar.",
+      "en": "Version-control tools for tracking and sharing changes in source code."
+    }
+  },
+  {
+    "id": "githubdesktop",
+    "name": "GitHub Desktop",
+    "categoryId": "software",
+    "aliases": ["githubdesktop", "github desktop"],
+    "description": {
+      "tr": "Git depolarını grafik arayüzden yönetmek, değişiklikleri kaydetmek ve eşitlemek için kullanılır.",
+      "en": "A graphical app for managing Git repositories, committing changes and syncing work."
+    }
+  },
+  {
+    "id": "docker",
+    "name": "Docker Desktop",
+    "categoryId": "softwaredevops",
+    "aliases": ["docker desktop", "docker desktop backend", "docker"],
+    "description": {
+      "tr": "Konteyner tabanlı uygulama ortamlarını oluşturmak ve çalıştırmak için kullanılır.",
+      "en": "Tools for building and running container-based application environments."
+    }
+  },
+  {
+    "id": "postman",
+    "name": "Postman",
+    "categoryId": "software",
+    "aliases": ["postman"],
+    "description": {
+      "tr": "API istekleri hazırlamak, göndermek ve servis yanıtlarını test etmek için kullanılır.",
+      "en": "An app for creating API requests and testing service responses."
+    }
+  },
+  {
+    "id": "insomnia",
+    "name": "Insomnia",
+    "categoryId": "software",
+    "aliases": ["insomnia"],
+    "description": {
+      "tr": "API isteklerini tasarlamak ve servis uç noktalarını test etmek için kullanılan istemci.",
+      "en": "A client for designing API requests and testing service endpoints."
+    }
+  },
+  {
+    "id": "python",
+    "name": "Python",
+    "categoryId": "software",
+    "aliases": ["python", "pythonw", "python3", "python 3", "idle"],
+    "description": {
+      "tr": "Python betiklerini ve Python ile geliştirilen programları çalıştıran dil ortamı.",
+      "en": "A language runtime for running Python scripts and applications."
+    }
+  },
+  {
+    "id": "node",
+    "name": "Node.js",
+    "categoryId": "software",
+    "aliases": ["node", "nodejs", "node.js"],
+    "description": {
+      "tr": "JavaScript programlarını tarayıcı dışında çalıştıran çalışma zamanı.",
+      "en": "A runtime for executing JavaScript programs outside a web browser."
+    }
+  },
+  {
+    "id": "terminal",
+    "name": "Windows Terminal",
+    "categoryId": "softwareterminal",
+    "aliases": ["wt", "windows terminal", "terminal"],
+    "description": {
+      "tr": "Komut satırı kabuklarını sekmeler içinde açıp kullanmak için kullanılan terminal.",
+      "en": "A terminal for using command-line shells in tabs."
+    }
+  },
+  {
+    "id": "powershell",
+    "name": "PowerShell",
+    "categoryId": "softwareterminal",
+    "aliases": [
+      "powershell",
+      "pwsh",
+      "windows powershell",
+      "powershell 7",
+      "windows powershell ise",
+      "powershell_ise"
+    ],
+    "description": {
+      "tr": "Komut çalıştırma ve sistem görevlerini betiklerle otomatikleştirme ortamı.",
+      "en": "A shell and scripting environment for commands and system automation."
+    }
+  },
+  {
+    "id": "cmd",
+    "name": "Command Prompt",
+    "categoryId": "softwareterminal",
+    "aliases": ["cmd", "command prompt", "komut istemi"],
+    "description": {
+      "tr": "Windows komutlarını ve komut dosyalarını çalıştıran komut satırı.",
+      "en": "The Windows command line for running commands and batch scripts."
+    }
+  },
+  {
+    "id": "putty",
+    "name": "PuTTY",
+    "categoryId": "softwareterminal",
+    "aliases": ["putty"],
+    "description": {
+      "tr": "SSH ve desteklenen protokollerle uzak sistemlere terminal bağlantısı kurar.",
+      "en": "A terminal client for connecting to remote systems over SSH and supported protocols."
+    }
+  },
+  {
+    "id": "dbeaver",
+    "name": "DBeaver",
+    "categoryId": "softwaredatabase",
+    "aliases": ["dbeaver"],
+    "description": {
+      "tr": "Veritabanlarına bağlanmak, sorgu çalıştırmak ve veri yapılarını incelemek için kullanılan araç.",
+      "en": "A tool for connecting to databases, running queries and inspecting data structures."
+    }
+  },
+  {
+    "id": "mysql",
+    "name": "MySQL Workbench",
+    "categoryId": "softwaredatabase",
+    "aliases": ["mysqlworkbench", "mysql workbench"],
+    "description": {
+      "tr": "MySQL veritabanlarını yönetmek, SQL sorguları yazmak ve şemaları tasarlamak için kullanılır.",
+      "en": "A tool for administering MySQL, writing SQL queries and designing schemas."
+    }
+  },
+  {
+    "id": "pgadmin",
+    "name": "pgAdmin",
+    "categoryId": "softwaredatabase",
+    "aliases": ["pgadmin4", "pgadmin 4", "pgadmin"],
+    "description": {
+      "tr": "PostgreSQL veritabanlarını yönetmek ve SQL sorguları çalıştırmak için kullanılan araç.",
+      "en": "A tool for administering PostgreSQL databases and running SQL queries."
+    }
+  },
+  {
+    "id": "photoshop",
+    "name": "Adobe Photoshop",
+    "categoryId": "design",
+    "aliases": ["photoshop", "adobe photoshop"],
+    "description": {
+      "tr": "Fotoğrafları düzenlemek, görsel kompozisyonlar ve raster grafikler hazırlamak için kullanılır.",
+      "en": "An app for editing photos, creating visual compositions and working with raster graphics."
+    }
+  },
+  {
+    "id": "illustrator",
+    "name": "Adobe Illustrator",
+    "categoryId": "design",
+    "aliases": ["illustrator", "adobe illustrator"],
+    "description": {
+      "tr": "Logolar, simgeler ve ölçeklenebilir vektör çizimler hazırlamak için kullanılır.",
+      "en": "An app for creating logos, icons and scalable vector artwork."
+    }
+  },
+  {
+    "id": "premiere",
+    "name": "Adobe Premiere Pro",
+    "categoryId": "design",
+    "aliases": ["adobe premiere pro", "premiere pro", "premiere"],
+    "description": {
+      "tr": "Video montajı, kurgu ve zaman çizelgesi tabanlı video düzenleme için kullanılır.",
+      "en": "An app for timeline-based video editing and post-production."
+    }
+  },
+  {
+    "id": "aftereffects",
+    "name": "Adobe After Effects",
+    "categoryId": "design",
+    "aliases": ["afterfx", "after effects", "adobe after effects"],
+    "description": {
+      "tr": "Hareketli grafikler, görsel efektler ve video kompozisyonları hazırlamak için kullanılır.",
+      "en": "An app for motion graphics, visual effects and video compositing."
+    }
+  },
+  {
+    "id": "lightroom",
+    "name": "Adobe Lightroom",
+    "categoryId": "design",
+    "aliases": ["lightroom", "adobe lightroom", "lightroom classic", "adobe lightroom classic"],
+    "description": {
+      "tr": "Fotoğraf kitaplıklarını düzenlemek ve fotoğrafların renk/ışık ayarlarını yapmak için kullanılır.",
+      "en": "An app for organizing photo libraries and adjusting photo color and lighting."
+    }
+  },
+  {
+    "id": "figma",
+    "name": "Figma",
+    "categoryId": "design",
+    "aliases": ["figma"],
+    "description": {
+      "tr": "Arayüz tasarımları, prototipler ve ortak tasarım çalışmaları hazırlamak için kullanılır.",
+      "en": "A tool for interface design, prototyping and collaborative design work."
+    }
+  },
+  {
+    "id": "canva",
+    "name": "Canva",
+    "categoryId": "design",
+    "aliases": ["canva"],
+    "description": {
+      "tr": "Sunum, sosyal medya görseli ve benzeri tasarımları şablonlarla hazırlamak için kullanılır.",
+      "en": "A design app for presentations, social graphics and other template-based designs."
+    }
+  },
+  {
+    "id": "blender",
+    "name": "Blender",
+    "categoryId": "design",
+    "aliases": ["blender"],
+    "description": {
+      "tr": "3B modelleme, animasyon, görselleştirme ve görsel üretim için kullanılan araç.",
+      "en": "A tool for 3D modeling, animation, rendering and visual creation."
+    }
+  },
+  {
+    "id": "davinci",
+    "name": "DaVinci Resolve",
+    "categoryId": "design",
+    "aliases": ["resolve", "davinci resolve", "davinci resolve studio"],
+    "description": {
+      "tr": "Video kurgu, renk düzenleme, ses ve görsel efekt işlerini bir arada sunan uygulama.",
+      "en": "An app combining video editing, color grading, audio and visual effects."
+    }
+  },
+  {
+    "id": "gimp",
+    "name": "GIMP",
+    "categoryId": "design",
+    "aliases": ["gimp", "gimp 2.10", "gimp 3", "gimp-2.10", "gimp-3.0"],
+    "description": {
+      "tr": "Görüntüleri ve fotoğrafları düzenlemek için kullanılan raster grafik editörü.",
+      "en": "A raster graphics editor for images and photo editing."
+    }
+  },
+  {
+    "id": "inkscape",
+    "name": "Inkscape",
+    "categoryId": "design",
+    "aliases": ["inkscape"],
+    "description": {
+      "tr": "SVG ve diğer vektör çizimlerini hazırlamak ve düzenlemek için kullanılır.",
+      "en": "A vector graphics editor for creating and editing SVG and other artwork."
+    }
+  },
+  {
+    "id": "vlc",
+    "name": "VLC media player",
+    "categoryId": "media",
+    "aliases": ["vlc", "vlc media player"],
+    "description": {
+      "tr": "Video ve ses dosyalarını, ayrıca desteklenen medya akışlarını oynatır.",
+      "en": "A player for video, audio files and supported media streams."
+    }
+  },
+  {
+    "id": "spotify",
+    "name": "Spotify",
+    "categoryId": "media",
+    "aliases": ["spotify"],
+    "description": {
+      "tr": "Müzik ve podcast dinlemek, listeler oluşturmak ve kitaplık düzenlemek için kullanılır.",
+      "en": "An app for music, podcasts, playlists and listening libraries."
+    }
+  },
+  {
+    "id": "obs",
+    "name": "OBS Studio",
+    "categoryId": "media",
+    "aliases": ["obs64", "obs32", "obs studio"],
+    "description": {
+      "tr": "Ekran ve kamera görüntüsü kaydetmek veya canlı yayın yapmak için kullanılır.",
+      "en": "An app for recording screens and cameras or streaming live video."
+    }
+  },
+  {
+    "id": "audacity",
+    "name": "Audacity",
+    "categoryId": "media",
+    "aliases": ["audacity"],
+    "description": {
+      "tr": "Ses kaydetmek, kesmek, düzenlemek ve ses efektleri uygulamak için kullanılır.",
+      "en": "An audio editor for recording, cutting, editing and applying sound effects."
+    }
+  },
+  {
+    "id": "itunes",
+    "name": "iTunes",
+    "categoryId": "media",
+    "aliases": ["itunes"],
+    "description": {
+      "tr": "Müzik ve medya kitaplıklarını düzenlemek ve desteklenen cihazlarla eşitlemek için kullanılır.",
+      "en": "An app for media libraries and syncing with supported devices."
+    }
+  },
+  {
+    "id": "7zip",
+    "name": "7-Zip",
+    "categoryId": "systemcompression",
+    "aliases": ["7zfm", "7z", "7-zip", "7 zip", "7zip"],
+    "description": {
+      "tr": "Dosyaları arşivlemek, sıkıştırmak ve ZIP/7z gibi arşivleri açmak için kullanılır.",
+      "en": "A tool for compressing files and opening archives such as ZIP and 7z."
+    }
+  },
+  {
+    "id": "winrar",
+    "name": "WinRAR",
+    "categoryId": "systemcompression",
+    "aliases": ["winrar", "winrar archiver"],
+    "description": {
+      "tr": "RAR, ZIP ve desteklenen arşivleri oluşturmak veya açmak için kullanılır.",
+      "en": "A tool for creating and opening RAR, ZIP and supported archives."
+    }
+  },
+  {
+    "id": "powertoys",
+    "name": "Microsoft PowerToys",
+    "categoryId": "systemutilities",
+    "aliases": ["powertoys", "microsoft powertoys"],
+    "description": {
+      "tr": "Pencere yerleşimi, hızlı araçlar ve Windows kullanımını kişiselleştiren yardımcı araçlar paketi.",
+      "en": "A set of Windows utilities for window layouts, quick tools and customization."
+    }
+  },
+  {
+    "id": "anydesk",
+    "name": "AnyDesk",
+    "categoryId": "systemnetwork",
+    "aliases": ["anydesk"],
+    "description": {
+      "tr": "İzin verilen başka bir bilgisayara uzaktan bağlanmak ve destek vermek için kullanılır.",
+      "en": "A remote-access app for connecting to authorized computers and providing support."
+    }
+  },
+  {
+    "id": "rustdesk",
+    "name": "RustDesk",
+    "categoryId": "systemnetwork",
+    "aliases": ["rustdesk"],
+    "description": {
+      "tr": "İzin verilen bilgisayarlara uzaktan masaüstü bağlantısı kurmak için kullanılır.",
+      "en": "A remote desktop app for connecting to authorized computers."
+    }
+  },
+  {
+    "id": "teamviewer",
+    "name": "TeamViewer",
+    "categoryId": "systemnetwork",
+    "aliases": ["teamviewer", "teamviewer remote"],
+    "description": {
+      "tr": "Uzaktan destek ve izinli bilgisayarlara uzaktan erişim için kullanılır.",
+      "en": "An app for remote support and authorized access to other computers."
+    }
+  },
+  {
+    "id": "everything",
+    "name": "Everything",
+    "categoryId": "systemutilities",
+    "aliases": ["everything", "everything search"],
+    "description": {
+      "tr": "Dosya ve klasör adları arasında hızlı yerel arama yapan araç.",
+      "en": "A local search tool for quickly finding file and folder names."
+    }
+  },
+  {
+    "id": "sharex",
+    "name": "ShareX",
+    "categoryId": "systemutilities",
+    "aliases": ["sharex"],
+    "description": {
+      "tr": "Ekran görüntüsü ve ekran kaydı alıp bunları düzenlemek için kullanılan araç.",
+      "en": "A tool for taking screenshots, recording the screen and editing captures."
+    }
+  },
+  {
+    "id": "snipping",
+    "name": "Snipping Tool",
+    "categoryId": "systemutilities",
+    "aliases": [
+      "snippingtool",
+      "snipping tool",
+      "ekran alintisi araci",
+      "ekran alıntısı aracı",
+      "alinti ve taslak",
+      "alıntı ve taslak"
+    ],
+    "description": {
+      "tr": "Ekranın seçilen bölümünün görüntüsünü almak ve işaretlemek için kullanılan Windows aracı.",
+      "en": "A Windows tool for capturing and annotating selected areas of the screen."
+    }
+  },
+  {
+    "id": "zoom",
+    "name": "Zoom",
+    "categoryId": "office",
+    "aliases": ["zoom", "zoom workplace", "zoom meetings"],
+    "description": {
+      "tr": "Çevrimiçi toplantılara, görüntülü görüşmelere ve ekran paylaşımına katılmak için kullanılır.",
+      "en": "An app for online meetings, video calls and screen sharing."
+    }
+  },
+  {
+    "id": "teams",
+    "name": "Microsoft Teams",
+    "categoryId": "office",
+    "aliases": ["ms-teams", "msteams", "teams", "microsoft teams"],
+    "description": {
+      "tr": "İş ve eğitim için sohbet, çevrimiçi toplantı ve ortak çalışma uygulaması.",
+      "en": "A collaboration app for chat and online meetings in work and education."
+    }
+  },
+  {
+    "id": "telegram",
+    "name": "Telegram",
+    "categoryId": "office",
+    "aliases": ["telegram", "telegram desktop"],
+    "description": {
+      "tr": "Mesajlaşmak, dosya paylaşmak ve topluluk kanallarını kullanmak için kullanılan iletişim uygulaması.",
+      "en": "A messaging app for conversations, file sharing and community channels."
+    }
+  },
+  {
+    "id": "whatsapp",
+    "name": "WhatsApp",
+    "categoryId": "office",
+    "aliases": ["whatsapp", "whatsapp desktop"],
+    "description": {
+      "tr": "WhatsApp hesabıyla mesajlaşma, arama ve dosya paylaşımı için kullanılan uygulama.",
+      "en": "An app for WhatsApp messaging, calls and file sharing."
+    }
+  }
+]

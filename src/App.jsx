@@ -36,6 +36,8 @@ import Launcher from './components/Launcher';
 import AutomationPanel from './components/AutomationPanel';
 import HelpPanel from './components/HelpPanel';
 import { publishNotice } from './notifications';
+import { refreshNativeIcons } from './components/NativeItemIcon';
+import OperationReceipt from './components/OperationReceipt';
 export default function App() {
   const { settings, setSettings, t, locale, errorMessage, categoryLabel } = usePreferences();
   const [view, setView] = useState('groups'),
@@ -308,7 +310,7 @@ export default function App() {
           (item) =>
             (type === 'all' || (type === 'shortcuts' ? isShortcut(item) : !isShortcut(item))) &&
             (filter === null || isDescendant(item.category, filter, settings.categories)) &&
-            `${item.name} ${item.target || ''}`
+            `${item.name} ${item.target || ''} ${item.insight?.description?.[settings.language] || ''}`
               .toLocaleLowerCase(locale)
               .includes(query.toLocaleLowerCase(locale)),
         )
@@ -319,7 +321,7 @@ export default function App() {
               ? b.modified - a.modified
               : a.name.localeCompare(b.name, locale),
         ),
-    [items, type, filter, query, sort, locale, settings.categories],
+    [items, type, filter, query, sort, locale, settings.categories, settings.language],
   );
   const displayed = visible.slice(0, shown);
   const allVisibleSelected =
@@ -555,7 +557,18 @@ export default function App() {
                 {...{ scan, last, native }}
                 busy={blocked}
                 count={items.length}
+                selectedCount={selected.size}
+                scope={scope}
                 organize={preview}
+              />
+              <OperationReceipt
+                batch={[...history].reverse().find((batch) => batch.status !== 'undone')}
+                busy={blocked}
+                native={native}
+                undo={undo}
+                onReveal={(id, index) =>
+                  api.revealOutput(id, index).catch((e) => notify(errorMessage(e), 'error'))
+                }
               />
               <Profiles
                 compact
@@ -573,7 +586,12 @@ export default function App() {
               <div className="section-heading">
                 <h2>
                   {t('groups.title')}
-                  <span>{settings.categories.length.toString().padStart(2, '0')}</span>
+                  <span>
+                    {settings.categories
+                      .filter((category) => !category.parentId)
+                      .length.toString()
+                      .padStart(2, '0')}
+                  </span>
                 </h2>
                 <button className="text-btn" onClick={() => setView('categories')}>
                   <FolderTree size={14} />
@@ -628,6 +646,16 @@ export default function App() {
                     ))}
                   </div>
                   <div className="tools">
+                    <button
+                      className="tool-btn icons-refresh"
+                      disabled={!!blocked}
+                      onClick={refreshNativeIcons}
+                      aria-label={t('desktop.refreshIcons')}
+                      title={t('desktop.refreshIcons')}
+                    >
+                      <RefreshCw size={16} />
+                      <span>{t('desktop.refreshIcons')}</span>
+                    </button>
                     <div className="search">
                       <Search size={15} />
                       <input

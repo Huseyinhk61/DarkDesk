@@ -47,6 +47,13 @@ export default function Profiles({ runtime, onApply, onRestore, onSave, busy, co
             <button
               disabled={!!busy || runtime?.visibilitySupported === false}
               className="profile-activate"
+              title={
+                profile.categories.length
+                  ? profile.categories
+                      .map((id) => label(settings.categories.find((c) => c.id === id)))
+                      .join(' · ')
+                  : t('profiles.allHidden')
+              }
               onClick={() => onApply(profile.id)}
               aria-pressed={status.activeId === profile.id}
             >
@@ -115,7 +122,7 @@ export default function Profiles({ runtime, onApply, onRestore, onSave, busy, co
               {settings.launcherShortcut}
             </div>
           </div>
-          <section className="settings-panel">
+          <section className="settings-panel profiles-shortcuts-panel">
             <h2>
               <Keyboard size={18} />
               {t('profiles.shortcuts')}
@@ -123,27 +130,29 @@ export default function Profiles({ runtime, onApply, onRestore, onSave, busy, co
             <p className="muted shortcut-help">
               {t(native ? 'shortcuts.globalHelp' : 'shortcuts.demoHelp')}
             </p>
-            <label className="field-label" htmlFor="profile-launcher-shortcut">
-              {t('launcher.shortcut')}
-            </label>
-            <KeyBinder
-              id="profile-launcher-shortcut"
-              label={t('launcher.shortcut')}
-              value={launcherDraft}
-              currentId="launcher"
-              assignments={assignments}
-              disabled={!!busy}
-              onChange={setLauncherDraft}
-            />
-            <button
-              type="button"
-              className="btn secondary"
-              disabled={!!busy || launcherDraft === settings.launcherShortcut}
-              onClick={() => onSave({ ...settings, launcherShortcut: launcherDraft })}
-            >
-              <Save size={15} />
-              {t('common.save')}
-            </button>
+            <div className="profile-shortcut-editor">
+              <label className="field-label" htmlFor="profile-launcher-shortcut">
+                {t('launcher.shortcut')}
+              </label>
+              <KeyBinder
+                id="profile-launcher-shortcut"
+                label={t('launcher.shortcut')}
+                value={launcherDraft}
+                currentId="launcher"
+                assignments={assignments}
+                disabled={!!busy}
+                onChange={setLauncherDraft}
+              />
+              <button
+                type="button"
+                className="btn secondary"
+                disabled={!!busy || launcherDraft === settings.launcherShortcut}
+                onClick={() => onSave({ ...settings, launcherShortcut: launcherDraft })}
+              >
+                <Save size={15} />
+                {t('common.save')}
+              </button>
+            </div>
             {runtime?.shortcuts?.map((entry) => {
               const profile = settings.profiles.find(
                 (p) => entry.id === 'profile:' + p.id || entry.accelerator === p.shortcut,

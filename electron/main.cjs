@@ -345,7 +345,7 @@ else {
         if (typeof token !== 'string') throw Error('SHORTCUT_CAPTURE_UNAVAILABLE');
         return shortcutManager.resume(token);
       });
-      handle('itemIcon', (id) => runtime.itemIcon(id));
+      handle('itemIcon', (id, refresh) => runtime.itemIcon(id, refresh));
       handle('itemDetails', (id) => runtime.itemDetails(id));
       handle('runtimeStatus', () => runtime.status());
       handle('applyProfile', (id) => runtime.applyProfile(id));
@@ -393,6 +393,37 @@ else {
         const stat = await fs.lstat(item.source);
         if (!stat.isFile() || stat.isSymbolicLink()) throw Error('SOURCE_MISSING');
         shell.showItemInFolder(item.source);
+      });
+      handle('revealOutput', async (batchId, index = 0) => {
+        if (
+          typeof batchId !== 'string' ||
+          batchId.length > 128 ||
+          !Number.isInteger(index) ||
+          index < 0
+        )
+          throw Error('TARGET_INVALID');
+        const batch = (await runtime.service.history()).find((entry) => entry.id === batchId);
+        if (!batch || batch.status === 'undone') throw Error('TARGET_MISSING');
+        const directories = [
+          ...new Set(
+            batch.entries
+              .filter(
+                (entry) =>
+                  entry.stage !== 'planned' && entry.stage !== 'undone' && entry.verified !== false,
+              )
+              .map((entry) => {
+                runtime.service.validateJournal(entry, batch);
+                return path.dirname(entry.target);
+              }),
+          ),
+        ];
+        const directory = directories[index];
+        if (!directory) throw Error('TARGET_MISSING');
+        await runtime.service.safeDirectory(directory, false, batch.categoryPaths);
+        const stat = await fs.lstat(directory);
+        if (!stat.isDirectory() || stat.isSymbolicLink()) throw Error('TARGET_UNSAFE');
+        const error = await shell.openPath(directory);
+        if (error) throw Error('OPEN_FOLDER_FAILED');
       });
       handle('windowState', windowState);
       handle('window', (action) => {

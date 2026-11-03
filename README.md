@@ -32,6 +32,18 @@
 | **Kalıcı ayarlar**            | Taşı/kopyala seçimi, canlı takip, hariç tutulacak uzantılar ve kategori tercihleri bu cihazda saklanır.                                                                     |
 | **Yerel ve hesapsız**         | Dosya işlemleri için hesap, API anahtarı veya bulut servisi gerekmez. Sonuç bildiriminden tek tıkla geri alınabilir.                                                        |
 
+## 🛠️ 3.3: çalışan düzenleme, özgün ikonlar ve uygulama açıklamaları
+
+Klasör ikonu veya tarih ayarı başarısız olduğunda gerçek dosya taşımanın durması düzeltildi. Düzenleme sonunda taşınan/kopyalanan öğeler, oluşturulan kısayollar, atlanan dosyalar ve uyarılar ayrı gösterilir. **Hedef klasörü aç** ve **Bu düzenlemeyi geri al** düğmeleri sonucu incelemeyi kolaylaştırır.
+
+- **Özgün ikonlar:** Windows `.lnk` ikon kaynağı/indeksi, executable kaynakları ve `.url` yerel ikonları okunur. Oluşturulan uygulama kısayolları varsayılan olarak kendi logosunu korur. Geçici hatalarda **İkonları yenile** kullanılabilir.
+- **Ne işe yarar?** 82 uygulamalık yerel katalog Türkçe/İngilizce açıklama sağlar. Bilinmeyen öğelerde dosya türü veya kategori tahmini açıkça belirtilir. Dosya içeriği veya internet servisiyle AI analizi yapılmaz.
+- **Daha kullanışlı masaüstü:** Kısa başlık/profil şeridi ve kategori kartları koleksiyona yer açar; Spotlight opak paneli arka plan yazılarının karışmasını önler. Metin boyutu, temalar ve klavye erişimi korunur.
+
+<p align="center"><img src="docs/assets/apps.png" alt="DarkDesk uygulama açıklamaları · yerel logo sağlayamayan web demosunda baş harf yedekleri" width="1100" /></p>
+
+[**Klasörleme ve ikon sorunlarını giderme →**](docs/ORGANIZATION.md)
+
 ## 🎨 3.2: daha okunabilir, masaüstüne uyumlu
 
 Ocean Blue, Forest Green, Rose Light ve Yüksek Kontrast eklendi. **Sistem Teması** işletim sisteminin açık/koyu seçimini izler; toplam 7 renk paleti ve sistem seçeneği bulunur.
@@ -168,8 +180,8 @@ Vite’ın terminalde gösterdiği adresi aç. **Web modu örnek verilerle çal�
 
 GitHub Actions içindeki **[Windows Installer](https://github.com/Huseyinhk61/DarkDesk/actions/workflows/windows.yml)** iş akışı:
 
-- `DarkDesk-Setup-3.2.0.exe`: Kurulum sihirbazı ve masaüstü kısayolu.
-- `DarkDesk-Portable-3.2.0.exe`: Kurulum gerektirmeyen sürüm.
+- `DarkDesk-Setup-3.3.0.exe`: Kurulum sihirbazı ve masaüstü kısayolu.
+- `DarkDesk-Portable-3.3.0.exe`: Kurulum gerektirmeyen sürüm.
 - `SHA256SUMS.txt`: İndirilen dosyaları doğrulamak için özetler.
 
 `main` dalına gönderilen güncellemeler Windows paketini otomatik oluşturur. Depo sahibi ayrıca **Run workflow** ile derlemeyi başlatabilir. Başarılı çalışmanın **Artifacts → DarkDesk-Windows** bölümünden paket indirilir. `v*` etiketi gönderildiğinde testlerden geçen paketler GitHub Releases’e eklenir. **İş akışı başarıyla tamamlanmadan hazır bir EXE bulunduğunu varsayma.**
@@ -207,7 +219,7 @@ Linux CI’de Electron testi için `xvfb-run -a npm run test:desktop` gerekir. T
 
 Dağıtım bağımlılıklarında bilinen açık bulunmadı (`npm audit --omit=dev`). Tam araç zinciri denetiminde paketleyicinin geçişli geliştirme bağımlılıklarında orta seviye bildirimler bulunuyor; bunlar için eski bir paketleyici sürümüne otomatik düşürme yapılmadı.
 
-**v3.2 doğrulaması:** Servis, tarama, kural/ayar göçü, dil sözlüğü ve Chromium testleri bulunur. Gerçek Electron testi izole masaüstünde taşıma/geri alma, uygulama keşfi, kısayol oluşturma/geri alma ve tema/dil/ikon kalıcılığını kontrol eder. Güncel yerel sonuçlar [test raporundadır](docs/VALIDATION.md). Windows’a özgü test ve EXE oluşturma ayrıca GitHub Actions üzerinde tanımlıdır; sonuçları üstteki canlı test rozetinden ve Actions sayfasından takip edilebilir.
+**v3.3 doğrulaması:** Servis, tarama, kural/ayar göçü, dil sözlüğü ve Chromium testleri bulunur. Gerçek Electron testi izole masaüstünde taşıma/geri alma, uygulama keşfi, kısayol oluşturma/geri alma ve tema/dil/ikon kalıcılığını kontrol eder. Güncel yerel sonuçlar [test raporundadır](docs/VALIDATION.md). Windows’a özgü test ve EXE oluşturma ayrıca GitHub Actions üzerinde tanımlıdır; sonuçları üstteki canlı test rozetinden ve Actions sayfasından takip edilebilir.
 
 <details>
 <summary><strong>Proje yapısı</strong></summary>

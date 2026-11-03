@@ -2,6 +2,7 @@ import catalog from './catalog.json' with { type: 'json' };
 import runtimeDefaults from './runtime-defaults.json' with { type: 'json' };
 import { regexMatches } from './regex.js';
 import { suggestTags } from './smart-tags.js';
+import { findKnownApp, appInsight, leafName } from './app-insights.js';
 export const icons = [
   'code',
   'palette',
@@ -57,34 +58,59 @@ export function categorySegments(id, categories = catalog) {
   return result;
 }
 export function defaultCategory(name, target = '') {
-  const text = normalize(`${name} ${target}`),
+  const app = findKnownApp({ name, target });
+  if (app)
+    return app.categoryId.startsWith('software')
+      ? 'software'
+      : app.categoryId.startsWith('system')
+        ? 'system'
+        : app.categoryId;
+  const text = normalize(`${leafName(name)} ${leafName(target)}`),
     ext = normalize(name).split('.').at(-1);
+  // A document mentioning a product is still a document, not that application.
   if (
-    /figma|adobe|photoshop|premiere|blender|after effects|davinci|illustrator|canva|inkscape|gimp/.test(
-      text,
-    ) ||
-    ['jpg', 'jpeg', 'png', 'svg', 'psd', 'ai', 'webp', 'gif', 'sketch'].includes(ext)
+    [
+      'doc',
+      'docx',
+      'xls',
+      'xlsx',
+      'ppt',
+      'pptx',
+      'pdf',
+      'txt',
+      'csv',
+      'md',
+      'odt',
+      'ods',
+      'odp',
+    ].includes(ext)
   )
+    return 'office';
+  if (['jpg', 'jpeg', 'png', 'svg', 'psd', 'ai', 'webp', 'gif', 'sketch'].includes(ext))
     return 'design';
-  if (/steam|epic|game|oyun|valorant|discord|minecraft|battle.net|ubisoft|gog/.test(text))
-    return 'games';
   if (
-    /vscode|visual studio|android studio|code|github|gitkraken|docker|python|node|terminal|jetbrains|intellij|webstorm|pycharm|postman|insomnia/.test(
-      text,
-    ) ||
     ['js', 'jsx', 'ts', 'tsx', 'py', 'json', 'html', 'css', 'go', 'rs', 'sql', 'sh'].includes(ext)
   )
     return 'software';
-  if (
-    /word|excel|notion|office|obsidian|powerpoint|libreoffice|acrobat/.test(text) ||
-    ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'txt', 'csv', 'md'].includes(ext)
-  )
-    return 'office';
-  if (
-    /vlc|spotify|audacity|itunes|music|foobar|obs studio|media player/.test(text) ||
-    ['mp3', 'mp4', 'wav', 'flac', 'aac', 'ogg', 'mov', 'mkv', 'avi', 'webm'].includes(ext)
-  )
+  if (['mp3', 'mp4', 'wav', 'flac', 'aac', 'ogg', 'mov', 'mkv', 'avi', 'webm'].includes(ext))
     return 'media';
+  if (
+    /\b(figma|adobe|photoshop|premiere|blender|davinci|illustrator|canva|inkscape|gimp)\b/.test(
+      text,
+    )
+  )
+    return 'design';
+  if (/\b(steam|epic|game|oyun|valorant|discord|minecraft|ubisoft|gog)\b/.test(text))
+    return 'games';
+  if (
+    /\b(vscode|code|github|gitkraken|docker|python|node|terminal|jetbrains|intellij|webstorm|pycharm|postman|insomnia)\b/.test(
+      text,
+    )
+  )
+    return 'software';
+  if (/\b(word|excel|notion|office|obsidian|powerpoint|libreoffice|acrobat)\b/.test(text))
+    return 'office';
+  if (/\b(vlc|spotify|audacity|itunes|music|foobar)\b/.test(text)) return 'media';
   return 'system';
 }
 export function classify(item, settings = defaultSettings) {
@@ -95,8 +121,48 @@ export function classify(item, settings = defaultSettings) {
   for (const rule of settings.rules || [])
     if (rule.enabled !== false && known.has(rule.categoryId) && matchesRule(rule, item))
       return rule.categoryId;
+  const app = findKnownApp(item);
+  if (app) {
+    if (known.has(app.categoryId)) return app.categoryId;
+    const root = app.categoryId.startsWith('software')
+      ? 'software'
+      : app.categoryId.startsWith('system')
+        ? 'system'
+        : app.categoryId;
+    if (known.has(root)) return root;
+  }
   let inferred = defaultCategory(item.name, item.target);
-  const name = normalize(item.name + ' ' + (item.target || ''));
+  const extension = (item.name || '').split('.').at(-1).toLowerCase();
+  if (
+    [
+      'pdf',
+      'doc',
+      'docx',
+      'xls',
+      'xlsx',
+      'csv',
+      'ppt',
+      'pptx',
+      'odt',
+      'ods',
+      'odp',
+      'txt',
+      'md',
+      'png',
+      'jpg',
+      'jpeg',
+      'gif',
+      'svg',
+      'webp',
+      'mp3',
+      'wav',
+      'mp4',
+      'mkv',
+      'mov',
+    ].includes(extension)
+  )
+    return known.has(inferred) ? inferred : categories[0].id;
+  const name = normalize(leafName(item.name) + ' ' + leafName(item.target));
   const sub = /setup|installer|driver.*update|update|install/.test(name)
     ? 'systeminstallers'
     : /driver|nvidia|radeon/.test(name)
@@ -154,7 +220,8 @@ export function enrichItem(item, settings = defaultSettings) {
   return {
     ...item,
     category,
-    suggestion: !explicit && fallback ? suggestTags(item, settings) : null,
+    suggestion: !explicit && fallback && !findKnownApp(item) ? suggestTags(item, settings) : null,
+    insight: appInsight(item, category),
   };
 }
 export function isDescendant(id, parent, categories) {

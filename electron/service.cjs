@@ -56,6 +56,9 @@ class DesktopService {
     this.externalCatalog = new Map();
     this.folderIcons = options.folderIcons;
     this.platform = options.platform || process.platform;
+    this.preserveTimestamp =
+      options.preserveTimestamp || ((file, atime, mtime) => fs.utimes(file, atime, mtime));
+    this.removeSource = options.removeSource || ((file) => fs.unlink(file));
   }
   async exclusive(action) {
     if (this.busy) throw Error('OPERATION_BUSY');
@@ -250,7 +253,11 @@ class DesktopService {
       const segments = categorySegments(cid, this.settings.categories);
       const targetName = installed
         ? path.basename(installed.name, path.extname(installed.name)) +
-          (this.platform === 'win32' ? '.lnk' : '.desktop')
+          (this.platform === 'win32'
+            ? path.extname(installed.source).toLowerCase() === '.url'
+              ? '.url'
+              : '.lnk'
+            : '.desktop')
         : external
           ? external.name
           : item.id;
@@ -365,16 +372,56 @@ class DesktopService {
         metadata: [],
         categoryPaths: entries.map((e) => e.categoryPath),
         skipped: plan.entries.filter((e) => e.conflict).map((e) => e.id),
+        skippedDetails: plan.entries
+          .filter((e) => e.conflict)
+          .map((e) => ({ id: e.id, code: e.conflict, target: e.target })),
+        warnings: [],
+        outputDirectories: [],
+        summary: {
+          moved: 0,
+          copied: 0,
+          shortcuts: 0,
+          skipped: plan.entries.filter((e) => e.conflict).length,
+          failed: 0,
+          pending: entries.length,
+        },
+      };
+      const summarize = () => {
+        batch.outputDirectories = [
+          ...new Set(
+            batch.entries
+              .filter((e) => e.verified === true && ['copied', 'moved'].includes(e.stage))
+              .map((e) => path.dirname(e.target)),
+          ),
+        ];
+        batch.summary = {
+          moved: batch.entries.filter((e) => e.verified === true && e.stage === 'moved').length,
+          copied: batch.entries.filter(
+            (e) => e.verified === true && e.stage === 'copied' && e.action !== 'shortcut',
+          ).length,
+          shortcuts: batch.entries.filter(
+            (e) => e.verified === true && e.stage === 'copied' && e.action === 'shortcut',
+          ).length,
+          skipped: batch.skipped.length,
+          failed: Math.max(batch.entries.filter((e) => e.error).length, batch.error ? 1 : 0),
+          pending:
+            entries.length -
+            batch.entries.filter(
+              (e) => e.verified === true && ['copied', 'moved'].includes(e.stage),
+            ).length,
+        };
       };
       log.push(batch);
       await this.save(log);
+      let currentJournal = null;
       try {
         for (const entry of entries) {
           const stat = await fs.lstat(entry.source);
           if (!stat.isFile() || stat.isSymbolicLink() || fingerprint(stat) !== entry.fingerprint)
             throw Error(`SOURCE_CHANGED: ${entry.id}`);
           const checksum = entry.action === 'shortcut' ? null : await digest(entry.source);
-          const journal = { ...entry, checksum, stage: 'planned' };
+          const journal = { ...entry, checksum, stage: 'planned', verified: false };
+          currentJournal = journal;
           batch.entries.push(journal);
           await this.save(log); // Record intention before creating a file or removing a source.
           const directory = path.dirname(entry.target);
@@ -394,25 +441,58 @@ class DesktopService {
                     path.join(this.desktop, ...categorySegments(c.id, plan.settings.categories)) ===
                     createdDirectory,
                 );
-                if (group)
-                  await this.folderIcons.decorate(
-                    createdDirectory,
-                    group,
-                    plan.settings,
-                    async (record) => {
-                      batch.metadata.push(record);
-                      await this.save(log);
-                    },
-                  );
+                if (group) {
+                  let journalFailure = null;
+                  try {
+                    await this.folderIcons.decorate(
+                      createdDirectory,
+                      group,
+                      plan.settings,
+                      async (record) => {
+                        batch.metadata.push(record);
+                        try {
+                          await this.save(log);
+                        } catch (error) {
+                          journalFailure = error;
+                          throw error;
+                        }
+                      },
+                    );
+                  } catch (error) {
+                    // Visual folder decoration is optional. A journal failure is not.
+                    if (journalFailure) throw journalFailure;
+                    batch.warnings.push({
+                      code: 'FOLDER_ICON_FAILED',
+                      id: entry.id,
+                      path: createdDirectory,
+                      detail: error.code || error.message,
+                    });
+                    await this.save(log);
+                  }
+                }
               }
             }
           }
           if (entry.action === 'shortcut') {
             if (!this.folderIcons) throw Error('SHORTCUT_UNSUPPORTED');
-            const iconName =
-              plan.settings.itemIcons[entry.id] ||
-              plan.settings.categories.find((c) => c.id === entry.category).icon;
-            const icon = await this.folderIcons.iconFile(iconName, plan.settings.iconPack);
+            const customIcon = plan.settings.itemIcons[entry.id];
+            let icon;
+            // Preserve the application's own logo unless the user explicitly overrides it.
+            if (customIcon || this.platform !== 'win32') {
+              const iconName =
+                customIcon || plan.settings.categories.find((c) => c.id === entry.category).icon;
+              try {
+                icon = await this.folderIcons.iconFile(iconName, plan.settings.iconPack);
+              } catch (error) {
+                batch.warnings.push({
+                  code: 'SHORTCUT_ICON_FALLBACK',
+                  id: entry.id,
+                  path: entry.target,
+                  detail: error.code || error.message,
+                });
+                await this.save(log);
+              }
+            }
             // Reserve the destination exclusively before invoking the native shortcut writer.
             const reservation = await fs.open(entry.target, 'wx');
             await reservation.close();
@@ -423,7 +503,19 @@ class DesktopService {
           await this.save(log);
           if ((await digest(entry.target)) !== journal.checksum)
             throw Error(`COPY_VERIFY: ${entry.id}`);
-          await fs.utimes(entry.target, stat.atime, stat.mtime);
+          journal.verified = true;
+          await this.save(log);
+          try {
+            await this.preserveTimestamp(entry.target, stat.atime, stat.mtime);
+          } catch (error) {
+            batch.warnings.push({
+              code: 'TIMESTAMP_NOT_PRESERVED',
+              id: entry.id,
+              path: entry.target,
+              detail: error.code || error.message,
+            });
+            await this.save(log);
+          }
           if (plan.mode === 'move' && entry.action !== 'shortcut') {
             const current = await fs.lstat(entry.source);
             if (
@@ -433,10 +525,16 @@ class DesktopService {
               (await digest(entry.source)) !== checksum
             )
               throw Error(`SOURCE_CHANGED: ${entry.id}`);
-            await fs.unlink(entry.source);
+            try {
+              await this.removeSource(entry.source);
+            } catch (error) {
+              throw Error(`SOURCE_REMOVE_FAILED: ${entry.id}: ${error.code || error.message}`);
+            }
             journal.stage = 'moved';
             await this.save(log);
           }
+          summarize();
+          currentJournal = null;
           this.onProgress({
             completed: batch.entries.length,
             total: entries.length,
@@ -444,11 +542,14 @@ class DesktopService {
           });
         }
         batch.status = 'completed';
+        summarize();
         await this.save(log);
         return batch;
       } catch (error) {
+        if (currentJournal) currentJournal.error = error.message;
         batch.status = 'interrupted';
         batch.error = error.message;
+        summarize();
         await this.save(log);
         throw Error('OPERATION_INTERRUPTED: ' + error.message);
       }
@@ -556,8 +657,22 @@ class DesktopService {
             entry.stage = 'restoring';
             await this.save(log);
             await fs.copyFile(entry.target, entry.source, constants.COPYFILE_EXCL);
-            if (Number.isFinite(entry.modified))
-              await fs.utimes(entry.source, new Date(entry.modified), new Date(entry.modified));
+            if (Number.isFinite(entry.modified)) {
+              try {
+                await this.preserveTimestamp(
+                  entry.source,
+                  new Date(entry.modified),
+                  new Date(entry.modified),
+                );
+              } catch (error) {
+                (batch.warnings ||= []).push({
+                  code: 'TIMESTAMP_NOT_PRESERVED',
+                  id: entry.id,
+                  path: entry.source,
+                  detail: error.code || error.message,
+                });
+              }
+            }
           }
           entry.stage = 'restored';
           await this.save(log);
@@ -597,16 +712,44 @@ class DesktopService {
           throw Error('TARGET_INVALID');
         await this.safeDirectory(parent, false, batch.categoryPaths || folders);
         const stat = await exists(meta.path);
-        if (stat?.isFile() && !stat.isSymbolicLink() && (await digest(meta.path)) === meta.checksum)
-          await fs.unlink(meta.path);
+        if (
+          stat?.isFile() &&
+          !stat.isSymbolicLink() &&
+          (await digest(meta.path)) === meta.checksum
+        ) {
+          try {
+            await fs.unlink(meta.path);
+          } catch (error) {
+            if (!['EPERM', 'EACCES'].includes(error.code)) throw error;
+            (batch.warnings ||= []).push({
+              code: 'FOLDER_ICON_FAILED',
+              path: meta.path,
+              detail: error.code,
+            });
+          }
+        }
       }
       for (const directory of [...(batch.directories || [])].sort((a, b) => b.length - a.length)) {
         await this.safeDirectory(directory, false, batch.categoryPaths || folders);
-        await this.folderIcons?.removeAttributes(directory);
+        try {
+          await this.folderIcons?.removeAttributes(directory);
+        } catch (error) {
+          (batch.warnings ||= []).push({
+            code: 'FOLDER_ICON_FAILED',
+            path: directory,
+            detail: error.code || error.message,
+          });
+        }
         try {
           await fs.rmdir(directory);
         } catch (e) {
-          if (!['ENOTEMPTY', 'ENOENT', 'EEXIST'].includes(e.code)) throw e;
+          if (['EPERM', 'EACCES'].includes(e.code))
+            (batch.warnings ||= []).push({
+              code: 'FOLDER_ICON_FAILED',
+              path: directory,
+              detail: e.code,
+            });
+          else if (!['ENOTEMPTY', 'ENOENT', 'EEXIST'].includes(e.code)) throw e;
         }
       }
       batch.status = 'undone';

@@ -44,6 +44,17 @@ const { folders } = require('../electron/service.cjs');
       'boolean',
     );
     assert.equal(await page.evaluate(() => typeof window.darkdesk.itemDetails), 'function');
+    assert.equal(
+      await page.evaluate(async () => {
+        try {
+          await window.darkdesk.revealOutput('missing-batch');
+          return false;
+        } catch {
+          return true;
+        }
+      }),
+      true,
+    );
     const fileInfo = await page.evaluate(() => window.darkdesk.itemDetails('Rapor.pdf'));
     assert.equal(fileInfo.size, Buffer.byteLength('native IPC content'));
     assert.equal(fileInfo.company, null);
@@ -86,6 +97,7 @@ const { folders } = require('../electron/service.cjs');
     await expect(page.getByRole('dialog')).toBeVisible();
     assert.deepEqual(await fs.readdir(desktop), ['Rapor.pdf'], 'Preview must not change files');
     await page.getByRole('button', { name: '1 öğeyi taşı' }).click();
+    await expect(page.getByRole('region', { name: 'Düzenleme sonucu' })).toContainText('1 taşındı');
     await expect(page.locator('.item-card')).toHaveCount(0);
     assert.equal(
       await fs.readFile(path.join(desktop, folders[3], 'Rapor.pdf'), 'utf8'),
@@ -138,7 +150,7 @@ const { folders } = require('../electron/service.cjs');
         link,
       );
       assert.equal(details.target, installed);
-      assert.ok(details.icon.endsWith('.ico'));
+      assert.equal(details.icon, installed);
     }
     await page.locator('main').getByRole('button', { name: 'Geri al', exact: true }).click();
     await expect(page.locator('.activity-bar')).toHaveCount(0);
@@ -181,8 +193,14 @@ const { folders } = require('../electron/service.cjs');
         }
       })
       .toBe('Rapor.pdf');
-    const recorded = JSON.parse(await fs.readFile(path.join(root, 'data', 'usage.json'), 'utf8'));
-    assert.equal(recorded['Rapor.pdf'].count, 1);
+    await expect
+      .poll(async () => {
+        const recorded = JSON.parse(
+          await fs.readFile(path.join(root, 'data', 'usage.json'), 'utf8'),
+        );
+        return recorded['Rapor.pdf']?.count;
+      })
+      .toBe(1);
     assert.ok((await page.evaluate(() => window.darkdesk.itemDetails('Rapor.pdf'))).lastOpened > 0);
     const trayState = await page.evaluate(() => window.darkdesk.runtimeStatus());
     if (trayState.trayAvailable) {
@@ -224,6 +242,32 @@ const { folders } = require('../electron/service.cjs');
     await page.evaluate(() => window.darkdesk.undo());
     assert.equal(await fs.readFile(oldFile, 'utf8'), 'archive bytes');
     assert.equal(await fs.readFile(download, 'utf8'), 'download bytes');
+    if (process.platform === 'win32') {
+      const probe = path.join(desktop, 'DarkDesk Icon Probe.lnk');
+      assert.equal(
+        await application.evaluate(
+          ({ shell }, file) =>
+            shell.writeShortcutLink(file, 'create', {
+              target: process.execPath,
+              icon: process.execPath,
+              iconIndex: 0,
+            }),
+          probe,
+        ),
+        true,
+      );
+      const originalIcon = await page.evaluate(async () => {
+        await window.darkdesk.scan();
+        return window.darkdesk.itemIcon('DarkDesk Icon Probe.lnk', true);
+      });
+      assert.equal(
+        originalIcon.iconSource,
+        'windows-native',
+        'Windows CI must extract the real Electron executable icon',
+      );
+      assert.ok(originalIcon.icon.startsWith('data:image/png;base64,'));
+      await fs.unlink(probe);
+    }
     await page.getByRole('button', { name: 'Workspace Profiles', exact: true }).click();
     await page.locator('.profile-activate').filter({ hasText: 'Clean Desktop' }).click();
     await expect(page.locator('.activity-bar')).toHaveCount(0);

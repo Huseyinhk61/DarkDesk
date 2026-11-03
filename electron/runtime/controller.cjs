@@ -190,8 +190,9 @@ class DesktopRuntime {
     if (!item) throw Error('SOURCE_MISSING');
     return item;
   }
-  async itemIcon(id) {
-    return this.details.icon(this.trustedItem(id));
+  async itemIcon(id, refresh = false) {
+    if (typeof refresh !== 'boolean') throw Error('ICON_INVALID');
+    return this.details.icon(this.trustedItem(id), { refresh });
   }
   async itemDetails(id) {
     const item = this.trustedItem(id);

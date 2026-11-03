@@ -1,5 +1,15 @@
 # Değişiklikler
 
+## 3.3.0 — 3 Kasım 2026
+
+- Klasör dekorasyonu/attrib ve tarih koruma hataları artık asıl dosya taşımasını engellemez; uyarılar işlem günlüğüne kaydedilir.
+- Yalnızca içerik doğrulaması geçen hedefler başarı sayılır. Başarısız silmede kaynak ve doğrulanmış kopya korunur.
+- İşlem sonuç paneli, gerçek aksiyon sayıları, hedef klasörleri açma, atlama nedenleri ve geri alma.
+- `.lnk` ve `.url` kısayollarında özgün ikon/başlatma bilgileri; executable kısayollarında uygulamanın kendi ikonu.
+- Sabit PowerShell/Windows API üzerinden özgün ikon kaynağı çıkarma, PNG doğrulama, süre sınırı ve manuel yenileme.
+- 82 uygulamalık yerel Türkçe/İngilizce kullanım kataloğu; ad/hedef eşleştirme ve belirsiz öğeler için açık tahmin etiketi.
+- Kompakt başlık/profil şeridi/kategori kartları ve opak Spotlight paneli; ana kategori sayacı düzeltildi.
+
 ## 3.2.0 — 3 Kasım 2026
 
 - Ocean Blue, Forest Green, Rose Light, Yüksek Kontrast ve canlı sistem teması seçeneği.

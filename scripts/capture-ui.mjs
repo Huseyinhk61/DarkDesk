@@ -16,6 +16,8 @@ try {
   await expect(page.locator('.item-card')).toHaveCount(12);
   await settled();
   await page.screenshot({ path: 'docs/assets/workspace.png', fullPage: true });
+  await page.locator('.live-panel').scrollIntoViewIfNeeded();
+  await page.screenshot({ path: 'docs/assets/apps.png' });
   await page.locator('.item-info-trigger').first().click();
   await expect(page.locator('.item-details-grid')).toBeVisible();
   await page.screenshot({ path: 'docs/assets/details.png' });
@@ -24,6 +26,14 @@ try {
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.screenshot({ path: 'docs/assets/preview.png' });
   await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'Masaüstünü Demo Düzenle', exact: true }).click();
+  await page.getByRole('button', { name: '12 öğeyi taşı', exact: true }).click();
+  await settled();
+  await expect(page.locator('.operation-receipt')).toBeVisible();
+  await page.locator('.operation-receipt summary').click();
+  await page.screenshot({ path: 'docs/assets/result.png' });
+  await page.getByRole('button', { name: 'Bu düzenlemeyi geri al', exact: true }).click();
+  await expect(page.locator('.item-card')).toHaveCount(12);
   await page.getByRole('button', { name: 'Otomasyon & Ayarlar', exact: true }).click();
   await page.locator('.appearance-panel').screenshot({ path: 'docs/assets/settings.png' });
   await page.getByRole('button', { name: 'Cyberpunk Neon', exact: true }).click();
@@ -86,7 +96,7 @@ try {
   await page.getByRole('button', { name: 'Yardım & Başlangıç', exact: true }).click();
   await page.screenshot({ path: 'docs/assets/help.png' });
   console.log(
-    'Captured 3.2 desktop, new themes, help, metadata, shortcuts and Spotlight screenshots.',
+    'Captured 3.3 compact desktop, app purposes, organization receipt, themes and native-style launcher screenshots.',
   );
 } finally {
   await browser.close();

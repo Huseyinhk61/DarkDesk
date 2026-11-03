@@ -1,17 +1,27 @@
-# DarkDesk 3.2 doğrulama raporu
+# DarkDesk 3.3 doğrulama raporu
 
 Tarih: 3 Kasım 2026. Yerel doğrulama ortamı: Linux, Node.js 24, Electron 45, Chromium ve Xvfb.
 
 | Kontrol                             | Sonuç                                                                                                                                          |
 | :---------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm test`                          | 97 servis/model/ayar testi geçti; başarısız veya atlanan test yok.                                                                             |
+| `npm test`                          | 121 servis/model/ayar testi geçti; başarısız veya atlanan test yok.                                                                            |
 | `npm run build`                     | Üretim React/Tailwind derlemesi geçti.                                                                                                         |
-| `npm run test:e2e`                  | 47 Chromium senaryosu geçti.                                                                                                                   |
+| `npm run test:e2e`                  | 56 Chromium senaryosu geçti.                                                                                                                   |
 | `npm run test:desktop`              | İzole gerçek Electron/IPC testi geçti.                                                                                                         |
 | Linux `electron-builder --dir`      | Uygulama dizini ve ASAR oluşturuldu. Bu kontrol AppImage veya Windows EXE üretildiği anlamına gelmez.                                          |
 | Paketlenmiş ASAR’dan Electron testi | Paylaşılan ESM/JSON modülleri, preload, tarayıcı, ikon dosyaları ve renderer paket içinden çalıştı.                                            |
 | Paket içeriği                       | Native ikonlar, runtime/profil/otomasyon modülleri, dil sözlükleri ve RE2 regex bağımlılığı mevcut; test giriş noktaları dağıtıma dahil değil. |
 | `npm audit --omit=dev`              | Dağıtım bağımlılıklarında bilinen açık raporlanmadı.                                                                                           |
+
+## 3.3 kapsamı
+
+Dosya sistemi regresyonları klasör ikonu/attrib hatasını, tarih ayarı hatasını, kritik günlük hatasını ve kaynak silme izni reddini enjekte ederek gerçek geçici dosyalarda taşıma/geri almayı kontrol eder. Bozuk hedef checksum testi başarının yanlış sayılmasını engeller. Yeni kısayolların kaynak executable ikonunu/argümanlarını koruduğu ve `.lnk`/`.url` dosyalarının kopyalanırken değişmediği test edilir.
+
+Windows ikon servisi sabit PowerShell ve Windows kaynak API'leriyle uygulanmıştır. Yerel testlerde custom ikon önceliği, `.url` UTF-16 okuması, kaynak fingerprint'i, PNG doğrulaması ve sınırlı process iletişimi enjekte edilmiş adaptörlerle doğrulandı. **Bu Linux oturumunda canlı Windows ikon çıkarımı yapılmadı.** GitHub Actions Windows Electron dalına gerçek Electron executable'ına işaret eden `.lnk` üzerinden `windows-native` PNG çıkarma kontrolü eklendi; uzak işin başarı durumu bu rapordan çıkarılamaz.
+
+Kullanım kataloğu 82 tanımlı uygulama içerir. Testler ortak başlatıcılar, kısayol etiketleri, yanlış belge eşleşmesi, manuel kural önceliği ve belirsizlik etiketlerini kapsar. Açıklamalar uzaktan üretilmez; adı taklit edilmiş bir dosyanın kimliği veya üreticisi doğrulanmış sayılmaz.
+
+Yeni UI senaryoları 1366×768 ekranda koleksiyonun başlangıcını, küçük pencerede %130 metni, opak başlatıcıyı, açıklama panelini, manuel ikon yenilemeyi ve gerçek aksiyon sayılarıyla işlem sonucunu doğrular. Gerçek Electron ve ASAR testleri izole masaüstünde taşı/geri al ve sonuç panelini de kontrol etti.
 
 ## 3.2 kapsamı
 

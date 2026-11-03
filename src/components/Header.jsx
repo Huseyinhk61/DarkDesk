@@ -1,63 +1,63 @@
-import { ScanLine, FolderSync, ArrowUpRight, ShieldCheck } from 'lucide-react';
+import { ScanLine, FolderSync, ShieldCheck, Monitor, Layers3 } from 'lucide-react';
 import { usePreferences } from '../preferences';
-export default function Header({ scan, organize, busy, count, last, native }) {
+export default function Header({
+  scan,
+  organize,
+  busy,
+  count,
+  last,
+  native,
+  scope = 'desktop',
+  selectedCount = count,
+}) {
   const { t, locale } = usePreferences();
   return (
-    <>
-      <div className="eyebrow">
-        <span />
-        {t('hero.eyebrow')}
-        <span className="local">
-          <ShieldCheck size={13} />
-          {t(native ? 'hero.local' : 'hero.demo')}
-        </span>
+    <header className="desktop-header">
+      <div className="desktop-header-copy">
+        <div className="eyebrow">
+          <span />
+          {t('hero.eyebrow')}
+          <span className="desktop-connection">
+            <ShieldCheck size={13} />
+            {t(native ? 'hero.local' : 'hero.demo')}
+          </span>
+        </div>
+        <h1>
+          {t('hero.title')}
+          <span>.</span>
+        </h1>
+        <p>{t(scope === 'system' ? 'desktop.systemHint' : 'hero.body')}</p>
+        <div className="desktop-source-meta">
+          <span>
+            <Monitor size={13} />
+            {t('scan.' + scope)}
+          </span>
+          <span>
+            <Layers3 size={13} />
+            {t('desktop.selection', { selected: selectedCount, count })}
+          </span>
+          <span className="desktop-scan-time">
+            {last
+              ? t('hero.lastScan', {
+                  time: last.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }),
+                })
+              : t('hero.ready')}
+          </span>
+        </div>
       </div>
-      <header className="hero">
-        <div>
-          <h1>
-            {t('hero.title')}
-            <span>.</span>
-          </h1>
-          <p>
-            {t('hero.body')}
-            <br />
-            {t('hero.body2')}
-          </p>
-        </div>
-        <div className="hero-visual">
-          <div className="orbit one" />
-          <div className="orbit two" />
-          <div className="floating-folder">
-            <FolderSync size={49} strokeWidth={1.3} />
-          </div>
-          <span className="mini-spark">✦</span>
-          <span className="mini-dot" />
-        </div>
-      </header>
-      <div className="action-row">
+      <div className="desktop-header-actions">
         <div className="actions">
-          <button className="btn primary" onClick={scan} disabled={!!busy}>
+          <button className="btn secondary" onClick={scan} disabled={!!busy}>
             <ScanLine size={17} />
             {t(busy === 'scan' ? 'hero.scanning' : 'hero.scan')}
-            <ArrowUpRight size={16} />
           </button>
-          <button className="btn secondary" onClick={organize} disabled={!!busy || !count}>
+          <button className="btn primary" onClick={organize} disabled={!!busy || !selectedCount}>
             <FolderSync size={17} />
             {t(native ? 'hero.organize' : 'hero.organizeDemo')}
           </button>
         </div>
-        <div className="scan-meta">
-          <span className="online" />
-          {last
-            ? t('hero.lastScan', {
-                time: last.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }),
-              })
-            : t('hero.ready')}
-          <span className="divider" />
-          <b>{count}</b>
-          {t('common.items')}
-        </div>
+        <small>{t('desktop.reviewHint')}</small>
       </div>
-    </>
+    </header>
   );
 }

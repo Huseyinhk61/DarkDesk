@@ -43,7 +43,7 @@ export default function CategoryGrid({ items, filter, setFilter, onDropItem, dis
                 <span className="category-icon">
                   <AppIcon name={c.icon} size={24} strokeWidth={2} />
                 </span>
-                <ArrowUpRight size={15} />
+                <ArrowUpRight size={14} aria-hidden="true" />
               </div>
               <h3>
                 {c.parentId && <span className="subgroup-prefix">↳ </span>}
@@ -52,7 +52,6 @@ export default function CategoryGrid({ items, filter, setFilter, onDropItem, dis
               <div className="category-count">
                 <strong>{list.length}</strong>
                 <span>{t('common.items')}</span>
-                <div className="category-dots">•••</div>
               </div>
               <p>
                 {apps} {t('common.apps')} <span>·</span> {list.length - apps} {t('common.files')}

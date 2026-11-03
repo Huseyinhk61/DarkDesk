@@ -11,7 +11,8 @@ const {
   VERSION_SCRIPT,
 } = require('./runtime/item-details.cjs');
 const { DesktopRuntime } = require('./runtime/controller.cjs');
-const PNG = 'data:image/png;base64,aGVsbG8=';
+const PNG =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/iZk9HQAAAABJRU5ErkJggg==';
 async function fixture(t) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'darkdesk-details-'));
   t.after(() => fs.rm(root, { recursive: true, force: true }));
@@ -46,6 +47,7 @@ test('shortcut metadata uses local executable target and icon extraction stays l
   let metadataCalls = 0;
   const service = new ItemDetailsService({
     platform: 'win32',
+    readWindowsIcon: async () => null,
     resolveShortcut: async () => ({ target: file }),
     getFileIcon: async () => ({ toDataURL: () => PNG }),
     readVersionInfo: async (source) => {
@@ -70,6 +72,7 @@ test('unavailable metadata/icon produce explicit unknowns and invalid icon data 
   const { item } = await fixture(t);
   const service = new ItemDetailsService({
     platform: 'win32',
+    readWindowsIcon: async () => null,
     getFileIcon: async () => ({ toDataURL: () => 'file:///private/path' }),
     readVersionInfo: async () => {
       throw Error('No version resources');
@@ -153,6 +156,7 @@ test('concurrent metadata requests retain their result even when bounded cache e
   const { root } = await fixture(t);
   const service = new ItemDetailsService({
     platform: 'win32',
+    readWindowsIcon: async () => null,
     limit: 1,
     getFileIcon: async () => ({ toDataURL: () => PNG }),
     readVersionInfo: async (source) => ({ company: path.basename(source), description: 'app' }),
