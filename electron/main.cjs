@@ -1,0 +1,14 @@
+const {app,BrowserWindow,ipcMain,shell}=require('electron');
+const path=require('node:path');const os=require('node:os');const fs=require('node:fs/promises');
+const {DesktopService}=require('./service.cjs');let win;let busy=false;
+app.whenReady().then(()=>{const service=new DesktopService(app.getPath('desktop'),app.getPath('userData'));
+ const handle=(name,fn)=>ipcMain.handle(name,async(event,...args)=>{if(event.sender!==win.webContents)throw Error('Yetkisiz pencere.');return fn(...args);});
+ handle('scan',()=>service.scan());handle('history',()=>service.history());
+ for(const [name,fn] of [['organize',(...args)=>service.organize(...args)],['undo',()=>service.undo()]])handle(name,async(...args)=>{if(busy)throw Error('Bir işlem sürüyor.');busy=true;try{return await fn(...args);}finally{busy=false;}});
+ handle('stats',async()=>{let storage=null;try{const s=await fs.statfs(app.getPath('desktop'));storage={total:s.blocks*s.bsize,free:s.bavail*s.bsize};}catch{}return {total:os.totalmem(),free:os.freemem(),desktop:app.getPath('desktop'),storage};});
+ handle('open',async id=>{if(typeof id!=='string'||path.basename(id)!==id)throw Error('Geçersiz dosya.');await shell.openPath(path.join(app.getPath('desktop'),id));});
+ handle('window',action=>{if(action==='minimize')win.minimize();if(action==='maximize')win.isMaximized()?win.unmaximize():win.maximize();if(action==='close')win.close();});
+ win=new BrowserWindow({width:1440,height:960,minWidth:900,minHeight:650,frame:false,backgroundColor:'#0f1117',webPreferences:{preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
+ win.webContents.setWindowOpenHandler(()=>({action:'deny'}));win.webContents.on('will-navigate',e=>e.preventDefault());
+ if(app.isPackaged)win.loadFile(path.join(__dirname,'../dist/index.html'));else win.loadURL('http://127.0.0.1:5173');
+});app.on('window-all-closed',()=>{if(process.platform!=='darwin')app.quit();});
