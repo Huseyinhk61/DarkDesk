@@ -1,17 +1,27 @@
-# DarkDesk 3.1 doğrulama raporu
+# DarkDesk 3.2 doğrulama raporu
 
 Tarih: 3 Kasım 2026. Yerel doğrulama ortamı: Linux, Node.js 24, Electron 45, Chromium ve Xvfb.
 
 | Kontrol                             | Sonuç                                                                                                                                          |
 | :---------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm test`                          | 86 servis/model/ayar testi geçti; başarısız veya atlanan test yok.                                                                             |
+| `npm test`                          | 97 servis/model/ayar testi geçti; başarısız veya atlanan test yok.                                                                             |
 | `npm run build`                     | Üretim React/Tailwind derlemesi geçti.                                                                                                         |
-| `npm run test:e2e`                  | 37 Chromium senaryosu geçti.                                                                                                                   |
+| `npm run test:e2e`                  | 47 Chromium senaryosu geçti.                                                                                                                   |
 | `npm run test:desktop`              | İzole gerçek Electron/IPC testi geçti.                                                                                                         |
 | Linux `electron-builder --dir`      | Uygulama dizini ve ASAR oluşturuldu. Bu kontrol AppImage veya Windows EXE üretildiği anlamına gelmez.                                          |
 | Paketlenmiş ASAR’dan Electron testi | Paylaşılan ESM/JSON modülleri, preload, tarayıcı, ikon dosyaları ve renderer paket içinden çalıştı.                                            |
 | Paket içeriği                       | Native ikonlar, runtime/profil/otomasyon modülleri, dil sözlükleri ve RE2 regex bağımlılığı mevcut; test giriş noktaları dağıtıma dahil değil. |
 | `npm audit --omit=dev`              | Dağıtım bağımlılıklarında bilinen açık raporlanmadı.                                                                                           |
+
+## 3.2 kapsamı
+
+Vite izleyicisi dağıtım çıktıları, test raporları ve dokümanları dışarıda bırakır. Bu dosyaların yazılması sırasında geliştirme görünümünün sıfırlanmasına yol açan yenileme giderilmiştir.
+
+Yeni servis testleri 7 palet ve Sistem Teması için kalıcılığı, eski ayarlara görünüm varsayılanlarının eklenmesini, geçersiz görünüm değerlerinin reddini ve ana metin tokenlarının taban yüzeylerde kontrastını doğrular. Bu, tüm ekranların bir erişilebilirlik standardına göre sertifikalandırılması anlamına gelmez.
+
+Pencere geometrisi testleri kaldırılan monitörü, negatif koordinatlı ekranları, küçük çalışma alanını, bozuk kayıtları ve sıralı kalıcı yazmayı kapsar. Gerçek Electron testi pencere durumu IPC'sini ve çıkışta kayıt dosyasını kontrol eder; fiziksel monitör çıkarma testi yapılmadı.
+
+Arayüz senaryoları yeni paletler, canlı OS tema değişimi, %130 metin, azaltılmış hareket, kompakt yoğunluk, kaydedilmemiş işlem tercihlerini koruma, yardım ekranı ve içeriğe geçişi kapsar. Diyalog testleri yazarken imlecin korunmasını, arka plan yalıtımını, hata mesajının diyalog içinde okunmasını, odağın açan düğmeye dönüşünü ve Spotlight combobox gezinmesini doğrular. Otomatik kontroller, gerçek ekran okuyucu kullanıcı testi yerine geçmez.
 
 ## 3.1 kapsamı
 
@@ -27,7 +37,7 @@ Gerçek Electron testi `app.getFileIcon` ile PNG veya ikon bulunamadığında `n
 - Alt klasör oluşturma, döngü/rezerv Windows adları/yol kaçışı doğrulaması ve kategori silindikten sonra eski işlemi geri alma.
 - Derin tarama kökleri, kayıtlı konumlar, yardımcı dosya elemesi, hedef+argüman bazlı tekilleştirme, erişim uyarıları, sınırlar ve durdurma.
 - Kurulu uygulamaya dokunmadan `.desktop` kısayolu oluşturma, yeni kısayolu geri alma ve uygulamanın orijinal içeriğini koruma.
-- Üç tema, iki dil, ikon paketi/öğe ikonu kalıcılığı, özel kategori ve kural akışları, arama ve filtreleme.
+- Yedi palet ve sistem teması, iki dil, ikon paketi/öğe ikonu kalıcılığı, özel kategori ve kural akışları, arama ve filtreleme.
 - İngilizce açık tema dahil 390 px genişlikte taşma kontrolü, klavye araması, diyalog odağı ve geri alınabilir bildirim.
 - Türkçe/İngilizce sözlüklerde eşit anahtarlar ve eşit yer tutucular.
 - Profil görünürlüğü, önceden gizli öğelerin korunması, profil geçişi ve çıkışta geri yükleme; Linux üzerinde gerçek `.hidden` işlemleri.

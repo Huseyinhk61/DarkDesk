@@ -32,6 +32,24 @@
 | **Kalıcı ayarlar**            | Taşı/kopyala seçimi, canlı takip, hariç tutulacak uzantılar ve kategori tercihleri bu cihazda saklanır.                                                                     |
 | **Yerel ve hesapsız**         | Dosya işlemleri için hesap, API anahtarı veya bulut servisi gerekmez. Sonuç bildiriminden tek tıkla geri alınabilir.                                                        |
 
+## 🎨 3.2: daha okunabilir, masaüstüne uyumlu
+
+Ocean Blue, Forest Green, Rose Light ve Yüksek Kontrast eklendi. **Sistem Teması** işletim sisteminin açık/koyu seçimini izler; toplam 7 renk paleti ve sistem seçeneği bulunur.
+
+- %100 / %115 / %130 metin boyutu, rahat/sıkışık kart yoğunluğu ve hareket azaltma.
+- Daha büyük seçim alanları, belirgin klavye odağı ve ana içeriğe geç bağlantısı.
+- Diyaloglarda klavye ve ekran okuyucu için arka plan yalıtımı; odak ve hata mesajları korunur.
+- Pencere boyutu/konumu hatırlanır; monitör değişince pencere görünür alana alınır.
+- İlk kez kullananlar için internet gerektirmeyen **Yardım & Başlangıç** ekranı.
+
+|              Ocean Blue              |                 Forest Green                 |
+| :----------------------------------: | :------------------------------------------: |
+| ![Ocean Blue](docs/assets/ocean.png) |   ![Forest Green](docs/assets/forest.png)    |
+|              Rose Light              |               Yüksek Kontrast                |
+| ![Rose Light](docs/assets/rose.png)  | ![Yüksek Kontrast](docs/assets/contrast.png) |
+
+[**Kullanım rehberi →**](docs/USABILITY.md)
+
 ## ✨ 3.1: yerel ikonlar ve daha net çalışma alanı
 
 - **Orijinal uygulama ikonları:** `.exe` ve `.lnk` ikonları Electron üzerinden okunur; bulunamadığında kategori ikonu kullanılır.
@@ -150,8 +168,8 @@ Vite’ın terminalde gösterdiği adresi aç. **Web modu örnek verilerle çal�
 
 GitHub Actions içindeki **[Windows Installer](https://github.com/Huseyinhk61/DarkDesk/actions/workflows/windows.yml)** iş akışı:
 
-- `DarkDesk-Setup-3.1.0.exe`: Kurulum sihirbazı ve masaüstü kısayolu.
-- `DarkDesk-Portable-3.1.0.exe`: Kurulum gerektirmeyen sürüm.
+- `DarkDesk-Setup-3.2.0.exe`: Kurulum sihirbazı ve masaüstü kısayolu.
+- `DarkDesk-Portable-3.2.0.exe`: Kurulum gerektirmeyen sürüm.
 - `SHA256SUMS.txt`: İndirilen dosyaları doğrulamak için özetler.
 
 `main` dalına gönderilen güncellemeler Windows paketini otomatik oluşturur. Depo sahibi ayrıca **Run workflow** ile derlemeyi başlatabilir. Başarılı çalışmanın **Artifacts → DarkDesk-Windows** bölümünden paket indirilir. `v*` etiketi gönderildiğinde testlerden geçen paketler GitHub Releases’e eklenir. **İş akışı başarıyla tamamlanmadan hazır bir EXE bulunduğunu varsayma.**
@@ -189,7 +207,7 @@ Linux CI’de Electron testi için `xvfb-run -a npm run test:desktop` gerekir. T
 
 Dağıtım bağımlılıklarında bilinen açık bulunmadı (`npm audit --omit=dev`). Tam araç zinciri denetiminde paketleyicinin geçişli geliştirme bağımlılıklarında orta seviye bildirimler bulunuyor; bunlar için eski bir paketleyici sürümüne otomatik düşürme yapılmadı.
 
-**v3.1 doğrulaması:** Servis, tarama, kural/ayar göçü, dil sözlüğü ve Chromium testleri bulunur. Gerçek Electron testi izole masaüstünde taşıma/geri alma, uygulama keşfi, kısayol oluşturma/geri alma ve tema/dil/ikon kalıcılığını kontrol eder. Güncel yerel sonuçlar [test raporundadır](docs/VALIDATION.md). Windows’a özgü test ve EXE oluşturma ayrıca GitHub Actions üzerinde tanımlıdır; sonuçları üstteki canlı test rozetinden ve Actions sayfasından takip edilebilir.
+**v3.2 doğrulaması:** Servis, tarama, kural/ayar göçü, dil sözlüğü ve Chromium testleri bulunur. Gerçek Electron testi izole masaüstünde taşıma/geri alma, uygulama keşfi, kısayol oluşturma/geri alma ve tema/dil/ikon kalıcılığını kontrol eder. Güncel yerel sonuçlar [test raporundadır](docs/VALIDATION.md). Windows’a özgü test ve EXE oluşturma ayrıca GitHub Actions üzerinde tanımlıdır; sonuçları üstteki canlı test rozetinden ve Actions sayfasından takip edilebilir.
 
 <details>
 <summary><strong>Proje yapısı</strong></summary>
@@ -203,13 +221,15 @@ electron/
   scanner.cjs         Program Files / Başlat Menüsü / kayıtlı uygulama keşfi
   folder-icons.cjs    Native klasör ikonları ve uygulama kısayolları
   runtime/            Profiller, görünürlük, kullanım, otomasyon ve seri koordinatör
-shared/               Ortak kategori modeli, eşleştirme ve ayar doğrulama
+shared/               Ortak kategori/tema katalogları, eşleştirme ve ayar doğrulama
 src/
   components/         Sidebar, Header, CategoryGrid, ItemCard, Settings, PreviewModal
   App.jsx             Çalışma alanı ve işlem akışları
   service.js          Native köprü / etkileşimli web demosu
   styles.css          Duyarlı temel bileşen stilleri
-  themes.css          CSS değişkenleriyle üç tema
+  themes.css          Tema değişkenlerine bağlı bileşen stilleri
+  usability.css       Metin ölçeği, yoğunluk, odak ve kontrast düzeni
+  useDialog.js        Diyalog odağı ve arka plan yalıtımı
   locales/            Türkçe ve İngilizce JSON sözlükler (native tepsi dahil)
   preferences.jsx     Tema, dil, ikon ve kategori bağlamı
 scripts/              Electron smoke testi ve ekran görüntüsü aracı

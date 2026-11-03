@@ -11,6 +11,7 @@ import {
   Focus,
   Workflow,
   Search,
+  CircleHelp,
 } from 'lucide-react';
 import { usePreferences } from '../preferences';
 import { formatBytes } from '../utils';
@@ -44,6 +45,7 @@ export default function Sidebar({ view, setView, stats, native }) {
           ['categories', FolderTree],
           ['automation', Workflow],
           ['settings', Settings2],
+          ['help', CircleHelp],
         ].map(([id, Icon]) => (
           <button
             key={id}
@@ -99,7 +101,7 @@ export default function Sidebar({ view, setView, stats, native }) {
           <span className="avatar">DD</span>
           <div>
             {t('sidebar.local')}
-            <small>v3.1.0 · {t(native ? 'sidebar.desktop' : 'sidebar.web')}</small>
+            <small>v3.2.0 · {t(native ? 'sidebar.desktop' : 'sidebar.web')}</small>
           </div>
           <span className="online" />
         </footer>

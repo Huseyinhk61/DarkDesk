@@ -37,7 +37,7 @@
   --shadow: #28003880;
   color-scheme: dark;
 }
-[data-theme='slate'] {
+[data-color-scheme='light'] {
   --bg: #f4f6fa;
   --sidebar: #ffffff;
   --surface: #ffffff;
@@ -413,7 +413,7 @@ select option,
   align-items: center;
   gap: 5px;
   white-space: nowrap;
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-scale, 1));
   color: var(--accent);
   border-left: 1px solid var(--border);
   padding-left: 12px;
@@ -457,7 +457,7 @@ select option,
 .item-icon-picker select {
   background: none;
   border: 0;
-  font-size: 9px;
+  font-size: calc(11px * var(--ui-scale, 1));
   color: var(--faint);
   max-width: 100%;
   width: 100%;
@@ -467,7 +467,7 @@ select option,
   grid-column: 3;
 }
 .appearance-panel .field-label {
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-scale, 1));
 }
 .theme-options {
   display: grid;
@@ -490,7 +490,7 @@ select option,
   background: rgba(var(--accent-rgb), 0.04);
 }
 .theme-option b {
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-scale, 1));
   font-weight: 500;
 }
 .theme-option > svg {
@@ -548,12 +548,12 @@ select option,
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-scale, 1));
   margin-bottom: 9px;
 }
 .appearance-fields select {
   width: 100%;
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-scale, 1));
 }
 .icon-pack-preview {
   display: flex;
@@ -589,13 +589,13 @@ select option,
   min-width: 0;
 }
 .managed-group b {
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-scale, 1));
   font-weight: 500;
 }
 .managed-group small {
   display: block;
   color: var(--faint);
-  font-size: 9px;
+  font-size: calc(11px * var(--ui-scale, 1));
   overflow-wrap: anywhere;
   margin-top: 5px;
 }
@@ -609,7 +609,7 @@ select option,
   margin: 22px 0;
 }
 .editor-grid label {
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-scale, 1));
   display: grid;
   gap: 8px;
 }
@@ -625,7 +625,7 @@ select option,
 }
 .rule-form select {
   max-width: 220px;
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-scale, 1));
 }
 .rule-row {
   display: flex;
@@ -639,13 +639,13 @@ select option,
   min-width: 0;
 }
 .rule-row b {
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-scale, 1));
   font-weight: 500;
 }
 .rule-row small {
   display: block;
   color: var(--muted);
-  font-size: 10px;
+  font-size: calc(11px * var(--ui-scale, 1));
   margin-top: 6px;
 }
 .rule-row input {
@@ -664,12 +664,12 @@ select option,
   gap: 14px;
 }
 .scanner-heading h2 {
-  font-size: 17px;
+  font-size: calc(17px * var(--ui-scale, 1));
   font-weight: 500;
   margin: 0;
 }
 .scanner-heading p {
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-scale, 1));
   color: var(--muted);
   line-height: 1.8;
   margin: 6px 0;
@@ -687,7 +687,7 @@ select option,
 }
 .readonly-label {
   margin-left: auto;
-  font-size: 9px;
+  font-size: calc(11px * var(--ui-scale, 1));
   color: var(--faint);
   white-space: nowrap;
   display: flex;
@@ -706,7 +706,7 @@ select option,
   border: 1px solid var(--border);
   padding: 10px 14px;
   border-radius: 7px;
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-scale, 1));
   color: var(--muted);
 }
 .scope-tabs button.active {
@@ -720,7 +720,7 @@ select option,
   flex-wrap: wrap;
 }
 .scan-source-chips > span {
-  font-size: 9px;
+  font-size: calc(11px * var(--ui-scale, 1));
   color: var(--muted);
   border: 1px solid var(--border);
   border-radius: 4px;
@@ -734,7 +734,7 @@ select option,
 }
 .scan-cta > span {
   color: var(--muted);
-  font-size: 10px;
+  font-size: calc(11px * var(--ui-scale, 1));
   line-height: 1.7;
 }
 .scan-animation {
@@ -764,7 +764,7 @@ select option,
   margin: 0 auto 18px;
 }
 .illustrated-empty h3 {
-  font-size: 17px;
+  font-size: calc(17px * var(--ui-scale, 1));
   color: var(--ink);
   font-weight: 500;
 }
@@ -796,7 +796,7 @@ select option,
 .empty-dots {
   position: absolute;
   bottom: 6px;
-  font-size: 20px;
+  font-size: calc(20px * var(--ui-scale, 1));
   letter-spacing: 5px;
   color: var(--faint);
 }
@@ -806,23 +806,23 @@ select option,
 [data-theme='cyberpunk'] .primary {
   box-shadow: 0 0 20px #e24bff1f;
 }
-[data-theme='slate'] .category {
+[data-color-scheme='light'] .category {
   --color: color-mix(in srgb, rgb(var(--rgb)), #243055 40%);
 }
-[data-theme='slate'] .category-line {
+[data-color-scheme='light'] .category-line {
   opacity: 0.8;
 }
-[data-theme='slate'] .warning-text {
+[data-color-scheme='light'] .warning-text {
   color: #9c631c !important;
 }
-[data-theme='slate'] .notice.warning {
+[data-color-scheme='light'] .notice.warning {
   background: #b081180a;
   color: #9b7128;
 }
-[data-theme='slate'] .live-tag {
+[data-color-scheme='light'] .live-tag {
   color: #3b866a;
 }
-[data-theme='slate'] .history-icon.done {
+[data-color-scheme='light'] .history-icon.done {
   color: #3f896d;
 }
 @keyframes card-enter {
@@ -884,7 +884,7 @@ body,
 }
 @media (max-width: 850px) {
   .category h3 {
-    font-size: 10px;
+    font-size: calc(11px * var(--ui-scale, 1));
     height: auto;
   }
   .category h3:before {
@@ -897,10 +897,10 @@ body,
     padding: 9px;
   }
   .theme-option b {
-    font-size: 10px;
+    font-size: calc(11px * var(--ui-scale, 1));
   }
   .scanner-heading p {
-    font-size: 10px;
+    font-size: calc(11px * var(--ui-scale, 1));
   }
   .scan-cta {
     flex-direction: column;
@@ -921,13 +921,13 @@ body,
     right: 12px;
     bottom: 15px;
     max-width: none;
-    font-size: 11px;
+    font-size: calc(11px * var(--ui-scale, 1));
     gap: 8px;
     padding: 13px;
   }
   .toast-undo {
     padding-left: 7px;
-    font-size: 9px;
+    font-size: calc(11px * var(--ui-scale, 1));
   }
   .theme-options {
     grid-template-columns: 1fr;
@@ -955,7 +955,7 @@ body,
   }
   .scope-tabs button {
     padding: 9px 10px;
-    font-size: 10px;
+    font-size: calc(11px * var(--ui-scale, 1));
   }
   .scanner-emblem {
     width: 40px;
@@ -965,23 +965,23 @@ body,
     gap: 10px;
   }
   .scanner-heading h2 {
-    font-size: 14px;
+    font-size: calc(14px * var(--ui-scale, 1));
   }
   .scanner-heading p {
-    font-size: 10px;
+    font-size: calc(11px * var(--ui-scale, 1));
   }
   .manager-heading {
     flex-wrap: wrap;
   }
   .manager-heading h2 {
-    font-size: 14px;
+    font-size: calc(14px * var(--ui-scale, 1));
   }
   .managed-group {
     padding: 10px;
     gap: 8px;
   }
   .managed-group small {
-    font-size: 8px;
+    font-size: calc(11px * var(--ui-scale, 1));
   }
   .rule-form {
     display: grid;
@@ -1017,7 +1017,7 @@ body,
   padding: 0 20px 24px;
 }
 
-[data-theme='slate'] :is(.blue, .purple, .green, .orange, .slate, .pink) {
+[data-color-scheme='light'] :is(.blue, .purple, .green, .orange, .slate, .pink) {
   --color: color-mix(in srgb, rgb(var(--rgb)), #243055 40%);
 }
 
@@ -1121,7 +1121,7 @@ body,
 }
 .category h3 {
   color: var(--ink);
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-scale, 1));
   font-weight: 600;
   line-height: 1.5;
   min-height: 36px;
@@ -1129,7 +1129,7 @@ body,
 .category p,
 .category-count > span {
   color: var(--muted);
-  font-size: 10px;
+  font-size: calc(11px * var(--ui-scale, 1));
 }
 .category-count strong {
   color: var(--ink);
@@ -1149,20 +1149,20 @@ body,
 .scanner-emblem {
   filter: drop-shadow(0 0 7px rgba(var(--accent-rgb), 0.25));
 }
-[data-theme='slate'] .category {
+[data-color-scheme='light'] .category {
   border-color: rgba(var(--rgb), 0.65);
   background: linear-gradient(135deg, rgba(var(--rgb), 0.11), var(--surface) 85%);
 }
-[data-theme='slate'] .category-icon,
-[data-theme='slate'] .app-icon {
+[data-color-scheme='light'] .category-icon,
+[data-color-scheme='light'] .app-icon {
   box-shadow: 0 3px 10px rgba(var(--rgb, var(--accent-rgb)), 0.1);
 }
 @media (max-width: 850px) {
   .titlebar-breadcrumb {
-    font-size: 10px;
+    font-size: calc(11px * var(--ui-scale, 1));
   }
   .category h3 {
-    font-size: 11px;
+    font-size: calc(11px * var(--ui-scale, 1));
     min-height: 34px;
   }
 }
@@ -1171,7 +1171,7 @@ body,
     padding-left: 12px;
   }
   .titlebar-breadcrumb {
-    font-size: 10px;
+    font-size: calc(11px * var(--ui-scale, 1));
   }
   .titlebar-breadcrumb > span {
     padding: 0 7px;

@@ -1,0 +1,68 @@
+.appearance-panel .theme-options {
+  grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
+  gap: 12px;
+}
+.appearance-panel .theme-option {
+  align-items: center;
+  flex-wrap: nowrap;
+  min-height: 106px;
+  padding: 12px;
+  gap: 12px;
+  color: var(--ink);
+}
+.appearance-panel .theme-swatch {
+  width: 74px;
+  height: 66px;
+  flex-shrink: 0;
+  background: var(--preview-bg);
+  border-color: color-mix(in srgb, var(--preview-accent), transparent 55%);
+  padding: 10px;
+  gap: 4px;
+}
+.appearance-panel .theme-swatch i {
+  width: 13px;
+  height: 24px;
+  background: var(--preview-surface);
+}
+.appearance-panel .theme-swatch i:first-child {
+  height: 36px;
+  background: var(--preview-accent);
+}
+.appearance-panel .theme-swatch i:last-child {
+  background: color-mix(in srgb, var(--preview-accent), var(--preview-surface) 65%);
+}
+.theme-option-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 6px;
+}
+.appearance-panel .theme-option b {
+  font-size: calc(12px * var(--ui-scale, 1));
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.theme-option-copy small {
+  font-size: calc(11px * var(--ui-scale, 1));
+  color: var(--muted);
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+.appearance-intro {
+  margin-bottom: 22px;
+}
+.appearance-panel .accessibility-fields {
+  grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+  margin-top: 18px;
+}
+.appearance-reset {
+  margin-top: 12px;
+}
+@media (max-width: 550px) {
+  .appearance-panel .theme-options {
+    grid-template-columns: 1fr;
+  }
+  .appearance-panel .theme-option {
+    min-height: 90px;
+  }
+}

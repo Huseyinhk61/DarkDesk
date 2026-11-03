@@ -47,13 +47,13 @@
 .item-details-heading h3 {
   margin: 0 0 6px;
   color: var(--ink);
-  font-size: 19px;
+  font-size: calc(19px * var(--ui-scale, 1));
   overflow-wrap: anywhere;
 }
 .item-details-heading p {
   margin: 0;
   color: var(--muted);
-  font-size: 13px;
+  font-size: calc(13px * var(--ui-scale, 1));
   overflow-wrap: anywhere;
 }
 .item-details-icon {
@@ -88,12 +88,12 @@
 .item-details-grid dt {
   margin-bottom: 7px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-scale, 1));
 }
 .item-details-grid dd {
   margin: 0;
   color: var(--ink);
-  font-size: 13px;
+  font-size: calc(13px * var(--ui-scale, 1));
   line-height: 1.55;
   overflow-wrap: anywhere;
 }
@@ -105,7 +105,7 @@
   display: block;
   margin-bottom: 8px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-scale, 1));
 }
 .item-details-source code {
   display: block;
@@ -113,7 +113,7 @@
   border-radius: 8px;
   background: var(--field);
   color: var(--ink);
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-scale, 1));
   overflow-wrap: anywhere;
 }
 .item-details-note {
@@ -121,7 +121,7 @@
   gap: 8px;
   align-items: flex-start;
   color: var(--muted);
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-scale, 1));
   line-height: 1.7;
 }
 .item-details-note svg {

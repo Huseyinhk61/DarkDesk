@@ -44,7 +44,7 @@ test('native PNG icons take precedence over custom fallback icons and appear in 
   await card(page).getByLabel('Visual Studio Code.lnk ikonu').selectOption('heart');
   await expect(card(page).locator('[data-icon-source="native"] img')).toHaveAttribute('src', png);
   await page.getByRole('button', { name: 'Hızlı Başlatıcı', exact: true }).click();
-  await page.getByRole('textbox', { name: 'Hızlı arama' }).fill('vsc');
+  await page.getByRole('combobox', { name: 'Hızlı arama' }).fill('vsc');
   await expect(
     page.locator('.launcher-result').first().locator('[data-icon-source="native"] img'),
   ).toBeVisible();

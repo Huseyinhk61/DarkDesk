@@ -29,6 +29,9 @@ export const defaultSettings = {
   categories: catalog,
   rules: [],
   theme: 'midnight',
+  uiScale: 100,
+  density: 'comfortable',
+  motion: 'system',
   language: 'tr',
   iconPack: 'lucide',
 };

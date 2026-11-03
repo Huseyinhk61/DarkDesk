@@ -39,6 +39,10 @@ const { folders } = require('../electron/service.cjs');
       'Renderer must not have Node access',
     );
     assert.equal(await page.evaluate(() => typeof window.darkdesk.preview), 'function');
+    assert.equal(
+      typeof (await page.evaluate(() => window.darkdesk.windowState())).maximized,
+      'boolean',
+    );
     assert.equal(await page.evaluate(() => typeof window.darkdesk.itemDetails), 'function');
     const fileInfo = await page.evaluate(() => window.darkdesk.itemDetails('Rapor.pdf'));
     assert.equal(fileInfo.size, Buffer.byteLength('native IPC content'));
@@ -165,9 +169,9 @@ const { folders } = require('../electron/service.cjs');
     const windowPromise = application.waitForEvent('window');
     await page.evaluate(() => window.darkdesk.openLauncher());
     const quick = await windowPromise;
-    await quick.getByRole('textbox', { name: 'Quick search' }).fill('Rapor');
+    await quick.getByRole('combobox', { name: 'Quick search' }).fill('Rapor');
     await expect(quick.getByRole('option').first()).toContainText('Rapor');
-    await quick.getByRole('textbox', { name: 'Quick search' }).press('Enter');
+    await quick.getByRole('combobox', { name: 'Quick search' }).press('Enter');
     await expect
       .poll(async () => {
         try {
@@ -227,6 +231,11 @@ const { folders } = require('../electron/service.cjs');
     assert.deepEqual(errors, []);
     await application.close();
     application = null;
+    const geometry = JSON.parse(
+      await fs.readFile(path.join(root, 'data', 'window-state.json'), 'utf8'),
+    );
+    assert.ok(geometry.bounds.width > 0 && geometry.bounds.height > 0);
+    assert.equal(typeof geometry.maximized, 'boolean');
     assert.equal(await visibility.get(path.join(desktop, 'Rapor.pdf')), false);
     console.log(
       'PASS: production Electron renderer, isolated IPC, no Node in renderer, non-mutating preview, real move/undo, file watcher, installed-app shortcuts/undo, shortcut icons, focus visibility/quit restore, native Spotlight dispatch, trusted native icons/metadata, shortcut capture/resume, tray hiding, archive/Downloads automation and persistent preferences.',

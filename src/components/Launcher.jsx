@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
-import { Search, Command, CornerDownLeft, LoaderCircle, ArrowUpRight } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { useDialog } from '../useDialog';
+import { Search, Command, CornerDownLeft, LoaderCircle, ArrowUpRight, X } from 'lucide-react';
 import { api, native } from '../service';
 import { usePreferences } from '../preferences';
 import { searchEntries } from '../../shared/launcher';
@@ -13,7 +15,11 @@ export default function Launcher({ onClose, onCommand }) {
     [busy, setBusy] = useState(false),
     [error, setError] = useState('');
   const input = useRef(null),
-    panel = useRef(null);
+    panel = useRef(null),
+    layer = useRef(null);
+  const standalone = window.location.hash === '#launcher';
+  const close = () => (onClose ? onClose() : api.hideLauncher());
+  useDialog({ layer, panel, initialFocus: input, onClose: close });
   const refresh = async () => {
     try {
       const value = await api.launcherEntries();
@@ -76,7 +82,6 @@ export default function Launcher({ onClose, onCommand }) {
     if (entries[active])
       document.getElementById('result-' + entries[active].id)?.scrollIntoView({ block: 'nearest' });
   }, [active, query]);
-  const close = () => (onClose ? onClose() : api.hideLauncher());
   const execute = async (entry) => {
     if (!entry || busy) return;
     setBusy(true);
@@ -93,101 +98,114 @@ export default function Launcher({ onClose, onCommand }) {
       setBusy(false);
     }
   };
-  return (
+  return createPortal(
     <div
-      ref={panel}
-      className="launcher-panel"
-      role="dialog"
-      aria-modal="true"
-      aria-label={t('launcher.title')}
-      onKeyDown={(e) => {
-        if (e.key === 'Tab') {
-          const list = [...panel.current.querySelectorAll('input,button:not(:disabled)')],
-            first = list[0],
-            last = list.at(-1);
-          if (e.shiftKey && document.activeElement === first) {
-            e.preventDefault();
-            last?.focus();
-          } else if (!e.shiftKey && document.activeElement === last) {
-            e.preventDefault();
-            first?.focus();
-          }
-        }
-        if (e.key === 'Escape') {
-          e.preventDefault();
+      ref={layer}
+      className={standalone ? 'native-launcher-dialog' : 'launcher-backdrop'}
+      style={standalone ? { position: 'fixed', inset: 10 } : undefined}
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) {
+          event.preventDefault();
           close();
-        } else if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          setActive((n) => (n + 1) % Math.max(1, entries.length));
-        } else if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          setActive((n) => (n - 1 + entries.length) % Math.max(1, entries.length));
-        } else if (e.key === 'Enter') {
-          e.preventDefault();
-          execute(entries[active]);
         }
       }}
     >
-      <div className="launcher-search">
-        <Search size={23} />
-        <input
-          ref={input}
-          autoFocus
-          aria-label={t('launcher.search')}
-          placeholder={t('launcher.placeholder')}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          aria-controls="launcher-results"
-          aria-activedescendant={entries[active] ? 'result-' + entries[active].id : undefined}
-        />
-        {busy ? <LoaderCircle className="spin" size={18} /> : <kbd>esc</kbd>}
-      </div>
-      <div className="launcher-results" id="launcher-results" role="listbox">
-        {entries.map((entry, index) => (
+      <div
+        ref={panel}
+        className="launcher-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label={t('launcher.title')}
+        tabIndex={-1}
+        onKeyDown={(e) => {
+          if (e.target !== input.current) return;
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setActive((n) => (n + 1) % Math.max(1, entries.length));
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setActive((n) => (n - 1 + entries.length) % Math.max(1, entries.length));
+          } else if (e.key === 'Enter') {
+            e.preventDefault();
+            execute(entries[active]);
+          }
+        }}
+      >
+        <div className="launcher-search">
+          <Search size={23} />
+          <input
+            ref={input}
+            autoFocus
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded="true"
+            aria-label={t('launcher.search')}
+            placeholder={t('launcher.placeholder')}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            aria-controls="launcher-results"
+            aria-activedescendant={entries[active] ? 'result-' + entries[active].id : undefined}
+          />
+          {busy && <LoaderCircle className="spin" size={18} />}
           <button
-            role="option"
-            aria-selected={active === index}
-            id={'result-' + entry.id}
-            className={`launcher-result ${active === index ? 'selected' : ''}`}
-            key={entry.id}
-            onMouseEnter={() => setActive(index)}
-            onClick={() => execute(entry)}
-            disabled={busy}
+            type="button"
+            className="launcher-close"
+            onClick={close}
+            aria-label={t('common.close')}
+            title={t('common.close')}
           >
-            <span className="launcher-result-icon">
-              {entry.command ? (
-                <AppIcon name={entry.icon} />
-              ) : (
-                <NativeItemIcon item={entry} fallback={entry.icon} size={28} eager />
-              )}
-            </span>
-            <span>
-              <b>{entry.name}</b>
-              <small>{entry.command ? t('launcher.command') : entry.source}</small>
-            </span>
-            {active === index ? <CornerDownLeft size={16} /> : <ArrowUpRight size={14} />}
+            <X size={18} />
           </button>
-        ))}
-        {!entries.length && (
-          <div className="launcher-empty">
-            <Search size={28} />
-            <p>{t('launcher.empty')}</p>
+        </div>
+        <div className="launcher-results" id="launcher-results" role="listbox">
+          {entries.map((entry, index) => (
+            <button
+              role="option"
+              tabIndex={-1}
+              aria-selected={active === index}
+              id={'result-' + entry.id}
+              className={`launcher-result ${active === index ? 'selected' : ''}`}
+              key={entry.id}
+              onMouseEnter={() => setActive(index)}
+              onClick={() => execute(entry)}
+              disabled={busy}
+            >
+              <span className="launcher-result-icon">
+                {entry.command ? (
+                  <AppIcon name={entry.icon} />
+                ) : (
+                  <NativeItemIcon item={entry} fallback={entry.icon} size={28} eager />
+                )}
+              </span>
+              <span>
+                <b>{entry.name}</b>
+                <small>{entry.command ? t('launcher.command') : entry.source}</small>
+              </span>
+              {active === index ? <CornerDownLeft size={16} /> : <ArrowUpRight size={14} />}
+            </button>
+          ))}
+          {!entries.length && (
+            <div className="launcher-empty">
+              <Search size={28} />
+              <p>{t('launcher.empty')}</p>
+            </div>
+          )}
+        </div>
+        {error && (
+          <div className="launcher-error" role="alert">
+            {error}
           </div>
         )}
+        <footer>
+          <span className="launcher-brand">
+            <Command size={13} />
+            DarkDesk
+          </span>
+          <span>{t('launcher.hint')}</span>
+          {!native && <small>{t('common.demo')}</small>}
+        </footer>
       </div>
-      {error && (
-        <div className="launcher-error" role="alert">
-          {error}
-        </div>
-      )}
-      <footer>
-        <span className="launcher-brand">
-          <Command size={13} />
-          DarkDesk
-        </span>
-        <span>{t('launcher.hint')}</span>
-        {!native && <small>{t('common.demo')}</small>}
-      </footer>
-    </div>
+    </div>,
+    document.body,
   );
 }

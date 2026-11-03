@@ -25,7 +25,7 @@
   border-radius: 7px;
   color: var(--ink);
   background: rgba(var(--accent-rgb), 0.1);
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-scale, 1));
 }
 .key-binder-control button:hover {
   border-color: var(--accent);
@@ -37,7 +37,7 @@
 }
 .key-binder > small {
   display: block;
-  font-size: 10px;
+  font-size: calc(11px * var(--ui-scale, 1));
   line-height: 1.6;
   margin-top: 7px;
 }
@@ -52,7 +52,7 @@
   border-radius: 5px;
 }
 .shortcut-help {
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-scale, 1));
   line-height: 1.7;
   margin-bottom: 15px;
 }

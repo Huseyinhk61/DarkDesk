@@ -19,11 +19,11 @@
   flex-wrap: wrap;
 }
 .profiles-heading b {
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-scale, 1));
   font-weight: 500;
 }
 .profiles-heading small {
-  font-size: 9px;
+  font-size: calc(11px * var(--ui-scale, 1));
   color: var(--faint);
   margin-left: 5px;
 }
@@ -68,14 +68,14 @@
   flex: 1;
 }
 .profile-activate b {
-  font-size: 10px;
+  font-size: calc(11px * var(--ui-scale, 1));
   font-weight: 500;
   display: block;
   line-height: 1.6;
 }
 .profile-activate small {
   display: block;
-  font-size: 8px;
+  font-size: calc(11px * var(--ui-scale, 1));
   color: var(--faint);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -113,17 +113,17 @@
   gap: 18px;
 }
 .profiles-page .profile-activate b {
-  font-size: 14px;
+  font-size: calc(14px * var(--ui-scale, 1));
 }
 .profiles-page .profile-activate small {
-  font-size: 10px;
+  font-size: calc(11px * var(--ui-scale, 1));
 }
 .profiles-page .profile-icon svg {
   width: 30px;
   height: 30px;
 }
 .profiles-page .profile-activate kbd {
-  font-size: 9px;
+  font-size: calc(11px * var(--ui-scale, 1));
   bottom: 14px;
   right: 18px;
 }
@@ -141,7 +141,7 @@
   align-items: center;
   gap: 8px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-scale, 1));
 }
 .profile-category-options {
   display: grid;
@@ -152,7 +152,7 @@
   margin: 15px 0 24px;
 }
 .profile-category-options label {
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-scale, 1));
   display: flex;
   align-items: center;
   gap: 7px;
@@ -170,7 +170,7 @@
   gap: 15px;
   padding: 12px 0;
   border-bottom: 1px solid var(--border);
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-scale, 1));
 }
 .shortcut-status kbd {
   color: var(--muted);
@@ -217,7 +217,7 @@
   background: rgba(var(--accent-rgb), 0.04);
   border-radius: 5px;
   padding: 9px;
-  font-size: 9px;
+  font-size: calc(11px * var(--ui-scale, 1));
   margin: 10px 0;
   display: grid;
   gap: 6px;
@@ -228,12 +228,12 @@
 }
 .smart-suggestion small {
   color: var(--faint);
-  font-size: 8px;
+  font-size: calc(11px * var(--ui-scale, 1));
 }
 .smart-suggestion button,
 .inactivity-note button {
   color: var(--accent);
-  font-size: 8px;
+  font-size: calc(11px * var(--ui-scale, 1));
   text-align: left;
   text-decoration: underline;
 }
@@ -297,13 +297,13 @@
   border: 0;
   outline: none;
   color: var(--ink);
-  font-size: 17px;
+  font-size: calc(17px * var(--ui-scale, 1));
   letter-spacing: -0.25px;
   min-width: 0;
 }
 .launcher-search input::placeholder {
   color: var(--faint);
-  font-size: 15px;
+  font-size: calc(15px * var(--ui-scale, 1));
 }
 .launcher-search kbd {
   font: 10px inherit;
@@ -350,7 +350,7 @@
 }
 .launcher-result b {
   display: block;
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-scale, 1));
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -359,7 +359,7 @@
 .launcher-result small {
   display: block;
   color: var(--faint);
-  font-size: 9px;
+  font-size: calc(11px * var(--ui-scale, 1));
   margin-top: 5px;
   overflow: hidden;
   white-space: nowrap;
@@ -375,7 +375,7 @@
   justify-content: space-between;
   gap: 12px;
   border-top: 1px solid var(--border);
-  font-size: 9px;
+  font-size: calc(11px * var(--ui-scale, 1));
   color: var(--faint);
 }
 .launcher-brand {
@@ -385,14 +385,14 @@
   color: var(--accent);
 }
 .launcher-panel footer small {
-  font-size: 8px;
+  font-size: calc(11px * var(--ui-scale, 1));
   color: var(--accent);
 }
 .launcher-empty {
   padding: 40px 15px;
   text-align: center;
   color: var(--muted);
-  font-size: 12px;
+  font-size: calc(12px * var(--ui-scale, 1));
 }
 .launcher-empty svg {
   margin: 0 auto 12px;
@@ -400,7 +400,7 @@
 }
 .launcher-error {
   padding: 11px 20px;
-  font-size: 11px;
+  font-size: calc(11px * var(--ui-scale, 1));
   color: #dcac79;
   border-top: 1px solid var(--border);
   line-height: 1.7;
@@ -486,19 +486,19 @@
     gap: 12px;
   }
   .profiles-page .profile-activate b {
-    font-size: 12px;
+    font-size: calc(12px * var(--ui-scale, 1));
   }
   .profiles-page .profile-activate small {
-    font-size: 9px;
+    font-size: calc(11px * var(--ui-scale, 1));
   }
   .sidebar {
     overflow: visible;
   }
   .profile-activate kbd {
-    font-size: 6px;
+    font-size: calc(11px * var(--ui-scale, 1));
   }
   .profile-activate b {
-    font-size: 9px;
+    font-size: calc(11px * var(--ui-scale, 1));
   }
   .profile-icon svg {
     width: 18px;
@@ -510,10 +510,10 @@
     padding: 12px;
   }
   .profiles-heading b {
-    font-size: 10px;
+    font-size: calc(11px * var(--ui-scale, 1));
   }
   .profiles-heading .text-btn {
-    font-size: 8px;
+    font-size: calc(11px * var(--ui-scale, 1));
     gap: 4px;
   }
   .profile-cards,
@@ -525,14 +525,14 @@
     min-height: 60px;
   }
   .profile-activate b {
-    font-size: 11px;
+    font-size: calc(11px * var(--ui-scale, 1));
   }
   .profile-activate small {
-    font-size: 9px;
+    font-size: calc(11px * var(--ui-scale, 1));
     max-width: 160px;
   }
   .profile-activate kbd {
-    font-size: 7px;
+    font-size: calc(11px * var(--ui-scale, 1));
   }
   .profiles-page .profile-activate {
     min-height: 88px;
@@ -559,21 +559,21 @@
     gap: 10px;
   }
   .launcher-search input {
-    font-size: 14px;
+    font-size: calc(14px * var(--ui-scale, 1));
   }
   .launcher-search input::placeholder {
-    font-size: 12px;
+    font-size: calc(12px * var(--ui-scale, 1));
   }
   .launcher-panel footer {
-    font-size: 7px;
+    font-size: calc(11px * var(--ui-scale, 1));
     gap: 7px;
     padding: 11px;
   }
   .launcher-result b {
-    font-size: 11px;
+    font-size: calc(11px * var(--ui-scale, 1));
   }
   .launcher-result small {
-    font-size: 8px;
+    font-size: calc(11px * var(--ui-scale, 1));
   }
   .launcher-results {
     max-height: 55vh;

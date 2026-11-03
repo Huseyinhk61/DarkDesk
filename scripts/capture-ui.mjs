@@ -66,11 +66,27 @@ try {
   await page.getByRole('button', { name: 'Otomasyon Merkezi', exact: true }).click();
   await page.screenshot({ path: 'docs/assets/automation.png' });
   await page.getByRole('button', { name: 'Hızlı Başlatıcı', exact: true }).click();
-  await page.getByRole('textbox', { name: 'Hızlı arama' }).fill('code');
+  await page.getByRole('combobox', { name: 'Hızlı arama' }).fill('code');
   await expect(page.locator('.launcher-panel').getByRole('option').first()).toContainText('Code');
   await page.screenshot({ path: 'docs/assets/launcher.png' });
+  await page.keyboard.press('Escape');
+  for (const [name, id] of [
+    ['Ocean Blue', 'ocean'],
+    ['Forest Green', 'forest'],
+    ['Rose Light', 'rose'],
+    ['Yüksek Kontrast', 'contrast'],
+  ]) {
+    await page.getByRole('button', { name: 'Otomasyon & Ayarlar', exact: true }).click();
+    await page.getByRole('button', { name, exact: true }).click();
+    await settled();
+    await dismiss();
+    await page.getByRole('button', { name: 'Akıllı Gruplar', exact: true }).click();
+    await page.screenshot({ path: `docs/assets/${id}.png` });
+  }
+  await page.getByRole('button', { name: 'Yardım & Başlangıç', exact: true }).click();
+  await page.screenshot({ path: 'docs/assets/help.png' });
   console.log(
-    'Captured 3.1 workspace, themes, scanner, profiles, automation, metadata, shortcuts and Spotlight screenshots.',
+    'Captured 3.2 desktop, new themes, help, metadata, shortcuts and Spotlight screenshots.',
   );
 } finally {
   await browser.close();

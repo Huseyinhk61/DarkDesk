@@ -47,12 +47,12 @@ test('Spotlight fuzzy search can select an application with Enter', async ({ pag
   await page.keyboard.press('Control+Space');
   const dialog = page.getByRole('dialog', { name: 'Hızlı Başlatıcı' });
   await expect(dialog).toBeVisible();
-  await dialog.getByRole('textbox', { name: 'Hızlı arama' }).fill('vsc');
+  await dialog.getByRole('combobox', { name: 'Hızlı arama' }).fill('vsc');
   await expect(dialog.getByRole('option').first()).toContainText('Visual Studio Code');
   await page.keyboard.press('Enter');
   await expect(dialog).toHaveCount(0);
   await page.getByRole('button', { name: 'Hızlı Başlatıcı', exact: true }).click();
-  await page.getByRole('textbox', { name: 'Hızlı arama' }).fill('eşleşmeyen-xyz');
+  await page.getByRole('combobox', { name: 'Hızlı arama' }).fill('eşleşmeyen-xyz');
   await expect(page.locator('.launcher-empty')).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.locator('.launcher-panel')).toHaveCount(0);
@@ -61,7 +61,7 @@ test('Spotlight system commands open a review instead of silently moving files',
   page,
 }) => {
   await page.getByRole('button', { name: 'Hızlı Başlatıcı', exact: true }).click();
-  await page.getByRole('textbox', { name: 'Hızlı arama' }).fill('Masaüstünü Düzenle');
+  await page.getByRole('combobox', { name: 'Hızlı arama' }).fill('Masaüstünü Düzenle');
   await page.keyboard.press('Enter');
   await expect(page.getByRole('dialog', { name: 'Son bir göz atalım.' })).toBeVisible();
   await expect(page.locator('.item-card')).toHaveCount(12);

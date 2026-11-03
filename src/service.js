@@ -97,7 +97,7 @@ export const api = window.darkdesk || {
     total: 16 * 1024 ** 3,
     free: 9.2 * 1024 ** 3,
     storage: null,
-    version: '3.1.0',
+    version: '3.2.0',
     platform: 'demo',
   }),
   getSettings: async () => structuredClone(settings),
@@ -198,6 +198,8 @@ export const api = window.darkdesk || {
   onDesktopChanged: () => () => {},
   onWatchError: () => () => {},
   window: () => {},
+  windowState: async () => ({ maximized: false }),
+  onWindowStateChanged: () => () => {},
 };
 
 const runtimeListeners = new Set(),

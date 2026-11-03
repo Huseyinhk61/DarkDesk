@@ -1,5 +1,17 @@
 # Değişiklikler
 
+## 3.2.0 — 3 Kasım 2026
+
+- Ocean Blue, Forest Green, Rose Light, Yüksek Kontrast ve canlı sistem teması seçeneği.
+- Ortak katalogdan tema doğrulaması, güvenli görünüm önbelleği, metin ölçeği/yoğunluk/hareket tercihleri.
+- Masaüstünde okunabilir metinler, büyük seçim alanları, daha esnek kart düzeni ve klavyeyle ana içeriğe geçiş.
+- Portal diyaloglar, inert arka plan, kararlı imleç/odak, klavye ile Spotlight kapatma ve diyalog içi hata bildirimi.
+- Görünüm değiştirilirken kaydedilmemiş taşıma/kopyalama ayarlarının korunması.
+- Pencere konumu/boyutu ve büyütme durumu; değişen monitörlerde görünür alana geri alma.
+- Native arka planın seçilen temayla eşleşmesi ve ekran alanına sığan Spotlight penceresi.
+- Türkçe/İngilizce yerel Yardım & Başlangıç rehberi.
+- Paket çıktıları ve test raporları yazılırken geliştirme ekranının beklenmedik sıfırlanmasını engelleyen izleyici düzeltmesi.
+
 ## 3.1.0 — 3 Kasım 2026
 
 - Güvenilir indeks üzerinden orijinal `.exe` / `.lnk` ikonları; lazy yükleme ve sınırlı fingerprint önbelleği.

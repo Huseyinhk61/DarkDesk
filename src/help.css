@@ -1,0 +1,108 @@
+.help-intro {
+  max-width: 76ch;
+  line-height: 1.8;
+}
+.help-steps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  list-style: none;
+  padding: 0;
+  margin: 25px 0;
+}
+.help-steps li {
+  position: relative;
+  padding: 23px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  min-width: 0;
+}
+.help-step-number {
+  position: absolute;
+  inset: 20px 20px auto auto;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: calc(13px * var(--ui-scale, 1));
+}
+.help-step-icon {
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+.help-steps h2 {
+  color: var(--ink);
+  font-size: calc(16px * var(--ui-scale, 1));
+  margin: 0 0 10px;
+  line-height: 1.6;
+}
+.help-steps p {
+  margin: 0 0 18px;
+  line-height: 1.8;
+  font-size: calc(13px * var(--ui-scale, 1));
+  color: var(--muted);
+}
+.help-steps .btn,
+.help-sections .btn {
+  white-space: normal;
+  text-align: left;
+  min-height: 44px;
+}
+.help-sections {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 20px;
+}
+.help-sections .settings-panel {
+  margin: 0;
+  min-width: 0;
+}
+.help-sections h3 {
+  color: var(--ink);
+  font-size: calc(14px * var(--ui-scale, 1));
+  margin: 22px 0 8px;
+}
+.help-sections p {
+  line-height: 1.8;
+  font-size: calc(13px * var(--ui-scale, 1));
+}
+.help-shortcuts {
+  margin: 20px 0;
+}
+.help-shortcuts > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: calc(12px * var(--ui-scale, 1));
+}
+.help-shortcuts dt {
+  color: var(--ink);
+}
+.help-shortcuts dd {
+  margin: 0;
+  color: var(--muted);
+}
+.help-shortcuts kbd {
+  display: inline-block;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--ink);
+  background: var(--field);
+  overflow-wrap: anywhere;
+  font-size: inherit;
+}
+@media (max-width: 1100px) {
+  .help-sections {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 600px) {
+  .help-steps {
+    grid-template-columns: 1fr;
+  }
+}

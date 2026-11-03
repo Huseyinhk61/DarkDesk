@@ -5,6 +5,7 @@ import Launcher from './components/Launcher';
 import './styles.css';
 import './themes.css';
 import './ecosystem.css';
+import './usability.css';
 import { PreferencesProvider } from './preferences';
 const launcher = window.location.hash === '#launcher';
 if (launcher) document.documentElement.dataset.window = 'launcher';

@@ -1,0 +1,274 @@
+/* Desktop-sized controls stay stable while text follows the user's reading size. */
+:root {
+  --ui-scale: 1;
+}
+body {
+  line-height: 1.5;
+}
+button,
+input,
+select,
+textarea {
+  -webkit-app-region: no-drag;
+}
+:is(button, a, input, select, textarea):focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+main:focus {
+  outline: none;
+}
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 12px;
+  z-index: 500;
+  transform: translateY(-180%);
+  padding: 12px 18px;
+  background: var(--ink);
+  color: var(--bg);
+  border-radius: 8px;
+}
+.skip-link:focus {
+  transform: none;
+}
+.btn {
+  min-height: 42px;
+  font-size: calc(12px * var(--ui-scale));
+}
+input:not([type='checkbox']):not([type='radio']),
+select,
+textarea {
+  min-height: 38px;
+  font-size: calc(12px * var(--ui-scale));
+}
+.search input,
+.launcher-search input {
+  min-height: 44px;
+}
+.muted,
+.field-label,
+.file-path,
+.item-metadata,
+.panel-header p,
+.panel-footer,
+.selection-size,
+.page-footer,
+.history-note,
+.settings-panel small {
+  color: var(--muted);
+}
+.item-card h3 {
+  font-size: calc(13px * var(--ui-scale));
+}
+.items-grid:not(.list-layout) {
+  grid-template-columns: repeat(auto-fit, minmax(min(245px, 100%), 1fr));
+  gap: 16px;
+}
+.item-card {
+  padding: 18px;
+}
+.item-top .checkbox,
+.list-layout .item-top .checkbox {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  min-height: 30px;
+}
+.toolbar .checkbox {
+  min-width: 30px;
+  min-height: 30px;
+}
+.destination button {
+  min-width: 30px;
+  min-height: 30px;
+}
+.modal-close {
+  min-width: 38px;
+  min-height: 38px;
+}
+.toast button {
+  min-width: 36px;
+  min-height: 36px;
+}
+.select-wrap {
+  min-height: 38px;
+}
+.category h3 {
+  font-size: calc(13px * var(--ui-scale));
+  height: auto;
+}
+.category p,
+.category-count > span {
+  font-size: calc(11px * var(--ui-scale));
+}
+.sidebar nav button {
+  font-size: calc(12px * var(--ui-scale));
+  line-height: 1.45;
+}
+.sidebar nav button > svg {
+  flex-shrink: 0;
+}
+.sidebar .brand small {
+  font-size: calc(9px * var(--ui-scale));
+  letter-spacing: 0.5px;
+}
+.titlebar-breadcrumb {
+  font-size: 12px;
+}
+.titlebar-local {
+  font-size: 11px;
+}
+.profile-card kbd {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.history-row > span,
+.shortcut-status > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.settings-panel,
+.profile-card,
+.item-card,
+.modal {
+  overflow-wrap: anywhere;
+}
+.category-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(145px, 100%), 1fr));
+}
+.item-icon-picker select {
+  max-width: 100%;
+}
+[data-density='compact'] .items-grid:not(.list-layout) {
+  grid-template-columns: repeat(auto-fit, minmax(min(215px, 100%), 1fr));
+  gap: 10px;
+}
+[data-density='compact'] .item-card {
+  padding: 12px;
+}
+[data-density='compact'] .settings-panel {
+  padding: 18px;
+  margin-top: 18px;
+}
+[data-density='compact'] .category {
+  padding-top: 12px;
+}
+[data-density='compact'] .item-top {
+  margin-bottom: 9px;
+}
+[data-density='compact'] main {
+  padding-top: 24px;
+}
+[data-theme='contrast']
+  :is(
+    .category,
+    .item-card,
+    .profile-card,
+    .settings-panel,
+    .modal,
+    .launcher-panel,
+    .notice,
+    .tip,
+    .select-wrap,
+    .toolbar
+  ) {
+  background: var(--surface);
+  border-color: var(--muted);
+  box-shadow: none;
+}
+[data-theme='contrast'] :is(.category-icon, .app-icon, .profile-icon, .scanner-emblem) {
+  color: var(--accent);
+  filter: none;
+  box-shadow: none;
+}
+[data-motion='reduced'] *,
+[data-motion='reduced'] *::before,
+[data-motion='reduced'] *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+@media (max-width: 850px) {
+  .sidebar nav button {
+    font-size: 0;
+  }
+  .category h3::before {
+    content: none;
+  }
+  .category h3 {
+    font-size: calc(12px * var(--ui-scale));
+    min-height: 0;
+  }
+  .sidebar nav {
+    margin-top: 20px;
+  }
+}
+@media (max-width: 550px) {
+  .items-grid:not(.list-layout) {
+    grid-template-columns: minmax(0, 1fr);
+    padding-inline: 12px;
+  }
+  .category-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .category-count strong {
+    font-size: calc(24px * var(--ui-scale));
+  }
+  .modal-actions,
+  .settings-actions,
+  .profile-controls {
+    flex-wrap: wrap;
+  }
+  .modal-actions .btn {
+    flex: 1 1 140px;
+  }
+  .titlebar-breadcrumb {
+    font-size: 10px;
+  }
+}
+@media (forced-colors: active) {
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  :is(
+    .category,
+    .item-card,
+    .profile-card,
+    .settings-panel,
+    .modal,
+    .launcher-panel,
+    input,
+    select,
+    .btn,
+    .sidebar nav button
+  ) {
+    border: 1px solid CanvasText;
+  }
+  .category-line,
+  .meter i,
+  .online {
+    background: Highlight;
+  }
+  :is(button, a, input, select):focus-visible {
+    outline: 3px solid Highlight;
+  }
+}
+.launcher-close {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--ink);
+  background: var(--field);
+}
+.launcher-close:hover {
+  background: var(--raised);
+}
+.launcher-search:focus-within {
+  box-shadow: inset 0 -2px 0 var(--accent);
+}

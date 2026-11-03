@@ -8,6 +8,7 @@ import {
   categoryId,
 } from './domain.js';
 import { compileRule } from './regex.js';
+import { themeIds } from './appearance.js';
 const defaults = defaultSettings;
 export function validateSettings(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw Error('SETTINGS_INVALID');
@@ -15,7 +16,10 @@ export function validateSettings(input) {
   if (
     !['move', 'copy'].includes(value.mode) ||
     typeof value.autoScan !== 'boolean' ||
-    !['midnight', 'cyberpunk', 'slate'].includes(value.theme) ||
+    !themeIds.includes(value.theme) ||
+    ![100, 115, 130].includes(value.uiScale) ||
+    !['comfortable', 'compact'].includes(value.density) ||
+    !['system', 'reduced'].includes(value.motion) ||
     !['tr', 'en'].includes(value.language) ||
     !['lucide', 'tabler', 'minimal'].includes(value.iconPack)
   )
@@ -252,6 +256,9 @@ export function validateSettings(input) {
     categories,
     rules,
     theme: value.theme,
+    uiScale: value.uiScale,
+    density: value.density,
+    motion: value.motion,
     language: value.language,
     iconPack: value.iconPack,
   };

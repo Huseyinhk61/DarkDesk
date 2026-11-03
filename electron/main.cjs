@@ -9,6 +9,7 @@ const {
   nativeImage,
   globalShortcut,
   screen,
+  nativeTheme,
 } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs/promises');
@@ -18,11 +19,17 @@ const { pathToFileURL } = require('node:url');
 const { DesktopRuntime } = require('./runtime/controller.cjs');
 const { ShortcutManager } = require('./runtime/shortcuts.cjs');
 const { validateSettings } = require('../shared/validate.js');
+const { resolveTheme } = require('../shared/appearance.js');
+const { restoreWindowState, WindowStateStore } = require('./runtime/window-state.cjs');
 let win,
   launcher,
   tray,
   runtime,
   shortcutManager,
+  windowStore,
+  windowSaveTimer,
+  preferredTheme = 'midnight',
+  lastMaximized = false,
   savingSettings = false,
   watcher,
   watchTimer,
@@ -31,9 +38,49 @@ let win,
 const production = app.isPackaged || process.argv.includes('--production');
 const entry = path.join(__dirname, '../dist/index.html'),
   entryURL = production ? pathToFileURL(entry).href : 'http://127.0.0.1:5173/';
+function windowState() {
+  return { maximized: !!win && !win.isDestroyed() && win.isMaximized() };
+}
+function sendWindowState() {
+  if (win && !win.isDestroyed()) win.webContents.send('windowStateChanged', windowState());
+}
+function currentGeometry(saved) {
+  return restoreWindowState(saved, screen.getAllDisplays(), screen.getPrimaryDisplay().id);
+}
+function saveWindowState() {
+  clearTimeout(windowSaveTimer);
+  if (!win || win.isDestroyed()) return Promise.resolve();
+  return windowStore
+    .save(win.getNormalBounds(), win.isMinimized() ? lastMaximized : win.isMaximized())
+    .catch(() => {});
+}
+function scheduleWindowState() {
+  clearTimeout(windowSaveTimer);
+  windowSaveTimer = setTimeout(saveWindowState, 250);
+}
+function fitMainWindow() {
+  if (!win || win.isDestroyed()) return;
+  const before = win.getNormalBounds(),
+    maximized = win.isMaximized();
+  const adjusted = currentGeometry({ bounds: before, maximized });
+  win.setMinimumSize(adjusted.minWidth, adjusted.minHeight);
+  if (Object.keys(adjusted.bounds).some((key) => adjusted.bounds[key] !== before[key])) {
+    if (maximized) win.unmaximize();
+    win.setBounds(adjusted.bounds);
+    if (maximized) win.maximize();
+  }
+  scheduleWindowState();
+}
+function updateNativeAppearance(settings) {
+  preferredTheme = settings?.theme || preferredTheme;
+  const background = resolveTheme(preferredTheme, nativeTheme.shouldUseDarkColors).tokens.bg;
+  if (win && !win.isDestroyed()) win.setBackgroundColor(background);
+  return background;
+}
 function showMain() {
-  if (!win) return;
+  if (!win || win.isDestroyed()) return;
   if (win.isMinimized()) win.restore();
+  fitMainWindow();
   win.show();
   win.focus();
 }
@@ -74,6 +121,10 @@ async function openLauncher() {
     else await launcher.loadURL(entryURL + '#launcher');
   }
   const { workArea } = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+  launcher.setSize(
+    Math.min(720, Math.max(320, workArea.width - 24)),
+    Math.min(510, Math.max(240, workArea.height - 24)),
+  );
   const [width, height] = launcher.getSize();
   launcher.setPosition(
     Math.round(workArea.x + (workArea.width - width) / 2),
@@ -152,6 +203,8 @@ async function requestQuit() {
   quitPending = true;
   try {
     await runtime?.prepareQuit();
+    await saveWindowState();
+    await windowStore?.flush().catch(() => {});
     quitting = true;
     shortcutManager?.dispose();
     tray?.destroy();
@@ -195,13 +248,15 @@ else {
           runtime.broadcast().catch(() => {});
         },
       });
+      windowStore = new WindowStateStore(app.getPath('userData'));
+      const geometry = currentGeometry(await windowStore.read());
+      const initialSettings = await runtime.settings.read();
       win = new BrowserWindow({
-        width: 1440,
-        height: 960,
-        minWidth: 900,
-        minHeight: 650,
+        ...geometry.bounds,
+        minWidth: geometry.minWidth,
+        minHeight: geometry.minHeight,
         frame: false,
-        backgroundColor: '#0f1117',
+        backgroundColor: updateNativeAppearance(initialSettings),
         autoHideMenuBar: true,
         icon: path.join(__dirname, '../build/icon.png'),
         webPreferences: {
@@ -213,12 +268,27 @@ else {
         },
       });
       secureWindow(win);
+      lastMaximized = geometry.maximized;
+      if (geometry.maximized) win.maximize();
+      win.on('move', scheduleWindowState);
+      win.on('resize', scheduleWindowState);
+      for (const event of ['maximize', 'unmaximize'])
+        win.on(event, () => {
+          lastMaximized = event === 'maximize';
+          sendWindowState();
+          scheduleWindowState();
+        });
+      win.webContents.on('did-finish-load', sendWindowState);
+      screen.on('display-removed', fitMainWindow);
+      screen.on('display-metrics-changed', fitMainWindow);
+      nativeTheme.on('updated', () => updateNativeAppearance());
       win.on('blur', () => shortcutManager.resume());
       win.webContents.on('render-process-gone', () => shortcutManager.resume());
       win.on('close', (event) => {
         if (!quitting) {
           shortcutManager.resume();
           event.preventDefault();
+          saveWindowState();
           if (tray) win.hide();
           else requestQuit();
         }
@@ -228,6 +298,7 @@ else {
         ipcMain.handle(name, async (event, ...args) => {
           const sender = BrowserWindow.fromWebContents(event.sender);
           if (
+            !sender ||
             ![win, launcher].includes(sender) ||
             event.senderFrame !== sender.webContents.mainFrame ||
             event.senderFrame.url.split('#')[0] !== entryURL
@@ -251,12 +322,15 @@ else {
           shortcutManager.configure(candidate, { strict: true });
           try {
             const settings = await runtime.saveSettings(candidate);
+            updateNativeAppearance(settings);
             await updateTray();
             return settings;
           } catch (error) {
             // Settings may already be persisted if reapplying a profile failed.
             // Always restore registrations to the actual stored configuration.
-            shortcutManager.configure(await runtime.settings.read());
+            const actual = await runtime.settings.read();
+            shortcutManager.configure(actual);
+            updateNativeAppearance(actual);
             throw error;
           }
         } finally {
@@ -320,6 +394,7 @@ else {
         if (!stat.isFile() || stat.isSymbolicLink()) throw Error('SOURCE_MISSING');
         shell.showItemInFolder(item.source);
       });
+      handle('windowState', windowState);
       handle('window', (action) => {
         if (action === 'minimize') win.minimize();
         else if (action === 'maximize') win.isMaximized() ? win.unmaximize() : win.maximize();
@@ -373,4 +448,7 @@ app.on('will-quit', () => {
   shortcutManager?.dispose();
   watcher?.close();
   clearTimeout(watchTimer);
+  clearTimeout(windowSaveTimer);
+  screen.removeListener('display-removed', fitMainWindow);
+  screen.removeListener('display-metrics-changed', fitMainWindow);
 });

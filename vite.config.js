@@ -3,6 +3,21 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 export default defineConfig(({ command }) => ({
   base: './',
+  server: {
+    watch: {
+      // Reports, packages and documentation are not renderer dependencies.
+      ignored: [
+        '**/release/**',
+        '**/dist/**',
+        '**/playwright-report/**',
+        '**/test-results/**',
+        '**/docs/**',
+        '**/scripts/**',
+        '**/tests/**',
+        '**/*.md',
+      ],
+    },
+  },
   build: { rollupOptions: { output: { manualChunks: { 'regex-engine': ['re2js'] } } } },
   plugins: [
     react(),

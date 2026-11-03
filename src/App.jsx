@@ -34,6 +34,8 @@ import { matchesAccelerator } from '../shared/hotkeys';
 import Profiles from './components/Profiles';
 import Launcher from './components/Launcher';
 import AutomationPanel from './components/AutomationPanel';
+import HelpPanel from './components/HelpPanel';
+import { publishNotice } from './notifications';
 export default function App() {
   const { settings, setSettings, t, locale, errorMessage, categoryLabel } = usePreferences();
   const [view, setView] = useState('groups'),
@@ -58,17 +60,24 @@ export default function App() {
     [runtime, setRuntime] = useState(null),
     [launcherOpen, setLauncherOpen] = useState(false);
   const backendBusy = useRef(null);
+  const mainRef = useRef(null);
+  const previousView = useRef(null);
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+    if (previousView.current !== null && previousView.current !== view)
+      mainRef.current?.focus({ preventScroll: true });
+    previousView.current = view;
+  }, [view, scope]);
   const [shown, setShown] = useState(48);
   useEffect(() => setShown(48), [query, filter, type, scope]);
   const knownIds = useRef(new Set()),
     searchRef = useRef(null),
     busyRef = useRef(true),
     scopeRef = useRef('desktop');
-  const notify = useCallback(
-    (message, kind = 'info', undoable = false) =>
-      setToast({ ...(typeof message === 'object' ? message : { message }), kind, undoable }),
-    [],
-  );
+  const notify = useCallback((message, kind = 'info', undoable = false) => {
+    setToast({ ...(typeof message === 'object' ? message : { message }), kind, undoable });
+    if (typeof message === 'string') publishNotice(message, kind);
+  }, []);
   const start = useCallback((name) => {
     if (busyRef.current || backendBusy.current) return false;
     busyRef.current = true;
@@ -165,6 +174,7 @@ export default function App() {
     const onKey = (e) => {
       if (
         !e.defaultPrevented &&
+        !document.querySelector('[role="dialog"][aria-modal="true"]') &&
         !e.altKey &&
         !e.shiftKey &&
         !e.target.closest?.('[data-keybinder]') &&
@@ -415,14 +425,19 @@ export default function App() {
     const keydown = (e) => {
       if (native || e.defaultPrevented || e.target.closest?.('[data-keybinder]')) return;
       const mac = /Mac/i.test(navigator.platform);
-      if (
+      const launcherKey =
         matchesAccelerator(settings.launcherShortcut, e, mac) ||
-        matchesAccelerator('Control+Space', e, mac)
-      ) {
+        matchesAccelerator('Control+Space', e, mac);
+      const profile = settings.profiles.find((p) => matchesAccelerator(p.shortcut, e, mac));
+      if (document.querySelector('[role="dialog"][aria-modal="true"]')) {
+        // Suppress Space's default button activation while a page shortcut is blocked.
+        if (launcherKey || profile) e.preventDefault();
+        return;
+      }
+      if (launcherKey) {
         e.preventDefault();
         setLauncherOpen((open) => !open);
       }
-      const profile = settings.profiles.find((p) => matchesAccelerator(p.shortcut, e, mac));
       if (profile) {
         e.preventDefault();
         commandRef.current({ type: 'profile', id: profile.id });
@@ -478,10 +493,26 @@ export default function App() {
 
   return (
     <div className="app-shell">
+      <a
+        className="skip-link"
+        href="#main-content"
+        onClick={(event) => {
+          event.preventDefault();
+          mainRef.current?.focus();
+        }}
+      >
+        {t('a11y.skipContent')}
+      </a>
       <Sidebar {...{ view, stats, native }} setView={navigate} />
       <div className="main-shell">
         <Titlebar view={view} native={native} />
-        <main aria-busy={!!blocked}>
+        <main
+          id="main-content"
+          ref={mainRef}
+          tabIndex={-1}
+          aria-label={t('nav.' + view)}
+          aria-busy={!!blocked}
+        >
           {runtime?.lastError && (
             <div className="notice warning runtime-error" role="alert">
               {errorMessage(runtime.lastError)}
@@ -497,7 +528,9 @@ export default function App() {
               </button>
             </div>
           )}
-          {view === 'profiles' ? (
+          {view === 'help' ? (
+            <HelpPanel onNavigate={navigate} busy={!!blocked} />
+          ) : view === 'profiles' ? (
             <Profiles
               runtime={runtime}
               onApply={applyProfile}
@@ -796,14 +829,7 @@ export default function App() {
         </div>
       )}
       {launcherOpen && (
-        <div
-          className="launcher-backdrop"
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget) setLauncherOpen(false);
-          }}
-        >
-          <Launcher onClose={() => setLauncherOpen(false)} onCommand={handleCommand} />
-        </div>
+        <Launcher onClose={() => setLauncherOpen(false)} onCommand={handleCommand} />
       )}
       {plan && <PreviewModal {...{ plan, native }} onClose={closePlan} onConfirm={execute} />}
     </div>
