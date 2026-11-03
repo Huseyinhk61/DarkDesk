@@ -11,12 +11,12 @@ import {
   Folder,
   Check,
   ShieldCheck,
-  ScanLine,
   Info,
   LoaderCircle,
   AlertTriangle,
   ArrowDownUp,
   RefreshCw,
+  FolderTree,
 } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
@@ -24,37 +24,44 @@ import CategoryGrid from './components/CategoryGrid';
 import ItemCard from './components/ItemCard';
 import Settings from './components/Settings';
 import PreviewModal from './components/PreviewModal';
-import { categories } from './data';
+import CategoryManager from './components/CategoryManager';
+import ScannerPanel from './components/ScannerPanel';
+import EmptyState from './components/EmptyState';
 import { api, native } from './service';
 import { canUndo, formatBytes, isShortcut } from './utils';
-const initialSettings = {
-  mode: 'move',
-  autoScan: true,
-  excludedExtensions: ['.ini', '.tmp'],
-  overrides: {},
-};
+import { usePreferences } from './preferences';
 export default function App() {
-  const [view, setView] = useState('groups');
-  const [items, setItems] = useState([]);
-  const [selected, setSelected] = useState(new Set());
-  const [filter, setFilter] = useState(null);
-  const [query, setQuery] = useState('');
-  const [busy, setBusy] = useState('loading');
-  const [last, setLast] = useState(null);
-  const [stats, setStats] = useState(null);
-  const [history, setHistory] = useState([]);
-  const [settings, setSettings] = useState(initialSettings);
-  const [plan, setPlan] = useState(null);
-  const [toast, setToast] = useState(null);
-  const [error, setError] = useState('');
-  const [layout, setLayout] = useState(() => localStorage.getItem('darkdesk-layout') || 'grid');
-  const [type, setType] = useState('all');
-  const [sort, setSort] = useState('name');
-  const [progress, setProgress] = useState(null);
-  const knownIds = useRef(new Set());
-  const searchRef = useRef(null);
-  const busyRef = useRef(true);
-  const notify = useCallback((message, kind = 'info') => setToast({ message, kind }), []);
+  const { settings, setSettings, t, locale, errorMessage, categoryLabel } = usePreferences();
+  const [view, setView] = useState('groups'),
+    [items, setItems] = useState([]),
+    [selected, setSelected] = useState(new Set()),
+    [filter, setFilter] = useState(null),
+    [query, setQuery] = useState(''),
+    [busy, setBusy] = useState('loading'),
+    [last, setLast] = useState(null),
+    [stats, setStats] = useState(null),
+    [history, setHistory] = useState([]),
+    [plan, setPlan] = useState(null),
+    [toast, setToast] = useState(null),
+    [error, setError] = useState(''),
+    [layout, setLayout] = useState(() => localStorage.getItem('darkdesk-layout') || 'grid'),
+    [type, setType] = useState('all'),
+    [sort, setSort] = useState('name'),
+    [progress, setProgress] = useState(null),
+    [scope, setScopeState] = useState('desktop'),
+    [scanProgress, setScanProgress] = useState(null),
+    [scanResult, setScanResult] = useState(null);
+  const [shown, setShown] = useState(48);
+  useEffect(() => setShown(48), [query, filter, type, scope]);
+  const knownIds = useRef(new Set()),
+    searchRef = useRef(null),
+    busyRef = useRef(true),
+    scopeRef = useRef('desktop');
+  const notify = useCallback(
+    (message, kind = 'info', undoable = false) =>
+      setToast({ ...(typeof message === 'object' ? message : { message }), kind, undoable }),
+    [],
+  );
   const start = useCallback((name) => {
     if (busyRef.current) return false;
     busyRef.current = true;
@@ -67,13 +74,18 @@ export default function App() {
     setProgress(null);
   }, []);
   const refresh = useCallback(async () => {
-    const [data, batches, system] = await Promise.all([api.scan(), api.history(), api.stats()]);
+    const [data, batches, system] = await Promise.all([
+      api.scan(scopeRef.current),
+      api.history(),
+      api.stats(),
+    ]);
     const oldIds = knownIds.current;
     setSelected(
       (previous) =>
         new Set(
           data
             .filter((item) => previous.has(item.id) || !oldIds.has(item.id))
+            .slice(0, 5000)
             .map((item) => item.id),
         ),
     );
@@ -94,10 +106,7 @@ export default function App() {
           await refresh();
         }
       } catch (e) {
-        if (active) {
-          setError(e.message);
-          notify(e.message, 'error');
-        }
+        if (active) setError(e.message);
       } finally {
         if (active) finish();
       }
@@ -105,10 +114,10 @@ export default function App() {
     return () => {
       active = false;
     };
-  }, [refresh, finish, notify]);
+  }, [refresh, finish, setSettings]);
   useEffect(() => {
     const unsubscribe = api.onDesktopChanged(async () => {
-      if (!settings.autoScan || !start('scan')) return;
+      if (!settings.autoScan || scopeRef.current !== 'desktop' || !start('scan')) return;
       try {
         await refresh();
       } catch (e) {
@@ -117,8 +126,9 @@ export default function App() {
         finish();
       }
     });
-    const offProgress = api.onProgress(setProgress);
-    const offError = api.onWatchError((message) => notify(message, 'error'));
+    const offProgress = api.onProgress(setProgress),
+      offScan = api.onScanProgress(setScanProgress),
+      offError = api.onWatchError((message) => setError(message));
     const timer = setInterval(
       () =>
         api
@@ -130,60 +140,97 @@ export default function App() {
     return () => {
       unsubscribe();
       offProgress();
+      offScan();
       offError();
       clearInterval(timer);
     };
-  }, [settings.autoScan, refresh, start, finish, notify]);
+  }, [settings.autoScan, refresh, start, finish]);
   useEffect(() => {
     if (!toast) return;
-    const timer = setTimeout(() => setToast(null), toast.kind === 'error' ? 12000 : 5000);
+    const timer = setTimeout(() => setToast(null), toast.kind === 'error' ? 12000 : 8000);
     return () => clearTimeout(timer);
   }, [toast]);
+  useEffect(() => localStorage.setItem('darkdesk-layout', layout), [layout]);
   useEffect(() => {
-    localStorage.setItem('darkdesk-layout', layout);
-  }, [layout]);
-  useEffect(() => {
-    const handler = (event) => {
+    const onKey = (e) => {
       if (
-        (event.ctrlKey || event.metaKey) &&
-        event.key.toLowerCase() === 'k' &&
-        view !== 'settings'
+        (e.ctrlKey || e.metaKey) &&
+        e.key.toLowerCase() === 'k' &&
+        !['settings', 'categories'].includes(view)
       ) {
-        event.preventDefault();
+        e.preventDefault();
         searchRef.current?.focus();
       }
     };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, [view]);
-  const scan = async () => {
+  const scanDesktop = async () => {
     if (!start('scan')) return;
     try {
       await refresh();
-      notify('Tarama tamamlandı. Kategori önerilerini gözden geçirebilirsin.');
+      notify(t('notify.scanned'));
     } catch (e) {
       setError(e.message);
-      notify(e.message, 'error');
+      notify(errorMessage(e), 'error');
+    } finally {
+      finish();
+    }
+  };
+  const scanSystem = async (cancel = false) => {
+    if (cancel) {
+      await api.cancelScan();
+      return;
+    }
+    if (!start('deep')) return;
+    scopeRef.current = 'system';
+    setScopeState('system');
+    setView('scan');
+    setScanProgress({ visited: 0, found: 0 });
+    try {
+      const result = await api.scanSystem();
+      setScanResult(result);
+      await refresh();
+      notify(t('scan.complete', { count: result.items.length }));
+    } catch (e) {
+      notify(errorMessage(e), 'error');
+    } finally {
+      finish();
+    }
+  };
+  const scan = () => (scopeRef.current === 'system' ? scanSystem() : scanDesktop());
+  const setScope = async (value) => {
+    if (!start('scan')) return;
+    scopeRef.current = value;
+    setScopeState(value);
+    setFilter(null);
+    setType('all');
+    try {
+      await refresh();
+    } catch (e) {
+      notify(errorMessage(e), 'error');
     } finally {
       finish();
     }
   };
   const saveSettings = async (value) => {
-    if (!start('settings')) return;
+    if (!start('settings')) return false;
     try {
-      setSettings(await api.setSettings(value));
+      const saved = await api.setSettings(value);
+      setSettings(saved);
+      if (filter && !saved.categories.some((c) => c.id === filter)) setFilter(null);
       await refresh();
-      notify('Tercihlerin bu cihaza kaydedildi.');
+      notify({ key: 'notify.saved' });
+      return true;
     } catch (e) {
-      notify(e.message, 'error');
+      notify(errorMessage(e), 'error');
+      return false;
     } finally {
       finish();
     }
   };
-  const changeCategory = async (item, category) =>
-    saveSettings({ ...settings, overrides: { ...settings.overrides, [item.id]: category } });
   const preview = async () => {
-    if (!selected.size) return notify('Önce düzenlenecek öğeleri seç.');
+    if (!selected.size) return notify(t('notify.select'));
     if (!start('preview')) return;
     try {
       setPlan(
@@ -193,7 +240,7 @@ export default function App() {
         ),
       );
     } catch (e) {
-      notify(e.message, 'error');
+      notify(errorMessage(e), 'error');
     } finally {
       finish();
     }
@@ -205,16 +252,12 @@ export default function App() {
     try {
       const result = await api.organize(token);
       await refresh();
-      notify(
-        `${result.entries.length} öğe ${settings.mode === 'move' ? 'taşındı' : 'kopyalandı'}.${native ? ' Geçmişten geri alabilirsin.' : ' Demo: gerçek dosyalar değişmedi.'}`,
-      );
+      notify(t('notify.organized', { count: result.entries.length }), 'success', true);
     } catch (e) {
-      notify(e.message, 'error');
+      notify(errorMessage(e), 'error');
       try {
         await refresh();
-      } catch {
-        /* Preserve the original operation error. */
-      }
+      } catch {}
     } finally {
       finish();
     }
@@ -224,14 +267,12 @@ export default function App() {
     try {
       await api.undo();
       await refresh();
-      notify('Son düzenleme geri alındı.');
+      notify(t('notify.undone'), 'success');
     } catch (e) {
-      notify(e.message, 'error');
+      notify(errorMessage(e), 'error');
       try {
         setHistory(await api.history());
-      } catch {
-        /* Preserve original error. */
-      }
+      } catch {}
     } finally {
       finish();
     }
@@ -244,22 +285,24 @@ export default function App() {
             (type === 'all' || (type === 'shortcuts' ? isShortcut(item) : !isShortcut(item))) &&
             (filter === null || item.category === filter) &&
             `${item.name} ${item.target || ''}`
-              .toLocaleLowerCase('tr')
-              .includes(query.toLocaleLowerCase('tr')),
+              .toLocaleLowerCase(locale)
+              .includes(query.toLocaleLowerCase(locale)),
         )
         .sort((a, b) =>
           sort === 'size'
             ? b.size - a.size
             : sort === 'modified'
               ? b.modified - a.modified
-              : a.name.localeCompare(b.name, 'tr'),
+              : a.name.localeCompare(b.name, locale),
         ),
-    [items, type, filter, query, sort],
+    [items, type, filter, query, sort, locale],
   );
-  const allVisibleSelected = visible.length > 0 && visible.every((item) => selected.has(item.id));
+  const displayed = visible.slice(0, shown);
+  const allVisibleSelected =
+    displayed.length > 0 && displayed.every((item) => selected.has(item.id));
   const selectedBytes = items
     .filter((item) => selected.has(item.id))
-    .reduce((sum, item) => sum + (item.size || 0), 0);
+    .reduce((n, i) => n + (i.size || 0), 0);
   const toggle = (id) =>
     setSelected((previous) => {
       const next = new Set(previous);
@@ -269,96 +312,75 @@ export default function App() {
   const toggleVisible = () =>
     setSelected((previous) => {
       const next = new Set(previous);
-      visible.forEach((item) => (allVisibleSelected ? next.delete(item.id) : next.add(item.id)));
+      displayed.forEach((item) => (allVisibleSelected ? next.delete(item.id) : next.add(item.id)));
       return next;
     });
   const closePlan = useCallback(() => setPlan(null), []);
-  const busyLabels = {
-    loading: 'Masaüstün hazırlanıyor…',
-    scan: 'Masaüstü taranıyor…',
-    preview: 'Hedefler ve çakışmalar kontrol ediliyor…',
-    organize: 'Dosyalar doğrulanarak düzenleniyor…',
-    undo: 'Son düzenleme geri alınıyor…',
-    settings: 'Tercihler kaydediliyor…',
-  };
   return (
     <div className="app-shell">
       <Sidebar {...{ view, setView, stats, native }} />
       <div className="main-shell">
         <div className="titlebar">
           <span>
-            Çalışma alanı <span>/</span>
-            <b>
-              {view === 'settings'
-                ? 'Otomasyon & Ayarlar'
-                : view === 'scan'
-                  ? 'Masaüstü Tarama'
-                  : 'Akıllı Gruplar'}
-            </b>
+            {t('window.workspace')}
+            <span>/</span>
+            <b>{t('nav.' + view)}</b>
           </span>
           <div>
             <span className="titlebar-local">
               <span className="online" />
-              {native ? 'Yerel bağlantı aktif' : 'Önizleme modu'}
+              {t(native ? 'window.connection' : 'window.demo')}
             </span>
-            <button disabled={!native} onClick={() => api.window('minimize')} aria-label="Küçült">
-              <Minus size={14} />
-            </button>
-            <button disabled={!native} onClick={() => api.window('maximize')} aria-label="Büyüt">
-              <Square size={11} />
-            </button>
-            <button
-              disabled={!native}
-              className="close"
-              onClick={() => api.window('close')}
-              aria-label="Kapat"
-            >
-              <X size={16} />
-            </button>
+            {[
+              ['minimize', Minus],
+              ['maximize', Square],
+              ['close', X],
+            ].map(([action, Icon]) => (
+              <button
+                key={action}
+                disabled={!native}
+                className={action === 'close' ? 'close' : ''}
+                onClick={() => api.window(action)}
+                aria-label={t('window.' + action)}
+              >
+                <Icon size={action === 'maximize' ? 11 : 14} />
+              </button>
+            ))}
           </div>
         </div>
         <main aria-busy={!!busy}>
           {error && (
             <div className="error-banner" role="alert">
               <AlertTriangle size={20} />
-              <span>{error}</span>
+              <span>{errorMessage(error)}</span>
               <button className="btn secondary" disabled={!!busy} onClick={scan}>
                 <RefreshCw size={14} />
-                Yeniden dene
+                {t('common.retry')}
               </button>
             </div>
           )}
           {view === 'settings' ? (
-            <Settings {...{ settings, stats, history, undo, busy }} onSave={saveSettings} />
+            <Settings {...{ stats, history, undo, busy }} onSave={saveSettings} />
+          ) : view === 'categories' ? (
+            <CategoryManager onSave={saveSettings} busy={busy} />
           ) : (
             <>
               <Header {...{ scan, busy, last, native }} count={items.length} organize={preview} />
               {view === 'scan' && (
-                <section className="scan-info">
-                  <ScanLine size={25} />
-                  <div>
-                    <h3>Masaüstü Tarama Motoru</h3>
-                    <p>
-                      Dosya adları, uzantılar ve Windows kısayol hedefleri analiz edilir. Manuel
-                      kategori tercihlerin hatırlanır.
-                    </p>
-                    <code>{stats?.desktop}</code>
-                    <div className="scan-details">
-                      <span>{items.filter(isShortcut).length} kısayol</span>
-                      <span>{items.filter((i) => !isShortcut(i)).length} dosya</span>
-                      <span>{formatBytes(items.reduce((sum, i) => sum + i.size, 0))}</span>
-                      <span>
-                        {settings.autoScan && native ? 'Canlı takip açık' : 'Manuel tarama'}
-                      </span>
-                    </div>
-                  </div>
-                </section>
+                <ScannerPanel
+                  platform={stats?.platform}
+                  {...{ scope, setScope, scanSystem, busy, scanProgress, scanResult }}
+                />
               )}
               <div className="section-heading">
                 <h2>
-                  Akıllı grupların <span>05</span>
+                  {t('groups.title')}
+                  <span>{settings.categories.length.toString().padStart(2, '0')}</span>
                 </h2>
-                <span>Her dosya için doğru bir yer.</span>
+                <button className="text-btn" onClick={() => setView('categories')}>
+                  <FolderTree size={14} />
+                  {t('groups.manage')}
+                </button>
               </div>
               <fieldset disabled={!!busy} className="category-fieldset">
                 <CategoryGrid {...{ items, filter, setFilter }} />
@@ -367,13 +389,15 @@ export default function App() {
                 <div className="panel-header">
                   <div>
                     <h2>
-                      Masaüstün, kontrol altında{' '}
+                      {t('panel.title')}
                       <span className="live-tag">
                         <span />
-                        {native && settings.autoScan ? 'CANLI' : 'HAZIR'}
+                        {t(
+                          native && settings.autoScan ? 'common.live' : 'common.ready',
+                        ).toLocaleUpperCase(locale)}
                       </span>
                     </h2>
-                    <p>Taşımadan önce gözden geçir. Her şey tam istediğin yerde olsun.</p>
+                    <p>{t('panel.body')}</p>
                   </div>
                   <button
                     className="text-btn"
@@ -381,22 +405,22 @@ export default function App() {
                     disabled={!canUndo(history) || !!busy}
                   >
                     <Undo2 size={15} />
-                    Geri al
+                    {t('common.undo')}
                   </button>
                 </div>
                 <div className="toolbar">
                   <div className="filter-tabs">
                     {[
-                      ['all', 'Tüm öğeler', items.length],
-                      ['shortcuts', 'Kısayollar', items.filter(isShortcut).length],
-                      ['files', 'Dosyalar', items.filter((i) => !isShortcut(i)).length],
-                    ].map(([id, label, count]) => (
+                      ['all', 'common.all', items.length],
+                      ['shortcuts', 'common.shortcuts', items.filter(isShortcut).length],
+                      ['files', 'panel.files', items.filter((i) => !isShortcut(i)).length],
+                    ].map(([id, key, count]) => (
                       <button
                         key={id}
                         className={type === id ? 'active' : ''}
                         onClick={() => setType(id)}
                       >
-                        {label}
+                        {t(key)}
                         <span>{count}</span>
                       </button>
                     ))}
@@ -406,13 +430,13 @@ export default function App() {
                       <Search size={15} />
                       <input
                         ref={searchRef}
-                        aria-label="Öğe ara"
-                        placeholder="Öğe ara… (Ctrl K)"
+                        aria-label={t('panel.search')}
+                        placeholder={t('panel.searchPlaceholder')}
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                       />
                       {query && (
-                        <button onClick={() => setQuery('')} aria-label="Aramayı temizle">
+                        <button onClick={() => setQuery('')} aria-label={t('panel.clearSearch')}>
                           <X size={13} />
                         </button>
                       )}
@@ -420,40 +444,43 @@ export default function App() {
                     <div className="sort-select">
                       <ArrowDownUp size={14} />
                       <select
-                        aria-label="Öğeleri sırala"
+                        aria-label={t('panel.sort')}
                         value={sort}
                         onChange={(e) => setSort(e.target.value)}
                       >
-                        <option value="name">Ada göre</option>
-                        <option value="size">Boyuta göre</option>
-                        <option value="modified">En yeni</option>
+                        {[
+                          ['name', 'panel.sortName'],
+                          ['size', 'panel.sortSize'],
+                          ['modified', 'panel.sortDate'],
+                        ].map(([id, key]) => (
+                          <option value={id} key={id}>
+                            {t(key)}
+                          </option>
+                        ))}
                       </select>
                     </div>
                     <button
                       className="tool-btn"
-                      title="Düzenleme ayarları"
-                      aria-label="Düzenleme ayarları"
+                      aria-label={t('panel.settings')}
                       onClick={() => setView('settings')}
                     >
                       <SlidersHorizontal size={16} />
                     </button>
                     <div className="view-toggle">
-                      <button
-                        className={layout === 'grid' ? 'active' : ''}
-                        onClick={() => setLayout('grid')}
-                        aria-label="Kart görünümü"
-                        aria-pressed={layout === 'grid'}
-                      >
-                        <LayoutGrid size={15} />
-                      </button>
-                      <button
-                        className={layout === 'list' ? 'active' : ''}
-                        onClick={() => setLayout('list')}
-                        aria-label="Liste görünümü"
-                        aria-pressed={layout === 'list'}
-                      >
-                        <List size={16} />
-                      </button>
+                      {[
+                        ['grid', LayoutGrid],
+                        ['list', List],
+                      ].map(([id, Icon]) => (
+                        <button
+                          key={id}
+                          className={layout === id ? 'active' : ''}
+                          onClick={() => setLayout(id)}
+                          aria-label={t('panel.' + id)}
+                          aria-pressed={layout === id}
+                        >
+                          <Icon size={15} />
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -461,80 +488,92 @@ export default function App() {
                   <button
                     onClick={toggleVisible}
                     disabled={!!busy || !visible.length}
-                    aria-label="Görünen öğeleri seç veya kaldır"
+                    aria-label={t('panel.selectVisible')}
                   >
                     <span className={`checkbox ${allVisibleSelected ? 'on' : ''}`}>
                       {allVisibleSelected && <Check size={11} />}
                     </span>
-                    {selected.size} öğe seçili{' '}
-                    <span className="selection-size">· {formatBytes(selectedBytes)}</span>
+                    {t('panel.selected', { count: selected.size })}
+                    <span className="selection-size">· {formatBytes(selectedBytes, locale)}</span>
                   </button>
                   <span>
                     {filter !== null && (
-                      <button
-                        onClick={() => setFilter(null)}
-                        aria-label="Kategori filtresini temizle"
-                      >
+                      <button onClick={() => setFilter(null)} aria-label={t('panel.clearCategory')}>
                         <X size={12} />
                       </button>
                     )}
                     <Folder size={12} />
                     {filter === null
-                      ? `${visible.length} / ${items.length} öğe`
-                      : categories[filter].folder}
+                      ? `${visible.length} / ${items.length} ${t('common.items')}`
+                      : categoryLabel(filter)}
                   </span>
                 </div>
-                <div className={`items-grid ${layout === 'list' ? 'list-layout' : ''}`}>
-                  {visible.map((item) => (
+                <div className={`items-grid ${layout === 'list' ? 'list-layout' : ''}`} key={scope}>
+                  {displayed.map((item) => (
                     <ItemCard
                       key={item.id}
                       item={item}
                       selected={selected.has(item.id)}
                       toggle={() => toggle(item.id)}
-                      onCategory={(category) => changeCategory(item, category)}
+                      onCategory={(category) =>
+                        saveSettings({
+                          ...settings,
+                          overrides: { ...settings.overrides, [item.id]: category },
+                        })
+                      }
+                      onIcon={(icon) =>
+                        saveSettings({
+                          ...settings,
+                          itemIcons: { ...settings.itemIcons, [item.id]: icon },
+                        })
+                      }
                       disabled={!!busy}
-                      reveal={() => api.reveal(item.id).catch((e) => notify(e.message, 'error'))}
+                      reveal={() =>
+                        api
+                          .reveal(item.id)
+                          .catch((e) =>
+                            notify(
+                              e.message === 'DEMO_REVEAL'
+                                ? t('notify.demoReveal')
+                                : errorMessage(e),
+                              'error',
+                            ),
+                          )
+                      }
                     />
                   ))}
                 </div>
-                {!visible.length && (
-                  <div className="empty">
-                    <Folder size={32} />
-                    <h3>
-                      {busy
-                        ? 'Masaüstün hazırlanıyor…'
-                        : items.length
-                          ? 'Bu filtreye uygun öğe bulunamadı.'
-                          : 'Masaüstünde düzenlenecek öğe yok.'}
-                    </h3>
-                    <p>
-                      {items.length
-                        ? 'Aramanı veya kategori filtreni değiştirebilirsin.'
-                        : 'Yeni dosyaları görmek için yeniden tara.'}
-                    </p>
-                    {items.length > 0 && (
-                      <button
-                        className="btn secondary"
-                        onClick={() => {
-                          setQuery('');
-                          setFilter(null);
-                          setType('all');
-                        }}
-                      >
-                        Filtreleri temizle
-                      </button>
-                    )}
+                {visible.length > shown && (
+                  <div className="load-more">
+                    <button className="btn secondary" onClick={() => setShown((n) => n + 48)}>
+                      {t('panel.more', { count: visible.length - shown })}
+                    </button>
                   </div>
+                )}
+                {!visible.length && (
+                  <EmptyState
+                    filtered={items.length > 0}
+                    system={scope === 'system'}
+                    busy={busy}
+                    clear={() => {
+                      setQuery('');
+                      setFilter(null);
+                      setType('all');
+                    }}
+                    scan={scope === 'system' ? () => scanSystem() : scan}
+                  />
                 )}
                 <div className="panel-footer">
                   <ShieldCheck size={14} />
-                  <span>
-                    {native
-                      ? 'Dosyaların cihazında kalır. Kontrol her zaman sende.'
-                      : 'Demo verileri görüntüleniyor. Gerçek dosyalar için masaüstü uygulamasını başlat.'}
-                  </span>
+                  <span>{t(native ? 'panel.keepLocal' : 'panel.demoNote')}</span>
                   <span className="footer-right">
-                    {settings.mode === 'move' ? 'Taşıma modu' : 'Kopyalama modu'}
+                    {t(
+                      scope === 'system'
+                        ? 'panel.linkMode'
+                        : settings.mode === 'move'
+                          ? 'panel.moveMode'
+                          : 'panel.copyMode',
+                    )}
                     <span>✦</span>
                   </span>
                 </div>
@@ -542,7 +581,7 @@ export default function App() {
             </>
           )}
           <div className="page-footer">
-            <span>DAHA SADE BİR MASAÜSTÜ, DAHA NET BİR ZİHİN.</span>
+            <span>{t('footer.tagline')}</span>
             <span>
               DarkDesk <span>✦</span>
             </span>
@@ -552,12 +591,13 @@ export default function App() {
       {busy && (
         <div className="activity-bar" role="status">
           <LoaderCircle size={16} className="spin" />
-          <span>{busyLabels[busy]}</span>
+          <span>{t('busy.' + busy)}</span>
           {progress && (
             <b>
               {progress.completed} / {progress.total}
             </b>
           )}
+          {busy === 'deep' && <button onClick={() => api.cancelScan()}>{t('scan.cancel')}</button>}
         </div>
       )}
       {toast && (
@@ -565,9 +605,17 @@ export default function App() {
           className={`toast ${toast.kind === 'error' ? 'error-toast' : ''}`}
           role={toast.kind === 'error' ? 'alert' : 'status'}
         >
-          <Info size={18} />
-          <span>{toast.message}</span>
-          <button onClick={() => setToast(null)} aria-label="Bildirimi kapat">
+          <span className="toast-icon">
+            {toast.kind === 'success' ? <Check size={18} /> : <Info size={18} />}
+          </span>
+          <span>{toast.key ? t(toast.key, toast.params) : toast.message}</span>
+          {toast.undoable && (
+            <button className="toast-undo" disabled={!!busy || !canUndo(history)} onClick={undo}>
+              <Undo2 size={14} />
+              {t('common.undo')}
+            </button>
+          )}
+          <button onClick={() => setToast(null)} aria-label={t('notify.dismiss')}>
             <X size={16} />
           </button>
         </div>

@@ -1,61 +1,72 @@
-import { ArrowRight, AlertTriangle, FolderCheck, ShieldCheck } from 'lucide-react';
+import { ArrowRight, AlertTriangle, FolderCheck, ShieldCheck, Link2 } from 'lucide-react';
 import Modal from './Modal';
-import { categories } from '../data';
+import { usePreferences } from '../preferences';
 import { formatBytes } from '../utils';
 export default function PreviewModal({ plan, native, onClose, onConfirm }) {
+  const { t, locale, errorMessage } = usePreferences();
+  const shortcut = plan.entries.some((e) => e.action === 'shortcut');
   return (
-    <Modal title="Son bir göz atalım." onClose={onClose}>
-      <p>
-        {plan.ready} öğe {plan.mode === 'move' ? 'taşınmaya' : 'kopyalanmaya'} hazır. Onayladığında
-        aşağıdaki klasörler masaüstünde oluşturulacak.
-      </p>
+    <Modal title={t('preview.title')} onClose={onClose}>
+      <p>{t('preview.body', { count: plan.ready })}</p>
       {!native && (
         <div className="notice">
           <ShieldCheck size={17} />
-          Demo modundasın. Gerçek dosyaların değişmeyecek.
+          {t('preview.demo')}
+        </div>
+      )}
+      {shortcut && (
+        <div className="notice">
+          <Link2 size={17} />
+          {t('scan.safe')}
         </div>
       )}
       <div className="preview-totals">
         <span>
           <FolderCheck size={18} />
-          <b>{plan.ready}</b> hazır
+          {t('preview.ready', { count: plan.ready })}
         </span>
         <span>
-          <b>{formatBytes(plan.bytes)}</b> toplam
+          <b>{formatBytes(plan.bytes, locale)}</b>
+          {t('common.total')}
         </span>
         <span className={plan.conflicts ? 'warning-text' : ''}>
           <AlertTriangle size={16} />
-          {plan.conflicts} çakışma
+          {t('preview.conflicts', { count: plan.conflicts })}
         </span>
       </div>
-      {plan.conflicts > 0 && (
-        <div className="notice warning">
-          Çakışan öğeler atlanacak. Mevcut dosyaların üzerine yazılmaz.
-        </div>
-      )}
+      {plan.conflicts > 0 && <div className="notice warning">{t('preview.skipNote')}</div>}
       <div className="preview-entries">
         {plan.entries.map((entry) => (
           <div className={`preview-entry ${entry.conflict ? 'conflict' : ''}`} key={entry.id}>
             <div>
-              <b>{entry.id}</b>
+              <b>{entry.name || entry.id}</b>
               <small title={entry.target}>
-                {entry.conflict || `Masaüstü / ${categories[entry.category].folder}`}
+                {entry.conflict ? errorMessage(entry.conflict) : entry.categoryPath || entry.target}
               </small>
             </div>
-            <span>{entry.conflict ? 'Atlanacak' : formatBytes(entry.size)}</span>
+            <span>
+              {entry.conflict
+                ? t('preview.skip')
+                : entry.action === 'shortcut'
+                  ? t('common.shortcut')
+                  : formatBytes(entry.size, locale)}
+            </span>
           </div>
         ))}
       </div>
       <div className="info-note">
         <ShieldCheck size={16} />
-        İçerik doğrulanır. İşlem geçmişinden geri alabilirsin.
+        {t('preview.verified')}
       </div>
       <div className="modal-actions">
         <button className="btn secondary" onClick={onClose}>
-          Vazgeç
+          {t('common.cancel')}
         </button>
         <button className="btn primary" disabled={!plan.ready} onClick={onConfirm}>
-          {plan.ready} öğeyi {plan.mode === 'move' ? 'taşı' : 'kopyala'}
+          {t(
+            shortcut ? 'preview.shortcut' : plan.mode === 'move' ? 'preview.move' : 'preview.copy',
+            { count: plan.ready },
+          )}
           <ArrowRight size={16} />
         </button>
       </div>

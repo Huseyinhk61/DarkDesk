@@ -80,7 +80,16 @@ ZIP ile indirdiysen yeni ZIP’i farklı bir klasöre çıkarıp aynı kurulum a
 İndirdiğin EXE özetini kontrol etmek için:
 
 ```powershell
-Get-FileHash .\DarkDesk-Setup-1.1.0.exe -Algorithm SHA256
+Get-FileHash .\DarkDesk-Setup-2.0.0.exe -Algorithm SHA256
 ```
 
 Sonucu aynı paketteki `SHA256SUMS.txt` ile karşılaştır. Paket şu aşamada kod imzalı değildir; Windows yayıncı uyarısı gösterebilir.
+
+## Tema, dil, gruplar ve sistem taraması (2.0)
+
+- **Otomasyon & Ayarlar → Görünüm & dil** üzerinden tema, Türkçe/İngilizce ve ikon paketini seç. Değişiklikler cihazda kalır.
+- **Kategoriler & Kurallar** bölümünde grupları, alt grupları ve eşleştirme kurallarını yönet. Manuel dosya atamaları kurallardan önceliklidir.
+- **Sistem Tarama** masaüstünün yanında Program Files, iki Başlat Menüsü ve App Paths/Uninstall kayıtlarından uygulama keşfi yapar. Erişilemeyen alanlar atlanır ve bildirilir. Kayıt defteri değiştirilmez.
+- Kurulu `.exe` dosyaları orijinal konumunda kalır. Onayladığında kategori klasöründe `.lnk` oluşturulur; geri alma bu kısayolu kaldırır.
+- Seçilen ikon, yeni kısayollara uygulanır. Windows’ta yeni kategori klasörlerinde `desktop.ini` ve `.darkdesk.ico` kullanılır. Explorer ikon önbelleği nedeniyle görüntü gecikebilir; klasörü yenilemeyi dene. Mevcut kategori klasörlerine ve dosya ikonlarına geriye dönük müdahale edilmez.
+- Sürüme geçişte eski taşı/kopyala ayarı ve kategori atamaları korunur. Eski işlem geçmişi geri alınabilir. Dil değiştirmek klasörleri yeniden adlandırmaz.

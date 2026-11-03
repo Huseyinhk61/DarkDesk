@@ -30,7 +30,31 @@
 | **Canlı masaüstü takibi**     | Dosyalar eklendiğinde/kaldırıldığında liste otomatik yenilenir. Onayın olmadan taşıma yapılmaz.                                                                             |
 | **Hızlı çalışma alanı**       | Arama, kategori ve dosya türü filtreleri, ad/boyut/tarih sıralaması, kart/liste görünümü, görünen öğeleri toplu seçme.                                                      |
 | **Kalıcı ayarlar**            | Taşı/kopyala seçimi, canlı takip, hariç tutulacak uzantılar ve kategori tercihleri bu cihazda saklanır.                                                                     |
-| **Yerel ve hesapsız**         | Dosya işlemleri için hesap, API anahtarı veya bulut servisi gerekmez.                                                                                                       |
+| **Yerel ve hesapsız**         | Dosya işlemleri için hesap, API anahtarı veya bulut servisi gerekmez. Sonuç bildiriminden tek tıkla geri alınabilir.                                                        |
+
+## 🎨 Görünümünü seç
+
+<table>
+  <tr><td align="center"><strong>Cyberpunk Neon · Lucide</strong></td><td align="center"><strong>Minimal Slate · English · Tabler</strong></td></tr>
+  <tr><td><img src="docs/assets/cyberpunk.png" alt="Mor ve neon aksanlı Cyberpunk tema" /></td><td><img src="docs/assets/slate-en.png" alt="İngilizce arayüz, açık Minimal Slate ve Tabler ikonları" /></td></tr>
+</table>
+
+Tema, dil ve ikon paketi **Otomasyon & Ayarlar → Görünüm & dil** bölümündedir. Her kategorinin ikonunu **Kategoriler & Kurallar**, tek bir öğenin ikonunu dosya kartından seçebilirsin. Mevcut dosyaların işletim sistemi ikonları değiştirilmez. Windows dışındaki platformlarda fiziksel klasör ikonlandırma desteklenmez; arayüz ikonları çalışır.
+
+## 🔎 Derin tarama ve özel gruplar
+
+**Sistem Tarama → Derin taramayı başlat** ile uygulamaları keşfet. Masaüstü ve yüklü uygulamalar arasında geçiş yapabilirsin. Program Files’taki `.exe` dosyaları hiçbir zaman taşınmaz veya silinmez: onaylanan işlem masaüstündeki kategori klasörlerine `.lnk` oluşturur. Geri alma yalnızca oluşturulan kısayolları kaldırır.
+
+**Kategoriler & Kurallar** bölümünde yeni bir grup veya alt grup ekle, klasör adını/ikonunu seç. Örneğin `Yazılım & Geliştirme / Projeler / Müşteri` gibi gerçek alt klasörler oluşturulabilir. Adında `game` geçenleri Oyunlar’a veya `.pdf` uzantılı dosyaları özel bir gruba eşleyen kurallar tanımlayabilirsin. Kurallar yukarıdan aşağı değerlendirilir; manuel atamalar kurallardan önceliklidir.
+
+- Tarama salt okunurdur; yönetici yetkisi istemez. Erişilemeyen alanları raporlayarak devam eder.
+- Sembolik bağlantılar, kurulum/kaldırma yardımcıları ve önbellek dizinleri atlanır. Aynı hedefe giden kısayollar tekilleştirilir.
+- Kaynak sınırları: 12 dizin derinliği, 100.000 dizin ve 10.000 sonuç. Sınıra ulaşılırsa kısmi sonuç uyarısı gösterilir. Tek onayda en fazla 5.000 öğe işlenir; kartlar 48’lik gruplar halinde yüklenir.
+- Windows kayıt defteri yalnızca okunur. Linux’ta `/usr/share/applications`, kullanıcı uygulamaları ve `/opt` taranır; `.desktop` kısayolları oluşturulur. macOS derin taraması şu anda desteklenmez; masaüstü taraması kullanılabilir.
+- Tarama sonuçlarının tamamı her makinedeki bütün uygulamaları garanti etmez; erişim izinleri, özel kurulum yolları ve belirtilen sınırlar sonucu etkiler.
+- Kategori silmek diskteki klasörleri/dosyaları silmez. Kategori veya klasör adı değiştirmek mevcut klasörleri yeniden adlandırmaz; değişiklik yeni işlemlerde kullanılır. Eski işlemler, kendi kayıtlı hedefleriyle geri alınabilir.
+
+<div align="center"><img src="docs/assets/scanner.png" alt="Durdurulabilir sistem taraması ve keşfedilen uygulamalar" width="100%" /><sub>Web demosunda örnek uygulamalar gösterilir. Gerçek tarama Electron’da çalışır.</sub></div>
 
 ## 🚀 Hızlı başlangıç
 
@@ -99,8 +123,8 @@ Vite’ın terminalde gösterdiği adresi aç. **Web modu örnek verilerle çal�
 
 GitHub Actions içindeki **[Windows Installer](https://github.com/Huseyinhk61/DarkDesk/actions/workflows/windows.yml)** iş akışı:
 
-- `DarkDesk-Setup-1.1.0.exe`: Kurulum sihirbazı ve masaüstü kısayolu.
-- `DarkDesk-Portable-1.1.0.exe`: Kurulum gerektirmeyen sürüm.
+- `DarkDesk-Setup-2.0.0.exe`: Kurulum sihirbazı ve masaüstü kısayolu.
+- `DarkDesk-Portable-2.0.0.exe`: Kurulum gerektirmeyen sürüm.
 - `SHA256SUMS.txt`: İndirilen dosyaları doğrulamak için özetler.
 
 `main` dalına gönderilen güncellemeler Windows paketini otomatik oluşturur. Depo sahibi ayrıca **Run workflow** ile derlemeyi başlatabilir. Başarılı çalışmanın **Artifacts → DarkDesk-Windows** bölümünden paket indirilir. `v*` etiketi gönderildiğinde testlerden geçen paketler GitHub Releases’e eklenir. **İş akışı başarıyla tamamlanmadan hazır bir EXE bulunduğunu varsayma.**
@@ -138,7 +162,7 @@ Linux CI’de Electron testi için `xvfb-run -a npm run test:desktop` gerekir. T
 
 Dağıtım bağımlılıklarında bilinen açık bulunmadı (`npm audit --omit=dev`). Tam araç zinciri denetiminde paketleyicinin geçişli geliştirme bağımlılıklarında orta seviye bildirimler bulunuyor; bunlar için eski bir paketleyici sürümüne otomatik düşürme yapılmadı.
 
-**v1.1 yerel doğrulaması:** 28 servis/ayar testi, 10 Chromium arayüz testi, üretim derlemesi ve Linux sanal ekranında gerçek Electron/IPC testi geçti. Windows’a özgü test ve EXE oluşturma ayrıca GitHub Actions üzerinde tanımlıdır; sonuçları üstteki canlı test rozetinden ve Actions sayfasından takip edilebilir.
+**v2.0 doğrulaması:** Servis, tarama, kural/ayar göçü, dil sözlüğü ve Chromium testleri bulunur. Gerçek Electron testi izole masaüstünde taşıma/geri alma, uygulama keşfi, kısayol oluşturma/geri alma ve tema/dil/ikon kalıcılığını kontrol eder. Güncel yerel sonuçlar [test raporundadır](docs/VALIDATION.md). Windows’a özgü test ve EXE oluşturma ayrıca GitHub Actions üzerinde tanımlıdır; sonuçları üstteki canlı test rozetinden ve Actions sayfasından takip edilebilir.
 
 <details>
 <summary><strong>Proje yapısı</strong></summary>
@@ -148,12 +172,18 @@ electron/
   main.cjs            Pencere, sınırlı IPC ve masaüstü takibi
   preload.cjs         Renderer için dar yetkili köprü
   service.cjs         Tarama, önizleme, SHA-256, işlem günlüğü ve geri alma
-  settings.cjs        Doğrulanan kalıcı kullanıcı tercihleri
+  settings.cjs        Kalıcı tercih depolama
+  scanner.cjs         Program Files / Başlat Menüsü / kayıtlı uygulama keşfi
+  folder-icons.cjs    Native klasör ikonları ve uygulama kısayolları
+shared/               Ortak kategori modeli, eşleştirme ve ayar doğrulama
 src/
   components/         Sidebar, Header, CategoryGrid, ItemCard, Settings, PreviewModal
   App.jsx             Çalışma alanı ve işlem akışları
   service.js          Native köprü / etkileşimli web demosu
-  styles.css          Tailwind + duyarlı koyu tema
+  styles.css          Duyarlı temel bileşen stilleri
+  themes.css          CSS değişkenleriyle üç tema
+  locales/            Türkçe ve İngilizce JSON sözlükler
+  preferences.jsx     Tema, dil, ikon ve kategori bağlamı
 scripts/              Electron smoke testi ve ekran görüntüsü aracı
 tests/                Playwright senaryoları ve izole Electron test giriş noktası
 .github/workflows/    Windows/Linux testleri ve Windows EXE paketleme

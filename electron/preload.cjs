@@ -1,6 +1,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
 const methods = [
   'scan',
+  'scanSystem',
+  'cancelScan',
   'history',
   'preview',
   'organize',
@@ -16,6 +18,7 @@ const api = Object.fromEntries(
 );
 for (const [method, channel] of [
   ['onProgress', 'progress'],
+  ['onScanProgress', 'scanProgress'],
   ['onDesktopChanged', 'desktopChanged'],
   ['onWatchError', 'watchError'],
 ]) {

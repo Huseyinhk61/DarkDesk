@@ -1,5 +1,18 @@
 # Değişiklikler
 
+## 2.0.0 — 3 Kasım 2026
+
+- Program Files, Başlat Menüsü, App Paths ve kayıtlı kurulum konumları için salt okunur, durdurulabilir tarayıcı; Linux uygulama dizinleri desteği.
+- Kurulu uygulamaları taşımadan kategori klasörlerine native kısayol oluşturma ve geri alma.
+- Dinamik kategori/alt grup yönetimi, güvenli klasör adları, döngü ve çakışma doğrulaması.
+- Ad/hedef metni ve uzantı kuralları; sıralama, düzenleme, etkinleştirme/devre dışı bırakma.
+- Midnight Dark, Cyberpunk Neon ve açık Minimal Slate; CSS değişkenleri ve kalıcı tercihler.
+- Lucide, Tabler ve Minimalist ikon setleri; kategori/öğe seçimi ve 36 native klasör ikonu.
+- Türkçe/İngilizce JSON sözlükleri; menü, ayar, durum, hata ve bildirim çevirileri.
+- Sağ altta geri alınabilir bildirimler, resimli boş durumlar, CSS animasyonları ve azaltılmış hareket desteği.
+- Eski ayarlar için kategori kimliği göçü; eski ve yeni hedefleri koruyan işlem günlüğü.
+- 48’lik kademeli kart yükleme, tarama sınırları ve erişim uyarıları.
+
 ## 1.1.0 — 3 Kasım 2026
 
 ### Yeni

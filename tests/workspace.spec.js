@@ -7,7 +7,7 @@ test('initial scan renders categories without runtime errors', async ({ page }) 
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.getByRole('button', { name: 'Akıllı Taramaya Başla' }).click();
-  await expect(page.locator('.category')).toHaveCount(5);
+  await expect(page.locator('.category')).toHaveCount(6);
   await expect(page.locator('.item-card')).toHaveCount(12);
   await expect(page.getByRole('heading', { name: 'Her şey yerli yerinde.' })).toBeVisible();
   expect(errors).toEqual([]);
@@ -33,10 +33,10 @@ test('select all affects only visible items and preserves hidden selection', asy
   );
 });
 test('category preferences survive rescanning and reload', async ({ page }) => {
-  await page.getByLabel('Figma.lnk hedef klasörü').selectOption('0');
-  await expect(page.getByLabel('Figma.lnk hedef klasörü')).toHaveValue('0');
+  await page.getByLabel('Figma.lnk hedef klasörü').selectOption('software');
+  await expect(page.getByLabel('Figma.lnk hedef klasörü')).toHaveValue('software');
   await page.reload();
-  await expect(page.getByLabel('Figma.lnk hedef klasörü')).toHaveValue('0');
+  await expect(page.getByLabel('Figma.lnk hedef klasörü')).toHaveValue('software');
 });
 test('preview supports cancellation, focus trapping and Escape', async ({ page }) => {
   await page.getByRole('button', { name: 'Masaüstünü Demo Düzenle' }).click();
@@ -54,7 +54,7 @@ test('confirmed demo move can be undone and history retains the result', async (
   await page.getByRole('button', { name: 'Masaüstünü Demo Düzenle' }).click();
   await page.getByRole('button', { name: '12 öğeyi taşı' }).click();
   await expect(page.locator('.item-card')).toHaveCount(0);
-  await page.getByRole('button', { name: 'Geri al', exact: true }).click();
+  await page.locator('.toast').getByRole('button', { name: 'Geri al', exact: true }).click();
   await expect(page.locator('.item-card')).toHaveCount(12);
   await page.getByRole('button', { name: 'Otomasyon & Ayarlar' }).click();
   await expect(page.locator('.history-row')).toContainText('Geri alındı');

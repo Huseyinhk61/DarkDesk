@@ -42,9 +42,9 @@ test('Windows shortcut targets contribute to classification and preferences over
   });
   await fs.writeFile(path.join(desktop, 'Play.lnk'), 'link');
   let items = await service.scan();
-  assert.equal(items.find((i) => i.id === 'Play.lnk').category, 2);
+  assert.equal(items.find((i) => i.id === 'Play.lnk').category, 'games');
   items = await service.scan({ overrides: { 'Play.lnk': 0 } });
-  assert.equal(items.find((i) => i.id === 'Play.lnk').category, 0);
+  assert.equal(items.find((i) => i.id === 'Play.lnk').category, 'software');
 });
 test('preview does not create a folder or modify a source', async (t) => {
   const { desktop, service } = await fixture(t);
@@ -62,7 +62,7 @@ test('move and undo restore original bytes and retain auditable history', async 
   await service.undo();
   assert.equal(await fs.readFile(path.join(desktop, 'notes.pdf'), 'utf8'), 'important');
   assert.equal((await service.history())[0].status, 'undone');
-  await assert.rejects(service.undo(), /Geri alınacak/);
+  await assert.rejects(service.undo(), /NO_UNDO/);
 });
 test('copy keeps original and undo removes only copy', async (t) => {
   const { desktop, service } = await fixture(t);
@@ -89,7 +89,7 @@ test('all-conflict plan cannot execute or create history', async (t) => {
   const { desktop, service } = await fixture(t);
   await organize(service, 'copy');
   const plan = await service.preview(await service.scan(), 'move');
-  await assert.rejects(service.organize(plan.token), /Çakışmasız/);
+  await assert.rejects(service.organize(plan.token), /NO_READY/);
   assert.equal((await service.history()).length, 1);
 });
 test('path traversal, backslash, duplicates and invalid categories are rejected', async (t) => {
@@ -135,7 +135,7 @@ test('a changed source invalidates the complete plan before mutation', async (t)
   const { desktop, service } = await fixture(t);
   const plan = await service.preview(await service.scan(), 'move');
   await fs.writeFile(path.join(desktop, 'notes.pdf'), 'new content');
-  await assert.rejects(service.organize(plan.token), /değişti/);
+  await assert.rejects(service.organize(plan.token), /SOURCE_CHANGED/);
   assert.deepEqual(await service.history(), []);
 });
 test('a target created after preview is preserved', async (t) => {
@@ -143,23 +143,23 @@ test('a target created after preview is preserved', async (t) => {
   const plan = await service.preview(await service.scan(), 'move');
   await fs.mkdir(path.join(desktop, folders[3]));
   await fs.writeFile(path.join(desktop, folders[3], 'notes.pdf'), 'new target');
-  await assert.rejects(service.organize(plan.token), /yeni bir dosya/);
+  await assert.rejects(service.organize(plan.token), /TARGET_EXISTS/);
   assert.equal(await fs.readFile(path.join(desktop, 'notes.pdf'), 'utf8'), 'important');
 });
 test('expired and consumed preview tokens cannot run', async (t) => {
   const { service } = await fixture(t);
   const plan = await service.preview(await service.scan(), 'copy');
   service.previews.get(plan.token).expires = 0;
-  await assert.rejects(service.organize(plan.token), /süresi/);
+  await assert.rejects(service.organize(plan.token), /PREVIEW_EXPIRED/);
   const next = await service.preview(await service.scan(), 'copy');
   await service.organize(next.token);
-  await assert.rejects(service.organize(next.token), /süresi/);
+  await assert.rejects(service.organize(next.token), /PREVIEW_EXPIRED/);
 });
 test('undo refuses to overwrite a newly created original', async (t) => {
   const { desktop, service } = await fixture(t);
   await organize(service);
   await fs.writeFile(path.join(desktop, 'notes.pdf'), 'new');
-  await assert.rejects(service.undo(), /Orijinal/);
+  await assert.rejects(service.undo(), /SOURCE_EXISTS/);
   assert.equal(await fs.readFile(path.join(desktop, 'notes.pdf'), 'utf8'), 'new');
 });
 test('undo detects same-size content changes even with restored timestamps', async (t) => {
@@ -169,7 +169,7 @@ test('undo detects same-size content changes even with restored timestamps', asy
   const stat = await fs.stat(target);
   await fs.writeFile(target, 'different');
   await fs.utimes(target, stat.atime, stat.mtime);
-  await assert.rejects(service.undo(), /içeriği değişmiş/);
+  await assert.rejects(service.undo(), /TARGET_CHANGED/);
 });
 test('undo validates the whole batch before restoring its first file', async (t) => {
   const { desktop, service } = await fixture(t);
@@ -220,20 +220,20 @@ test(
     await organize(service);
     await fs.rename(path.join(desktop, folders[3]), path.join(root, 'moved'));
     await fs.symlink(path.join(root, 'moved'), path.join(desktop, folders[3]));
-    await assert.rejects(service.undo(), /sembolik/);
+    await assert.rejects(service.undo(), /TARGET_UNSAFE/);
   },
 );
 test('malformed history and out-of-root journal paths block operations', async (t) => {
   const { desktop, data, service } = await fixture(t);
   await fs.mkdir(data);
   await fs.writeFile(service.log, '{bad');
-  await assert.rejects(organize(service), /geçmişi/);
+  await assert.rejects(organize(service), /HISTORY_READ/);
   await fs.writeFile(service.log, '[]');
   await organize(service);
   const log = await service.history();
   log[0].entries[0].source = path.join(desktop, '..', 'outside.pdf');
   await service.save(log);
-  await assert.rejects(service.undo(), /güvenli olmayan/);
+  await assert.rejects(service.undo(), /HISTORY_UNSAFE/);
 });
 test('legacy v1 history can still be undone', async (t) => {
   const { desktop, service } = await fixture(t);
@@ -258,7 +258,7 @@ test('progress reports completed files and overlapping mutations are rejected', 
   const progress = [];
   const { service } = await fixture(t, { onProgress: (value) => progress.push(value) });
   service.busy = true;
-  await assert.rejects(service.undo(), /sürüyor/);
+  await assert.rejects(service.undo(), /OPERATION_BUSY/);
   service.busy = false;
   await organize(service);
   assert.deepEqual(
@@ -280,7 +280,7 @@ test('settings persist without unknown fields and invalid values are rejected', 
   const saved = await new SettingsStore(data).read();
   assert.equal(saved.mode, 'copy');
   assert.deepEqual(saved.excludedExtensions, ['.tmp']);
-  assert.equal(saved.overrides['notes.pdf'], 0);
+  assert.equal(saved.overrides['notes.pdf'], 'software');
   assert.equal(saved.surprise, undefined);
   await assert.rejects(store.write({ ...defaults, excludedExtensions: ['../bad'] }));
   await assert.rejects(store.write({ ...defaults, overrides: { '../file': 0 } }));
@@ -293,7 +293,7 @@ test('an uncertain copied-stage move never discards its only original-content ba
   log[0].status = 'interrupted';
   await service.save(log);
   await fs.writeFile(path.join(desktop, 'notes.pdf'), 'recreated');
-  await assert.rejects(service.undo(), /kurtarma kopyası/);
+  await assert.rejects(service.undo(), /SOURCE_CHANGED_RETAINED/);
   assert.equal(await fs.readFile(path.join(desktop, folders[3], 'notes.pdf'), 'utf8'), 'important');
 });
 test('a resumed deletion requires a verified restored source', async (t) => {
@@ -303,7 +303,7 @@ test('a resumed deletion requires a verified restored source', async (t) => {
   log[0].entries[0].stage = 'deleting';
   log[0].status = 'undoing';
   await service.save(log);
-  await assert.rejects(service.undo(), /kaynak değişmiş veya kayıp/);
+  await assert.rejects(service.undo(), /RESTORE_CHANGED/);
   assert.equal(await fs.readFile(path.join(desktop, folders[3], 'notes.pdf'), 'utf8'), 'important');
 });
 test('moving and undoing preserve original modification time', async (t) => {

@@ -9,31 +9,29 @@ import {
   Radio,
   Folder,
   RotateCcw,
+  Paintbrush,
+  Globe,
 } from 'lucide-react';
 import { canUndo } from '../utils';
-const labels = {
-  completed: 'Tamamlandı',
-  interrupted: 'Yarım kaldı',
-  running: 'Kesinti / kontrol gerekli',
-  undoing: 'Geri alma yarım kaldı',
-  undone: 'Geri alındı',
-};
-export default function Settings({ settings, onSave, stats, history, undo, busy }) {
-  const [draft, setDraft] = useState(settings);
-  const [extensions, setExtensions] = useState(settings.excludedExtensions.join(', '));
-  const [error, setError] = useState('');
+import { usePreferences } from '../preferences';
+import AppIcon from './AppIcon';
+export default function Settings({ onSave, stats, history, undo, busy }) {
+  const { settings, t, locale, errorMessage } = usePreferences();
+  const [draft, setDraft] = useState(settings),
+    [extensions, setExtensions] = useState(settings.excludedExtensions.join(', ')),
+    [error, setError] = useState('');
   useEffect(() => {
     setDraft(settings);
     setExtensions(settings.excludedExtensions.join(', '));
   }, [settings]);
-  const submit = async (event) => {
-    event.preventDefault();
+  const submit = async (e) => {
+    e.preventDefault();
     const list = extensions
       .split(/[,\s]+/)
       .filter(Boolean)
       .map((x) => (x.startsWith('.') ? x.toLowerCase() : '.' + x.toLowerCase()));
     if (list.some((x) => !/^\.[a-z0-9]{1,12}$/i.test(x))) {
-      setError('Uzantıları .tmp, .ini biçiminde, virgülle ayırarak girin.');
+      setError(t('errors.EXTENSIONS_INVALID'));
       return;
     }
     setError('');
@@ -41,57 +39,112 @@ export default function Settings({ settings, onSave, stats, history, undo, busy 
   };
   return (
     <>
-      <div className="eyebrow">KONTROL SENDE</div>
-      <h1 className="settings-title">Senin masaüstün, senin kuralların.</h1>
-      <p className="muted">
-        Tercihlerin bu cihazda saklanır. Yeniden açtığında kaldığın yerden devam et.
-      </p>
+      <div className="eyebrow">{t('settings.eyebrow')}</div>
+      <h1 className="settings-title">{t('settings.title')}</h1>
+      <p className="muted">{t('settings.body')}</p>
+      <section className="settings-panel appearance-panel">
+        <h2>
+          <Paintbrush size={20} />
+          {t('settings.appearance')}
+        </h2>
+        <label className="field-label">{t('settings.theme')}</label>
+        <div className="theme-options">
+          {[
+            ['midnight', 'Midnight Dark'],
+            ['cyberpunk', 'Cyberpunk Neon'],
+            ['slate', 'Minimal Slate'],
+          ].map(([id, name]) => (
+            <button
+              key={id}
+              disabled={!!busy}
+              className={`theme-option ${settings.theme === id ? 'chosen' : ''}`}
+              aria-pressed={settings.theme === id}
+              onClick={() => onSave({ ...settings, theme: id })}
+            >
+              <span className={`theme-swatch swatch-${id}`}>
+                <i />
+                <i />
+                <i />
+              </span>
+              <b>{t('themes.' + id)}</b>
+              {settings.theme === id && <Check size={14} />}
+            </button>
+          ))}
+        </div>
+        <div className="appearance-fields">
+          <label>
+            <span>
+              <Globe size={15} />
+              {t('settings.language')}
+            </span>
+            <select
+              aria-label={t('settings.language')}
+              value={settings.language}
+              disabled={!!busy}
+              onChange={(e) => onSave({ ...settings, language: e.target.value })}
+            >
+              <option value="tr">{t('languages.tr')}</option>
+              <option value="en">{t('languages.en')}</option>
+            </select>
+          </label>
+          <label>
+            <span>{t('settings.iconPack')}</span>
+            <select
+              aria-label={t('settings.iconPack')}
+              value={settings.iconPack}
+              disabled={!!busy}
+              onChange={(e) => onSave({ ...settings, iconPack: e.target.value })}
+            >
+              <option value="lucide">{t('packs.lucide')}</option>
+              <option value="tabler">{t('packs.tabler')}</option>
+              <option value="minimal">{t('packs.minimal')}</option>
+            </select>
+          </label>
+        </div>
+        <div className="icon-pack-preview">
+          {['code', 'palette', 'gamepad', 'file', 'wrench', 'music'].map((icon) => (
+            <AppIcon key={icon} name={icon} size={27} />
+          ))}
+        </div>
+        <p className="muted">{t('settings.iconsNote')}</p>
+      </section>
       <form onSubmit={submit}>
         <fieldset disabled={!!busy}>
           <section className="settings-panel">
             <h2>
-              <Settings2 size={20} /> Düzenleme yöntemi
+              <Settings2 size={20} />
+              {t('settings.method')}
             </h2>
-            <div role="radiogroup" aria-label="Düzenleme yöntemi">
-              {[
-                [
-                  'move',
-                  'Dosyaları taşı',
-                  'Dosyalar kategori klasörlerine taşınır; masaüstündeki orijinal konumdan kaldırılır.',
-                ],
-                [
-                  'copy',
-                  'Dosyaları kopyala',
-                  'Orijinaller masaüstünde kalır. Kategori klasörüne bir kopya eklenir.',
-                ],
-              ].map(([id, title, desc]) => (
+            <div role="radiogroup" aria-label={t('settings.method')}>
+              {['move', 'copy'].map((mode) => (
                 <button
                   type="button"
+                  key={mode}
                   role="radio"
-                  aria-checked={draft.mode === id}
-                  className={`mode-option ${draft.mode === id ? 'chosen' : ''}`}
-                  key={id}
-                  onClick={() => setDraft({ ...draft, mode: id })}
+                  aria-checked={draft.mode === mode}
+                  className={`mode-option ${draft.mode === mode ? 'chosen' : ''}`}
+                  onClick={() => setDraft({ ...draft, mode })}
                 >
-                  <span className="radio">{draft.mode === id && <span />}</span>
+                  <span className="radio">{draft.mode === mode && <span />}</span>
                   <div>
-                    <b>{title}</b>
-                    <p>{desc}</p>
+                    <b>{t('settings.' + mode)}</b>
+                    <p>{t('settings.' + mode + 'Body')}</p>
                   </div>
                 </button>
               ))}
             </div>
             <div className="info-note">
               <ShieldCheck size={18} />
-              Her işlemden önce onayını alırız. Mevcut dosyaların üzerine yazılmaz.
+              {t('settings.approval')}
             </div>
             <h2>
-              <Radio size={19} /> Canlı masaüstü takibi
+              <Radio size={19} />
+              {t('settings.watch')}
             </h2>
             <label className="toggle-setting">
               <span>
-                <b>Dosyalar değiştiğinde listeyi yenile</b>
-                <small>Yalnızca tarar. Onayın olmadan dosya taşımaz.</small>
+                <b>{t('settings.autoScan')}</b>
+                <small>{t('settings.autoScanBody')}</small>
               </span>
               <input
                 type="checkbox"
@@ -101,7 +154,7 @@ export default function Settings({ settings, onSave, stats, history, undo, busy 
               <span className="switch" />
             </label>
             <label className="field-label" htmlFor="extensions">
-              Taramadan hariç tutulacak uzantılar
+              {t('settings.excluded')}
             </label>
             <input
               className="settings-input"
@@ -110,11 +163,9 @@ export default function Settings({ settings, onSave, stats, history, undo, busy 
               value={extensions}
               onChange={(e) => setExtensions(e.target.value)}
             />
-            <p className="muted">
-              Gizli dosyalar, klasörler ve sembolik bağlantılar her zaman dışarıda kalır.
-            </p>
-            <h2>Masaüstü konumu</h2>
-            <code className="desktop-path">{stats?.desktop || 'Yükleniyor…'}</code>
+            <p className="muted">{t('settings.hidden')}</p>
+            <h2>{t('settings.path')}</h2>
+            <code className="desktop-path">{stats?.desktop || t('common.loading')}</code>
             <div className="settings-actions">
               <button
                 className="btn secondary"
@@ -122,11 +173,11 @@ export default function Settings({ settings, onSave, stats, history, undo, busy 
                 onClick={() => setDraft({ ...draft, overrides: {} })}
               >
                 <RotateCcw size={15} />
-                Kategori tercihlerini sıfırla
+                {t('settings.reset')}
               </button>
               <button className="btn primary" type="submit">
                 <Save size={15} />
-                Ayarları kaydet
+                {t('common.save')}
               </button>
             </div>
             {error && (
@@ -141,11 +192,12 @@ export default function Settings({ settings, onSave, stats, history, undo, busy 
         <div className="history-heading">
           <h2>
             <History size={20} />
-            İşlem geçmişi <span className="count-badge">{history.length}</span>
+            {t('history.title')}
+            <span className="count-badge">{history.length}</span>
           </h2>
           <button className="btn secondary" disabled={!canUndo(history) || !!busy} onClick={undo}>
             <Undo2 size={15} />
-            Son işlemi geri al
+            {t('common.undoLast')}
           </button>
         </div>
         {history.length ? (
@@ -157,30 +209,36 @@ export default function Settings({ settings, onSave, stats, history, undo, busy 
                 </span>
                 <span>
                   <b>
-                    {batch.entries.filter((e) => e.stage !== 'planned').length} öğe ·{' '}
-                    {batch.mode === 'move' ? 'Taşıma' : 'Kopyalama'}
+                    {batch.entries.filter((e) => e.stage !== 'planned').length} {t('common.items')}{' '}
+                    ·{' '}
+                    {t(
+                      'history.' +
+                        (batch.entries.some((e) => e.action === 'shortcut')
+                          ? 'shortcut'
+                          : batch.mode),
+                    )}
                   </b>
                   <small>
-                    {new Date(batch.date).toLocaleString('tr-TR')}
-                    {batch.skipped?.length > 0 && ` · ${batch.skipped.length} öğe atlandı`}
+                    {new Date(batch.date).toLocaleString(locale)}
+                    {batch.skipped?.length > 0 &&
+                      ` · ${t('history.skipped', { count: batch.skipped.length })}`}
                   </small>
-                  {batch.error && <small className="warning-text">{batch.error}</small>}
+                  {batch.error && (
+                    <small className="warning-text">{errorMessage(batch.error)}</small>
+                  )}
                 </span>
                 <span
                   className={`status-badge ${batch.status === 'undone' ? 'success' : batch.error ? 'warning' : ''}`}
                 >
-                  {labels[batch.status] || 'Tamamlandı'}
+                  {t('status.' + (batch.status || 'completed'))}
                 </span>
               </div>
             ))}
           </div>
         ) : (
-          <p className="muted">Henüz bir düzenleme yapılmadı. İlk işlemin burada görünecek.</p>
+          <p className="muted">{t('history.empty')}</p>
         )}
-        <p className="muted history-note">
-          Geri alma en son aktif işlemden başlar. Değiştirilmiş dosyalar veya dolu orijinal konumlar
-          varsa işlem güvenle durur.
-        </p>
+        <p className="muted history-note">{t('history.note')}</p>
       </section>
     </>
   );

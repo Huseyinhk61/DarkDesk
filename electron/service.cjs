@@ -2,34 +2,18 @@ const fs = require('node:fs/promises');
 const { createReadStream, constants } = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
-const folders = [
-  'Yazılım & Geliştirme',
-  'Video & Tasarım',
-  'Oyunlar',
-  'Ofis & Dokümanlar',
-  'Araçlar & Sistem',
-];
+const {
+  defaultCategories,
+  defaultSettings,
+  categorySegments,
+  categoryId,
+  classify,
+  defaultCategory,
+} = require('../shared/domain.js');
+const folders = defaultCategories.map((c) => c.folder);
 const shortcutExtensions = new Set(['.lnk', '.url', '.desktop', '.webloc']);
 function category(name, target = '') {
-  const text = `${name} ${target}`;
-  if (
-    /figma|adobe|photoshop|premiere|blender|after effects|davinci|\.(jpe?g|png|svg|mp4|mov|psd|ai|webp|gif|wav|mp3)$/i.test(
-      name,
-    ) ||
-    /figma|photoshop|premiere|blender/i.test(target)
-  )
-    return 1;
-  if (/steam|epic|game|oyun|valorant|discord|minecraft/i.test(text)) return 2;
-  if (
-    /code|visual studio|android studio|git|docker|python|node|terminal|\.(jsx?|tsx?|py|json|html|css|go|rs|sql|sh)$/i.test(
-      name,
-    ) ||
-    /code|visual studio|docker|python/i.test(target)
-  )
-    return 0;
-  if (/word|excel|notion|office|obsidian|\.(docx?|xlsx?|pptx?|pdf|txt|csv|md)$/i.test(name))
-    return 3;
-  return 4;
+  return defaultCategories.findIndex((c) => c.id === defaultCategory(name, target));
 }
 const exists = async (file) => {
   try {
@@ -65,9 +49,13 @@ class DesktopService {
     this.onProgress = options.onProgress || (() => {});
     this.previews = new Map();
     this.busy = false;
+    this.settings = structuredClone(defaultSettings);
+    this.scanner = options.scanner;
+    this.folderIcons = options.folderIcons;
+    this.platform = options.platform || process.platform;
   }
   async exclusive(action) {
-    if (this.busy) throw Error('Bir dosya işlemi sürüyor. Tamamlanmasını bekleyin.');
+    if (this.busy) throw Error('OPERATION_BUSY');
     this.busy = true;
     try {
       return await action();
@@ -78,11 +66,11 @@ class DesktopService {
   async history() {
     try {
       const log = JSON.parse(await fs.readFile(this.log, 'utf8'));
-      if (!Array.isArray(log)) throw Error('Geçersiz geçmiş biçimi.');
+      if (!Array.isArray(log)) throw Error('HISTORY_INVALID');
       return log;
     } catch (e) {
       if (e.code === 'ENOENT') return [];
-      throw Error('İşlem geçmişi okunamadı; dosyalar değiştirilmedi. ' + e.message);
+      throw Error('HISTORY_READ');
     }
   }
   async save(log) {
@@ -90,16 +78,15 @@ class DesktopService {
     await fs.writeFile(this.log + '.tmp', JSON.stringify(log, null, 2), { mode: 0o600 });
     await fs.rename(this.log + '.tmp', this.log);
   }
-  async scan(settings = {}) {
+  async scan(settings = this.settings) {
+    this.settings = { ...structuredClone(defaultSettings), ...settings };
+    settings = this.settings;
     const ignored = new Set(settings.excludedExtensions || ['.ini', '.tmp']);
     let entries;
     try {
       entries = await fs.readdir(this.desktop, { withFileTypes: true });
     } catch (e) {
-      throw Error(
-        'Masaüstü dizini okunamadı. OneDrive/masaüstü konumunu ve erişim iznini kontrol edin. ' +
-          e.message,
-      );
+      throw Error('DESKTOP_READ: ' + (e.code || ''));
     }
     const result = [];
     // Sequential metadata reads avoid exhausting handles on large desktops.
@@ -124,7 +111,8 @@ class DesktopService {
           name: entry.name,
           source,
           target,
-          category: Number.isInteger(override) ? override : category(entry.name, target),
+          category: classify({ id: entry.name, name: entry.name, target }, settings),
+          scope: 'desktop',
           size: stat.size,
           modified: stat.mtimeMs,
           kind: shortcutExtensions.has(extension) ? 'shortcut' : 'file',
@@ -136,21 +124,33 @@ class DesktopService {
     }
     return result.sort((a, b) => a.name.localeCompare(b.name, 'tr'));
   }
-  async safeDirectory(directory, create = false) {
-    if (path.dirname(directory) !== this.desktop || !folders.includes(path.basename(directory)))
-      throw Error('Geçersiz hedef klasör.');
-    let created = false;
-    if (create) {
-      try {
-        await fs.mkdir(directory);
-        created = true;
-      } catch (e) {
-        if (e.code !== 'EEXIST') throw e;
+  async safeDirectory(directory, create = false, allowedPaths = []) {
+    const relative = path.relative(this.desktop, directory);
+    if (!relative || relative.startsWith('..') || path.isAbsolute(relative))
+      throw Error('TARGET_INVALID');
+    const permitted = [
+      ...this.settings.categories.map((c) =>
+        categorySegments(c.id, this.settings.categories).join(path.sep),
+      ),
+      ...allowedPaths,
+    ];
+    if (!permitted.some((p) => p === relative || p.startsWith(relative + path.sep)))
+      throw Error('TARGET_INVALID');
+    let current = this.desktop,
+      created = false;
+    for (const part of relative.split(path.sep)) {
+      current = path.join(current, part);
+      if (create) {
+        try {
+          await fs.mkdir(current);
+          if (current === directory) created = true;
+        } catch (e) {
+          if (e.code !== 'EEXIST') throw e;
+        }
       }
+      const stat = await exists(current);
+      if (stat && (!stat.isDirectory() || stat.isSymbolicLink())) throw Error('TARGET_UNSAFE');
     }
-    const stat = await exists(directory);
-    if (stat && (!stat.isDirectory() || stat.isSymbolicLink()))
-      throw Error('Hedef klasör sembolik bağlantı veya geçersiz bir dosya.');
     return created;
   }
   async preview(items, mode) {
@@ -160,29 +160,43 @@ class DesktopService {
       !items.length ||
       items.length > 5000
     )
-      throw Error('Düzenlemek için 1–5000 öğe seçin.');
-    if (new Set(items.map((i) => i?.id)).size !== items.length) throw Error('Yinelenen dosya.');
+      throw Error('SELECTION_INVALID');
+    if (new Set(items.map((i) => i?.id)).size !== items.length) throw Error('DUPLICATE_ITEM');
     const entries = [];
     for (const item of items) {
-      if (!validId(item?.id) || !Number.isInteger(item.category) || !folders[item.category])
-        throw Error('Geçersiz dosya veya kategori.');
-      const source = path.join(this.desktop, item.id);
-      const target = path.join(this.desktop, folders[item.category], item.id);
+      if (
+        !(
+          validId(item?.id) ||
+          (typeof item?.id === 'string' && this.scanner?.catalog.has(item.id))
+        ) ||
+        !this.settings.categories.some((c) => c.id === categoryId(item.category))
+      )
+        throw Error('CATEGORY_INVALID');
+      const installed = this.scanner?.catalog.get(item.id);
+      const source = installed ? installed.source : path.join(this.desktop, item.id);
+      const cid = categoryId(item.category);
+      const segments = categorySegments(cid, this.settings.categories);
+      const targetName = installed
+        ? path.basename(installed.name, path.extname(installed.name)) +
+          (this.platform === 'win32' ? '.lnk' : '.desktop')
+        : item.id;
+      const target = path.join(this.desktop, ...segments, targetName);
       const stat = await exists(source);
-      if (!stat?.isFile() || stat.isSymbolicLink())
-        throw Error(
-          `${item.id}: Dosya artık mevcut değil veya güvenli bir normal dosya değil. Yeniden tarayın.`,
-        );
+      if (!stat?.isFile() || stat.isSymbolicLink()) throw Error(`SOURCE_MISSING: ${item.id}`);
       let conflict = '';
       try {
         await this.safeDirectory(path.dirname(target));
-        if (await exists(target)) conflict = 'Hedefte aynı isimde bir dosya var.';
+        if (await exists(target)) conflict = 'TARGET_EXISTS';
       } catch (e) {
         conflict = e.message;
       }
       entries.push({
         id: item.id,
-        category: item.category,
+        category: cid,
+        categoryPath: segments.join(path.sep),
+        name: installed?.name || item.id,
+        action: installed ? 'shortcut' : mode,
+        installed: installed || null,
         source,
         target,
         size: stat.size,
@@ -191,10 +205,21 @@ class DesktopService {
         conflict,
       });
     }
+    const targets = new Set();
+    for (const entry of entries) {
+      const key = this.platform === 'win32' ? entry.target.toLowerCase() : entry.target;
+      if (targets.has(key)) entry.conflict = 'TARGET_DUPLICATE';
+      targets.add(key);
+    }
     // Only the main process retains trusted paths and fingerprints.
     this.previews.clear();
     const token = crypto.randomUUID();
-    this.previews.set(token, { entries, mode, expires: Date.now() + 5 * 60_000 });
+    this.previews.set(token, {
+      entries,
+      mode,
+      settings: structuredClone(this.settings),
+      expires: Date.now() + 5 * 60_000,
+    });
     return {
       token,
       mode,
@@ -208,28 +233,32 @@ class DesktopService {
     return this.exclusive(async () => {
       const plan = this.previews.get(token);
       this.previews.delete(token);
-      if (!plan || plan.expires < Date.now())
-        throw Error('Önizleme süresi dolmuş. Düzenlemeyi yeniden önizleyin.');
+      if (!plan || plan.expires < Date.now()) throw Error('PREVIEW_EXPIRED');
       const entries = plan.entries.filter((e) => !e.conflict);
-      if (!entries.length) throw Error('Çakışmasız dosya bulunamadı.');
+      if (!entries.length) throw Error('NO_READY');
       // Preflight every selected source before changing any files.
       for (const entry of entries) {
         const stat = await exists(entry.source);
         if (!stat?.isFile() || stat.isSymbolicLink() || fingerprint(stat) !== entry.fingerprint)
-          throw Error(`${entry.id}: Önizlemeden sonra dosya değişti. Yeniden tarayın.`);
-        await this.safeDirectory(path.dirname(entry.target));
-        if (await exists(entry.target))
-          throw Error(`${entry.id}: Hedefte yeni bir dosya oluştu. Önizlemeyi yenileyin.`);
+          throw Error(`SOURCE_CHANGED: ${entry.id}`);
+        await this.safeDirectory(
+          path.dirname(entry.target),
+          false,
+          plan.entries.map((e) => e.categoryPath),
+        );
+        if (await exists(entry.target)) throw Error(`TARGET_EXISTS: ${entry.id}`);
       }
       const log = await this.history();
       const batch = {
-        version: 2,
+        version: 3,
         id: crypto.randomUUID(),
         date: new Date().toISOString(),
         mode: plan.mode,
         status: 'running',
         entries: [],
         directories: [],
+        metadata: [],
+        categoryPaths: entries.map((e) => e.categoryPath),
         skipped: plan.entries.filter((e) => e.conflict).map((e) => e.id),
       };
       log.push(batch);
@@ -238,23 +267,59 @@ class DesktopService {
         for (const entry of entries) {
           const stat = await fs.lstat(entry.source);
           if (!stat.isFile() || stat.isSymbolicLink() || fingerprint(stat) !== entry.fingerprint)
-            throw Error(`${entry.id}: Kaynak dosya değişti.`);
-          const checksum = await digest(entry.source);
+            throw Error(`SOURCE_CHANGED: ${entry.id}`);
+          const checksum = entry.action === 'shortcut' ? null : await digest(entry.source);
           const journal = { ...entry, checksum, stage: 'planned' };
           batch.entries.push(journal);
           await this.save(log); // Record intention before creating a file or removing a source.
           const directory = path.dirname(entry.target);
-          if (await this.safeDirectory(directory, true)) {
-            batch.directories.push(directory);
-            await this.save(log);
+          const missing = [];
+          let ancestor = directory;
+          while (ancestor !== this.desktop) {
+            if (!(await exists(ancestor))) missing.unshift(ancestor);
+            ancestor = path.dirname(ancestor);
           }
-          await fs.copyFile(entry.source, entry.target, constants.COPYFILE_EXCL);
+          if (await this.safeDirectory(directory, true, batch.categoryPaths)) {
+            batch.directories.push(...missing.filter((p) => !batch.directories.includes(p)));
+            await this.save(log);
+            if (this.folderIcons) {
+              for (const createdDirectory of missing) {
+                const group = plan.settings.categories.find(
+                  (c) =>
+                    path.join(this.desktop, ...categorySegments(c.id, plan.settings.categories)) ===
+                    createdDirectory,
+                );
+                if (group)
+                  await this.folderIcons.decorate(
+                    createdDirectory,
+                    group,
+                    plan.settings,
+                    async (record) => {
+                      batch.metadata.push(record);
+                      await this.save(log);
+                    },
+                  );
+              }
+            }
+          }
+          if (entry.action === 'shortcut') {
+            if (!this.folderIcons) throw Error('SHORTCUT_UNSUPPORTED');
+            const iconName =
+              plan.settings.itemIcons[entry.id] ||
+              plan.settings.categories.find((c) => c.id === entry.category).icon;
+            const icon = await this.folderIcons.iconFile(iconName, plan.settings.iconPack);
+            // Reserve the destination exclusively before invoking the native shortcut writer.
+            const reservation = await fs.open(entry.target, 'wx');
+            await reservation.close();
+            await this.folderIcons.shortcut(entry.target, entry.installed, icon);
+            journal.checksum = await digest(entry.target);
+          } else await fs.copyFile(entry.source, entry.target, constants.COPYFILE_EXCL);
           journal.stage = 'copied';
           await this.save(log);
-          if ((await digest(entry.target)) !== checksum)
-            throw Error(`${entry.id}: Kopya doğrulanamadı. Kaynak korunuyor.`);
+          if ((await digest(entry.target)) !== journal.checksum)
+            throw Error(`COPY_VERIFY: ${entry.id}`);
           await fs.utimes(entry.target, stat.atime, stat.mtime);
-          if (plan.mode === 'move') {
+          if (plan.mode === 'move' && entry.action !== 'shortcut') {
             const current = await fs.lstat(entry.source);
             if (
               !current.isFile() ||
@@ -262,7 +327,7 @@ class DesktopService {
               fingerprint(current) !== entry.fingerprint ||
               (await digest(entry.source)) !== checksum
             )
-              throw Error(`${entry.id}: Kopyalama sırasında kaynak değişti. Kaynak korunuyor.`);
+              throw Error(`SOURCE_CHANGED: ${entry.id}`);
             await fs.unlink(entry.source);
             journal.stage = 'moved';
             await this.save(log);
@@ -280,71 +345,76 @@ class DesktopService {
         batch.status = 'interrupted';
         batch.error = error.message;
         await this.save(log);
-        throw Error(
-          'Düzenleme durdu: ' +
-            error.message +
-            ' Geçmişten tamamlanan adımları geri alabilirsiniz.',
-        );
+        throw Error('OPERATION_INTERRUPTED: ' + error.message);
       }
     });
   }
-  validateJournal(entry) {
+  validateJournal(entry, batch) {
+    const relative = path.relative(this.desktop, entry.target);
+    const parent = path.dirname(relative);
+    const permitted = batch.categoryPaths || folders;
     if (
-      !validId(entry.id || path.basename(entry.source)) ||
-      path.dirname(entry.source) !== this.desktop ||
-      path.basename(entry.source) !== path.basename(entry.target) ||
-      !folders.some((folder) => path.dirname(entry.target) === path.join(this.desktop, folder))
+      !relative ||
+      relative.startsWith('..') ||
+      path.isAbsolute(relative) ||
+      !permitted.includes(parent) ||
+      !validId(path.basename(entry.target))
     )
-      throw Error('Geçmişte güvenli olmayan dosya yolu var. İşlem durduruldu.');
+      throw Error('HISTORY_UNSAFE');
+    if (
+      entry.action !== 'shortcut' &&
+      (!validId(entry.id || path.basename(entry.source)) ||
+        path.dirname(entry.source) !== this.desktop ||
+        path.basename(entry.source) !== path.basename(entry.target))
+    )
+      throw Error('HISTORY_UNSAFE');
   }
   async undo() {
     return this.exclusive(async () => {
       const log = await this.history();
       const batch = [...log].reverse().find((b) => b.status !== 'undone');
-      if (!batch) throw Error('Geri alınacak işlem yok.');
+      if (!batch) throw Error('NO_UNDO');
       const pending = [...batch.entries].reverse().filter((e) => !e.undone && e.stage !== 'undone');
       // Validate all entries before undoing the first one.
       for (const entry of pending) {
-        this.validateJournal(entry);
-        await this.safeDirectory(path.dirname(entry.target));
+        this.validateJournal(entry, batch);
+        await this.safeDirectory(path.dirname(entry.target), false, batch.categoryPaths || folders);
         const target = await exists(entry.target);
         if (entry.stage === 'planned') {
-          if (target)
-            throw Error(
-              `${path.basename(entry.target)}: Kesinti sonrası hedefin sahipliği belirsiz. Kaynak ve hedefi elle kontrol edin.`,
-            );
+          if (target) throw Error(`UNCERTAIN_TARGET: ${path.basename(entry.target)}`);
           continue;
         }
-        if (entry.stage === 'deleting' && batch.mode === 'move') {
+        if (entry.stage === 'deleting' && batch.mode === 'move' && entry.action !== 'shortcut') {
           const restored = await exists(entry.source);
           if (
             !restored?.isFile() ||
             restored.isSymbolicLink() ||
             (entry.checksum && (await digest(entry.source)) !== entry.checksum)
           )
-            throw Error('Geri yüklenen kaynak değişmiş veya kayıp. Hedef korunuyor.');
+            throw Error('RESTORE_CHANGED');
         }
         if (!target && entry.stage === 'deleting') continue;
-        if (!target?.isFile() || target.isSymbolicLink())
-          throw Error('Hedef dosya bulunamadı veya değişti; geri alma durduruldu.');
+        if (!target?.isFile() || target.isSymbolicLink()) throw Error('TARGET_MISSING');
         if (
           entry.checksum
             ? (await digest(entry.target)) !== entry.checksum
             : target.size !== entry.size || target.mtimeMs !== entry.mtime
         )
-          throw Error('Hedef dosyanın içeriği değişmiş; geri alma durduruldu.');
+          throw Error('TARGET_CHANGED');
         const source = await exists(entry.source);
         if (
           batch.mode === 'move' &&
+          entry.action !== 'shortcut' &&
           entry.stage === 'copied' &&
           source &&
           (!source.isFile() ||
             source.isSymbolicLink() ||
             (await digest(entry.source)) !== entry.checksum)
         )
-          throw Error('Kaynak değişmiş; kurtarma kopyası korunuyor.');
+          throw Error('SOURCE_CHANGED_RETAINED');
         const needsRestore =
           batch.mode === 'move' &&
+          entry.action !== 'shortcut' &&
           (entry.stage === 'moved' ||
             entry.removed ||
             !source ||
@@ -356,7 +426,7 @@ class DesktopService {
             source.isSymbolicLink() ||
             (await digest(entry.source)) !== entry.checksum
           )
-            throw Error('Orijinal konumda başka bir dosya var; üzerine yazılmadı.');
+            throw Error('SOURCE_EXISTS');
         }
       }
       batch.status = 'undoing';
@@ -370,6 +440,7 @@ class DesktopService {
         const source = await exists(entry.source);
         if (
           batch.mode === 'move' &&
+          entry.action !== 'shortcut' &&
           (entry.stage === 'moved' ||
             entry.removed ||
             !source ||
@@ -392,13 +463,14 @@ class DesktopService {
             currentTarget.isSymbolicLink() ||
             (entry.checksum && (await digest(entry.target)) !== entry.checksum))
         )
-          throw Error('Geri alma sırasında hedef değişti. Dosya korunuyor.');
+          throw Error('TARGET_CHANGED');
         if (
           batch.mode === 'move' &&
+          entry.action !== 'shortcut' &&
           entry.checksum &&
           (await digest(entry.source)) !== entry.checksum
         )
-          throw Error('Geri yüklenen kaynak doğrulanamadı. Hedef korunuyor.');
+          throw Error('RESTORE_VERIFY');
         entry.stage = 'deleting';
         await this.save(log);
         try {
@@ -410,8 +482,21 @@ class DesktopService {
         entry.undone = true;
         await this.save(log);
       }
-      for (const directory of batch.directories || []) {
-        await this.safeDirectory(directory);
+      for (const meta of batch.metadata || []) {
+        const parent = path.dirname(meta.path);
+        if (
+          !batch.directories.includes(parent) ||
+          !['desktop.ini', '.darkdesk.ico'].includes(path.basename(meta.path))
+        )
+          throw Error('TARGET_INVALID');
+        await this.safeDirectory(parent, false, batch.categoryPaths || folders);
+        const stat = await exists(meta.path);
+        if (stat?.isFile() && !stat.isSymbolicLink() && (await digest(meta.path)) === meta.checksum)
+          await fs.unlink(meta.path);
+      }
+      for (const directory of [...(batch.directories || [])].sort((a, b) => b.length - a.length)) {
+        await this.safeDirectory(directory, false, batch.categoryPaths || folders);
+        await this.folderIcons?.removeAttributes(directory);
         try {
           await fs.rmdir(directory);
         } catch (e) {

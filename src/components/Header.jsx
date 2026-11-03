@@ -1,23 +1,27 @@
 import { ScanLine, FolderSync, ArrowUpRight, ShieldCheck } from 'lucide-react';
+import { usePreferences } from '../preferences';
 export default function Header({ scan, organize, busy, count, last, native }) {
+  const { t, locale } = usePreferences();
   return (
     <>
       <div className="eyebrow">
-        <span /> MASAÜSTÜNE YENİ BİR DÜZEN{' '}
+        <span />
+        {t('hero.eyebrow')}
         <span className="local">
           <ShieldCheck size={13} />
-          {native ? 'Tamamen yerel & güvenli' : 'Etkileşimli demo'}
+          {t(native ? 'hero.local' : 'hero.demo')}
         </span>
       </div>
       <header className="hero">
         <div>
           <h1>
-            Her şey yerli yerinde<span>.</span>
+            {t('hero.title')}
+            <span>.</span>
           </h1>
           <p>
-            Masaüstünü akıllı gruplara ayır, zihninde yer aç.
+            {t('hero.body')}
             <br />
-            Dosyalarını tek bir yerden, zahmetsizce düzenle.
+            {t('hero.body2')}
           </p>
         </div>
         <div className="hero-visual">
@@ -32,23 +36,26 @@ export default function Header({ scan, organize, busy, count, last, native }) {
       </header>
       <div className="action-row">
         <div className="actions">
-          <button className="btn primary" onClick={scan} disabled={busy}>
+          <button className="btn primary" onClick={scan} disabled={!!busy}>
             <ScanLine size={17} />
-            {busy === 'scan' ? 'Masaüstü taranıyor…' : 'Akıllı Taramaya Başla'}
+            {t(busy === 'scan' ? 'hero.scanning' : 'hero.scan')}
             <ArrowUpRight size={16} />
           </button>
           <button className="btn secondary" onClick={organize} disabled={!!busy || !count}>
             <FolderSync size={17} />
-            Masaüstünü {native ? 'Fiziksel' : 'Demo'} Düzenle
+            {t(native ? 'hero.organize' : 'hero.organizeDemo')}
           </button>
         </div>
         <div className="scan-meta">
           <span className="online" />
           {last
-            ? `Son tarama: ${last.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}`
-            : 'Taramaya hazır'}
+            ? t('hero.lastScan', {
+                time: last.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }),
+              })
+            : t('hero.ready')}
           <span className="divider" />
-          <b>{count}</b> öğe
+          <b>{count}</b>
+          {t('common.items')}
         </div>
       </div>
     </>

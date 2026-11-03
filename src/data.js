@@ -1,46 +1,3 @@
-import { Code2, Palette, Gamepad2, FileText, Wrench } from 'lucide-react';
-export const categories = [
-  {
-    name: 'Yazılım & Geliştirme',
-    short: 'Yazılım',
-    folder: 'Yazılım & Geliştirme',
-    icon: Code2,
-    color: 'blue',
-    description: 'Bir sonraki büyük fikrin burada.',
-  },
-  {
-    name: 'Video & Tasarım',
-    short: 'Tasarım',
-    folder: 'Video & Tasarım',
-    icon: Palette,
-    color: 'purple',
-    description: 'Yaratıcılığına yer aç.',
-  },
-  {
-    name: 'Oyun & Eğlence',
-    short: 'Oyun',
-    folder: 'Oyunlar',
-    icon: Gamepad2,
-    color: 'green',
-    description: 'Biraz da kendine zaman ayır.',
-  },
-  {
-    name: 'Ofis & Dokümanlar',
-    short: 'Ofis',
-    folder: 'Ofis & Dokümanlar',
-    icon: FileText,
-    color: 'orange',
-    description: 'İşlerin her zaman yolunda.',
-  },
-  {
-    name: 'Araçlar & Sistem',
-    short: 'Araçlar',
-    folder: 'Araçlar & Sistem',
-    icon: Wrench,
-    color: 'slate',
-    description: 'Her şey kontrolün altında.',
-  },
-];
 export const examples = [
   ['Visual Studio Code.lnk', 0, 'VS', '#269ff1'],
   ['Figma.lnk', 1, 'F', '#a175ff'],
@@ -60,5 +17,5 @@ export const examples = [
   category,
   mark,
   tint,
-  source: `C:\\Users\\Kullanıcı\\Desktop\\${name}`,
+  source: `C:\\Users\\User\\Desktop\\${name}`,
 }));

@@ -7,8 +7,12 @@ import {
   HardDrive,
   MemoryStick,
   Sparkles,
+  FolderTree,
 } from 'lucide-react';
+import { usePreferences } from '../preferences';
+import { formatBytes } from '../utils';
 export default function Sidebar({ view, setView, stats, native }) {
+  const { t, locale } = usePreferences();
   const used = stats ? 100 * (1 - stats.free / stats.total) : 0;
   return (
     <aside className="sidebar">
@@ -24,19 +28,25 @@ export default function Sidebar({ view, setView, stats, native }) {
           <Layers3 size={23} />
         </span>
         <span>
-          DarkDesk<small>DAHA AZ KARMAŞA. DAHA ÇOK ALAN.</small>
+          DarkDesk<small>{t('brand.tagline')}</small>
         </span>
       </a>
-      <div className="workspace-label">ÇALIŞMA ALANIN</div>
+      <div className="workspace-label">{t('nav.workspace')}</div>
       <nav>
         {[
-          ['groups', LayoutGrid, 'Akıllı Gruplar'],
-          ['scan', ScanLine, 'Masaüstü Tarama'],
-          ['settings', Settings2, 'Otomasyon & Ayarlar'],
-        ].map(([id, Icon, label]) => (
-          <button key={id} className={view === id ? 'active' : ''} onClick={() => setView(id)}>
+          ['groups', LayoutGrid],
+          ['scan', ScanLine],
+          ['categories', FolderTree],
+          ['settings', Settings2],
+        ].map(([id, Icon]) => (
+          <button
+            key={id}
+            title={t('nav.' + id)}
+            className={view === id ? 'active' : ''}
+            onClick={() => setView(id)}
+          >
             <Icon size={19} />
-            {label}
+            {t('nav.' + id)}
             {view === id && <span className="nav-dot" />}
           </button>
         ))}
@@ -46,38 +56,42 @@ export default function Sidebar({ view, setView, stats, native }) {
           <span className="tip-icon">
             <Sparkles size={18} />
           </span>
-          <h4>Biraz düzen, büyük fark.</h4>
-          <p>
-            Dosyaların yerini bil.
-            <br />
-            Odağını asıl işine ver.
-          </p>
+          <h4>{t('sidebar.tipTitle')}</h4>
+          <p>{t('sidebar.tipBody')}</p>
           <span>
-            Sen üret, DarkDesk düzenlesin <ArrowUpRight size={14} />
+            {t('sidebar.tipFooter')}
+            <ArrowUpRight size={14} />
           </span>
         </div>
         <div className="system">
           <div>
-            <span className="online" /> Sistem durumu <small>{native ? 'Canlı' : 'Demo'}</small>
+            <span className="online" />
+            {t('sidebar.status')}
+            <small>{t(native ? 'common.live' : 'common.demo')}</small>
           </div>
           <label>
-            <MemoryStick size={14} /> Bellek{' '}
-            <span>{stats ? ((stats.total - stats.free) / 1024 ** 3).toFixed(1) : '0.0'} GB</span>
+            <MemoryStick size={14} />
+            {t('sidebar.memory')}
+            <span>{formatBytes(stats ? stats.total - stats.free : 0, locale)}</span>
           </label>
           <div className="meter">
             <i style={{ width: `${used}%` }} />
           </div>
           <label>
-            <HardDrive size={14} /> Yerel depolama{' '}
+            <HardDrive size={14} />
+            {t('sidebar.storage')}
             <span>
-              {stats?.storage ? `${Math.round(stats.storage.free / 1024 ** 3)} GB boş` : '—'}
+              {stats?.storage
+                ? t('sidebar.free', { size: formatBytes(stats.storage.free, locale) })
+                : '—'}
             </span>
           </label>
         </div>
         <footer>
           <span className="avatar">DD</span>
           <div>
-            Yerel çalışma alanı<small>v1.1.0 · {native ? 'Masaüstü' : 'Web önizleme'}</small>
+            {t('sidebar.local')}
+            <small>v2.0.0 · {t(native ? 'sidebar.desktop' : 'sidebar.web')}</small>
           </div>
           <span className="online" />
         </footer>

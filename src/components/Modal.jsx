@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
+import { usePreferences } from '../preferences';
 export default function Modal({ title, onClose, children, labelledBy = 'dialog-title' }) {
+  const { t } = usePreferences();
   const ref = useRef(null);
   useEffect(() => {
     const previous = document.activeElement;
@@ -43,7 +45,7 @@ export default function Modal({ title, onClose, children, labelledBy = 'dialog-t
         aria-modal="true"
         aria-labelledby={labelledBy}
       >
-        <button className="modal-close" onClick={onClose} aria-label="Pencereyi kapat">
+        <button className="modal-close" onClick={onClose} aria-label={t('common.close')}>
           <X size={18} />
         </button>
         <h2 id={labelledBy}>{title}</h2>

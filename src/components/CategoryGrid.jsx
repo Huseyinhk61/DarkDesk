@@ -1,32 +1,38 @@
 import { ArrowUpRight } from 'lucide-react';
-import { categories } from '../data';
+import AppIcon from './AppIcon';
+import { usePreferences } from '../preferences';
 export default function CategoryGrid({ items, filter, setFilter }) {
+  const { settings, t, label } = usePreferences();
   return (
     <div className="category-grid">
-      {categories.map((c, index) => {
-        const Icon = c.icon;
-        const list = items.filter((i) => i.category === index);
-        const apps = list.filter((i) => /\.(lnk|exe|url|app|desktop)$/i.test(i.name)).length;
+      {settings.categories.map((c) => {
+        const list = items.filter((i) => i.category === c.id),
+          apps = list.filter(
+            (i) => i.kind === 'installed' || /\.(lnk|exe|url|app|desktop)$/i.test(i.name),
+          ).length;
         return (
           <button
-            key={c.name}
-            className={`category ${c.color} ${filter === index ? 'selected' : ''}`}
-            onClick={() => setFilter(filter === index ? null : index)}
+            key={c.id}
+            className={`category ${c.color} ${filter === c.id ? 'selected' : ''}`}
+            onClick={() => setFilter(filter === c.id ? null : c.id)}
           >
             <div className="category-top">
               <span className="category-icon">
-                <Icon size={22} />
+                <AppIcon name={c.icon} />
               </span>
               <ArrowUpRight size={15} />
             </div>
-            <h3>{c.name}</h3>
+            <h3>
+              {c.parentId && <span className="subgroup-prefix">↳ </span>}
+              {label(c)}
+            </h3>
             <div className="category-count">
               <strong>{list.length}</strong>
-              <span>öğe</span>
+              <span>{t('common.items')}</span>
               <div className="category-dots">•••</div>
             </div>
             <p>
-              {apps} uygulama <span>·</span> {list.length - apps} dosya
+              {apps} {t('common.apps')} <span>·</span> {list.length - apps} {t('common.files')}
             </p>
             <div className="category-line" />
           </button>

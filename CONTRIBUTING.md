@@ -8,6 +8,8 @@ Node.js 24 LTS kullanarak `npm ci` çalıştır. Web demosu `npm run dev`, gerç
 - Taşıma/kopyalama öncesi açık önizleme ve kullanıcı onayını koru. Otomatik tarama dosya taşımamalı.
 - Dosyaların üzerine yazma. Geri alma ve kesinti senaryolarını yeni dosya işlemleriyle birlikte değerlendir.
 - Kişisel masaüstünde denemeden önce geçici dosyalarla servis testini genişlet.
+- Arayüz metinlerini `src/locales/tr.json` ve `en.json` dosyalarına birlikte ekle; anahtar ve yer tutucuları eş tut.
+- Kategori ve ayar doğrulamasını `shared/` altında ortak tut. Sistem uygulamalarını taşımak yerine yalnızca kısayol oluştur.
 - UI değişikliklerinde klavye kullanımı ve 390 px genişlikte taşma kontrolünü koru.
 
 ## Kontroller

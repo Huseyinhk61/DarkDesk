@@ -1,0 +1,56 @@
+[
+  {
+    "id": "software",
+    "name": "Yazılım & Geliştirme",
+    "labelKey": "categories.software",
+    "folder": "Yazılım & Geliştirme",
+    "parentId": null,
+    "icon": "code",
+    "color": "blue"
+  },
+  {
+    "id": "design",
+    "name": "Video & Tasarım",
+    "labelKey": "categories.design",
+    "folder": "Video & Tasarım",
+    "parentId": null,
+    "icon": "palette",
+    "color": "purple"
+  },
+  {
+    "id": "games",
+    "name": "Oyun & Eğlence",
+    "labelKey": "categories.games",
+    "folder": "Oyunlar",
+    "parentId": null,
+    "icon": "gamepad",
+    "color": "green"
+  },
+  {
+    "id": "office",
+    "name": "Ofis & Dokümanlar",
+    "labelKey": "categories.office",
+    "folder": "Ofis & Dokümanlar",
+    "parentId": null,
+    "icon": "file",
+    "color": "orange"
+  },
+  {
+    "id": "system",
+    "name": "Araçlar & Sistem",
+    "labelKey": "categories.system",
+    "folder": "Araçlar & Sistem",
+    "parentId": null,
+    "icon": "wrench",
+    "color": "slate"
+  },
+  {
+    "id": "media",
+    "name": "Medya & Ses",
+    "labelKey": "categories.media",
+    "folder": "Medya & Ses",
+    "parentId": null,
+    "icon": "music",
+    "color": "pink"
+  }
+]
