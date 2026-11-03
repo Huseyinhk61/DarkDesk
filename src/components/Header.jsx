@@ -1,2 +1,56 @@
-import {ScanLine,FolderSync,ArrowUpRight,ShieldCheck} from 'lucide-react';
-export default function Header({scan,organize,busy,count,last,native}){return <><div className="eyebrow"><span/> MASAÜSTÜNE YENİ BİR DÜZEN <span className="local"><ShieldCheck size={13}/>{native?'Tamamen yerel & güvenli':'Etkileşimli demo'}</span></div><header className="hero"><div><h1>Her şey yerli yerinde<span>.</span></h1><p>Masaüstünü akıllı gruplara ayır, zihninde yer aç.<br/>Dosyalarını tek bir yerden, zahmetsizce düzenle.</p></div><div className="hero-visual"><div className="orbit one"/><div className="orbit two"/><div className="floating-folder"><FolderSync size={49} strokeWidth={1.3}/></div><span className="mini-spark">✦</span><span className="mini-dot"/></div></header><div className="action-row"><div className="actions"><button className="btn primary" onClick={scan} disabled={busy}><ScanLine size={17}/>{busy==='scan'?'Masaüstü taranıyor…':'Akıllı Taramaya Başla'}<ArrowUpRight size={16}/></button><button className="btn secondary" onClick={organize} disabled={!!busy||!count}><FolderSync size={17}/>Masaüstünü {native?'Fiziksel':'Demo'} Düzenle</button></div><div className="scan-meta"><span className="online"/>{last?`Son tarama: ${last.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}`:'Taramaya hazır'}<span className="divider"/><b>{count}</b> öğe</div></div></>}
+import { ScanLine, FolderSync, ArrowUpRight, ShieldCheck } from 'lucide-react';
+export default function Header({ scan, organize, busy, count, last, native }) {
+  return (
+    <>
+      <div className="eyebrow">
+        <span /> MASAÜSTÜNE YENİ BİR DÜZEN{' '}
+        <span className="local">
+          <ShieldCheck size={13} />
+          {native ? 'Tamamen yerel & güvenli' : 'Etkileşimli demo'}
+        </span>
+      </div>
+      <header className="hero">
+        <div>
+          <h1>
+            Her şey yerli yerinde<span>.</span>
+          </h1>
+          <p>
+            Masaüstünü akıllı gruplara ayır, zihninde yer aç.
+            <br />
+            Dosyalarını tek bir yerden, zahmetsizce düzenle.
+          </p>
+        </div>
+        <div className="hero-visual">
+          <div className="orbit one" />
+          <div className="orbit two" />
+          <div className="floating-folder">
+            <FolderSync size={49} strokeWidth={1.3} />
+          </div>
+          <span className="mini-spark">✦</span>
+          <span className="mini-dot" />
+        </div>
+      </header>
+      <div className="action-row">
+        <div className="actions">
+          <button className="btn primary" onClick={scan} disabled={busy}>
+            <ScanLine size={17} />
+            {busy === 'scan' ? 'Masaüstü taranıyor…' : 'Akıllı Taramaya Başla'}
+            <ArrowUpRight size={16} />
+          </button>
+          <button className="btn secondary" onClick={organize} disabled={!!busy || !count}>
+            <FolderSync size={17} />
+            Masaüstünü {native ? 'Fiziksel' : 'Demo'} Düzenle
+          </button>
+        </div>
+        <div className="scan-meta">
+          <span className="online" />
+          {last
+            ? `Son tarama: ${last.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}`
+            : 'Taramaya hazır'}
+          <span className="divider" />
+          <b>{count}</b> öğe
+        </div>
+      </div>
+    </>
+  );
+}

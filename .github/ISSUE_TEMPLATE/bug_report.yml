@@ -1,0 +1,31 @@
+name: Hata bildir
+description: DarkDesk'te çalışmayan bir davranışı bildir.
+title: '[Hata] '
+body:
+  - type: markdown
+    attributes:
+      value: 'Kişisel dosya içeriklerini veya gizli bilgileri paylaşmadan sorunu anlatın.'
+  - type: input
+    id: platform
+    attributes:
+      label: İşletim sistemi ve DarkDesk sürümü
+      placeholder: Windows 11, DarkDesk 1.1.0
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Tekrarlama adımları
+      description: Hangi işlemi yaptınız, ne beklediniz ve ne oldu?
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Hata metni
+      render: text
+  - type: input
+    id: runtime
+    attributes:
+      label: Node.js ve npm sürümü (kaynak koddan çalıştırıyorsanız)
+      placeholder: node --version ve npm --version çıktıları

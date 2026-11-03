@@ -1,14 +1,578 @@
-import {useEffect,useState} from 'react';import {Minus,Square,X,Search,SlidersHorizontal,LayoutGrid,List,Undo2,Folder,Check,ShieldCheck,ArrowRight,ScanLine,History,Settings2,Info} from 'lucide-react';
-import Sidebar from './components/Sidebar';import Header from './components/Header';import CategoryGrid from './components/CategoryGrid';import ItemCard from './components/ItemCard';import {categories} from './data';import {api,native} from './service';
-export default function App(){const [view,setView]=useState('groups'),[items,setItems]=useState([]),[selected,setSelected]=useState(new Set()),[filter,setFilter]=useState(null),[query,setQuery]=useState(''),[busy,setBusy]=useState(''),[last,setLast]=useState(null),[stats,setStats]=useState(null),[history,setHistory]=useState([]),[mode,setMode]=useState('move'),[confirm,setConfirm]=useState(false),[toast,setToast]=useState(''),[layout,setLayout]=useState('grid'),[onlyShortcuts,setOnlyShortcuts]=useState(false);
- const notify=m=>setToast(m);const refresh=async()=>{const [data,h,s]=await Promise.all([api.scan(),api.history(),api.stats()]);setItems(data);setSelected(new Set(data.map(i=>i.id)));setHistory([...h]);setStats(s);setLast(new Date());};
- useEffect(()=>{refresh().catch(e=>notify(e.message));},[]);useEffect(()=>{if(toast){const t=setTimeout(()=>setToast(''),6000);return()=>clearTimeout(t);}},[toast]);
- const scan=async()=>{setBusy('scan');try{await refresh();notify('Tarama tamamlandı. Masaüstün düzenlenmeye hazır.');}catch(e){notify(e.message);}finally{setBusy('');}};
- const execute=async()=>{setConfirm(false);setBusy('organize');try{await api.organize(items.filter(i=>selected.has(i.id)).map(({id,category})=>({id,category})),mode);await refresh();notify(native?'Masaüstün düzenlendi. İşlemi geri alabilirsin.':'Demo tamamlandı. Gerçek dosyaların değiştirilmedi.');}catch(e){notify(e.message);setHistory([...(await api.history())]);}finally{setBusy('');}};
- const undo=async()=>{setBusy('undo');try{await api.undo();await refresh();notify('Son düzenleme geri alındı.');}catch(e){notify(e.message);}finally{setBusy('');}};
- const visible=items.filter(i=>(!onlyShortcuts||/\.(lnk|url|desktop)$/i.test(i.name))&&(filter===null||i.category===filter)&&i.name.toLocaleLowerCase('tr').includes(query.toLocaleLowerCase('tr')));
- const toggle=id=>setSelected(s=>{const n=new Set(s);n.has(id)?n.delete(id):n.add(id);return n;});
- return <div className="app-shell"><Sidebar {...{view,setView,stats,native}}/><div className="main-shell"><div className="titlebar"><span>Çalışma alanı <span>/</span> <b>{view==='settings'?'Otomasyon & Ayarlar':view==='scan'?'Masaüstü Tarama':'Akıllı Gruplar'}</b></span><div><span className="titlebar-local"><span className="online"/> {native?'Yerel bağlantı aktif':'Önizleme modu'}</span><button onClick={()=>api.window('minimize')} aria-label="Küçült"><Minus size={14}/></button><button onClick={()=>api.window('maximize')} aria-label="Büyüt"><Square size={11}/></button><button className="close" onClick={()=>api.window('close')} aria-label="Kapat"><X size={16}/></button></div></div><main>
- {view==='settings'?<><div className="eyebrow">KONTROL SENDE</div><h1>Senin masaüstün, senin kuralların.</h1><p className="muted">DarkDesk’in dosyalarını nasıl düzenleyeceğini belirle.</p><section className="settings-panel"><h2><Settings2 size={20}/> Düzenleme yöntemi</h2>{[['move','Dosyaları taşı','Dosyalar gerçek kategori klasörlerine taşınır. Orijinal konumdan kaldırılır.'],['copy','Dosyaları kopyala','Orijinaller masaüstünde kalır. Dosyanın bir kopyası kategori klasörüne eklenir.']].map(([id,title,desc])=><button className={`mode-option ${mode===id?'chosen':''}`} key={id} onClick={()=>setMode(id)}><span className="radio">{mode===id&&<span/>}</span><div><b>{title}</b><p>{desc}</p></div></button>)}<div className="info-note"><ShieldCheck size={18}/>Her işlemden önce onayını alırız. Mevcut dosyaların üzerine yazılmaz.</div><h2>Masaüstü konumu</h2><code>{stats?.desktop||'Yükleniyor…'}</code><p className="muted">İşlemler yalnızca bu dizindeki dosyalara uygulanır. Alt klasörler taranmaz.</p></section><section className="settings-panel"><h2><History size={20}/> İşlem geçmişi</h2>{history.length?history.map(h=><div className="history-row" key={h.id}><Folder size={18}/><span>{h.entries.length} öğe {h.mode==='move'?'taşındı':'kopyalandı'}<small>{new Date(h.date).toLocaleString('tr-TR')}</small></span></div>):<p className="muted">Henüz bir düzenleme yapılmadı.</p>}<button className="btn secondary" disabled={!history.length||!!busy} onClick={undo}><Undo2 size={16}/>Son işlemi geri al</button></section></>:<><Header {...{scan,busy,last,native}} count={items.length} organize={()=>{if(!selected.size)return notify('Önce düzenlenecek öğeleri seç.');setConfirm(true);}}/>{view==='scan'&&<section className="scan-info"><ScanLine size={25}/><div><h3>Masaüstü Tarama Motoru</h3><p>Dosya adlarını ve uzantılarını analiz eder. Önerilen kategorileri aşağıdan değiştirebilirsin.</p><code>{stats?.desktop}</code></div></section>}<div className="section-heading"><h2>Akıllı grupların <span>05</span></h2><span>Her dosya için doğru bir yer.</span></div><CategoryGrid {...{items,filter,setFilter}}/><section className="live-panel"><div className="panel-header"><div><h2>Masaüstün, kontrol altında <span className="live-tag"><span/>CANLI</span></h2><p>Taşımadan önce gözden geçir. Her şey tam istediğin yerde olsun.</p></div><button className="text-btn" onClick={undo} disabled={!history.length||!!busy}><Undo2 size={15}/>Geri al</button></div><div className="toolbar"><div className="filter-tabs"><button className={!onlyShortcuts?'active':''} onClick={()=>{setFilter(null);setOnlyShortcuts(false);}}>Tüm öğeler <span>{items.length}</span></button><button className={onlyShortcuts?'active':''} onClick={()=>setOnlyShortcuts(true)}>Kısayollar <span>{items.filter(i=>/\.(lnk|url|desktop)$/i.test(i.name)).length}</span></button></div><div className="tools"><div className="search"><Search size={15}/><input placeholder="Öğe ara…" value={query} onChange={e=>setQuery(e.target.value)}/>{query&&<button onClick={()=>setQuery('')} aria-label="Aramayı temizle"><X size={13}/></button>}</div><button className="tool-btn" title="Düzenleme ayarları" onClick={()=>setView('settings')}><SlidersHorizontal size={16}/></button><div className="view-toggle"><button className={layout==='grid'?'active':''} onClick={()=>setLayout('grid')} aria-label="Kart görünümü"><LayoutGrid size={15}/></button><button className={layout==='list'?'active':''} onClick={()=>setLayout('list')} aria-label="Liste görünümü"><List size={16}/></button></div></div></div><div className="selection-line"><button onClick={()=>setSelected(selected.size===items.length?new Set():new Set(items.map(i=>i.id)))}><span className={`checkbox ${selected.size?'on':''}`}>{selected.size>0&&<Check size={11}/>}</span>{selected.size} öğe seçili</button><span><Folder size={12}/>{filter===null?'5 hedef klasör':categories[filter].folder}</span></div><div className={`items-grid ${layout==='list'?'list-layout':''}`}>{visible.map(item=><ItemCard key={item.id} {...{item}} selected={selected.has(item.id)} toggle={()=>toggle(item.id)} onCategory={category=>setItems(data=>data.map(i=>i.id===item.id?{...i,category}:i))} open={()=>api.open(item.id).catch(e=>notify(e.message))}/>)}</div>{!visible.length&&<div className="empty"><Folder size={32}/><h3>{query?'Aramana uygun öğe bulunamadı.':'Masaüstünde düzenlenecek öğe yok.'}</h3><p>{query?'Başka bir dosya adıyla tekrar dene.':'Yeni dosyaları görmek için yeniden tara.'}</p></div>}<div className="panel-footer"><ShieldCheck size={14}/><span>{native?'Dosyaların cihazında kalır. Kontrol her zaman sende.':'Demo verileri görüntüleniyor. Gerçek dosyalar için masaüstü uygulamasını başlat.'}</span><span className="footer-right">Özenle düzenlendi <span>✦</span></span></div></section></>}
- <div className="page-footer"><span>DAHA SADE BİR MASAÜSTÜ, DAHA NET BİR ZİHİN.</span><span>DarkDesk <span>✦</span></span></div></main></div>{toast&&<div className="toast" role="status"><Info size={18}/><span>{toast}</span><button onClick={()=>setToast('')} aria-label="Bildirimi kapat"><X size={16}/></button></div>}{confirm&&<div className="modal-backdrop" onClick={()=>setConfirm(false)}><section className="modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title" onClick={e=>e.stopPropagation()}><span className="modal-icon"><Folder size={26}/></span><h2 id="confirm-title">Biraz düzene hazır mısın?</h2><p>{selected.size} öğe, masaüstündeki kategori klasörlerine {mode==='move'?'taşınacak':'kopyalanacak'}. Mevcut dosyaların üzerine yazılmaz.</p>{!native&&<div className="info-note">Bu bir demo işlemidir. Gerçek masaüstü dosyaları değişmez.</div>}<div className="modal-summary">İşlem <b>{mode==='move'?'Taşı':'Kopyala'}</b><span>Geri alma</span><b>Kullanılabilir</b></div><div className="modal-actions"><button className="btn secondary" onClick={()=>setConfirm(false)}>Vazgeç</button><button className="btn primary" onClick={execute}>Düzenlemeyi onayla<ArrowRight size={16}/></button></div></section></div>}</div>;
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Minus,
+  Square,
+  X,
+  Search,
+  SlidersHorizontal,
+  LayoutGrid,
+  List,
+  Undo2,
+  Folder,
+  Check,
+  ShieldCheck,
+  ScanLine,
+  Info,
+  LoaderCircle,
+  AlertTriangle,
+  ArrowDownUp,
+  RefreshCw,
+} from 'lucide-react';
+import Sidebar from './components/Sidebar';
+import Header from './components/Header';
+import CategoryGrid from './components/CategoryGrid';
+import ItemCard from './components/ItemCard';
+import Settings from './components/Settings';
+import PreviewModal from './components/PreviewModal';
+import { categories } from './data';
+import { api, native } from './service';
+import { canUndo, formatBytes, isShortcut } from './utils';
+const initialSettings = {
+  mode: 'move',
+  autoScan: true,
+  excludedExtensions: ['.ini', '.tmp'],
+  overrides: {},
+};
+export default function App() {
+  const [view, setView] = useState('groups');
+  const [items, setItems] = useState([]);
+  const [selected, setSelected] = useState(new Set());
+  const [filter, setFilter] = useState(null);
+  const [query, setQuery] = useState('');
+  const [busy, setBusy] = useState('loading');
+  const [last, setLast] = useState(null);
+  const [stats, setStats] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [settings, setSettings] = useState(initialSettings);
+  const [plan, setPlan] = useState(null);
+  const [toast, setToast] = useState(null);
+  const [error, setError] = useState('');
+  const [layout, setLayout] = useState(() => localStorage.getItem('darkdesk-layout') || 'grid');
+  const [type, setType] = useState('all');
+  const [sort, setSort] = useState('name');
+  const [progress, setProgress] = useState(null);
+  const knownIds = useRef(new Set());
+  const searchRef = useRef(null);
+  const busyRef = useRef(true);
+  const notify = useCallback((message, kind = 'info') => setToast({ message, kind }), []);
+  const start = useCallback((name) => {
+    if (busyRef.current) return false;
+    busyRef.current = true;
+    setBusy(name);
+    return true;
+  }, []);
+  const finish = useCallback(() => {
+    busyRef.current = false;
+    setBusy('');
+    setProgress(null);
+  }, []);
+  const refresh = useCallback(async () => {
+    const [data, batches, system] = await Promise.all([api.scan(), api.history(), api.stats()]);
+    const oldIds = knownIds.current;
+    setSelected(
+      (previous) =>
+        new Set(
+          data
+            .filter((item) => previous.has(item.id) || !oldIds.has(item.id))
+            .map((item) => item.id),
+        ),
+    );
+    knownIds.current = new Set(data.map((item) => item.id));
+    setItems(data);
+    setHistory(batches);
+    setStats(system);
+    setLast(new Date());
+    setError('');
+  }, []);
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const value = await api.getSettings();
+        if (active) {
+          setSettings(value);
+          await refresh();
+        }
+      } catch (e) {
+        if (active) {
+          setError(e.message);
+          notify(e.message, 'error');
+        }
+      } finally {
+        if (active) finish();
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [refresh, finish, notify]);
+  useEffect(() => {
+    const unsubscribe = api.onDesktopChanged(async () => {
+      if (!settings.autoScan || !start('scan')) return;
+      try {
+        await refresh();
+      } catch (e) {
+        setError(e.message);
+      } finally {
+        finish();
+      }
+    });
+    const offProgress = api.onProgress(setProgress);
+    const offError = api.onWatchError((message) => notify(message, 'error'));
+    const timer = setInterval(
+      () =>
+        api
+          .stats()
+          .then(setStats)
+          .catch(() => {}),
+      15000,
+    );
+    return () => {
+      unsubscribe();
+      offProgress();
+      offError();
+      clearInterval(timer);
+    };
+  }, [settings.autoScan, refresh, start, finish, notify]);
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), toast.kind === 'error' ? 12000 : 5000);
+    return () => clearTimeout(timer);
+  }, [toast]);
+  useEffect(() => {
+    localStorage.setItem('darkdesk-layout', layout);
+  }, [layout]);
+  useEffect(() => {
+    const handler = (event) => {
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        event.key.toLowerCase() === 'k' &&
+        view !== 'settings'
+      ) {
+        event.preventDefault();
+        searchRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [view]);
+  const scan = async () => {
+    if (!start('scan')) return;
+    try {
+      await refresh();
+      notify('Tarama tamamlandı. Kategori önerilerini gözden geçirebilirsin.');
+    } catch (e) {
+      setError(e.message);
+      notify(e.message, 'error');
+    } finally {
+      finish();
+    }
+  };
+  const saveSettings = async (value) => {
+    if (!start('settings')) return;
+    try {
+      setSettings(await api.setSettings(value));
+      await refresh();
+      notify('Tercihlerin bu cihaza kaydedildi.');
+    } catch (e) {
+      notify(e.message, 'error');
+    } finally {
+      finish();
+    }
+  };
+  const changeCategory = async (item, category) =>
+    saveSettings({ ...settings, overrides: { ...settings.overrides, [item.id]: category } });
+  const preview = async () => {
+    if (!selected.size) return notify('Önce düzenlenecek öğeleri seç.');
+    if (!start('preview')) return;
+    try {
+      setPlan(
+        await api.preview(
+          items.filter((i) => selected.has(i.id)).map(({ id, category }) => ({ id, category })),
+          settings.mode,
+        ),
+      );
+    } catch (e) {
+      notify(e.message, 'error');
+    } finally {
+      finish();
+    }
+  };
+  const execute = async () => {
+    if (!start('organize')) return;
+    const token = plan.token;
+    setPlan(null);
+    try {
+      const result = await api.organize(token);
+      await refresh();
+      notify(
+        `${result.entries.length} öğe ${settings.mode === 'move' ? 'taşındı' : 'kopyalandı'}.${native ? ' Geçmişten geri alabilirsin.' : ' Demo: gerçek dosyalar değişmedi.'}`,
+      );
+    } catch (e) {
+      notify(e.message, 'error');
+      try {
+        await refresh();
+      } catch {
+        /* Preserve the original operation error. */
+      }
+    } finally {
+      finish();
+    }
+  };
+  const undo = async () => {
+    if (!start('undo')) return;
+    try {
+      await api.undo();
+      await refresh();
+      notify('Son düzenleme geri alındı.');
+    } catch (e) {
+      notify(e.message, 'error');
+      try {
+        setHistory(await api.history());
+      } catch {
+        /* Preserve original error. */
+      }
+    } finally {
+      finish();
+    }
+  };
+  const visible = useMemo(
+    () =>
+      items
+        .filter(
+          (item) =>
+            (type === 'all' || (type === 'shortcuts' ? isShortcut(item) : !isShortcut(item))) &&
+            (filter === null || item.category === filter) &&
+            `${item.name} ${item.target || ''}`
+              .toLocaleLowerCase('tr')
+              .includes(query.toLocaleLowerCase('tr')),
+        )
+        .sort((a, b) =>
+          sort === 'size'
+            ? b.size - a.size
+            : sort === 'modified'
+              ? b.modified - a.modified
+              : a.name.localeCompare(b.name, 'tr'),
+        ),
+    [items, type, filter, query, sort],
+  );
+  const allVisibleSelected = visible.length > 0 && visible.every((item) => selected.has(item.id));
+  const selectedBytes = items
+    .filter((item) => selected.has(item.id))
+    .reduce((sum, item) => sum + (item.size || 0), 0);
+  const toggle = (id) =>
+    setSelected((previous) => {
+      const next = new Set(previous);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  const toggleVisible = () =>
+    setSelected((previous) => {
+      const next = new Set(previous);
+      visible.forEach((item) => (allVisibleSelected ? next.delete(item.id) : next.add(item.id)));
+      return next;
+    });
+  const closePlan = useCallback(() => setPlan(null), []);
+  const busyLabels = {
+    loading: 'Masaüstün hazırlanıyor…',
+    scan: 'Masaüstü taranıyor…',
+    preview: 'Hedefler ve çakışmalar kontrol ediliyor…',
+    organize: 'Dosyalar doğrulanarak düzenleniyor…',
+    undo: 'Son düzenleme geri alınıyor…',
+    settings: 'Tercihler kaydediliyor…',
+  };
+  return (
+    <div className="app-shell">
+      <Sidebar {...{ view, setView, stats, native }} />
+      <div className="main-shell">
+        <div className="titlebar">
+          <span>
+            Çalışma alanı <span>/</span>
+            <b>
+              {view === 'settings'
+                ? 'Otomasyon & Ayarlar'
+                : view === 'scan'
+                  ? 'Masaüstü Tarama'
+                  : 'Akıllı Gruplar'}
+            </b>
+          </span>
+          <div>
+            <span className="titlebar-local">
+              <span className="online" />
+              {native ? 'Yerel bağlantı aktif' : 'Önizleme modu'}
+            </span>
+            <button disabled={!native} onClick={() => api.window('minimize')} aria-label="Küçült">
+              <Minus size={14} />
+            </button>
+            <button disabled={!native} onClick={() => api.window('maximize')} aria-label="Büyüt">
+              <Square size={11} />
+            </button>
+            <button
+              disabled={!native}
+              className="close"
+              onClick={() => api.window('close')}
+              aria-label="Kapat"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+        <main aria-busy={!!busy}>
+          {error && (
+            <div className="error-banner" role="alert">
+              <AlertTriangle size={20} />
+              <span>{error}</span>
+              <button className="btn secondary" disabled={!!busy} onClick={scan}>
+                <RefreshCw size={14} />
+                Yeniden dene
+              </button>
+            </div>
+          )}
+          {view === 'settings' ? (
+            <Settings {...{ settings, stats, history, undo, busy }} onSave={saveSettings} />
+          ) : (
+            <>
+              <Header {...{ scan, busy, last, native }} count={items.length} organize={preview} />
+              {view === 'scan' && (
+                <section className="scan-info">
+                  <ScanLine size={25} />
+                  <div>
+                    <h3>Masaüstü Tarama Motoru</h3>
+                    <p>
+                      Dosya adları, uzantılar ve Windows kısayol hedefleri analiz edilir. Manuel
+                      kategori tercihlerin hatırlanır.
+                    </p>
+                    <code>{stats?.desktop}</code>
+                    <div className="scan-details">
+                      <span>{items.filter(isShortcut).length} kısayol</span>
+                      <span>{items.filter((i) => !isShortcut(i)).length} dosya</span>
+                      <span>{formatBytes(items.reduce((sum, i) => sum + i.size, 0))}</span>
+                      <span>
+                        {settings.autoScan && native ? 'Canlı takip açık' : 'Manuel tarama'}
+                      </span>
+                    </div>
+                  </div>
+                </section>
+              )}
+              <div className="section-heading">
+                <h2>
+                  Akıllı grupların <span>05</span>
+                </h2>
+                <span>Her dosya için doğru bir yer.</span>
+              </div>
+              <fieldset disabled={!!busy} className="category-fieldset">
+                <CategoryGrid {...{ items, filter, setFilter }} />
+              </fieldset>
+              <section className="live-panel">
+                <div className="panel-header">
+                  <div>
+                    <h2>
+                      Masaüstün, kontrol altında{' '}
+                      <span className="live-tag">
+                        <span />
+                        {native && settings.autoScan ? 'CANLI' : 'HAZIR'}
+                      </span>
+                    </h2>
+                    <p>Taşımadan önce gözden geçir. Her şey tam istediğin yerde olsun.</p>
+                  </div>
+                  <button
+                    className="text-btn"
+                    onClick={undo}
+                    disabled={!canUndo(history) || !!busy}
+                  >
+                    <Undo2 size={15} />
+                    Geri al
+                  </button>
+                </div>
+                <div className="toolbar">
+                  <div className="filter-tabs">
+                    {[
+                      ['all', 'Tüm öğeler', items.length],
+                      ['shortcuts', 'Kısayollar', items.filter(isShortcut).length],
+                      ['files', 'Dosyalar', items.filter((i) => !isShortcut(i)).length],
+                    ].map(([id, label, count]) => (
+                      <button
+                        key={id}
+                        className={type === id ? 'active' : ''}
+                        onClick={() => setType(id)}
+                      >
+                        {label}
+                        <span>{count}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="tools">
+                    <div className="search">
+                      <Search size={15} />
+                      <input
+                        ref={searchRef}
+                        aria-label="Öğe ara"
+                        placeholder="Öğe ara… (Ctrl K)"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                      />
+                      {query && (
+                        <button onClick={() => setQuery('')} aria-label="Aramayı temizle">
+                          <X size={13} />
+                        </button>
+                      )}
+                    </div>
+                    <div className="sort-select">
+                      <ArrowDownUp size={14} />
+                      <select
+                        aria-label="Öğeleri sırala"
+                        value={sort}
+                        onChange={(e) => setSort(e.target.value)}
+                      >
+                        <option value="name">Ada göre</option>
+                        <option value="size">Boyuta göre</option>
+                        <option value="modified">En yeni</option>
+                      </select>
+                    </div>
+                    <button
+                      className="tool-btn"
+                      title="Düzenleme ayarları"
+                      aria-label="Düzenleme ayarları"
+                      onClick={() => setView('settings')}
+                    >
+                      <SlidersHorizontal size={16} />
+                    </button>
+                    <div className="view-toggle">
+                      <button
+                        className={layout === 'grid' ? 'active' : ''}
+                        onClick={() => setLayout('grid')}
+                        aria-label="Kart görünümü"
+                        aria-pressed={layout === 'grid'}
+                      >
+                        <LayoutGrid size={15} />
+                      </button>
+                      <button
+                        className={layout === 'list' ? 'active' : ''}
+                        onClick={() => setLayout('list')}
+                        aria-label="Liste görünümü"
+                        aria-pressed={layout === 'list'}
+                      >
+                        <List size={16} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div className="selection-line">
+                  <button
+                    onClick={toggleVisible}
+                    disabled={!!busy || !visible.length}
+                    aria-label="Görünen öğeleri seç veya kaldır"
+                  >
+                    <span className={`checkbox ${allVisibleSelected ? 'on' : ''}`}>
+                      {allVisibleSelected && <Check size={11} />}
+                    </span>
+                    {selected.size} öğe seçili{' '}
+                    <span className="selection-size">· {formatBytes(selectedBytes)}</span>
+                  </button>
+                  <span>
+                    {filter !== null && (
+                      <button
+                        onClick={() => setFilter(null)}
+                        aria-label="Kategori filtresini temizle"
+                      >
+                        <X size={12} />
+                      </button>
+                    )}
+                    <Folder size={12} />
+                    {filter === null
+                      ? `${visible.length} / ${items.length} öğe`
+                      : categories[filter].folder}
+                  </span>
+                </div>
+                <div className={`items-grid ${layout === 'list' ? 'list-layout' : ''}`}>
+                  {visible.map((item) => (
+                    <ItemCard
+                      key={item.id}
+                      item={item}
+                      selected={selected.has(item.id)}
+                      toggle={() => toggle(item.id)}
+                      onCategory={(category) => changeCategory(item, category)}
+                      disabled={!!busy}
+                      reveal={() => api.reveal(item.id).catch((e) => notify(e.message, 'error'))}
+                    />
+                  ))}
+                </div>
+                {!visible.length && (
+                  <div className="empty">
+                    <Folder size={32} />
+                    <h3>
+                      {busy
+                        ? 'Masaüstün hazırlanıyor…'
+                        : items.length
+                          ? 'Bu filtreye uygun öğe bulunamadı.'
+                          : 'Masaüstünde düzenlenecek öğe yok.'}
+                    </h3>
+                    <p>
+                      {items.length
+                        ? 'Aramanı veya kategori filtreni değiştirebilirsin.'
+                        : 'Yeni dosyaları görmek için yeniden tara.'}
+                    </p>
+                    {items.length > 0 && (
+                      <button
+                        className="btn secondary"
+                        onClick={() => {
+                          setQuery('');
+                          setFilter(null);
+                          setType('all');
+                        }}
+                      >
+                        Filtreleri temizle
+                      </button>
+                    )}
+                  </div>
+                )}
+                <div className="panel-footer">
+                  <ShieldCheck size={14} />
+                  <span>
+                    {native
+                      ? 'Dosyaların cihazında kalır. Kontrol her zaman sende.'
+                      : 'Demo verileri görüntüleniyor. Gerçek dosyalar için masaüstü uygulamasını başlat.'}
+                  </span>
+                  <span className="footer-right">
+                    {settings.mode === 'move' ? 'Taşıma modu' : 'Kopyalama modu'}
+                    <span>✦</span>
+                  </span>
+                </div>
+              </section>
+            </>
+          )}
+          <div className="page-footer">
+            <span>DAHA SADE BİR MASAÜSTÜ, DAHA NET BİR ZİHİN.</span>
+            <span>
+              DarkDesk <span>✦</span>
+            </span>
+          </div>
+        </main>
+      </div>
+      {busy && (
+        <div className="activity-bar" role="status">
+          <LoaderCircle size={16} className="spin" />
+          <span>{busyLabels[busy]}</span>
+          {progress && (
+            <b>
+              {progress.completed} / {progress.total}
+            </b>
+          )}
+        </div>
+      )}
+      {toast && (
+        <div
+          className={`toast ${toast.kind === 'error' ? 'error-toast' : ''}`}
+          role={toast.kind === 'error' ? 'alert' : 'status'}
+        >
+          <Info size={18} />
+          <span>{toast.message}</span>
+          <button onClick={() => setToast(null)} aria-label="Bildirimi kapat">
+            <X size={16} />
+          </button>
+        </div>
+      )}
+      {plan && <PreviewModal {...{ plan, native }} onClose={closePlan} onConfirm={execute} />}
+    </div>
+  );
 }
