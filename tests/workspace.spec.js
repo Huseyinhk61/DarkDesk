@@ -10,7 +10,7 @@ test('initial scan renders categories without runtime errors', async ({ page }) 
     .locator('.desktop-header')
     .getByRole('button', { name: 'Akıllı Taramaya Başla' })
     .click();
-  await expect(page.locator('.category')).toHaveCount(7);
+  await expect(page.locator('.category')).toHaveCount(10);
   await expect(page.locator('.item-card')).toHaveCount(12);
   await expect(page.getByRole('heading', { name: 'Her şey yerli yerinde.' })).toBeVisible();
   expect(errors).toEqual([]);

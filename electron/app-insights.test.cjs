@@ -11,7 +11,7 @@ const settings = () => structuredClone(defaultSettings);
 
 test('common Windows executable names and renamed shortcuts identify useful app purposes', () => {
   for (const [name, appId, group] of [
-    ['msedge.exe', 'edge', 'systemnetwork'],
+    ['msedge.exe', 'edge', 'internetbrowsers'],
     ['winword.exe', 'word', 'office'],
     ['powerpnt.exe', 'powerpoint', 'office'],
     ['EpicGamesLauncher.exe', 'epic', 'games'],
@@ -41,7 +41,7 @@ test('common Windows executable names and renamed shortcuts identify useful app 
     target: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
   });
   assert.equal(renamed.insight.appId, 'chrome');
-  assert.equal(renamed.category, 'systemnetwork');
+  assert.equal(renamed.category, 'internetbrowsers');
 });
 test('matching normalizes shortcut suffixes, copies, Turkish letters and quoted executable paths', () => {
   assert.equal(findKnownApp({ name: 'Visual Studio Code - Kısayol (2).lnk' }).id, 'vscode');
@@ -62,7 +62,7 @@ test('documents and incidental installation folders cannot impersonate catalog a
     assert.equal(appInsight({ name }, 'office').appId, null, name);
   }
   assert.equal(classify({ name: 'Chrome plan.pdf' }), 'office');
-  assert.equal(classify({ name: 'Photoshop invoice.docx' }), 'office');
+  assert.equal(classify({ name: 'Photoshop invoice.docx' }), 'financeaccounting');
   assert.equal(classify({ name: 'Word.png' }), 'design');
   assert.equal(
     findKnownApp({ name: 'worker.exe', target: 'D:\\SteamLibrary\\steamapps\\worker.exe' }),

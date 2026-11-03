@@ -36,6 +36,8 @@ import Launcher from './components/Launcher';
 import AutomationPanel from './components/AutomationPanel';
 import HelpPanel from './components/HelpPanel';
 import { publishNotice } from './notifications';
+import { useUpdates } from './useUpdates';
+import UpdateNotice from './components/UpdateNotice';
 import { refreshNativeIcons } from './components/NativeItemIcon';
 import OperationReceipt from './components/OperationReceipt';
 export default function App() {
@@ -61,6 +63,8 @@ export default function App() {
     [scanResult, setScanResult] = useState(null),
     [runtime, setRuntime] = useState(null),
     [launcherOpen, setLauncherOpen] = useState(false);
+  const update = useUpdates();
+  const [updatesRequested, setUpdatesRequested] = useState(0);
   const backendBusy = useRef(null);
   const mainRef = useRef(null);
   const previousView = useRef(null);
@@ -75,7 +79,8 @@ export default function App() {
   const knownIds = useRef(new Set()),
     searchRef = useRef(null),
     busyRef = useRef(true),
-    scopeRef = useRef('desktop');
+    scopeRef = useRef('desktop'),
+    refreshRequest = useRef(0);
   const notify = useCallback((message, kind = 'info', undoable = false) => {
     setToast({ ...(typeof message === 'object' ? message : { message }), kind, undoable });
     if (typeof message === 'string') publishNotice(message, kind);
@@ -92,12 +97,15 @@ export default function App() {
     setProgress(null);
   }, []);
   const refresh = useCallback(async () => {
+    const requestedScope = scopeRef.current;
+    const request = ++refreshRequest.current;
     const [data, batches, system, runtimeState] = await Promise.all([
-      api.scan(scopeRef.current),
+      api.scan(requestedScope),
       api.history(),
       api.stats(),
       api.runtimeStatus(),
     ]);
+    if (request !== refreshRequest.current || requestedScope !== scopeRef.current) return;
     const oldIds = knownIds.current;
     setSelected(
       (previous) =>
@@ -208,9 +216,7 @@ export default function App() {
       await api.cancelScan();
       return;
     }
-    if (!start('deep')) return;
-    scopeRef.current = 'system';
-    setScopeState('system');
+    if (scopeRef.current !== 'system' || !start('deep')) return;
     setView('scan');
     setScanProgress({ visited: 0, found: 0 });
     try {
@@ -226,9 +232,17 @@ export default function App() {
   };
   const scan = () => (scopeRef.current === 'system' ? scanSystem() : scanDesktop());
   const setScope = async (value) => {
-    if (!start('scan')) return;
+    if (
+      !['desktop', 'system', 'downloads'].includes(value) ||
+      value === scopeRef.current ||
+      !start('scan')
+    )
+      return;
     scopeRef.current = value;
     setScopeState(value);
+    setItems([]);
+    setSelected(new Set());
+    setQuery('');
     setFilter(null);
     setType('all');
     try {
@@ -381,6 +395,11 @@ export default function App() {
     }
   };
   const handleCommand = async (command) => {
+    if (command.type === 'updates') {
+      setView('settings');
+      setUpdatesRequested((value) => value + 1);
+      return;
+    }
     if (command.type === 'launcher') {
       setLauncherOpen(true);
       return;
@@ -452,6 +471,10 @@ export default function App() {
       window.removeEventListener('keydown', keydown);
     };
   }, [settings.profiles, settings.launcherShortcut]);
+  useEffect(() => {
+    if (view === 'settings' && updatesRequested)
+      document.getElementById('updates')?.scrollIntoView({ block: 'start', behavior: 'instant' });
+  }, [view, updatesRequested]);
   const navigate = (value) => {
     if (value === 'launcher') {
       api.openLauncher().catch((e) => notify(errorMessage(e), 'error'));
@@ -515,6 +538,13 @@ export default function App() {
           aria-label={t('nav.' + view)}
           aria-busy={!!blocked}
         >
+          <UpdateNotice
+            update={update}
+            onOpen={() => {
+              setView('settings');
+              setUpdatesRequested((value) => value + 1);
+            }}
+          />
           {runtime?.lastError && (
             <div className="notice warning runtime-error" role="alert">
               {errorMessage(runtime.lastError)}
@@ -548,7 +578,7 @@ export default function App() {
               busy={blocked}
             />
           ) : view === 'settings' ? (
-            <Settings {...{ stats, history, undo, busy }} onSave={saveSettings} />
+            <Settings {...{ stats, history, undo, update }} busy={blocked} onSave={saveSettings} />
           ) : view === 'categories' ? (
             <CategoryManager onSave={saveSettings} busy={busy} />
           ) : (
@@ -580,7 +610,10 @@ export default function App() {
               {view === 'scan' && (
                 <ScannerPanel
                   platform={stats?.platform}
-                  {...{ scope, setScope, scanSystem, busy, scanProgress, scanResult }}
+                  {...{ scope, setScope, scanSystem, scan, scanProgress, scanResult }}
+                  busy={blocked}
+                  desktopPath={stats?.desktop}
+                  downloadsPath={stats?.downloads}
                 />
               )}
               <div className="section-heading">
@@ -790,6 +823,7 @@ export default function App() {
                   <EmptyState
                     filtered={items.length > 0}
                     system={scope === 'system'}
+                    downloads={scope === 'downloads'}
                     busy={busy}
                     clear={() => {
                       setQuery('');

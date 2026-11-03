@@ -21,7 +21,7 @@ Linux’ta `.hidden` dosyasındaki isimler birleştirilir; mevcut liste korunur.
 
 ## Spotlight / hızlı başlatıcı
 
-Varsayılan global kısayol **Alt+Space**. **Otomasyon & Ayarlar → Başlatıcı kısayolu** ile örneğin `Ctrl+Space` seçebilirsin. OS veya başka bir uygulama kısayolu almışsa kayıt sonucu **Çalışma Profilleri → Global kısayollar** bölümünde görünür. Web demosunda `Ctrl+Space`/`Alt+Space` yalnızca sayfa odaktayken çalışır.
+Varsayılan global kısayol **Alt+X**. **Otomasyon & Ayarlar → Başlatıcı kısayolu** ile örneğin `Ctrl+Space` seçebilirsin. OS veya başka bir uygulama kısayolu almışsa kayıt sonucu **Çalışma Profilleri → Global kısayollar** bölümünde görünür. Web demosunda `Ctrl+Space`/`Alt+X` yalnızca sayfa odaktayken çalışır.
 
 - İndekslenen masaüstü dosyaları, keşfedilen uygulamalar ve içe alınmış Downloads öğelerinde fuzzy arama.
 - `↑` / `↓` ile seçim; `Enter` ile açma; `Esc` ile kapatma.

@@ -1,11 +1,28 @@
 import themes from './themes.json' with { type: 'json' };
 export { themes };
 export const themeIds = themes.map((theme) => theme.id);
-export const appearanceKeys = ['theme', 'language', 'iconPack', 'uiScale', 'density', 'motion'];
+export const iconPacks = ['lucide', 'tabler', 'minimal', 'rounded', 'duotone'];
+export const fonts = {
+  system: "'Segoe UI', Inter, -apple-system, BlinkMacSystemFont, sans-serif",
+  readable: 'Verdana, Arial, Helvetica, sans-serif',
+  serif: "Georgia, 'Times New Roman', serif",
+  mono: "'Cascadia Code', Consolas, 'Liberation Mono', monospace",
+};
+export const fontIds = Object.keys(fonts);
+export const appearanceKeys = [
+  'theme',
+  'language',
+  'iconPack',
+  'fontFamily',
+  'uiScale',
+  'density',
+  'motion',
+];
 const options = {
   theme: themeIds,
   language: ['tr', 'en'],
-  iconPack: ['lucide', 'tabler', 'minimal'],
+  iconPack: iconPacks,
+  fontFamily: fontIds,
   uiScale: [100, 115, 130],
   density: ['comfortable', 'compact'],
   motion: ['system', 'reduced'],
@@ -14,6 +31,7 @@ const fallback = {
   theme: 'midnight',
   language: 'tr',
   iconPack: 'lucide',
+  fontFamily: 'system',
   uiScale: 100,
   density: 'comfortable',
   motion: 'system',

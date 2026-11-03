@@ -116,6 +116,7 @@ test('user rules reclassify and can be disabled without changing a manual assign
 });
 test('deep scan discovers installed apps and preview creates only shortcuts', async ({ page }) => {
   await page.getByRole('button', { name: 'Sistem Tarama', exact: true }).click();
+  await page.getByRole('button', { name: 'Yüklü uygulamalar', exact: true }).click();
   await page.getByRole('button', { name: 'Derin taramayı başlat', exact: true }).click();
   await expect(page.locator('.item-card')).toHaveCount(8);
   await settled(page);
@@ -129,6 +130,8 @@ test('deep scan discovers installed apps and preview creates only shortcuts', as
 });
 test('deep scan can be cancelled and the partial result stays visible', async ({ page }) => {
   await page.getByRole('button', { name: 'Sistem Tarama', exact: true }).click();
+  await page.getByRole('button', { name: 'Yüklü uygulamalar', exact: true }).click();
+  await settled(page);
   // Freeze simulated scan timers so cancellation does not race a one-second demo scan.
   await page.clock.install();
   await page.clock.pauseAt(await page.evaluate(() => Date.now() + 100));

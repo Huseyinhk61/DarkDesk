@@ -60,6 +60,8 @@ try {
   await settled();
   await dismiss();
   await page.getByRole('button', { name: 'Sistem Tarama', exact: true }).click();
+  await page.getByRole('button', { name: 'Yüklü uygulamalar', exact: true }).click();
+  await expect(page.locator('.activity-bar')).toHaveCount(0);
   await page.getByRole('button', { name: 'Derin taramayı başlat', exact: true }).click();
   await expect(page.locator('.item-card')).toHaveCount(8);
   await settled();
@@ -85,6 +87,10 @@ try {
     ['Forest Green', 'forest'],
     ['Rose Light', 'rose'],
     ['Yüksek Kontrast', 'contrast'],
+    ['Graphite', 'graphite'],
+    ['Amber Night', 'amber'],
+    ['Lavender Light', 'lavender'],
+    ['Nordic Blue', 'nord'],
   ]) {
     await page.getByRole('button', { name: 'Otomasyon & Ayarlar', exact: true }).click();
     await page.getByRole('button', { name, exact: true }).click();
@@ -95,8 +101,10 @@ try {
   }
   await page.getByRole('button', { name: 'Yardım & Başlangıç', exact: true }).click();
   await page.screenshot({ path: 'docs/assets/help.png' });
+  await page.getByRole('button', { name: 'Otomasyon & Ayarlar', exact: true }).click();
+  await page.locator('.update-panel').screenshot({ path: 'docs/assets/updates.png' });
   console.log(
-    'Captured 3.3 compact desktop, app purposes, organization receipt, themes and native-style launcher screenshots.',
+    'Captured 3.4 scanner sources, expanded groups, appearance choices and updater panel screenshots.',
   );
 } finally {
   await browser.close();

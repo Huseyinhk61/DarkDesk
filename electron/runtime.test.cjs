@@ -298,7 +298,7 @@ test('invalid automation, filters, profile accelerators and duplicate assignment
     { automation: { ...defaults.automation, archiveDays: 0 } },
     { scanFilters: { ...defaults.scanFilters, maxDepth: 99 } },
     { launcherShortcut: 'arbitrary command' },
-    { profiles: [{ ...defaults.profiles[0], shortcut: 'Alt+Space' }] },
+    { profiles: [{ ...defaults.profiles[0], shortcut: defaults.launcherShortcut }] },
   ])
     assert.throws(() => validateSettings({ ...structuredClone(defaults), ...patch }));
 });
@@ -362,4 +362,10 @@ test('an explicit Undo suppresses automatic reprocessing of the restored file ve
   await runtime.runAutomation();
   assert.equal(await fs.readFile(file, 'utf8'), 'report');
   assert.equal((await runtime.service.history()).length, 1);
+});
+
+test('new installs use Alt+X while saved custom launcher shortcuts are preserved', () => {
+  assert.equal(defaults.launcherShortcut, 'Alt+X');
+  assert.equal(validateSettings({}).launcherShortcut, 'Alt+X');
+  assert.equal(validateSettings({ launcherShortcut: 'Alt+Q' }).launcherShortcut, 'Alt+Q');
 });

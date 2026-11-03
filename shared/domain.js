@@ -20,7 +20,7 @@ export const icons = [
 export const colors = ['blue', 'purple', 'green', 'orange', 'slate', 'pink'];
 export const defaultCategories = catalog;
 export const defaultSettings = {
-  schemaVersion: 3,
+  schemaVersion: 4,
   ...runtimeDefaults,
   mode: 'move',
   autoScan: true,
@@ -35,6 +35,7 @@ export const defaultSettings = {
   motion: 'system',
   language: 'tr',
   iconPack: 'lucide',
+  fontFamily: 'system',
 };
 export const normalize = (value) =>
   String(value)
@@ -57,14 +58,16 @@ export function categorySegments(id, categories = catalog) {
   }
   return result;
 }
+export function categoryRoot(id) {
+  return (
+    ['software', 'system', 'internet', 'learning', 'finance'].find((root) =>
+      id?.startsWith(root),
+    ) || id
+  );
+}
 export function defaultCategory(name, target = '') {
   const app = findKnownApp({ name, target });
-  if (app)
-    return app.categoryId.startsWith('software')
-      ? 'software'
-      : app.categoryId.startsWith('system')
-        ? 'system'
-        : app.categoryId;
+  if (app) return categoryRoot(app.categoryId);
   const text = normalize(`${leafName(name)} ${leafName(target)}`),
     ext = normalize(name).split('.').at(-1);
   // A document mentioning a product is still a document, not that application.
@@ -124,15 +127,31 @@ export function classify(item, settings = defaultSettings) {
   const app = findKnownApp(item);
   if (app) {
     if (known.has(app.categoryId)) return app.categoryId;
-    const root = app.categoryId.startsWith('software')
-      ? 'software'
-      : app.categoryId.startsWith('system')
-        ? 'system'
-        : app.categoryId;
+    const root = categoryRoot(app.categoryId);
     if (known.has(root)) return root;
+    const legacyFallback =
+      root === 'internet'
+        ? ['systemnetwork', 'system']
+        : root === 'learning' || root === 'finance'
+          ? ['office']
+          : [];
+    const availableFallback = legacyFallback.find((id) => known.has(id));
+    if (availableFallback) return availableFallback;
   }
   let inferred = defaultCategory(item.name, item.target);
   const extension = (item.name || '').split('.').at(-1).toLowerCase();
+  const filename = normalize(leafName(item.name));
+  const contentGroup =
+    /(?:^|[\s._-])(?:invoice|receipt|budget|fatura|butce|muhasebe)(?:$|[\s._-]|\d)/.test(filename)
+      ? 'financeaccounting'
+      : /(?:^|[\s._-])(?:course|lesson|lecture|kurs|ders)(?:$|[\s._-]|\d)/.test(filename)
+        ? 'learningcourses'
+        : ['epub', 'mobi', 'azw', 'azw3', 'djvu'].includes(extension)
+          ? 'learningreading'
+          : null;
+  // These are filename/type suggestions, not claims that document content was read.
+  if (contentGroup && known.has(contentGroup)) return contentGroup;
+
   if (
     [
       'pdf',

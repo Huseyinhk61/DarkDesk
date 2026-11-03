@@ -1,4 +1,14 @@
 const seeds = {
+  internet: 'browser web internet communication chat email meeting',
+  internetbrowsers: 'browser chrome edge firefox web surfing',
+  internetchat: 'chat communication message email discord telegram whatsapp',
+  internetmeetings: 'meeting conference call zoom teams webinar',
+  learning: 'education learning reading lesson study knowledge',
+  learningcourses: 'lesson course lecture education learning flashcards mathematics',
+  learningreading: 'book ebook reference research bibliography reading library',
+  finance: 'finance budget invoice accounting expense income money',
+  financeaccounting: 'accounting budget bookkeeping invoice expense income finance',
+
   software: 'code development programming source javascript python compiler coding',
   design: 'design creative drawing illustration photo texture typography visual render',
   games: 'gaming game play steam multiplayer',

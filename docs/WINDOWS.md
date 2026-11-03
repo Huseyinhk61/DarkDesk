@@ -75,12 +75,12 @@ ZIP ile indirdiysen yeni ZIP’i farklı bir klasöre çıkarıp aynı kurulum a
 
 ## Hazır EXE paketi
 
-[Windows Installer](https://github.com/Huseyinhk61/DarkDesk/actions/workflows/windows.yml) iş akışındaki başarılı çalışmadan **Artifacts → DarkDesk-Windows** arşivini indir. Arşivde kurulum ve portable sürümlerle `SHA256SUMS.txt` bulunur. `main` güncellemeleri derlemeyi otomatik başlatır. Gerekirse depo sahibi **Run workflow** ile de başlatabilir. `v*` etiketiyle yayımlanan sürümler varsa ayrıca [Releases](https://github.com/Huseyinhk61/DarkDesk/releases) sayfasında görünür.
+[Windows Installer](https://github.com/Huseyinhk61/DarkDesk/actions/workflows/windows.yml) iş akışındaki başarılı çalışmadan **Artifacts → DarkDesk-Windows** arşivini indir. Arşivde kurulum ve portable sürümlerle `SHA256SUMS.txt` bulunur. `main` güncellemeleri derlemeyi otomatik başlatır. Gerekirse depo sahibi **Run workflow** ile de başlatabilir. Yeni bir sürüm numarasıyla başarılı `main` derlemesi [Releases](https://github.com/Huseyinhk61/DarkDesk/releases) sayfasında otomatik yayınlanır; aynı numaralı yayın yeniden yazılmaz.
 
 İndirdiğin EXE özetini kontrol etmek için:
 
 ```powershell
-Get-FileHash .\DarkDesk-Setup-3.3.0.exe -Algorithm SHA256
+Get-FileHash .\DarkDesk-Setup-3.4.0.exe -Algorithm SHA256
 ```
 
 Sonucu aynı paketteki `SHA256SUMS.txt` ile karşılaştır. Paket şu aşamada kod imzalı değildir; Windows yayıncı uyarısı gösterebilir.
@@ -96,7 +96,7 @@ Sonucu aynı paketteki `SHA256SUMS.txt` ile karşılaştır. Paket şu aşamada 
 
 ## Profiller, Spotlight ve arka plan (3.0)
 
-[Ekosistem rehberi](ECOSYSTEM.md) tüm ayarları ve sınırları açıklar. Global başlatıcı varsayılanı Alt+Space; profil kısayolları Ctrl+Alt+1…4’tür. OS başka bir uygulamaya ayırmışsa kısayolu ayarlardan değiştir.
+[Ekosistem rehberi](ECOSYSTEM.md) tüm ayarları ve sınırları açıklar. Yeni kurulumlarda global başlatıcı varsayılanı Alt+X; profil kısayolları Ctrl+Alt+1…4’tür. OS başka bir uygulamaya ayırmışsa kısayolu ayarlardan değiştir.
 
 X artık uygulamayı tepsiye gizler; tamamen çıkmak için sistem tepsisindeki DarkDesk menüsünden Çıkış seç. Çıkış, aktif profilin değiştirdiği görünürlüğü geri yükler. Uygulama zorla kapatılırsa yeniden açıp kurtarmayı bekle veya Tümünü geri göster kullan. Profil gizlemesi ACL/güvenlik izolasyonu değildir; Explorer gizli dosya tercihi sonucu etkiler.
 
@@ -105,3 +105,5 @@ Otomasyonlar kapalı başlar. Önizle, hedefleri kontrol et, sonra etkinleştiri
 İkonlar, uygulama bilgileri ve kısayol çakışmalarını çözmek için [masaüstü arayüz rehberine](DESKTOP-UX.md) bakın.
 
 Klasörleme ve uygulama logolarında sorun yaşıyorsanız [işlem sonucu ve ikon rehberini](ORGANIZATION.md) kullanın.
+
+Uygulama içinden indirme ve yeniden başlatıp kurma için [güncelleme rehberine](UPDATES.md) bakın.

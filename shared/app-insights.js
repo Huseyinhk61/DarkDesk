@@ -84,6 +84,18 @@ export function findKnownApp(item) {
   return null;
 }
 const categoryDescriptions = {
+  internet: [
+    'Ad ve sınıflandırma kurallarına göre web erişimi veya iletişimle ilgili olabilir. Bu bir kategori tahminidir.',
+    'Name and classification rules suggest web access or communication. This is a category-based estimate.',
+  ],
+  learning: [
+    'Ad ve dosya türüne göre öğrenme veya okuma içeriği olabilir. Bu bir kategori tahminidir; içerik okunmadı.',
+    'Name and file type suggest learning or reading material. This is a category-based estimate; content was not read.',
+  ],
+  finance: [
+    'Ad ve dosya türüne göre bütçe veya muhasebe işleriyle ilgili olabilir. Bu bir kategori tahminidir; içerik okunmadı.',
+    'Name and file type suggest budgeting or bookkeeping. This is a category-based estimate; content was not read.',
+  ],
   software: [
     'Ad ve sınıflandırma kurallarına göre geliştirme aracı olabilir. Uygulamaya özgü açıklama yerel katalogda bulunamadı.',
     'Name and classification rules suggest a development tool. No app-specific description was found in the local catalog.',
@@ -156,7 +168,8 @@ const files = [
   ],
 ];
 const parentCategory = (id) =>
-  id?.startsWith('software') ? 'software' : id?.startsWith('system') ? 'system' : id;
+  ['software', 'system', 'internet', 'learning', 'finance'].find((root) => id?.startsWith(root)) ||
+  id;
 export function appInsight(item, categoryId) {
   const app = findKnownApp(item);
   if (app)

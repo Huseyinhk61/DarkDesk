@@ -3,7 +3,6 @@ import {
   ShieldCheck,
   ScanLine,
   Monitor,
-  Square,
   FolderSearch,
   AlertTriangle,
   Download,
@@ -13,12 +12,17 @@ export default function ScannerPanel({
   scope,
   setScope,
   scanSystem,
+  scan,
   busy,
   scanProgress,
   scanResult,
   platform,
+  desktopPath,
+  downloadsPath,
 }) {
   const { t } = usePreferences();
+  const system = scope === 'system';
+  const deepScanning = system && busy === 'deep';
   return (
     <section className="scanner-panel">
       <div className="scanner-heading">
@@ -38,6 +42,7 @@ export default function ScannerPanel({
         <button
           disabled={!!busy}
           className={scope === 'desktop' ? 'active' : ''}
+          aria-pressed={scope === 'desktop'}
           onClick={() => setScope('desktop')}
         >
           <Monitor size={16} />
@@ -46,6 +51,7 @@ export default function ScannerPanel({
         <button
           disabled={!!busy}
           className={scope === 'system' ? 'active' : ''}
+          aria-pressed={scope === 'system'}
           onClick={() => setScope('system')}
         >
           <FolderSearch size={16} />
@@ -54,39 +60,66 @@ export default function ScannerPanel({
         <button
           disabled={!!busy}
           className={scope === 'downloads' ? 'active' : ''}
+          aria-pressed={scope === 'downloads'}
           onClick={() => setScope('downloads')}
         >
           <Download size={16} />
           {t('scan.downloads')}
         </button>
       </div>
-      <div className="scan-source-chips">
-        {(platform === 'linux'
-          ? ['linuxSystem', 'linuxUser', 'linuxOpt']
-          : ['programFiles', 'programFilesX86', 'startUser', 'registry']
-        ).map((key) => (
-          <span key={key}>{t('sources.' + key)}</span>
-        ))}
-      </div>
+      {system ? (
+        <div className="scan-source-chips">
+          {(platform === 'linux'
+            ? ['linuxSystem', 'linuxUser', 'linuxOpt']
+            : ['programFiles', 'programFilesX86', 'startUser', 'registry']
+          ).map((key) => (
+            <span key={key}>{t('sources.' + key)}</span>
+          ))}
+        </div>
+      ) : (
+        <div className="scan-source-chips">
+          <span>{(scope === 'downloads' ? downloadsPath : desktopPath) || t('scan.' + scope)}</span>
+        </div>
+      )}
       <div className="scan-cta">
         <button
           className="btn primary"
-          disabled={!!busy && busy !== 'deep'}
-          onClick={() => scanSystem(busy === 'deep')}
+          disabled={!!busy && !deepScanning}
+          onClick={() => (deepScanning ? scanSystem(true) : scan())}
         >
-          <ScanLine className={busy === 'deep' ? 'spin' : ''} size={17} />
-          {t(busy === 'deep' ? 'scan.cancel' : 'scan.start')}
+          <ScanLine className={deepScanning || busy === 'scan' ? 'spin' : ''} size={17} />
+          {t(
+            deepScanning
+              ? 'scan.cancel'
+              : busy === 'scan'
+                ? 'hero.scanning'
+                : system
+                  ? 'scan.start'
+                  : scope === 'downloads'
+                    ? 'scan.scanDownloads'
+                    : 'scan.scanDesktop',
+          )}
         </button>
-        <span>{scanProgress ? t('scan.progress', scanProgress) : t('scan.safe')}</span>
+        <span>
+          {system && scanProgress
+            ? t('scan.progress', scanProgress)
+            : t(
+                system
+                  ? 'scan.safe'
+                  : scope === 'downloads'
+                    ? 'scan.downloadsHint'
+                    : 'scan.desktopHint',
+              )}
+        </span>
       </div>
-      {busy === 'deep' && (
+      {deepScanning && (
         <div className="scan-animation">
           <i />
         </div>
       )}
-      {scanResult?.cancelled && <p className="muted">{t('scan.cancelled')}</p>}
-      {scanResult?.limited && <p className="warning-text">{t('scan.limited')}</p>}
-      {scanResult?.warnings?.length > 0 && (
+      {system && scanResult?.cancelled && <p className="muted">{t('scan.cancelled')}</p>}
+      {system && scanResult?.limited && <p className="warning-text">{t('scan.limited')}</p>}
+      {system && scanResult?.warnings?.length > 0 && (
         <div className="notice warning">
           <AlertTriangle size={16} />
           {t('scan.warnings', { count: scanResult.warnings.length })}
@@ -99,7 +132,9 @@ export default function ScannerPanel({
           </span>
         </div>
       )}
-      {scanResult?.supported === false && <p className="warning-text">{t('scan.unsupported')}</p>}
+      {system && scanResult?.supported === false && (
+        <p className="warning-text">{t('scan.unsupported')}</p>
+      )}
     </section>
   );
 }

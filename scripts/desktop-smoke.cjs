@@ -39,6 +39,7 @@ const { folders } = require('../electron/service.cjs');
       'Renderer must not have Node access',
     );
     assert.equal(await page.evaluate(() => typeof window.darkdesk.preview), 'function');
+    assert.equal((await page.evaluate(() => window.darkdesk.updateStatus())).state, 'unsupported');
     assert.equal(
       typeof (await page.evaluate(() => window.darkdesk.windowState())).maximized,
       'boolean',
@@ -78,6 +79,7 @@ const { folders } = require('../electron/service.cjs');
     await expect(page.getByRole('dialog')).toContainText('Dosya boyutu');
     await page.keyboard.press('Escape');
     const keysBefore = await page.evaluate(() => window.darkdesk.runtimeStatus());
+    assert.equal(keysBefore.shortcuts.find((key) => key.id === 'launcher').accelerator, 'Alt+X');
     const capture = await page.evaluate(() => window.darkdesk.beginShortcutCapture());
     const keysPaused = await page.evaluate(() => window.darkdesk.runtimeStatus());
     assert.ok(keysPaused.shortcuts.every((key) => !key.registered && key.reason === 'recording'));
@@ -126,9 +128,29 @@ const { folders } = require('../electron/service.cjs');
       'true',
     );
     await page.getByRole('button', { name: 'Sistem Tarama', exact: true }).click();
+    await page.getByRole('button', { name: 'Yüklü uygulamalar', exact: true }).click();
+    await expect(page.locator('.activity-bar')).toHaveCount(0);
     await page.getByRole('button', { name: 'Derin taramayı başlat', exact: true }).click();
     await expect(page.locator('.item-card')).toHaveCount(1);
     await expect(page.locator('.activity-bar')).toHaveCount(0);
+    await page.getByRole('button', { name: 'Masaüstü', exact: true }).click();
+    await expect(page.locator('.item-card')).toHaveCount(2);
+    await expect(page.locator('.activity-bar')).toHaveCount(0);
+    await page.getByRole('button', { name: 'Masaüstünü tara', exact: true }).click();
+    await expect(page.locator('.activity-bar')).toHaveCount(0);
+    await expect(page.locator('.item-card')).toHaveCount(2);
+    await page.getByRole('button', { name: 'İndirilenler', exact: true }).click();
+    await expect(page.locator('.activity-bar')).toHaveCount(0);
+    await expect(page.locator('.item-card')).toHaveCount(0);
+    await page
+      .locator('.scanner-panel')
+      .getByRole('button', { name: 'İndirilenleri tara', exact: true })
+      .click();
+    await expect(page.locator('.activity-bar')).toHaveCount(0);
+    await expect(page.locator('.item-card')).toHaveCount(0);
+    await page.getByRole('button', { name: 'Yüklü uygulamalar', exact: true }).click();
+    await expect(page.locator('.activity-bar')).toHaveCount(0);
+    await expect(page.locator('.item-card')).toHaveCount(1);
     await page.getByRole('button', { name: 'Masaüstünü Fiziksel Düzenle' }).click();
     await expect(page.getByRole('dialog')).toContainText('Kurulu programlar taşınmaz.');
     await page.getByRole('button', { name: '1 kısayol oluştur' }).click();
@@ -161,13 +183,13 @@ const { folders } = require('../electron/service.cjs');
     await expect(page.locator('.activity-bar')).toHaveCount(0);
     await page.getByRole('button', { name: 'Cyberpunk Neon', exact: true }).click();
     await expect(page.locator('.activity-bar')).toHaveCount(0);
-    await page.getByLabel('Icon pack', { exact: true }).selectOption('tabler');
+    await page.getByLabel('Icon pack', { exact: true }).selectOption('rounded');
     await expect(page.locator('.activity-bar')).toHaveCount(0);
     await page.reload();
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'cyberpunk');
     await page.getByRole('button', { name: 'Automation & Settings', exact: true }).click();
-    await expect(page.getByLabel('Icon pack', { exact: true })).toHaveValue('tabler');
+    await expect(page.getByLabel('Icon pack', { exact: true })).toHaveValue('rounded');
 
     await page.getByRole('button', { name: 'Workspace Profiles', exact: true }).click();
     await page.locator('.profile-activate').filter({ hasText: 'Clean Desktop' }).click();
@@ -282,7 +304,7 @@ const { folders } = require('../electron/service.cjs');
     assert.equal(typeof geometry.maximized, 'boolean');
     assert.equal(await visibility.get(path.join(desktop, 'Rapor.pdf')), false);
     console.log(
-      'PASS: production Electron renderer, isolated IPC, no Node in renderer, non-mutating preview, real move/undo, file watcher, installed-app shortcuts/undo, shortcut icons, focus visibility/quit restore, native Spotlight dispatch, trusted native icons/metadata, shortcut capture/resume, tray hiding, archive/Downloads automation and persistent preferences.',
+      'PASS: production Electron renderer, isolated IPC, no Node in renderer, non-mutating preview, real move/undo, file watcher, installed-app shortcuts/undo, shortcut icons, focus visibility/quit restore, source-specific scanner switching, native Spotlight dispatch, trusted native icons/metadata, shortcut capture/resume, tray hiding, archive/Downloads automation and persistent preferences.',
     );
   } finally {
     if (application) await application.close();

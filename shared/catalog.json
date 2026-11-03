@@ -142,5 +142,86 @@
     "parentId": "system",
     "icon": "folder",
     "color": "orange"
+  },
+  {
+    "id": "internet",
+    "name": "İnternet & İletişim",
+    "labelKey": "categories.internet",
+    "folder": "İnternet & İletişim",
+    "parentId": null,
+    "icon": "globe",
+    "color": "blue"
+  },
+  {
+    "id": "learning",
+    "name": "Eğitim & Okuma",
+    "labelKey": "categories.learning",
+    "folder": "Eğitim & Okuma",
+    "parentId": null,
+    "icon": "star",
+    "color": "purple"
+  },
+  {
+    "id": "finance",
+    "name": "Finans & İş",
+    "labelKey": "categories.finance",
+    "folder": "Finans & İş",
+    "parentId": null,
+    "icon": "file",
+    "color": "orange"
+  },
+  {
+    "id": "internetbrowsers",
+    "name": "Tarayıcılar",
+    "labelKey": "categories.internetbrowsers",
+    "folder": "Tarayıcılar",
+    "parentId": "internet",
+    "icon": "globe",
+    "color": "blue"
+  },
+  {
+    "id": "internetchat",
+    "name": "Sohbet & Mesajlaşma",
+    "labelKey": "categories.internetchat",
+    "folder": "Sohbet & Mesajlaşma",
+    "parentId": "internet",
+    "icon": "heart",
+    "color": "pink"
+  },
+  {
+    "id": "internetmeetings",
+    "name": "Toplantı & Görüşme",
+    "labelKey": "categories.internetmeetings",
+    "folder": "Toplantı & Görüşme",
+    "parentId": "internet",
+    "icon": "globe",
+    "color": "purple"
+  },
+  {
+    "id": "learningcourses",
+    "name": "Dersler & Öğrenme",
+    "labelKey": "categories.learningcourses",
+    "folder": "Dersler & Öğrenme",
+    "parentId": "learning",
+    "icon": "star",
+    "color": "purple"
+  },
+  {
+    "id": "learningreading",
+    "name": "Kitaplar & Kaynaklar",
+    "labelKey": "categories.learningreading",
+    "folder": "Kitaplar & Kaynaklar",
+    "parentId": "learning",
+    "icon": "file",
+    "color": "blue"
+  },
+  {
+    "id": "financeaccounting",
+    "name": "Muhasebe & Bütçe",
+    "labelKey": "categories.financeaccounting",
+    "folder": "Muhasebe & Bütçe",
+    "parentId": "finance",
+    "icon": "archive",
+    "color": "orange"
   }
 ]

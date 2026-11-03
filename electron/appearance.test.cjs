@@ -93,3 +93,51 @@ test('catalog text and primary button tokens meet normal-text contrast on base s
     );
   }
 });
+test('font families and new icon packs validate and persist without altering file settings', async (t) => {
+  const { fontIds, iconPacks } = require('../shared/appearance.js');
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'darkdesk-fonts-'));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  const store = new SettingsStore(root);
+  assert.equal(validateSettings({}).fontFamily, 'system');
+  for (const fontFamily of fontIds) {
+    for (const iconPack of iconPacks) {
+      const saved = await store.write({
+        ...(await store.read()),
+        fontFamily,
+        iconPack,
+        mode: 'copy',
+      });
+      const persisted = await new SettingsStore(root).read();
+      assert.equal(persisted.fontFamily, fontFamily);
+      assert.equal(persisted.iconPack, iconPack);
+      assert.equal(persisted.mode, 'copy');
+      assert.equal(saved.fontFamily, fontFamily);
+    }
+  }
+  assert.throws(
+    () => validateSettings({ fontFamily: 'url(https://example.invalid/font)' }),
+    /SETTINGS_INVALID/,
+  );
+  assert.throws(() => validateSettings({ iconPack: '../icons' }), /SETTINGS_INVALID/);
+  assert.equal(sanitizeAppearance({ fontFamily: '__proto__' }).fontFamily, 'system');
+});
+test('every native icon pack contains valid PNG-backed ICOs and new styles differ from Lucide', async () => {
+  const { iconPacks } = require('../shared/appearance.js');
+  const { icons } = require('../shared/domain.js');
+  const bytes = {};
+  for (const pack of iconPacks) {
+    for (const name of icons) {
+      const data = await fs.readFile(
+        path.join(__dirname, '../build/folder-icons', pack, name + '.ico'),
+      );
+      assert.equal(data.readUInt16LE(2), 1, pack + '/' + name);
+      assert.equal(data.readUInt16LE(4), 1);
+      const offset = data.readUInt32LE(18);
+      assert.deepEqual([...data.subarray(offset, offset + 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+      if (name === 'folder') bytes[pack] = data;
+    }
+  }
+  assert.equal(bytes.rounded.equals(bytes.lucide), false);
+  assert.equal(bytes.duotone.equals(bytes.lucide), false);
+  assert.equal(bytes.rounded.equals(bytes.duotone), false);
+});

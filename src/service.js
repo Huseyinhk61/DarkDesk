@@ -92,12 +92,30 @@ export const api = window.darkdesk || {
     cancelled = true;
   },
   history: async () => structuredClone(history),
+  updateStatus: async () => ({
+    state: 'unsupported',
+    reason: 'development',
+    currentVersion: '3.4.0',
+  }),
+  checkUpdates: async () => api.updateStatus(),
+  downloadUpdate: async () => api.updateStatus(),
+  installUpdate: async () => {
+    throw Error('UPDATE_NOT_READY');
+  },
+  onUpdateChanged: () => () => {},
+  openDownloads: async () => {
+    window.open(
+      'https://github.com/Huseyinhk61/DarkDesk/releases/latest',
+      '_blank',
+      'noopener,noreferrer',
+    );
+  },
   stats: async () => ({
     desktop: 'C:\\Users\\User\\Desktop',
     total: 16 * 1024 ** 3,
     free: 9.2 * 1024 ** 3,
     storage: null,
-    version: '3.3.0',
+    version: '3.4.0',
     platform: 'demo',
   }),
   getSettings: async () => structuredClone(settings),

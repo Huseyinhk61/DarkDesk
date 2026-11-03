@@ -5,6 +5,7 @@ const { promisify } = require('node:util');
 const exec = promisify(execFile);
 const crypto = require('node:crypto');
 const { icons } = require('../shared/domain.js');
+const { iconPacks } = require('../shared/appearance.js');
 class FolderIcons {
   constructor(data, platform = process.platform, options = {}) {
     this.data = data;
@@ -13,8 +14,7 @@ class FolderIcons {
     this.run = options.run || exec;
   }
   async iconFile(icon, pack) {
-    if (!icons.includes(icon) || !['lucide', 'tabler', 'minimal'].includes(pack))
-      throw Error('ICON_INVALID');
+    if (!icons.includes(icon) || !iconPacks.includes(pack)) throw Error('ICON_INVALID');
     const directory = path.join(this.data, 'icons', pack);
     await fs.mkdir(directory, { recursive: true });
     const output = path.join(directory, icon + '.ico');

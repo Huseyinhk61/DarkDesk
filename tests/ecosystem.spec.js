@@ -27,7 +27,7 @@ test('profile hotkeys work in the focused web demo and shortcut collisions are r
   const modal = page.getByRole('dialog');
   const binder = modal.getByLabel('Klavye kısayolu', { exact: true });
   await binder.click();
-  await page.keyboard.press('Alt+Space');
+  await page.keyboard.press('Alt+X');
   await expect(modal.locator('.key-binder')).toContainText('başka bir işleve atanmış');
   await expect(binder).toHaveValue('Ctrl+Alt+1');
   await expect(page.locator('.launcher-panel')).toHaveCount(0);

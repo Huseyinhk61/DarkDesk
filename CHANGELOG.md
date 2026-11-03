@@ -1,5 +1,15 @@
 # Değişiklikler
 
+## 3.4.0 — 3 Kasım 2026
+
+- Sistem Tarama CTA'sı seçili kaynağı tarar; masaüstü/indirilenler artık yanlışlıkla derin uygulama taramasına geçmez.
+- Kaynak geçişinde filtre temizliği, gecikmiş sonuç koruması ve kaynağa uygun durum bilgisi.
+- Dört yeni palet, dört yerel yazı tipi ailesi, Rounded/Duotone UI ve native ikon paketleri.
+- Yeni internet/eğitim/finans grupları: 10 ana grup, 25 toplam grup; schema4 geçişi mevcut kullanıcı atamalarını korur.
+- Yeni kurulumlarda varsayılan Alt+X; kayıtlı kişisel atamalar değiştirilmez.
+- `electron-updater` ile açık indirme/kurulum, OS ve uygulama içi bildirim, ilerleme ve hata durumları.
+- Windows Setup/Portable, latest.yml ve blockmap doğrulaması; sürüm numarası arttığında otomatik GitHub Release yayını.
+
 ## 3.3.0 — 3 Kasım 2026
 
 - Klasör dekorasyonu/attrib ve tarih koruma hataları artık asıl dosya taşımasını engellemez; uyarılar işlem günlüğüne kaydedilir.

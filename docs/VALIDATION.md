@@ -1,17 +1,25 @@
-# DarkDesk 3.3 doğrulama raporu
+# DarkDesk 3.4 doğrulama raporu
 
 Tarih: 3 Kasım 2026. Yerel doğrulama ortamı: Linux, Node.js 24, Electron 45, Chromium ve Xvfb.
 
 | Kontrol                             | Sonuç                                                                                                                                          |
 | :---------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm test`                          | 121 servis/model/ayar testi geçti; başarısız veya atlanan test yok.                                                                            |
+| `npm test`                          | 141 servis/model/ayar testi geçti; başarısız veya atlanan test yok.                                                                            |
 | `npm run build`                     | Üretim React/Tailwind derlemesi geçti.                                                                                                         |
-| `npm run test:e2e`                  | 56 Chromium senaryosu geçti.                                                                                                                   |
+| `npm run test:e2e`                  | 65 Chromium senaryosu geçti.                                                                                                                   |
 | `npm run test:desktop`              | İzole gerçek Electron/IPC testi geçti.                                                                                                         |
 | Linux `electron-builder --dir`      | Uygulama dizini ve ASAR oluşturuldu. Bu kontrol AppImage veya Windows EXE üretildiği anlamına gelmez.                                          |
 | Paketlenmiş ASAR’dan Electron testi | Paylaşılan ESM/JSON modülleri, preload, tarayıcı, ikon dosyaları ve renderer paket içinden çalıştı.                                            |
 | Paket içeriği                       | Native ikonlar, runtime/profil/otomasyon modülleri, dil sözlükleri ve RE2 regex bağımlılığı mevcut; test giriş noktaları dağıtıma dahil değil. |
 | `npm audit --omit=dev`              | Dağıtım bağımlılıklarında bilinen açık raporlanmadı.                                                                                           |
+
+## 3.4 kapsamı
+
+Tarama testleri üç kaynağı ayrı ayrı seçip tarar; kurulular görünümünden masaüstüne ve indirilenlere geri dönüldüğünde farklı koleksiyonlar korunur. Filtre temizliği, kaynak okuma hatası ve gecikmiş sonuç koruması test edilir. Native Electron testi aynı geçişleri gerçek geçici Desktop/Downloads/Program Files dizinleriyle uygular.
+
+Görünüm ve grup servis testleri yeni tema/font/ikon tercihlerini, 60 ICO kaynağını, schema4 grup geçişini, silinmiş grupların korunmasını ve eski geçmişin geri alınmasını kapsar. Yeni varsayılan Alt+X ve kayıtlı özel tuşun korunması ayrıca doğrulandı.
+
+Güncelleme servisi enjekte edilmiş `electron-updater` adaptörüyle kontrol edildi: eşzamanlı istekler, tek sürüm bildirimi, açık indirme, checksum hatası, erişilemeyen kaynak, kurulum sıralaması, dosya işi sırasında erteleme ve kurulum başlatma hatasından toparlanma. UI testleri indirme/ilerleme/yeniden başlatma ve portable sınırlarını kapsar. **Gerçek bir Windows makinede eski sürümden yeni sürüme kurulum bu Linux oturumunda uygulanmadı.** GitHub Release görünürlüğü ve uzaktaki iş sonucu bu ortamda doğrulanamadı (web/API erişimleri 404/403 döndü).
 
 ## 3.3 kapsamı
 

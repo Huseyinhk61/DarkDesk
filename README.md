@@ -32,6 +32,22 @@
 | **Kalıcı ayarlar**            | Taşı/kopyala seçimi, canlı takip, hariç tutulacak uzantılar ve kategori tercihleri bu cihazda saklanır.                                                                     |
 | **Yerel ve hesapsız**         | Dosya işlemleri için hesap, API anahtarı veya bulut servisi gerekmez. Sonuç bildiriminden tek tıkla geri alınabilir.                                                        |
 
+## 🚀 3.4: doğru kaynak taraması, daha çok kişiselleştirme ve güncelleme
+
+- **Masaüstü / Yüklü uygulamalar / İndirilenler:** Sekme ve tarama düğmesi aynı kaynağı kullanır; geçişte eski filtre/sonuçlar diğer kaynağa taşınmaz.
+- **11 renk paleti + Sistem Teması:** Graphite, Amber Night, Lavender Light ve Nordic Blue eklendi.
+- **4 yazı tipi seçeneği:** Sistem, okunaklı, klasik ve monospace yerel font aileleri; kurulu olmayan font için yerel yedek kullanılır.
+- **5 ikon paketi:** Lucide, Tabler, Minimalist, Rounded ve Duotone; yeni klasörler için toplam 60 native ICO.
+- **10 ana grup / 25 toplam grup:** İnternet & İletişim, Eğitim & Okuma, Finans & İş ve alt grupları. Yerel açıklama kataloğu 91 uygulama içerir.
+- **Alt+X:** Yeni kurulumların varsayılan hızlı başlatıcı tuşu. Kayıtlı özel atamalar korunur.
+- **Uygulama içi güncelleme:** Kurulu Windows NSIS sürümü yeni sürümü denetler, bildirim gösterir ve kullanıcı indirme/yeniden başlatma düğmelerini seçer.
+
+[**Windows EXE sürümleri →**](https://github.com/Huseyinhk61/DarkDesk/releases/latest) · [**Kurulum ve güncelleme rehberi →**](docs/UPDATES.md)
+
+GitHub Windows iş akışı yeni sürüm numaralı `main` güncellemelerinde Setup/Portable EXE, `latest.yml`, blockmap ve özetleri üretip Releases'a yayınlar. İndirme bağlantısı başarılı yayın sonrası kullanılabilir. GitHub sürüm kaynağı uygulamadan erişilebilir olmalıdır; gizli depo varlıkları için kullanıcıya bir erişim anahtarı gömülmez.
+
+<p align="center"><img src="docs/assets/updates.png" alt="Güncelleme paneli · geliştirme sürümünde otomatik kurulum kapalı" width="900" /></p>
+
 ## 🛠️ 3.3: çalışan düzenleme, özgün ikonlar ve uygulama açıklamaları
 
 Klasör ikonu veya tarih ayarı başarısız olduğunda gerçek dosya taşımanın durması düzeltildi. Düzenleme sonunda taşınan/kopyalanan öğeler, oluşturulan kısayollar, atlanan dosyalar ve uyarılar ayrı gösterilir. **Hedef klasörü aç** ve **Bu düzenlemeyi geri al** düğmeleri sonucu incelemeyi kolaylaştırır.
@@ -78,7 +94,7 @@ Ocean Blue, Forest Green, Rose Light ve Yüksek Kontrast eklendi. **Sistem Temas
 | Yetenek                  | Davranış                                                                                                               |
 | :----------------------- | :--------------------------------------------------------------------------------------------------------------------- |
 | **Odak profilleri**      | Kodlama, Oyun, Tasarım, Temiz Masaüstü; global kısayollar ve özgün nitelikleri koruyan gerçek OS gizleme/geri yükleme. |
-| **Spotlight**            | Alt+Space, fuzzy arama, klavye navigasyonu, indekslenen dosyaları açma ve güvenli sistem komutları.                    |
+| **Spotlight**            | Alt+X, fuzzy arama, klavye navigasyonu, indekslenen dosyaları açma ve güvenli sistem komutları.                        |
 | **Arka plan otomasyonu** | Kullanıcının etkinleştirdiği arşiv ve Downloads kuralları; günlük, geri alma ve tekrar işleme koruması.                |
 | **Yerel öneriler**       | Bilinmeyen adlara yerel anahtar kelime vektörleriyle kategori önerisi; model indirmesi veya ağ isteği yok.             |
 | **Regex & alt gruplar**  | RE2JS ile güvenli regex; IDE, DevOps, Veritabanı, Ağ, Sürücüler ve Kurulumlar gibi hazır alt kategoriler.              |
@@ -180,8 +196,8 @@ Vite’ın terminalde gösterdiği adresi aç. **Web modu örnek verilerle çal�
 
 GitHub Actions içindeki **[Windows Installer](https://github.com/Huseyinhk61/DarkDesk/actions/workflows/windows.yml)** iş akışı:
 
-- `DarkDesk-Setup-3.3.0.exe`: Kurulum sihirbazı ve masaüstü kısayolu.
-- `DarkDesk-Portable-3.3.0.exe`: Kurulum gerektirmeyen sürüm.
+- `DarkDesk-Setup-3.4.0.exe`: Kurulum sihirbazı ve masaüstü kısayolu.
+- `DarkDesk-Portable-3.4.0.exe`: Kurulum gerektirmeyen sürüm.
 - `SHA256SUMS.txt`: İndirilen dosyaları doğrulamak için özetler.
 
 `main` dalına gönderilen güncellemeler Windows paketini otomatik oluşturur. Depo sahibi ayrıca **Run workflow** ile derlemeyi başlatabilir. Başarılı çalışmanın **Artifacts → DarkDesk-Windows** bölümünden paket indirilir. `v*` etiketi gönderildiğinde testlerden geçen paketler GitHub Releases’e eklenir. **İş akışı başarıyla tamamlanmadan hazır bir EXE bulunduğunu varsayma.**
@@ -219,7 +235,7 @@ Linux CI’de Electron testi için `xvfb-run -a npm run test:desktop` gerekir. T
 
 Dağıtım bağımlılıklarında bilinen açık bulunmadı (`npm audit --omit=dev`). Tam araç zinciri denetiminde paketleyicinin geçişli geliştirme bağımlılıklarında orta seviye bildirimler bulunuyor; bunlar için eski bir paketleyici sürümüne otomatik düşürme yapılmadı.
 
-**v3.3 doğrulaması:** Servis, tarama, kural/ayar göçü, dil sözlüğü ve Chromium testleri bulunur. Gerçek Electron testi izole masaüstünde taşıma/geri alma, uygulama keşfi, kısayol oluşturma/geri alma ve tema/dil/ikon kalıcılığını kontrol eder. Güncel yerel sonuçlar [test raporundadır](docs/VALIDATION.md). Windows’a özgü test ve EXE oluşturma ayrıca GitHub Actions üzerinde tanımlıdır; sonuçları üstteki canlı test rozetinden ve Actions sayfasından takip edilebilir.
+**v3.4 doğrulaması:** Servis, tarama, kural/ayar göçü, dil sözlüğü ve Chromium testleri bulunur. Gerçek Electron testi izole masaüstünde taşıma/geri alma, uygulama keşfi, kısayol oluşturma/geri alma ve tema/dil/ikon kalıcılığını kontrol eder. Güncel yerel sonuçlar [test raporundadır](docs/VALIDATION.md). Windows’a özgü test ve EXE oluşturma ayrıca GitHub Actions üzerinde tanımlıdır; sonuçları üstteki canlı test rozetinden ve Actions sayfasından takip edilebilir.
 
 <details>
 <summary><strong>Proje yapısı</strong></summary>

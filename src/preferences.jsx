@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useStat
 import tr from './locales/tr.json';
 import en from './locales/en.json';
 import { defaultSettings, categorySegments } from '../shared/domain';
-import { sanitizeAppearance, resolveTheme } from '../shared/appearance';
+import { sanitizeAppearance, resolveTheme, fonts } from '../shared/appearance';
 const Context = createContext(null);
 const dictionaries = { tr, en };
 export function PreferencesProvider({ children }) {
@@ -51,6 +51,8 @@ export function PreferencesProvider({ children }) {
     root.dataset.themePreference = settings.theme;
     root.dataset.colorScheme = theme.scheme;
     root.dataset.density = settings.density;
+    root.dataset.font = settings.fontFamily;
+    root.style.fontFamily = fonts[settings.fontFamily] || fonts.system;
     root.dataset.motion = settings.motion === 'reduced' || reduced ? 'reduced' : 'full';
     root.style.setProperty('--ui-scale', String(settings.uiScale / 100));
     root.style.colorScheme = theme.scheme;
@@ -67,6 +69,7 @@ export function PreferencesProvider({ children }) {
     settings.motion,
     language,
     settings.iconPack,
+    settings.fontFamily,
     dark,
     reduced,
   ]);

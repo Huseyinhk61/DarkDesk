@@ -6,25 +6,42 @@ on:
     tags: ['v*']
 permissions:
   contents: read
+concurrency:
+  group: windows-release-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   package:
     runs-on: windows-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
+      - name: Validate release version
+        id: version
+        shell: pwsh
+        env:
+          RELEASE_REF: ${{ github.ref_name }}
+          RELEASE_REF_TYPE: ${{ github.ref_type }}
+        run: |
+          $version = node -p "require('./package.json').version"
+          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw 'Expected stable semantic version' }
+          if ($env:RELEASE_REF_TYPE -eq 'tag' -and $env:RELEASE_REF -ne "v$version") { throw 'Tag must match package version' }
+          "version=$version" >> $env:GITHUB_OUTPUT
       - run: npm ci
       - run: npm test
       - run: npm run build
       - run: npm run test:desktop
       - name: Build setup and portable EXE
         run: npm run dist:win -- --publish never
+      - run: node scripts/verify-windows-release.cjs
       - name: Generate SHA-256 checksums
         shell: pwsh
         run: |
-          Get-ChildItem release/*.exe | ForEach-Object {
+          Get-ChildItem release/* -File | Where-Object { $_.Extension -in ".exe", ".yml", ".blockmap" } | ForEach-Object {
             $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower()
             "$hash  $($_.Name)"
           } | Set-Content -Encoding utf8 release/SHA256SUMS.txt
@@ -33,11 +50,12 @@ jobs:
           name: DarkDesk-Windows
           path: |
             release/*.exe
+            release/*.yml
+            release/*.blockmap
             release/SHA256SUMS.txt
           if-no-files-found: error
           retention-days: 30
   release:
-    if: startsWith(github.ref, 'refs/tags/v')
     needs: package
     runs-on: ubuntu-latest
     permissions:
@@ -51,5 +69,17 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          RELEASE_TAG: ${{ github.ref_name }}
-        run: gh release create "$RELEASE_TAG" release/*.exe release/SHA256SUMS.txt --title "DarkDesk $RELEASE_TAG" --generate-notes
+          RELEASE_VERSION: ${{ needs.package.outputs.version }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          tag="v$RELEASE_VERSION"
+          if gh release view "$tag" --json isDraft --jq .isDraft > /tmp/darkdesk-release-state; then
+            if [ "$(cat /tmp/darkdesk-release-state)" = "true" ]; then
+              gh release upload "$tag" release/*.exe release/*.yml release/*.blockmap release/SHA256SUMS.txt --clobber
+              gh release edit "$tag" --draft=false --latest
+            else
+              echo "Release $tag already published. Bump package.json for another update."
+            fi
+          else
+            gh release create "$tag" release/*.exe release/*.yml release/*.blockmap release/SHA256SUMS.txt --target "$RELEASE_SHA" --title "DarkDesk $tag" --generate-notes --latest
+          fi

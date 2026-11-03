@@ -22,6 +22,7 @@ test('installed applications produce a shortcut receipt instead of claiming exec
   page,
 }) => {
   await page.getByRole('button', { name: 'Sistem Tarama', exact: true }).click();
+  await page.getByRole('button', { name: 'Yüklü uygulamalar', exact: true }).click();
   await page.getByRole('button', { name: 'Derin taramayı başlat', exact: true }).click();
   await expect(page.locator('.item-card')).toHaveCount(8);
   await page.getByRole('button', { name: 'Masaüstünü Demo Düzenle', exact: true }).click();
@@ -37,6 +38,6 @@ test('purpose search finds browsers while root group count reflects visible card
 }) => {
   await page.getByRole('textbox', { name: 'Öğe ara', exact: true }).fill('tarayıcı');
   await expect(page.locator('.item-card').filter({ hasText: 'Google Chrome' })).toBeVisible();
-  await expect(page.locator('.section-heading h2 span')).toHaveText('07');
-  await expect(page.locator('.category')).toHaveCount(7);
+  await expect(page.locator('.section-heading h2 span')).toHaveText('10');
+  await expect(page.locator('.category')).toHaveCount(10);
 });

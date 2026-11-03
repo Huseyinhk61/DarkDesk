@@ -4,7 +4,7 @@
       "id": "coding",
       "labelKey": "profiles.coding",
       "name": "Yazılım & Kodlama",
-      "categories": ["software"],
+      "categories": ["software", "internet"],
       "shortcut": "CommandOrControl+Alt+1",
       "icon": "code",
       "visibleNames": []
@@ -13,7 +13,7 @@
       "id": "gaming",
       "labelKey": "profiles.gaming",
       "name": "Oyun",
-      "categories": ["games"],
+      "categories": ["games", "internetchat"],
       "shortcut": "CommandOrControl+Alt+2",
       "icon": "gamepad",
       "visibleNames": []
@@ -22,7 +22,7 @@
       "id": "creative",
       "labelKey": "profiles.creative",
       "name": "Tasarım & Edit",
-      "categories": ["design", "media"],
+      "categories": ["design", "media", "internet"],
       "shortcut": "CommandOrControl+Alt+3",
       "icon": "palette",
       "visibleNames": []
@@ -37,7 +37,7 @@
       "visibleNames": []
     }
   ],
-  "launcherShortcut": "Alt+Space",
+  "launcherShortcut": "Alt+X",
   "smartTagging": true,
   "scanFilters": {
     "excludedDirectories": [

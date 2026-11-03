@@ -8,7 +8,7 @@ import {
   categoryId,
 } from './domain.js';
 import { compileRule } from './regex.js';
-import { themeIds } from './appearance.js';
+import { themeIds, iconPacks, fontIds } from './appearance.js';
 const defaults = defaultSettings;
 export function validateSettings(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw Error('SETTINGS_INVALID');
@@ -21,7 +21,8 @@ export function validateSettings(input) {
     !['comfortable', 'compact'].includes(value.density) ||
     !['system', 'reduced'].includes(value.motion) ||
     !['tr', 'en'].includes(value.language) ||
-    !['lucide', 'tabler', 'minimal'].includes(value.iconPack)
+    !iconPacks.includes(value.iconPack) ||
+    !fontIds.includes(value.fontFamily)
   )
     throw Error('SETTINGS_INVALID');
   if (
@@ -44,9 +45,62 @@ export function validateSettings(input) {
         value.categories.some((c) => c.folder === builtin.folder && c.parentId === builtin.parentId)
       )
         continue;
-      if (['software', 'design', 'games', 'office', 'system', 'media'].includes(builtin.id))
+      if (
+        [
+          'software',
+          'design',
+          'games',
+          'office',
+          'system',
+          'media',
+          'internet',
+          'learning',
+          'finance',
+          'internetbrowsers',
+          'internetchat',
+          'internetmeetings',
+          'learningcourses',
+          'learningreading',
+          'financeaccounting',
+        ].includes(builtin.id)
+      )
         continue;
       if (!builtin.parentId || value.categories.some((c) => c.id === builtin.parentId))
+        value.categories.push(structuredClone(builtin));
+    }
+  }
+  if ((input.schemaVersion || 1) < 4) {
+    // Versioned additions run once. A user deleting a new group after this
+    // migration must not have that group silently recreated on the next save.
+    const additions = new Set([
+      'internet',
+      'learning',
+      'finance',
+      'internetbrowsers',
+      'internetchat',
+      'internetmeetings',
+      'learningcourses',
+      'learningreading',
+      'financeaccounting',
+    ]);
+    value.categories = [...value.categories];
+    for (const builtin of defaultCategories.filter((category) => additions.has(category.id))) {
+      if (value.categories.length >= 2000) break;
+      if (
+        value.categories.some(
+          (category) =>
+            category.id === builtin.id ||
+            (category.parentId === builtin.parentId &&
+              typeof category.folder === 'string' &&
+              category.folder.normalize('NFC').toLowerCase() ===
+                builtin.folder.normalize('NFC').toLowerCase()),
+        )
+      )
+        continue;
+      if (
+        !builtin.parentId ||
+        value.categories.some((category) => category.id === builtin.parentId)
+      )
         value.categories.push(structuredClone(builtin));
     }
   }
@@ -242,7 +296,7 @@ export function validateSettings(input) {
   };
   if (typeof value.smartTagging !== 'boolean') throw Error('SETTINGS_INVALID');
   return {
-    schemaVersion: 3,
+    schemaVersion: 4,
     profiles,
     launcherShortcut,
     scanFilters,
@@ -261,5 +315,6 @@ export function validateSettings(input) {
     motion: value.motion,
     language: value.language,
     iconPack: value.iconPack,
+    fontFamily: value.fontFamily,
   };
 }

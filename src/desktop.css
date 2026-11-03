@@ -495,3 +495,41 @@ main {
     display: none;
   }
 }
+.category-scroll-controls {
+  display: none;
+}
+@media (min-width: 851px) {
+  .category-carousel .category-grid {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(145px, 1fr);
+    grid-template-rows: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x proximity;
+    padding: 2px 2px 8px;
+    margin-bottom: 3px;
+  }
+  .category-carousel .category {
+    scroll-snap-align: start;
+  }
+  .category-scroll-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-bottom: 12px;
+    color: var(--muted);
+    font-size: calc(11px * var(--ui-scale));
+  }
+  .category-scroll-controls button {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 28px;
+    color: var(--ink);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+  }
+}

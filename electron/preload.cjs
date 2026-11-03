@@ -12,6 +12,11 @@ const methods = [
   'revealOutput',
   'window',
   'windowState',
+  'updateStatus',
+  'checkUpdates',
+  'downloadUpdate',
+  'installUpdate',
+  'openDownloads',
   'getSettings',
   'setSettings',
   'runtimeStatus',
@@ -46,6 +51,7 @@ for (const [method, channel] of [
   ['onCommand', 'command'],
   ['onLauncherShown', 'launcherShown'],
   ['onWindowStateChanged', 'windowStateChanged'],
+  ['onUpdateChanged', 'updateChanged'],
 ]) {
   api[method] = (callback) => {
     const listener = (_event, value) => callback(value);

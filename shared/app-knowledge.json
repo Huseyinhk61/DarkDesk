@@ -2,7 +2,7 @@
   {
     "id": "chrome",
     "name": "Google Chrome",
-    "categoryId": "systemnetwork",
+    "categoryId": "internetbrowsers",
     "aliases": ["chrome", "google chrome"],
     "description": {
       "tr": "Web sitelerini açmak, internette arama yapmak ve web uygulamalarını kullanmak için kullanılan tarayıcı.",
@@ -12,7 +12,7 @@
   {
     "id": "edge",
     "name": "Microsoft Edge",
-    "categoryId": "systemnetwork",
+    "categoryId": "internetbrowsers",
     "aliases": ["msedge", "microsoft edge", "edge"],
     "description": {
       "tr": "Web sitelerine, çevrimiçi hizmetlere ve PDF içeriklerine erişmek için kullanılan Microsoft tarayıcısı.",
@@ -22,7 +22,7 @@
   {
     "id": "firefox",
     "name": "Mozilla Firefox",
-    "categoryId": "systemnetwork",
+    "categoryId": "internetbrowsers",
     "aliases": ["firefox", "mozilla firefox"],
     "description": {
       "tr": "Web sitelerini ve web uygulamalarını açan, gizlilik seçenekleri sunan internet tarayıcısı.",
@@ -32,7 +32,7 @@
   {
     "id": "brave",
     "name": "Brave",
-    "categoryId": "systemnetwork",
+    "categoryId": "internetbrowsers",
     "aliases": ["brave", "brave browser"],
     "description": {
       "tr": "Web sitelerini açan ve yerleşik izleme engelleme seçenekleri sunan internet tarayıcısı.",
@@ -42,7 +42,7 @@
   {
     "id": "opera",
     "name": "Opera",
-    "categoryId": "systemnetwork",
+    "categoryId": "internetbrowsers",
     "aliases": ["opera", "opera browser", "opera gx"],
     "description": {
       "tr": "Web siteleri ve çevrimiçi içerik için kullanılan internet tarayıcısı.",
@@ -52,7 +52,7 @@
   {
     "id": "vivaldi",
     "name": "Vivaldi",
-    "categoryId": "systemnetwork",
+    "categoryId": "internetbrowsers",
     "aliases": ["vivaldi"],
     "description": {
       "tr": "Sekmelerini ve görünümünü özelleştirebildiğiniz internet tarayıcısı.",
@@ -92,7 +92,7 @@
   {
     "id": "outlook",
     "name": "Microsoft Outlook",
-    "categoryId": "office",
+    "categoryId": "internetchat",
     "aliases": ["outlook", "microsoft outlook"],
     "description": {
       "tr": "E-posta, takvim, kişiler ve toplantıları yönetmek için kullanılan uygulama.",
@@ -305,7 +305,7 @@
   {
     "id": "discord",
     "name": "Discord",
-    "categoryId": "games",
+    "categoryId": "internetchat",
     "aliases": ["discord", "discordptb", "discordcanary"],
     "description": {
       "tr": "Topluluklar ve arkadaşlarla yazılı, sesli ve görüntülü iletişim kurmak için kullanılır.",
@@ -832,7 +832,7 @@
   {
     "id": "zoom",
     "name": "Zoom",
-    "categoryId": "office",
+    "categoryId": "internetmeetings",
     "aliases": ["zoom", "zoom workplace", "zoom meetings"],
     "description": {
       "tr": "Çevrimiçi toplantılara, görüntülü görüşmelere ve ekran paylaşımına katılmak için kullanılır.",
@@ -842,7 +842,7 @@
   {
     "id": "teams",
     "name": "Microsoft Teams",
-    "categoryId": "office",
+    "categoryId": "internetmeetings",
     "aliases": ["ms-teams", "msteams", "teams", "microsoft teams"],
     "description": {
       "tr": "İş ve eğitim için sohbet, çevrimiçi toplantı ve ortak çalışma uygulaması.",
@@ -852,7 +852,7 @@
   {
     "id": "telegram",
     "name": "Telegram",
-    "categoryId": "office",
+    "categoryId": "internetchat",
     "aliases": ["telegram", "telegram desktop"],
     "description": {
       "tr": "Mesajlaşmak, dosya paylaşmak ve topluluk kanallarını kullanmak için kullanılan iletişim uygulaması.",
@@ -862,11 +862,101 @@
   {
     "id": "whatsapp",
     "name": "WhatsApp",
-    "categoryId": "office",
+    "categoryId": "internetchat",
     "aliases": ["whatsapp", "whatsapp desktop"],
     "description": {
       "tr": "WhatsApp hesabıyla mesajlaşma, arama ve dosya paylaşımı için kullanılan uygulama.",
       "en": "An app for WhatsApp messaging, calls and file sharing."
+    }
+  },
+  {
+    "id": "anki",
+    "name": "Anki",
+    "categoryId": "learningcourses",
+    "aliases": ["anki"],
+    "description": {
+      "tr": "Aralıklı tekrar ve bilgi kartlarıyla sözcük, kavram ve ders içeriklerini çalışmak için kullanılan öğrenme aracı.",
+      "en": "A study tool that uses flashcards and spaced repetition to practice vocabulary, concepts and course material."
+    }
+  },
+  {
+    "id": "geogebra",
+    "name": "GeoGebra",
+    "categoryId": "learningcourses",
+    "aliases": ["geogebra", "geogebraclassic"],
+    "description": {
+      "tr": "Geometri, cebir, grafik ve matematik konularını etkileşimli olarak çalışmak için kullanılan eğitim aracı.",
+      "en": "An educational tool for exploring geometry, algebra, graphs and other mathematics interactively."
+    }
+  },
+  {
+    "id": "calibre",
+    "name": "calibre",
+    "categoryId": "learningreading",
+    "aliases": ["calibre", "ebook-viewer", "ebook-edit"],
+    "description": {
+      "tr": "E-kitap kitaplığını düzenlemek, kitapları okumak ve desteklenen kitap biçimleri arasında dönüştürmek için kullanılır.",
+      "en": "An e-book manager for organizing a library, reading books and converting between supported book formats."
+    }
+  },
+  {
+    "id": "zotero",
+    "name": "Zotero",
+    "categoryId": "learningreading",
+    "aliases": ["zotero"],
+    "description": {
+      "tr": "Araştırma kaynaklarını, alıntıları ve bibliyografya bilgilerini düzenlemek için kullanılan kaynak yönetim aracı.",
+      "en": "A reference manager for organizing research sources, citations and bibliography information."
+    }
+  },
+  {
+    "id": "digitaleditions",
+    "name": "Adobe Digital Editions",
+    "categoryId": "learningreading",
+    "aliases": ["digitaleditions", "adobe digital editions"],
+    "description": {
+      "tr": "Desteklenen EPUB ve PDF e-kitapları okumak ve dijital kitaplığınızı yönetmek için kullanılan okuyucu.",
+      "en": "An e-book reader for supported EPUB and PDF books and for managing a digital book library."
+    }
+  },
+  {
+    "id": "gnucash",
+    "name": "GnuCash",
+    "categoryId": "financeaccounting",
+    "aliases": ["gnucash"],
+    "description": {
+      "tr": "Gelir, gider, hesaplar ve küçük işletme muhasebe kayıtlarını takip etmek için kullanılan finans aracı.",
+      "en": "A finance tool for tracking income, expenses, accounts and small-business bookkeeping."
+    }
+  },
+  {
+    "id": "moneymanager",
+    "name": "Money Manager Ex",
+    "categoryId": "financeaccounting",
+    "aliases": ["mmex", "money manager ex"],
+    "description": {
+      "tr": "Kişisel bütçe, hesaplar, harcamalar ve gelirleri takip etmek için kullanılan para yönetim aracı.",
+      "en": "A personal-finance tool for tracking budgets, accounts, spending and income."
+    }
+  },
+  {
+    "id": "quickbooks",
+    "name": "QuickBooks",
+    "categoryId": "financeaccounting",
+    "aliases": ["qbw32", "quickbooks"],
+    "description": {
+      "tr": "İşletme gelirleri, giderleri, faturaları ve muhasebe işlerini yönetmek için kullanılan finans yazılımı.",
+      "en": "Business finance software for managing income, expenses, invoices and bookkeeping."
+    }
+  },
+  {
+    "id": "keepass",
+    "name": "KeePass",
+    "categoryId": "systemnetwork",
+    "aliases": ["keepass"],
+    "description": {
+      "tr": "Parolaları şifreli bir yerel veritabanında saklamak ve giriş bilgilerini düzenlemek için kullanılan parola yöneticisi.",
+      "en": "A password manager for storing passwords in an encrypted local database and organizing sign-in details."
     }
   }
 ]

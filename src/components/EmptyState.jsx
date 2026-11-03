@@ -1,6 +1,6 @@
 import { FolderSearch, Sparkles, ScanLine, Search } from 'lucide-react';
 import { usePreferences } from '../preferences';
-export default function EmptyState({ filtered, system, busy, clear, scan }) {
+export default function EmptyState({ filtered, system, downloads, busy, clear, scan }) {
   const { t } = usePreferences();
   return (
     <div className="empty illustrated-empty">
@@ -18,13 +18,33 @@ export default function EmptyState({ filtered, system, busy, clear, scan }) {
               ? 'empty.filtered'
               : system
                 ? 'empty.system'
-                : 'empty.title',
+                : downloads
+                  ? 'empty.downloads'
+                  : 'empty.title',
         )}
       </h3>
-      <p>{t(filtered ? 'empty.filteredBody' : system ? 'empty.systemBody' : 'empty.body')}</p>
+      <p>
+        {t(
+          filtered
+            ? 'empty.filteredBody'
+            : system
+              ? 'empty.systemBody'
+              : downloads
+                ? 'empty.downloadsBody'
+                : 'empty.body',
+        )}
+      </p>
       <button disabled={!!busy} className="btn secondary" onClick={filtered ? clear : scan}>
         {filtered ? <Search size={15} /> : <ScanLine size={15} />}{' '}
-        {t(filtered ? 'empty.clear' : system ? 'empty.scan' : 'hero.scan')}
+        {t(
+          filtered
+            ? 'empty.clear'
+            : system
+              ? 'empty.scan'
+              : downloads
+                ? 'scan.scanDownloads'
+                : 'hero.scan',
+        )}
       </button>
     </div>
   );

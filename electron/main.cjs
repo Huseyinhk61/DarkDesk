@@ -10,6 +10,7 @@ const {
   globalShortcut,
   screen,
   nativeTheme,
+  Notification,
 } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs/promises');
@@ -20,12 +21,16 @@ const { DesktopRuntime } = require('./runtime/controller.cjs');
 const { ShortcutManager } = require('./runtime/shortcuts.cjs');
 const { validateSettings } = require('../shared/validate.js');
 const { resolveTheme } = require('../shared/appearance.js');
+const { UpdateService } = require('./runtime/updater.cjs');
 const { restoreWindowState, WindowStateStore } = require('./runtime/window-state.cjs');
 let win,
   launcher,
   tray,
   runtime,
   shortcutManager,
+  updates,
+  updateTimer,
+  updateStartupTimer,
   windowStore,
   windowSaveTimer,
   preferredTheme = 'midnight',
@@ -199,7 +204,7 @@ async function registerShortcuts(settings) {
   await runtime.broadcast();
 }
 async function requestQuit() {
-  if (quitPending) return;
+  if (quitPending || updates?.installing) return;
   quitPending = true;
   try {
     await runtime?.prepareQuit();
@@ -221,6 +226,7 @@ else {
   app
     .whenReady()
     .then(async () => {
+      if (process.platform === 'win32') app.setAppUserModelId('io.darkdesk.app');
       const emit = (name, value) => {
         for (const window of [win, launcher])
           if (window && !window.isDestroyed()) window.webContents.send(name, value);
@@ -240,6 +246,49 @@ else {
         },
       });
       await runtime.initialize();
+      const updateEnabled =
+        app.isPackaged && process.platform === 'win32' && !process.env.PORTABLE_EXECUTABLE_FILE;
+      updates = new UpdateService({
+        autoUpdater: updateEnabled ? require('electron-updater').autoUpdater : undefined,
+        appVersion: app.getVersion(),
+        enabled: updateEnabled,
+        unsupportedReason: !app.isPackaged
+          ? 'development'
+          : process.env.PORTABLE_EXECUTABLE_FILE
+            ? 'portable'
+            : 'platform',
+        emit: (value) => emit('updateChanged', value),
+        notify: async (version) => {
+          if (!Notification.isSupported()) return;
+          const settings = await runtime.settings.read();
+          const dictionary = require('../src/locales/' + settings.language + '.json');
+          const notification = new Notification({
+            title: dictionary['update.noticeAvailable'].replace('{version}', version),
+            body: dictionary['update.noticeBody'],
+            icon: path.join(__dirname, '../build/icon.png'),
+          });
+          notification.on('click', () => {
+            showMain();
+            win?.webContents.send('command', { type: 'updates' });
+          });
+          notification.show();
+        },
+        beforeInstall: async () => {
+          if (runtime.busy || savingSettings || quitPending) throw Error('OPERATION_BUSY');
+          await runtime.prepareQuit();
+          await saveWindowState();
+          await windowStore?.flush();
+          quitting = true;
+        },
+        onInstallFailure: () => {
+          quitting = false;
+          quitPending = false;
+          runtime.stopping = false;
+          clearInterval(runtime.timer);
+          runtime.timer = setInterval(() => runtime.tick(), 5000);
+          runtime.timer.unref?.();
+        },
+      });
       shortcutManager = new ShortcutManager(globalShortcut, {
         launcher: () => openLauncher().catch(report),
         profile: (id) => runtime.applyProfile(id).catch(report),
@@ -425,6 +474,13 @@ else {
         const error = await shell.openPath(directory);
         if (error) throw Error('OPEN_FOLDER_FAILED');
       });
+      handle('updateStatus', () => updates.status());
+      handle('checkUpdates', () => updates.check());
+      handle('downloadUpdate', () => updates.download());
+      handle('installUpdate', () => updates.install());
+      handle('openDownloads', () =>
+        shell.openExternal('https://github.com/Huseyinhk61/DarkDesk/releases/latest'),
+      );
       handle('windowState', windowState);
       handle('window', (action) => {
         if (action === 'minimize') win.minimize();
@@ -452,6 +508,13 @@ else {
       if (production) await win.loadFile(entry);
       else await win.loadURL(entryURL);
       app.on('activate', showMain);
+      if (updateEnabled) {
+        const check = () => updates.check().catch(() => {});
+        updateStartupTimer = setTimeout(check, 30000);
+        updateStartupTimer.unref?.();
+        updateTimer = setInterval(check, 6 * 60 * 60 * 1000);
+        updateTimer.unref?.();
+      }
       try {
         watcher = watch(runtime.desktop, () => {
           runtime.desktopDirty = true;
@@ -476,6 +539,9 @@ app.on('before-quit', (event) => {
   }
 });
 app.on('will-quit', () => {
+  clearTimeout(updateStartupTimer);
+  clearInterval(updateTimer);
+  updates?.dispose();
   shortcutManager?.dispose();
   watcher?.close();
   clearTimeout(watchTimer);

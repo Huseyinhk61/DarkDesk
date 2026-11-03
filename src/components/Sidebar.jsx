@@ -101,7 +101,7 @@ export default function Sidebar({ view, setView, stats, native }) {
           <span className="avatar">DD</span>
           <div>
             {t('sidebar.local')}
-            <small>v3.3.0 · {t(native ? 'sidebar.desktop' : 'sidebar.web')}</small>
+            <small>v3.4.0 · {t(native ? 'sidebar.desktop' : 'sidebar.web')}</small>
           </div>
           <span className="online" />
         </footer>

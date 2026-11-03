@@ -1,5 +1,5 @@
 import { Check, Globe, Paintbrush, RotateCcw, Accessibility } from 'lucide-react';
-import { themes, resolveTheme } from '../../shared/appearance';
+import { themes, resolveTheme, iconPacks, fontIds } from '../../shared/appearance';
 import { usePreferences } from '../preferences';
 import AppIcon from './AppIcon';
 import '../appearance.css';
@@ -102,6 +102,24 @@ export default function AppearanceSettings({ onSave, busy }) {
       <p className="muted">{t('appearance.motionNote')}</p>
       <div className="appearance-fields">
         <label>
+          <span>{t('appearance.font')}</span>
+          <select
+            aria-label={t('appearance.font')}
+            value={settings.fontFamily}
+            disabled={!!busy}
+            onChange={(event) => update({ fontFamily: event.target.value })}
+          >
+            {fontIds.map((font) => (
+              <option key={font} value={font}>
+                {t('fonts.' + font)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <p className="muted">{t('appearance.fontNote')}</p>
+      </div>
+      <div className="appearance-fields">
+        <label>
           <span>
             <Globe size={15} />
             {t('settings.language')}
@@ -124,7 +142,7 @@ export default function AppearanceSettings({ onSave, busy }) {
             disabled={!!busy}
             onChange={(event) => update({ iconPack: event.target.value })}
           >
-            {['lucide', 'tabler', 'minimal'].map((pack) => (
+            {iconPacks.map((pack) => (
               <option key={pack} value={pack}>
                 {t('packs.' + pack)}
               </option>
@@ -146,6 +164,7 @@ export default function AppearanceSettings({ onSave, busy }) {
           update({
             theme: 'midnight',
             iconPack: 'lucide',
+            fontFamily: 'system',
             uiScale: 100,
             density: 'comfortable',
             motion: 'system',
