@@ -8,6 +8,7 @@ const { ProfileService } = require('./profiles.cjs');
 const { VisibilityAdapter } = require('./visibility.cjs');
 const { ActivityStore } = require('./activity.cjs');
 const { AutomationService } = require('./automation.cjs');
+const { ItemDetailsService } = require('./item-details.cjs');
 const { enrichItem } = require('../../shared/domain.js');
 class DesktopRuntime {
   constructor({
@@ -16,6 +17,7 @@ class DesktopRuntime {
     data,
     platform = process.platform,
     resolveShortcut,
+    getFileIcon,
     emit = () => {},
     launch = async () => {},
   }) {
@@ -47,6 +49,7 @@ class DesktopRuntime {
     });
     this.profiles = new ProfileService(desktop, data, new VisibilityAdapter(desktop, platform));
     this.activity = new ActivityStore(data);
+    this.details = new ItemDetailsService({ platform, resolveShortcut, getFileIcon });
     this.automation = new AutomationService(this.service, data);
     this.catalog = new Map();
   }
@@ -179,6 +182,22 @@ class DesktopRuntime {
     );
     items.forEach((i) => this.catalog.set(i.id, i));
     return { items, settings };
+  }
+  trustedItem(id) {
+    if (typeof id !== 'string' || id.length > 512) throw Error('SOURCE_MISSING');
+    const item =
+      this.catalog.get(id) || this.scanner.catalog.get(id) || this.service.externalCatalog.get(id);
+    if (!item) throw Error('SOURCE_MISSING');
+    return item;
+  }
+  async itemIcon(id) {
+    return this.details.icon(this.trustedItem(id));
+  }
+  async itemDetails(id) {
+    const item = this.trustedItem(id);
+    const details = await this.details.details(item);
+    const [current] = await this.activity.annotate([item]);
+    return { ...details, lastOpened: current.usage.lastOpened, usageScope: 'darkdesk-only' };
   }
   async launch(id) {
     return this.run('launch', async () => {

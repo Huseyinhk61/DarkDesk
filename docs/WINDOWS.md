@@ -80,7 +80,7 @@ ZIP ile indirdiysen yeni ZIP’i farklı bir klasöre çıkarıp aynı kurulum a
 İndirdiğin EXE özetini kontrol etmek için:
 
 ```powershell
-Get-FileHash .\DarkDesk-Setup-3.0.0.exe -Algorithm SHA256
+Get-FileHash .\DarkDesk-Setup-3.1.0.exe -Algorithm SHA256
 ```
 
 Sonucu aynı paketteki `SHA256SUMS.txt` ile karşılaştır. Paket şu aşamada kod imzalı değildir; Windows yayıncı uyarısı gösterebilir.
@@ -101,3 +101,5 @@ Sonucu aynı paketteki `SHA256SUMS.txt` ile karşılaştır. Paket şu aşamada 
 X artık uygulamayı tepsiye gizler; tamamen çıkmak için sistem tepsisindeki DarkDesk menüsünden Çıkış seç. Çıkış, aktif profilin değiştirdiği görünürlüğü geri yükler. Uygulama zorla kapatılırsa yeniden açıp kurtarmayı bekle veya Tümünü geri göster kullan. Profil gizlemesi ACL/güvenlik izolasyonu değildir; Explorer gizli dosya tercihi sonucu etkiler.
 
 Otomasyonlar kapalı başlar. Önizle, hedefleri kontrol et, sonra etkinleştirip kaydet. Downloads varsayılanı kopyalamadır; taşıma ayrıca seçilebilir. Kullanım sıklığı yalnızca DarkDesk’ten açılışları ölçer; Windows genelindeki kullanım değildir.
+
+İkonlar, uygulama bilgileri ve kısayol çakışmalarını çözmek için [masaüstü arayüz rehberine](DESKTOP-UX.md) bakın.

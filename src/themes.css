@@ -1020,3 +1020,193 @@ body,
 [data-theme='slate'] :is(.blue, .purple, .green, .orange, .slate, .pink) {
   --color: color-mix(in srgb, rgb(var(--rgb)), #243055 40%);
 }
+
+/* Persistent window chrome and clearer navigation. Only main owns page scrolling. */
+.titlebar {
+  background: color-mix(in srgb, var(--sidebar), var(--bg) 45%);
+  border-bottom-color: color-mix(in srgb, var(--border), var(--accent) 15%);
+  box-shadow: 0 4px 16px var(--shadow);
+  padding-right: 0;
+}
+.titlebar-breadcrumb {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.titlebar-breadcrumb b {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  color: var(--ink);
+  font-weight: 500;
+}
+.window-controls {
+  flex-shrink: 0;
+  -webkit-app-region: no-drag;
+}
+.titlebar button {
+  color: var(--ink);
+  border-left: 1px solid var(--border);
+  -webkit-app-region: no-drag;
+}
+.titlebar button:disabled {
+  opacity: 0.55;
+}
+.titlebar button:hover:not(:disabled) {
+  background: rgba(var(--accent-rgb), 0.14);
+  filter: none;
+}
+.titlebar button.close:hover:not(:disabled) {
+  background: #c42b3d;
+  color: white;
+}
+.titlebar button:focus-visible {
+  outline-offset: -5px;
+}
+.sidebar {
+  border-right-color: color-mix(in srgb, var(--border), var(--accent) 10%);
+}
+.sidebar nav button {
+  color: var(--muted);
+  min-height: 46px;
+}
+.sidebar nav button > svg {
+  color: color-mix(in srgb, var(--accent), var(--ink) 28%);
+  filter: drop-shadow(0 0 6px rgba(var(--accent-rgb), 0.18));
+  stroke-width: 2;
+}
+.sidebar nav button.active {
+  background: rgba(var(--accent-rgb), 0.14);
+  border-color: rgba(var(--accent-rgb), 0.42);
+  box-shadow:
+    inset 3px 0 0 var(--accent),
+    0 0 18px rgba(var(--accent-rgb), 0.05);
+  color: var(--ink);
+}
+.sidebar nav button.active > svg {
+  color: var(--accent);
+}
+.category {
+  border-color: rgba(var(--rgb), 0.4);
+  background: linear-gradient(135deg, rgba(var(--rgb), 0.13), var(--surface) 85%);
+  box-shadow: inset 0 1px 0 rgba(var(--rgb), 0.09);
+}
+.category.selected {
+  border-color: var(--color);
+  box-shadow:
+    0 0 0 1px var(--color),
+    0 6px 24px rgba(var(--rgb), 0.13);
+}
+.category-icon,
+.app-icon {
+  border: 1px solid rgba(var(--rgb, var(--accent-rgb)), 0.48);
+  background: linear-gradient(
+    145deg,
+    rgba(var(--rgb, var(--accent-rgb)), 0.22),
+    rgba(var(--rgb, var(--accent-rgb)), 0.08)
+  );
+  box-shadow:
+    0 0 18px rgba(var(--rgb, var(--accent-rgb)), 0.13),
+    inset 0 1px 0 rgba(var(--rgb, var(--accent-rgb)), 0.18);
+}
+.category-icon {
+  width: 43px;
+  height: 43px;
+  border-radius: 12px;
+}
+.category-top > svg {
+  color: var(--color);
+  opacity: 0.85;
+}
+.category h3 {
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  min-height: 36px;
+}
+.category p,
+.category-count > span {
+  color: var(--muted);
+  font-size: 10px;
+}
+.category-count strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.category-dots {
+  color: var(--color);
+  opacity: 0.8;
+}
+.category-line {
+  background: linear-gradient(90deg, var(--color), rgba(var(--rgb), 0.12));
+}
+.app-icon > svg {
+  stroke-width: 2;
+}
+.profile-icon,
+.scanner-emblem {
+  filter: drop-shadow(0 0 7px rgba(var(--accent-rgb), 0.25));
+}
+[data-theme='slate'] .category {
+  border-color: rgba(var(--rgb), 0.65);
+  background: linear-gradient(135deg, rgba(var(--rgb), 0.11), var(--surface) 85%);
+}
+[data-theme='slate'] .category-icon,
+[data-theme='slate'] .app-icon {
+  box-shadow: 0 3px 10px rgba(var(--rgb, var(--accent-rgb)), 0.1);
+}
+@media (max-width: 850px) {
+  .titlebar-breadcrumb {
+    font-size: 10px;
+  }
+  .category h3 {
+    font-size: 11px;
+    min-height: 34px;
+  }
+}
+@media (max-width: 550px) {
+  .titlebar {
+    padding-left: 12px;
+  }
+  .titlebar-breadcrumb {
+    font-size: 10px;
+  }
+  .titlebar-breadcrumb > span {
+    padding: 0 7px;
+  }
+  .category-icon {
+    width: 38px;
+    height: 38px;
+  }
+}
+@media (max-height: 850px) and (min-width: 851px) {
+  .sidebar {
+    padding-top: 23px;
+  }
+  .workspace-label {
+    margin-top: 28px;
+  }
+  .sidebar-bottom {
+    padding-top: 20px;
+  }
+  .sidebar .tip {
+    display: none;
+  }
+  .system {
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+}
+@media (max-height: 680px) and (min-width: 851px) {
+  .sidebar .system {
+    display: none;
+  }
+}
+@media (max-height: 600px) and (max-width: 850px) {
+  .sidebar nav {
+    margin-top: 15px;
+    gap: 3px;
+  }
+}

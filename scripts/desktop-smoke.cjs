@@ -39,6 +39,45 @@ const { folders } = require('../electron/service.cjs');
       'Renderer must not have Node access',
     );
     assert.equal(await page.evaluate(() => typeof window.darkdesk.preview), 'function');
+    assert.equal(await page.evaluate(() => typeof window.darkdesk.itemDetails), 'function');
+    const fileInfo = await page.evaluate(() => window.darkdesk.itemDetails('Rapor.pdf'));
+    assert.equal(fileInfo.size, Buffer.byteLength('native IPC content'));
+    assert.equal(fileInfo.company, null);
+    assert.equal(fileInfo.lastOpened, null);
+    assert.equal(fileInfo.usageScope, 'darkdesk-only');
+    assert.ok(fileInfo.created === null || fileInfo.created > 0);
+    assert.ok(fileInfo.icon === null || fileInfo.icon.startsWith('data:image/png;base64,'));
+    assert.equal(
+      await page.evaluate(async () => {
+        try {
+          await window.darkdesk.itemDetails('/etc/passwd');
+          return false;
+        } catch {
+          return true;
+        }
+      }),
+      true,
+      'Metadata IPC must reject paths outside the trusted index',
+    );
+    await page.getByRole('button', { name: 'Rapor.pdf ayrıntılarını göster' }).first().click();
+    await expect(page.getByRole('dialog')).toContainText('Dosya boyutu');
+    await page.keyboard.press('Escape');
+    const keysBefore = await page.evaluate(() => window.darkdesk.runtimeStatus());
+    const capture = await page.evaluate(() => window.darkdesk.beginShortcutCapture());
+    const keysPaused = await page.evaluate(() => window.darkdesk.runtimeStatus());
+    assert.ok(keysPaused.shortcuts.every((key) => !key.registered && key.reason === 'recording'));
+    await page.evaluate((token) => window.darkdesk.endShortcutCapture(token), capture);
+    const keysAfter = await page.evaluate(() => window.darkdesk.runtimeStatus());
+    for (const key of keysBefore.shortcuts.filter((key) => key.registered))
+      assert.equal(keysAfter.shortcuts.find((row) => row.id === key.id).registered, true);
+    for (const key of keysAfter.shortcuts.filter((key) => key.registered))
+      assert.equal(
+        await application.evaluate(
+          ({ globalShortcut }, accelerator) => globalShortcut.isRegistered(accelerator),
+          key.accelerator,
+        ),
+        true,
+      );
     await page.getByRole('button', { name: 'Masaüstünü Fiziksel Düzenle' }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
     assert.deepEqual(await fs.readdir(desktop), ['Rapor.pdf'], 'Preview must not change files');
@@ -140,6 +179,7 @@ const { folders } = require('../electron/service.cjs');
       .toBe('Rapor.pdf');
     const recorded = JSON.parse(await fs.readFile(path.join(root, 'data', 'usage.json'), 'utf8'));
     assert.equal(recorded['Rapor.pdf'].count, 1);
+    assert.ok((await page.evaluate(() => window.darkdesk.itemDetails('Rapor.pdf'))).lastOpened > 0);
     const trayState = await page.evaluate(() => window.darkdesk.runtimeStatus());
     if (trayState.trayAvailable) {
       await page.getByRole('button', { name: 'Close', exact: true }).click();
@@ -189,7 +229,7 @@ const { folders } = require('../electron/service.cjs');
     application = null;
     assert.equal(await visibility.get(path.join(desktop, 'Rapor.pdf')), false);
     console.log(
-      'PASS: production Electron renderer, isolated IPC, no Node in renderer, non-mutating preview, real move/undo, file watcher, installed-app shortcuts/undo, shortcut icons, focus visibility/quit restore, native Spotlight dispatch, tray hiding, archive/Downloads automation and persistent preferences.',
+      'PASS: production Electron renderer, isolated IPC, no Node in renderer, non-mutating preview, real move/undo, file watcher, installed-app shortcuts/undo, shortcut icons, focus visibility/quit restore, native Spotlight dispatch, trusted native icons/metadata, shortcut capture/resume, tray hiding, archive/Downloads automation and persistent preferences.',
     );
   } finally {
     if (application) await application.close();

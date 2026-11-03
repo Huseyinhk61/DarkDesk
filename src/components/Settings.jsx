@@ -15,6 +15,7 @@ import {
 import { canUndo } from '../utils';
 import { usePreferences } from '../preferences';
 import AppIcon from './AppIcon';
+import KeyBinder from './KeyBinder';
 export default function Settings({ onSave, stats, history, undo, busy }) {
   const { settings, t, locale, errorMessage } = usePreferences();
   const [draft, setDraft] = useState(settings),
@@ -184,11 +185,17 @@ export default function Settings({ onSave, stats, history, undo, busy }) {
             <label className="field-label" htmlFor="launcher-shortcut">
               {t('launcher.shortcut')}
             </label>
-            <input
+            <KeyBinder
               id="launcher-shortcut"
-              className="settings-input"
+              label={t('launcher.shortcut')}
               value={draft.launcherShortcut}
-              onChange={(e) => setDraft({ ...draft, launcherShortcut: e.target.value })}
+              currentId="launcher"
+              assignments={settings.profiles.map((p) => ({
+                id: 'profile:' + p.id,
+                accelerator: p.shortcut,
+              }))}
+              disabled={!!busy}
+              onChange={(launcherShortcut) => setDraft({ ...draft, launcherShortcut })}
             />
             {error && (
               <p role="alert" className="warning-text">

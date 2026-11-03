@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Minus,
-  Square,
   X,
   Search,
   SlidersHorizontal,
@@ -19,6 +17,7 @@ import {
   FolderTree,
 } from 'lucide-react';
 import Sidebar from './components/Sidebar';
+import Titlebar from './components/Titlebar';
 import Header from './components/Header';
 import CategoryGrid from './components/CategoryGrid';
 import ItemCard from './components/ItemCard';
@@ -165,6 +164,10 @@ export default function App() {
   useEffect(() => {
     const onKey = (e) => {
       if (
+        !e.defaultPrevented &&
+        !e.altKey &&
+        !e.shiftKey &&
+        !e.target.closest?.('[data-keybinder]') &&
         (e.ctrlKey || e.metaKey) &&
         e.key.toLowerCase() === 'k' &&
         !['settings', 'categories'].includes(view)
@@ -410,7 +413,7 @@ export default function App() {
     });
     const offCommand = api.onCommand((value) => commandRef.current(value));
     const keydown = (e) => {
-      if (native) return;
+      if (native || e.defaultPrevented || e.target.closest?.('[data-keybinder]')) return;
       const mac = /Mac/i.test(navigator.platform);
       if (
         matchesAccelerator(settings.launcherShortcut, e, mac) ||
@@ -477,34 +480,7 @@ export default function App() {
     <div className="app-shell">
       <Sidebar {...{ view, stats, native }} setView={navigate} />
       <div className="main-shell">
-        <div className="titlebar">
-          <span>
-            {t('window.workspace')}
-            <span>/</span>
-            <b>{t('nav.' + view)}</b>
-          </span>
-          <div>
-            <span className="titlebar-local">
-              <span className="online" />
-              {t(native ? 'window.connection' : 'window.demo')}
-            </span>
-            {[
-              ['minimize', Minus],
-              ['maximize', Square],
-              ['close', X],
-            ].map(([action, Icon]) => (
-              <button
-                key={action}
-                disabled={!native}
-                className={action === 'close' ? 'close' : ''}
-                onClick={() => api.window(action)}
-                aria-label={t('window.' + action)}
-              >
-                <Icon size={action === 'maximize' ? 11 : 14} />
-              </button>
-            ))}
-          </div>
-        </div>
+        <Titlebar view={view} native={native} />
         <main aria-busy={!!blocked}>
           {runtime?.lastError && (
             <div className="notice warning runtime-error" role="alert">

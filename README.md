@@ -32,17 +32,28 @@
 | **Kalıcı ayarlar**            | Taşı/kopyala seçimi, canlı takip, hariç tutulacak uzantılar ve kategori tercihleri bu cihazda saklanır.                                                                     |
 | **Yerel ve hesapsız**         | Dosya işlemleri için hesap, API anahtarı veya bulut servisi gerekmez. Sonuç bildiriminden tek tıkla geri alınabilir.                                                        |
 
+## ✨ 3.1: yerel ikonlar ve daha net çalışma alanı
+
+- **Orijinal uygulama ikonları:** `.exe` ve `.lnk` ikonları Electron üzerinden okunur; bulunamadığında kategori ikonu kullanılır.
+- **Ayrıntı paneli:** Kartın ikonuna veya adına tıklayarak boyut, tarihler, varsa açıklama/üretici ve DarkDesk üzerinden son başlatma zamanını gör.
+- **Sabit pencere düzeni:** Başlık çubuğu ve sidebar yerinde kalır; ana içerik kayar. Büyük pencere kontrolleri ve daha belirgin kategori vurguları.
+- **Tuşa basarak kısayol atama:** Profil ekranında veya ayarlarda kombinasyon kaydet. Çakışan yeni atama reddedilirken çalışan kısayollar korunur.
+
+[**İkon, bilgi paneli ve kısayol rehberi →**](docs/DESKTOP-UX.md)
+
+<p align="center"><img src="docs/assets/details.png" alt="DarkDesk uygulama bilgi paneli · tarayıcı önizlemesi" width="720" /></p>
+
 ## 🧭 3.0: çalışma alanından ekosisteme
 
-| Yetenek | Davranış |
-| :--- | :--- |
-| **Odak profilleri** | Kodlama, Oyun, Tasarım, Temiz Masaüstü; global kısayollar ve özgün nitelikleri koruyan gerçek OS gizleme/geri yükleme. |
-| **Spotlight** | Alt+Space, fuzzy arama, klavye navigasyonu, indekslenen dosyaları açma ve güvenli sistem komutları. |
-| **Arka plan otomasyonu** | Kullanıcının etkinleştirdiği arşiv ve Downloads kuralları; günlük, geri alma ve tekrar işleme koruması. |
-| **Yerel öneriler** | Bilinmeyen adlara yerel anahtar kelime vektörleriyle kategori önerisi; model indirmesi veya ağ isteği yok. |
-| **Regex & alt gruplar** | RE2JS ile güvenli regex; IDE, DevOps, Veritabanı, Ağ, Sürücüler ve Kurulumlar gibi hazır alt kategoriler. |
-| **Sürükle-bırak** | Kartı kategoriye bırak; OS’den Desktop/Downloads dosyaları için onaylı önizleme. |
-| **Sistem tepsisi** | X ile arka plana geç; profilleri, başlatıcıyı ve düzenlemeyi tepsi menüsünden yönet. |
+| Yetenek                  | Davranış                                                                                                               |
+| :----------------------- | :--------------------------------------------------------------------------------------------------------------------- |
+| **Odak profilleri**      | Kodlama, Oyun, Tasarım, Temiz Masaüstü; global kısayollar ve özgün nitelikleri koruyan gerçek OS gizleme/geri yükleme. |
+| **Spotlight**            | Alt+Space, fuzzy arama, klavye navigasyonu, indekslenen dosyaları açma ve güvenli sistem komutları.                    |
+| **Arka plan otomasyonu** | Kullanıcının etkinleştirdiği arşiv ve Downloads kuralları; günlük, geri alma ve tekrar işleme koruması.                |
+| **Yerel öneriler**       | Bilinmeyen adlara yerel anahtar kelime vektörleriyle kategori önerisi; model indirmesi veya ağ isteği yok.             |
+| **Regex & alt gruplar**  | RE2JS ile güvenli regex; IDE, DevOps, Veritabanı, Ağ, Sürücüler ve Kurulumlar gibi hazır alt kategoriler.              |
+| **Sürükle-bırak**        | Kartı kategoriye bırak; OS’den Desktop/Downloads dosyaları için onaylı önizleme.                                       |
+| **Sistem tepsisi**       | X ile arka plana geç; profilleri, başlatıcıyı ve düzenlemeyi tepsi menüsünden yönet.                                   |
 
 [**3.0 kullanım ve mimari rehberi →**](docs/ECOSYSTEM.md)
 
@@ -139,8 +150,8 @@ Vite’ın terminalde gösterdiği adresi aç. **Web modu örnek verilerle çal�
 
 GitHub Actions içindeki **[Windows Installer](https://github.com/Huseyinhk61/DarkDesk/actions/workflows/windows.yml)** iş akışı:
 
-- `DarkDesk-Setup-3.0.0.exe`: Kurulum sihirbazı ve masaüstü kısayolu.
-- `DarkDesk-Portable-3.0.0.exe`: Kurulum gerektirmeyen sürüm.
+- `DarkDesk-Setup-3.1.0.exe`: Kurulum sihirbazı ve masaüstü kısayolu.
+- `DarkDesk-Portable-3.1.0.exe`: Kurulum gerektirmeyen sürüm.
 - `SHA256SUMS.txt`: İndirilen dosyaları doğrulamak için özetler.
 
 `main` dalına gönderilen güncellemeler Windows paketini otomatik oluşturur. Depo sahibi ayrıca **Run workflow** ile derlemeyi başlatabilir. Başarılı çalışmanın **Artifacts → DarkDesk-Windows** bölümünden paket indirilir. `v*` etiketi gönderildiğinde testlerden geçen paketler GitHub Releases’e eklenir. **İş akışı başarıyla tamamlanmadan hazır bir EXE bulunduğunu varsayma.**
@@ -178,7 +189,7 @@ Linux CI’de Electron testi için `xvfb-run -a npm run test:desktop` gerekir. T
 
 Dağıtım bağımlılıklarında bilinen açık bulunmadı (`npm audit --omit=dev`). Tam araç zinciri denetiminde paketleyicinin geçişli geliştirme bağımlılıklarında orta seviye bildirimler bulunuyor; bunlar için eski bir paketleyici sürümüne otomatik düşürme yapılmadı.
 
-**v3.0 doğrulaması:** Servis, tarama, kural/ayar göçü, dil sözlüğü ve Chromium testleri bulunur. Gerçek Electron testi izole masaüstünde taşıma/geri alma, uygulama keşfi, kısayol oluşturma/geri alma ve tema/dil/ikon kalıcılığını kontrol eder. Güncel yerel sonuçlar [test raporundadır](docs/VALIDATION.md). Windows’a özgü test ve EXE oluşturma ayrıca GitHub Actions üzerinde tanımlıdır; sonuçları üstteki canlı test rozetinden ve Actions sayfasından takip edilebilir.
+**v3.1 doğrulaması:** Servis, tarama, kural/ayar göçü, dil sözlüğü ve Chromium testleri bulunur. Gerçek Electron testi izole masaüstünde taşıma/geri alma, uygulama keşfi, kısayol oluşturma/geri alma ve tema/dil/ikon kalıcılığını kontrol eder. Güncel yerel sonuçlar [test raporundadır](docs/VALIDATION.md). Windows’a özgü test ve EXE oluşturma ayrıca GitHub Actions üzerinde tanımlıdır; sonuçları üstteki canlı test rozetinden ve Actions sayfasından takip edilebilir.
 
 <details>
 <summary><strong>Proje yapısı</strong></summary>

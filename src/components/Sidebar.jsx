@@ -48,6 +48,8 @@ export default function Sidebar({ view, setView, stats, native }) {
           <button
             key={id}
             title={t('nav.' + id)}
+            aria-label={t('nav.' + id)}
+            aria-current={view === id ? 'page' : undefined}
             className={view === id ? 'active' : ''}
             onClick={() => setView(id)}
           >
@@ -97,7 +99,7 @@ export default function Sidebar({ view, setView, stats, native }) {
           <span className="avatar">DD</span>
           <div>
             {t('sidebar.local')}
-            <small>v3.0.0 · {t(native ? 'sidebar.desktop' : 'sidebar.web')}</small>
+            <small>v3.1.0 · {t(native ? 'sidebar.desktop' : 'sidebar.web')}</small>
           </div>
           <span className="online" />
         </footer>

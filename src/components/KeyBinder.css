@@ -1,0 +1,69 @@
+.key-binder {
+  min-width: 0;
+}
+.key-binder-control {
+  display: flex;
+  min-width: 0;
+  gap: 8px;
+  align-items: stretch;
+}
+.key-binder-control input {
+  width: 100%;
+  min-width: 0;
+  font-family: inherit;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+}
+.key-binder-control button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  flex-shrink: 0;
+  padding: 9px 12px;
+  border: 1px solid rgba(var(--accent-rgb), 0.45);
+  border-radius: 7px;
+  color: var(--ink);
+  background: rgba(var(--accent-rgb), 0.1);
+  font-size: 11px;
+}
+.key-binder-control button:hover {
+  border-color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.2);
+}
+.key-binder.recording input {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.13);
+}
+.key-binder > small {
+  display: block;
+  font-size: 10px;
+  line-height: 1.6;
+  margin-top: 7px;
+}
+.shortcut-status .shortcut-name {
+  color: var(--ink);
+  flex: 1;
+}
+.shortcut-status .shortcut-reassign {
+  color: var(--accent);
+  border: 1px solid var(--border);
+  padding: 6px 9px;
+  border-radius: 5px;
+}
+.shortcut-help {
+  font-size: 11px;
+  line-height: 1.7;
+  margin-bottom: 15px;
+}
+@media (max-width: 520px) {
+  .key-binder-control {
+    flex-wrap: wrap;
+  }
+  .key-binder-control button {
+    width: 100%;
+  }
+  .shortcut-status {
+    flex-wrap: wrap;
+  }
+}

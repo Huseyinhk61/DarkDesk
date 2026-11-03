@@ -16,6 +16,10 @@ try {
   await expect(page.locator('.item-card')).toHaveCount(12);
   await settled();
   await page.screenshot({ path: 'docs/assets/workspace.png', fullPage: true });
+  await page.locator('.item-info-trigger').first().click();
+  await expect(page.locator('.item-details-grid')).toBeVisible();
+  await page.screenshot({ path: 'docs/assets/details.png' });
+  await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Masaüstünü Demo Düzenle' }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.screenshot({ path: 'docs/assets/preview.png' });
@@ -56,6 +60,9 @@ try {
   await settled();
   await dismiss();
   await page.screenshot({ path: 'docs/assets/profiles.png' });
+  await page.getByLabel('Başlatıcı kısayolu', { exact: true }).click();
+  await page.screenshot({ path: 'docs/assets/shortcuts.png' });
+  await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Otomasyon Merkezi', exact: true }).click();
   await page.screenshot({ path: 'docs/assets/automation.png' });
   await page.getByRole('button', { name: 'Hızlı Başlatıcı', exact: true }).click();
@@ -63,7 +70,7 @@ try {
   await expect(page.locator('.launcher-panel').getByRole('option').first()).toContainText('Code');
   await page.screenshot({ path: 'docs/assets/launcher.png' });
   console.log(
-    'Captured 3.0 workspace, themes, scanner, profiles, automation and Spotlight screenshots.',
+    'Captured 3.1 workspace, themes, scanner, profiles, automation, metadata, shortcuts and Spotlight screenshots.',
   );
 } finally {
   await browser.close();

@@ -129,8 +129,12 @@ test('deep scan discovers installed apps and preview creates only shortcuts', as
 });
 test('deep scan can be cancelled and the partial result stays visible', async ({ page }) => {
   await page.getByRole('button', { name: 'Sistem Tarama', exact: true }).click();
+  // Freeze simulated scan timers so cancellation does not race a one-second demo scan.
+  await page.clock.install();
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 100));
   await page.getByRole('button', { name: 'Derin taramayı başlat', exact: true }).click();
   await page.locator('.scan-cta').getByRole('button', { name: 'Taramayı durdur' }).click();
+  await page.clock.runFor(1250);
   await settled(page);
   await expect(page.locator('.scanner-panel')).toContainText('Tarama durduruldu.');
   await expect(page.locator('.item-card')).toHaveCount(3);

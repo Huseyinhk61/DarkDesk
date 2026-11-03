@@ -16,10 +16,14 @@ const os = require('node:os');
 const { watch } = require('node:fs');
 const { pathToFileURL } = require('node:url');
 const { DesktopRuntime } = require('./runtime/controller.cjs');
+const { ShortcutManager } = require('./runtime/shortcuts.cjs');
+const { validateSettings } = require('../shared/validate.js');
 let win,
   launcher,
   tray,
   runtime,
+  shortcutManager,
+  savingSettings = false,
   watcher,
   watchTimer,
   quitting = false,
@@ -140,21 +144,7 @@ function report(error) {
   showMain();
 }
 async function registerShortcuts(settings) {
-  globalShortcut.unregisterAll();
-  runtime.shortcuts = [];
-  for (const [accelerator, action] of [
-    [settings.launcherShortcut, () => openLauncher().catch(report)],
-    ...settings.profiles.map((profile) => [
-      profile.shortcut,
-      () => runtime.applyProfile(profile.id).catch(report),
-    ]),
-  ]) {
-    let registered = false;
-    try {
-      registered = globalShortcut.register(accelerator, action);
-    } catch {}
-    runtime.shortcuts.push({ accelerator, registered });
-  }
+  shortcutManager.configure(settings);
   await runtime.broadcast();
 }
 async function requestQuit() {
@@ -163,7 +153,7 @@ async function requestQuit() {
   try {
     await runtime?.prepareQuit();
     quitting = true;
-    globalShortcut.unregisterAll();
+    shortcutManager?.dispose();
     tray?.destroy();
     app.quit();
   } catch (e) {
@@ -190,12 +180,21 @@ else {
         resolveShortcut:
           process.platform === 'win32' ? (file) => shell.readShortcutLink(file) : undefined,
         emit,
+        getFileIcon: (file, options) => app.getFileIcon(file, options),
         launch: async (item) => {
           const error = await shell.openPath(item.source);
           if (error) throw Error('LAUNCH_FAILED: ' + error);
         },
       });
       await runtime.initialize();
+      shortcutManager = new ShortcutManager(globalShortcut, {
+        launcher: () => openLauncher().catch(report),
+        profile: (id) => runtime.applyProfile(id).catch(report),
+        onStatus: (rows) => {
+          runtime.shortcuts = rows;
+          runtime.broadcast().catch(() => {});
+        },
+      });
       win = new BrowserWindow({
         width: 1440,
         height: 960,
@@ -214,8 +213,11 @@ else {
         },
       });
       secureWindow(win);
+      win.on('blur', () => shortcutManager.resume());
+      win.webContents.on('render-process-gone', () => shortcutManager.resume());
       win.on('close', (event) => {
         if (!quitting) {
+          shortcutManager.resume();
           event.preventDefault();
           if (tray) win.hide();
           else requestQuit();
@@ -242,11 +244,35 @@ else {
       handle('undo', () => runtime.undo());
       handle('getSettings', () => runtime.settings.read());
       handle('setSettings', async (value) => {
-        const settings = await runtime.saveSettings(value);
-        await registerShortcuts(settings);
-        await updateTray();
-        return settings;
+        if (savingSettings || runtime.busy || runtime.stopping) throw Error('OPERATION_BUSY');
+        savingSettings = true;
+        try {
+          const candidate = validateSettings(value);
+          shortcutManager.configure(candidate, { strict: true });
+          try {
+            const settings = await runtime.saveSettings(candidate);
+            await updateTray();
+            return settings;
+          } catch (error) {
+            // Settings may already be persisted if reapplying a profile failed.
+            // Always restore registrations to the actual stored configuration.
+            shortcutManager.configure(await runtime.settings.read());
+            throw error;
+          }
+        } finally {
+          savingSettings = false;
+        }
       });
+      handle('beginShortcutCapture', () => {
+        if (!win.isFocused() || !win.isVisible()) throw Error('SHORTCUT_CAPTURE_UNAVAILABLE');
+        return shortcutManager.suspend();
+      });
+      handle('endShortcutCapture', (token) => {
+        if (typeof token !== 'string') throw Error('SHORTCUT_CAPTURE_UNAVAILABLE');
+        return shortcutManager.resume(token);
+      });
+      handle('itemIcon', (id) => runtime.itemIcon(id));
+      handle('itemDetails', (id) => runtime.itemDetails(id));
       handle('runtimeStatus', () => runtime.status());
       handle('applyProfile', (id) => runtime.applyProfile(id));
       handle('restoreProfile', () => runtime.restoreProfile());
@@ -344,7 +370,7 @@ app.on('before-quit', (event) => {
   }
 });
 app.on('will-quit', () => {
-  globalShortcut.unregisterAll();
+  shortcutManager?.dispose();
   watcher?.close();
   clearTimeout(watchTimer);
 });

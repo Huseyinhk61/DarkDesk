@@ -25,9 +25,23 @@ test('profile hotkeys work in the focused web demo and shortcut collisions are r
   await page.getByRole('button', { name: 'Çalışma Profilleri', exact: true }).click();
   await page.getByRole('button', { name: 'Düzenle Yazılım & Kodlama', exact: true }).click();
   const modal = page.getByRole('dialog');
-  await modal.getByLabel('Klavye kısayolu', { exact: true }).fill('Alt+Space');
+  const binder = modal.getByLabel('Klavye kısayolu', { exact: true });
+  await binder.click();
+  await page.keyboard.press('Alt+Space');
+  await expect(modal.locator('.key-binder')).toContainText('başka bir işleve atanmış');
+  await expect(binder).toHaveValue('Ctrl+Alt+1');
+  await expect(page.locator('.launcher-panel')).toHaveCount(0);
+  await binder.click();
+  await page.keyboard.press('Control+Alt+K');
+  await expect(binder).toHaveValue('Ctrl+Alt+K');
   await modal.getByRole('button', { name: 'Profili kaydet' }).click();
-  await expect(page.getByRole('alert')).toContainText('Aynı kısayol');
+  await expect(modal).toHaveCount(0);
+  await settled(page);
+  await page.getByRole('button', { name: 'Tümünü geri göster', exact: true }).click();
+  await settled(page);
+  await page.keyboard.press('Control+Alt+K');
+  await settled(page);
+  await expect(page.locator('.profile-card.active')).toHaveCount(1);
 });
 test('Spotlight fuzzy search can select an application with Enter', async ({ page }) => {
   await page.keyboard.press('Control+Space');
@@ -147,4 +161,19 @@ test('profile and automation screens stay within a mobile viewport', async ({ pa
   await page.keyboard.press('Control+Space');
   await expect(page.locator('.launcher-panel')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('key recorder Escape cancels without closing the profile editor or changing its assignment', async ({
+  page,
+}) => {
+  await page.getByRole('button', { name: 'Çalışma Profilleri', exact: true }).click();
+  await page.getByRole('button', { name: 'Düzenle Yazılım & Kodlama', exact: true }).click();
+  const modal = page.getByRole('dialog');
+  const binder = modal.getByLabel('Klavye kısayolu', { exact: true });
+  await binder.click();
+  await expect(binder).toHaveValue('Tuş kombinasyonuna bas…');
+  await page.keyboard.press('Escape');
+  await expect(modal).toBeVisible();
+  await expect(binder).toHaveValue('Ctrl+Alt+1');
+  await expect(modal.locator('.key-binder.recording')).toHaveCount(0);
 });

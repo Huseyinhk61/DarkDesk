@@ -1,5 +1,15 @@
 # Değişiklikler
 
+## 3.1.0 — 3 Kasım 2026
+
+- Güvenilir indeks üzerinden orijinal `.exe` / `.lnk` ikonları; lazy yükleme ve sınırlı fingerprint önbelleği.
+- Boyut, dosya tarihleri, Windows sürüm kaynağından açıklama/üretici ve DarkDesk başlatma günlüğü ile ayrıntı paneli.
+- Sabit başlık çubuğu/sidebar, yalnızca ana içerikte kaydırma ve büyük pencere kontrol alanları.
+- Temalara uygun daha belirgin kategori kenarlıkları, metinler ve ikon vurguları.
+- Klavyeden kısayol kaydedici, yinelenen atama kontrolü, çalışan kayıtları koruyan global kısayol güncellemesi.
+- Kayıt sırasında geçici kısayol duraklatma; iptal, odak kaybı ve zaman aşımında geri yükleme.
+- Windows görünürlük çıktısında gecikmiş stdout ve parçalı UTF-8 okuma düzeltmesi.
+
 ## 3.0.0 — 3 Kasım 2026
 
 - Özgün Hidden niteliğini koruyan odak profilleri; Windows toplu nitelik API’si ve Linux `.hidden` adaptörü.

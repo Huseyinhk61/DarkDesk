@@ -1,12 +1,22 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Eye, EyeOff, Pencil, Plus, Save, Keyboard, ShieldCheck } from 'lucide-react';
 import { usePreferences } from '../preferences';
 import { native } from '../service';
 import AppIcon from './AppIcon';
 import Modal from './Modal';
+import KeyBinder from './KeyBinder';
+import { displayAccelerator } from '../../shared/hotkeys';
 export default function Profiles({ runtime, onApply, onRestore, onSave, busy, compact = false }) {
   const { settings, t, label } = usePreferences();
   const [editor, setEditor] = useState(null);
+  const [launcherDraft, setLauncherDraft] = useState(settings.launcherShortcut);
+  useEffect(() => setLauncherDraft(settings.launcherShortcut), [settings.launcherShortcut]);
+  const assignments = [
+    { id: 'launcher', accelerator: settings.launcherShortcut },
+    ...settings.profiles.map((p) => ({ id: 'profile:' + p.id, accelerator: p.shortcut })),
+  ];
+  const editProfile = (profile) =>
+    setEditor({ ...profile, name: profile.labelKey ? t(profile.labelKey) : profile.name });
   const status = runtime?.profile || {};
   return (
     <section className={compact ? 'profiles-strip' : 'profiles-page'}>
@@ -53,17 +63,12 @@ export default function Profiles({ runtime, onApply, onRestore, onSave, busy, co
                     : t('profiles.allHidden')}
                 </small>
               </span>
-              <kbd>{profile.shortcut.replace('CommandOrControl', 'Ctrl')}</kbd>
+              <kbd>{displayAccelerator(profile.shortcut, /Mac/i.test(navigator.platform))}</kbd>
             </button>
             {!compact && (
               <button
                 className="profile-edit"
-                onClick={() =>
-                  setEditor({
-                    ...profile,
-                    name: profile.labelKey ? t(profile.labelKey) : profile.name,
-                  })
-                }
+                onClick={() => editProfile(profile)}
                 aria-label={`${t('common.edit')} ${profile.name}`}
               >
                 <Pencil size={13} />
@@ -91,7 +96,12 @@ export default function Profiles({ runtime, onApply, onRestore, onSave, busy, co
                   id: crypto.randomUUID(),
                   name: '',
                   categories: [],
-                  shortcut: 'CommandOrControl+Alt+5',
+                  shortcut:
+                    Array.from(
+                      { length: 20 },
+                      (_, i) => 'CommandOrControl+Alt+' + (i < 5 ? i + 5 : 'F' + (i - 4)),
+                    ).find((key) => !assignments.some((entry) => entry.accelerator === key)) ||
+                    'CommandOrControl+Shift+Alt+9',
                   icon: 'folder',
                   isNew: true,
                 })
@@ -110,14 +120,70 @@ export default function Profiles({ runtime, onApply, onRestore, onSave, busy, co
               <Keyboard size={18} />
               {t('profiles.shortcuts')}
             </h2>
-            {runtime?.shortcuts?.map((entry) => (
-              <div className="shortcut-status" key={entry.accelerator}>
-                <kbd>{entry.accelerator.replace('CommandOrControl', 'Ctrl')}</kbd>
-                <span className={entry.registered ? 'success-text' : 'warning-text'}>
-                  {t(entry.registered ? 'profiles.registered' : 'profiles.unavailable')}
-                </span>
-              </div>
-            ))}
+            <p className="muted shortcut-help">
+              {t(native ? 'shortcuts.globalHelp' : 'shortcuts.demoHelp')}
+            </p>
+            <label className="field-label" htmlFor="profile-launcher-shortcut">
+              {t('launcher.shortcut')}
+            </label>
+            <KeyBinder
+              id="profile-launcher-shortcut"
+              label={t('launcher.shortcut')}
+              value={launcherDraft}
+              currentId="launcher"
+              assignments={assignments}
+              disabled={!!busy}
+              onChange={setLauncherDraft}
+            />
+            <button
+              type="button"
+              className="btn secondary"
+              disabled={!!busy || launcherDraft === settings.launcherShortcut}
+              onClick={() => onSave({ ...settings, launcherShortcut: launcherDraft })}
+            >
+              <Save size={15} />
+              {t('common.save')}
+            </button>
+            {runtime?.shortcuts?.map((entry) => {
+              const profile = settings.profiles.find(
+                (p) => entry.id === 'profile:' + p.id || entry.accelerator === p.shortcut,
+              );
+              return (
+                <div className="shortcut-status" key={entry.id || entry.accelerator}>
+                  <span className="shortcut-name">
+                    {profile
+                      ? profile.labelKey
+                        ? t(profile.labelKey)
+                        : profile.name
+                      : t('launcher.title')}
+                  </span>
+                  <kbd>
+                    {displayAccelerator(entry.accelerator, /Mac/i.test(navigator.platform))}
+                  </kbd>
+                  <span className={entry.registered ? 'success-text' : 'warning-text'}>
+                    {t(
+                      !native
+                        ? 'shortcuts.demo'
+                        : entry.registered
+                          ? 'profiles.registered'
+                          : entry.reason === 'recording'
+                            ? 'shortcuts.paused'
+                            : 'shortcuts.occupied',
+                    )}
+                  </span>
+                  {profile && (
+                    <button
+                      type="button"
+                      className="shortcut-reassign"
+                      onClick={() => editProfile(profile)}
+                      disabled={!!busy}
+                    >
+                      {t('shortcuts.reassign')}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
           </section>
         </>
       )}
@@ -148,10 +214,14 @@ export default function Profiles({ runtime, onApply, onRestore, onSave, busy, co
               </label>
               <label>
                 {t('profiles.shortcut')}
-                <input
-                  required
+                <KeyBinder
+                  id="profile-shortcut"
+                  label={t('profiles.shortcut')}
                   value={editor.shortcut}
-                  onChange={(e) => setEditor({ ...editor, shortcut: e.target.value })}
+                  currentId={'profile:' + editor.id}
+                  assignments={assignments}
+                  disabled={!!busy}
+                  onChange={(shortcut) => setEditor({ ...editor, shortcut })}
                 />
               </label>
             </div>

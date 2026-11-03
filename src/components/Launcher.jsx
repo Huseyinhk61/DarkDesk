@@ -4,6 +4,7 @@ import { api, native } from '../service';
 import { usePreferences } from '../preferences';
 import { searchEntries } from '../../shared/launcher';
 import AppIcon from './AppIcon';
+import NativeItemIcon from './NativeItemIcon';
 export default function Launcher({ onClose, onCommand }) {
   const { settings, setSettings, t, label, errorMessage } = usePreferences();
   const [items, setItems] = useState([]),
@@ -154,7 +155,11 @@ export default function Launcher({ onClose, onCommand }) {
             disabled={busy}
           >
             <span className="launcher-result-icon">
-              <AppIcon name={entry.icon} />
+              {entry.command ? (
+                <AppIcon name={entry.icon} />
+              ) : (
+                <NativeItemIcon item={entry} fallback={entry.icon} size={28} eager />
+              )}
             </span>
             <span>
               <b>{entry.name}</b>

@@ -97,7 +97,7 @@ export const api = window.darkdesk || {
     total: 16 * 1024 ** 3,
     free: 9.2 * 1024 ** 3,
     storage: null,
-    version: '3.0.0',
+    version: '3.1.0',
     platform: 'demo',
   }),
   getSettings: async () => structuredClone(settings),
@@ -164,6 +164,28 @@ export const api = window.darkdesk || {
     copies.clear();
     batch.copySnapshot.forEach((x) => copies.add(x));
     batch.status = 'undone';
+  },
+  itemIcon: async (id) => {
+    if (![...demo, ...apps, ...downloadItems].some((item) => item.id === id))
+      throw Error('SOURCE_MISSING');
+    return { id, icon: null };
+  },
+  itemDetails: async (id) => {
+    await delay();
+    const item = [...demo, ...apps, ...downloadItems].find((item) => item.id === id);
+    if (!item) throw Error('SOURCE_MISSING');
+    return {
+      id,
+      icon: null,
+      size: item.size,
+      created: null,
+      modified: item.modified,
+      description: null,
+      company: null,
+      lastOpened: usage[id]?.lastOpened || null,
+      usageScope: 'darkdesk-only',
+      metadataSource: 'demo',
+    };
   },
   reveal: async () => {
     throw Error('DEMO_REVEAL');

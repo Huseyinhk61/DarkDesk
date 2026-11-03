@@ -18,6 +18,7 @@ export default function CategoryGrid({ items, filter, setFilter, onDropItem, dis
           return (
             <button
               key={c.id}
+              aria-pressed={filter === c.id}
               className={`category ${c.color} ${filter === c.id ? 'selected' : ''} ${hover === c.id ? 'drag-hover' : ''}`}
               onDragOver={(e) => {
                 if (!disabled) {
@@ -40,7 +41,7 @@ export default function CategoryGrid({ items, filter, setFilter, onDropItem, dis
             >
               <div className="category-top">
                 <span className="category-icon">
-                  <AppIcon name={c.icon} />
+                  <AppIcon name={c.icon} size={24} strokeWidth={2} />
                 </span>
                 <ArrowUpRight size={15} />
               </div>

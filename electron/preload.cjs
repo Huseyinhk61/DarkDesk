@@ -19,9 +19,13 @@ const methods = [
   'runAutomation',
   'launcherEntries',
   'launch',
+  'itemIcon',
+  'itemDetails',
   'runCommand',
   'openLauncher',
   'hideLauncher',
+  'beginShortcutCapture',
+  'endShortcutCapture',
 ];
 const api = Object.fromEntries(
   methods.map((name) => [name, (...args) => ipcRenderer.invoke(name, ...args)]),
