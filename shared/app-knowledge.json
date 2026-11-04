@@ -705,7 +705,7 @@
   {
     "id": "obs",
     "name": "OBS Studio",
-    "categoryId": "media",
+    "categoryId": "design",
     "aliases": ["obs64", "obs32", "obs studio"],
     "description": {
       "tr": "Ekran ve kamera görüntüsü kaydetmek veya canlı yayın yapmak için kullanılır.",
@@ -957,6 +957,42 @@
     "description": {
       "tr": "Parolaları şifreli bir yerel veritabanında saklamak ve giriş bilgilerini düzenlemek için kullanılan parola yöneticisi.",
       "en": "A password manager for storing passwords in an encrypted local database and organizing sign-in details."
+    }
+  },
+  {
+    "id": "flutterflow",
+    "name": "FlutterFlow",
+    "categoryId": "softwareide",
+    "aliases": ["flutterflow", "flutter flow"],
+    "description": {
+      "tr": "Flutter tabanlı mobil ve web uygulamalarını görsel olarak geliştirmek için kullanılan düşük kodlu uygulama oluşturucu.",
+      "en": "A visual low-code builder for developing Flutter-based mobile and web applications."
+    }
+  },
+  {
+    "id": "vmware",
+    "name": "VMware Workstation Pro",
+    "categoryId": "softwaredevops",
+    "aliases": [
+      "vmware",
+      "vmware workstation",
+      "vmware workstation pro",
+      "vmplayer",
+      "vmware player"
+    ],
+    "description": {
+      "tr": "Bir bilgisayarda farklı işletim sistemlerini sanal makinelerde çalıştırmak, test etmek ve geliştirme ortamları kurmak için kullanılır.",
+      "en": "A desktop virtualization tool for running operating systems in virtual machines, testing and creating development environments."
+    }
+  },
+  {
+    "id": "windhawk",
+    "name": "Windhawk",
+    "categoryId": "systemutilities",
+    "aliases": ["windhawk"],
+    "description": {
+      "tr": "Windows ve uygulama davranışlarını kullanıcı tarafından seçilen özelleştirme modlarıyla değiştirmeye yarayan araç.",
+      "en": "A tool for customizing Windows and application behavior with user-selected modification modules."
     }
   }
 ]

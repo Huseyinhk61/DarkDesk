@@ -23,6 +23,7 @@ const { ShortcutManager } = require('./runtime/shortcuts.cjs');
 const { validateSettings } = require('../shared/validate.js');
 const { resolveTheme } = require('../shared/appearance.js');
 const { createUpdates } = require('./runtime/updates.cjs');
+const { resolveSharedDesktop } = require('./runtime/desktop-paths.cjs');
 const { UpdateAccessStore } = require('./runtime/update-access.cjs');
 const { restoreWindowState, WindowStateStore } = require('./runtime/window-state.cjs');
 let win,
@@ -38,7 +39,7 @@ let win,
   preferredTheme = 'midnight',
   lastMaximized = false,
   savingSettings = false,
-  watcher,
+  watchers = [],
   watchTimer,
   quitting = false,
   quitPending = false;
@@ -236,6 +237,7 @@ else {
       };
       runtime = new DesktopRuntime({
         desktop: app.getPath('desktop'),
+        sharedDesktop: await resolveSharedDesktop(),
         downloads: app.getPath('downloads'),
         data: app.getPath('userData'),
         resolveShortcut:
@@ -429,6 +431,7 @@ else {
           total: os.totalmem(),
           free: os.freemem(),
           desktop: runtime.desktop,
+          sharedDesktop: runtime.sharedDesktop,
           downloads: runtime.downloads,
           storage,
           platform: process.platform,
@@ -521,16 +524,21 @@ else {
         updateTimer = setInterval(check, 6 * 60 * 60 * 1000);
         updateTimer.unref?.();
       }
-      try {
-        watcher = watch(runtime.desktop, () => {
-          runtime.desktopDirty = true;
-          clearTimeout(watchTimer);
-          watchTimer = setTimeout(() => {
-            if (!runtime.busy) emit('desktopChanged');
-          }, 700);
-        });
-        watcher.on('error', () => emit('watchError', 'WATCH_FAILED'));
-      } catch {}
+      for (const directory of [
+        ...new Set([runtime.desktop, runtime.sharedDesktop].filter(Boolean)),
+      ]) {
+        try {
+          const watcher = watch(directory, () => {
+            runtime.desktopDirty = true;
+            clearTimeout(watchTimer);
+            watchTimer = setTimeout(() => {
+              if (!runtime.busy) emit('desktopChanged');
+            }, 700);
+          });
+          watcher.on('error', () => emit('watchError', 'WATCH_FAILED'));
+          watchers.push(watcher);
+        } catch {}
+      }
     })
     .catch((error) => {
       console.error(error);
@@ -549,7 +557,7 @@ app.on('will-quit', () => {
   clearInterval(updateTimer);
   updates?.dispose();
   shortcutManager?.dispose();
-  watcher?.close();
+  watchers.forEach((watcher) => watcher.close());
   clearTimeout(watchTimer);
   clearTimeout(windowSaveTimer);
   screen.removeListener('display-removed', fitMainWindow);

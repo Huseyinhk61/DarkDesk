@@ -2,7 +2,7 @@ import catalog from './catalog.json' with { type: 'json' };
 import runtimeDefaults from './runtime-defaults.json' with { type: 'json' };
 import { regexMatches } from './regex.js';
 import { suggestTags } from './smart-tags.js';
-import { findKnownApp, appInsight, leafName } from './app-insights.js';
+import { findKnownApp, appInsight, leafName, gameLaunchCategory } from './app-insights.js';
 export const icons = [
   'code',
   'palette',
@@ -65,7 +65,9 @@ export function categoryRoot(id) {
     ) || id
   );
 }
-export function defaultCategory(name, target = '') {
+export function defaultCategory(name, target = '', launchUrl = '') {
+  const gameCategory = gameLaunchCategory(launchUrl);
+  if (gameCategory) return gameCategory;
   const app = findKnownApp({ name, target });
   if (app) return categoryRoot(app.categoryId);
   const text = normalize(`${leafName(name)} ${leafName(target)}`),
@@ -124,6 +126,8 @@ export function classify(item, settings = defaultSettings) {
   for (const rule of settings.rules || [])
     if (rule.enabled !== false && known.has(rule.categoryId) && matchesRule(rule, item))
       return rule.categoryId;
+  const gameCategory = gameLaunchCategory(item.launchUrl);
+  if (gameCategory) return known.has(gameCategory) ? gameCategory : categories[0].id;
   const app = findKnownApp(item);
   if (app) {
     if (known.has(app.categoryId)) return app.categoryId;
@@ -138,7 +142,7 @@ export function classify(item, settings = defaultSettings) {
     const availableFallback = legacyFallback.find((id) => known.has(id));
     if (availableFallback) return availableFallback;
   }
-  let inferred = defaultCategory(item.name, item.target);
+  let inferred = defaultCategory(item.name, item.target, item.launchUrl);
   const extension = (item.name || '').split('.').at(-1).toLowerCase();
   const filename = normalize(leafName(item.name));
   const contentGroup =
@@ -232,7 +236,7 @@ export function enrichItem(item, settings = defaultSettings) {
     Object.hasOwn(settings.overrides || {}, item.id) ||
     (settings.rules || []).some((r) => r.enabled && matchesRule(r, item));
   const fallback =
-    defaultCategory(item.name, item.target) === 'system' &&
+    defaultCategory(item.name, item.target, item.launchUrl) === 'system' &&
     !/system|utility|tool|chrome|browser|backup|security|network|driver|setup|installer|update|zip|rar/i.test(
       item.name,
     );

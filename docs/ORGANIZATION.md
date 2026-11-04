@@ -24,3 +24,15 @@ The browser demo cannot access operating-system icons. Initials in the README sc
 Cards and the details panel show descriptions for applications recognized by the local catalog. For example, Visual Studio Code supports writing code, Chrome opens web pages, and Blender creates 3D content. Catalog matching uses names and targets; it does not verify executable identity.
 
 Unrecognized items receive a clearly labeled estimate based on file type or category. DarkDesk does not read file contents or call an online AI service to create these descriptions. User assignments and custom rules take priority over automatic classification. Search matches purpose descriptions as well as application names.
+
+## Desktop items left outside folders
+
+The desktop scan now reads both the user's desktop and the Windows common desktop, discovered through the operating system's known-folder location. Common items have separate stable identities even when a personal shortcut has the same name. The scan coverage panel displays both source counts, unavailable sources, and intentionally excluded folders or file types. Existing directories are left in place.
+
+- Select **Move files** to remove originals after verified copies. **Copy files** intentionally leaves originals visible; the preview explains this.
+- A common-desktop move affects the shortcut visible to every Windows account. Review its source in the preview. If Windows denies access, the error is recorded, other selected items can continue, and a verified copied shortcut is retained until you review or undo it. DarkDesk does not silently elevate or convert the requested action.
+- Conflicting destination names are skipped rather than overwritten. This also applies when personal and common shortcuts have the same name.
+- Common-desktop items are excluded from unattended archive automation. Manual moves and copies have the same content checks and undo history as personal items.
+- Steam, Epic, and other recognized game launch links in bounded UTF-8/UTF-16 `.url` files are categorized from their protocol without opening the link. Manual categories and custom rules take precedence.
+
+The local purpose catalog includes FlutterFlow, VMware Workstation Pro and Windhawk, alongside DaVinci Resolve, AnyDesk, Epic Games Launcher and OBS Studio. Shortcut copy labels and product-version suffixes no longer prevent known-name matching. OBS Studio is grouped with video/design tools; saved manual assignments are preserved.

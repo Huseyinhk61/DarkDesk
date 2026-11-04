@@ -2,6 +2,7 @@ const fs = require('node:fs/promises');
 const { createReadStream, constants } = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const { readInternetShortcut } = require('./internet-shortcut.cjs');
 const {
   defaultCategories,
   defaultSettings,
@@ -56,9 +57,52 @@ class DesktopService {
     this.externalCatalog = new Map();
     this.folderIcons = options.folderIcons;
     this.platform = options.platform || process.platform;
+    this.sharedDesktop = options.sharedDesktop ? path.resolve(options.sharedDesktop) : null;
+    if (this.sharedDesktop && this.samePath(this.sharedDesktop, this.desktop))
+      this.sharedDesktop = null;
+    this.sharedCatalog = new Map();
+    this.scanReport = {
+      sources: [],
+      excluded: { folders: 0, hidden: 0, extensions: 0 },
+      warnings: [],
+      total: 0,
+    };
     this.preserveTimestamp =
       options.preserveTimestamp || ((file, atime, mtime) => fs.utimes(file, atime, mtime));
     this.removeSource = options.removeSource || ((file) => fs.unlink(file));
+  }
+  samePath(left, right) {
+    if (typeof left !== 'string' || typeof right !== 'string') return false;
+    const normalize = (value) => {
+      const resolved = path.resolve(value);
+      return this.platform === 'win32' ? resolved.toLowerCase() : resolved;
+    };
+    return normalize(left) === normalize(right);
+  }
+  sharedId(source) {
+    const canonical =
+      this.platform === 'win32' ? path.resolve(source).toLowerCase() : path.resolve(source);
+    return 'shared:' + crypto.createHash('sha256').update(canonical).digest('hex').slice(0, 24);
+  }
+  async assertSharedSource(source) {
+    if (
+      !this.sharedDesktop ||
+      (source &&
+        (!this.samePath(path.dirname(source), this.sharedDesktop) ||
+          !validId(path.basename(source))))
+    )
+      throw Error('SHARED_DESKTOP_ACCESS');
+    const parsed = path.parse(this.sharedDesktop);
+    let current = parsed.root;
+    for (const part of this.sharedDesktop
+      .slice(parsed.root.length)
+      .split(path.sep)
+      .filter(Boolean)) {
+      current = path.join(current, part);
+      const stat = await fs.lstat(current);
+      if (!stat.isDirectory() || stat.isSymbolicLink())
+        throw Object.assign(Error('SHARED_DESKTOP_ACCESS'), { code: 'SOURCE_UNSAFE' });
+    }
   }
   async exclusive(action) {
     if (this.busy) throw Error('OPERATION_BUSY');
@@ -88,60 +132,116 @@ class DesktopService {
     this.settings = { ...structuredClone(defaultSettings), ...settings };
     settings = this.settings;
     const ignored = new Set([...(settings.excludedExtensions || []), '.ini', '.dll', '.sys']);
-    let entries;
-    try {
-      entries = await fs.readdir(this.desktop, { withFileTypes: true });
-    } catch (e) {
-      throw Error('DESKTOP_READ: ' + (e.code || ''));
-    }
-    const result = [];
-    // Sequential metadata reads avoid exhausting handles on large desktops.
-    for (const entry of entries) {
-      const extension = path.extname(entry.name).toLowerCase();
-      if (!entry.isFile() || entry.name.startsWith('.') || ignored.has(extension)) continue;
-      const source = path.join(this.desktop, entry.name);
+    const report = {
+      sources: [],
+      excluded: { folders: 0, hidden: 0, extensions: 0 },
+      warnings: [],
+      total: 0,
+    };
+    const result = [],
+      sharedCatalog = new Map();
+    for (const root of [
+      { path: this.desktop, scope: 'desktop' },
+      ...(this.sharedDesktop ? [{ path: this.sharedDesktop, scope: 'shared' }] : []),
+    ]) {
+      const sourceReport = { ...root, status: 'ready', count: 0 };
+      report.sources.push(sourceReport);
+      let entries;
       try {
-        const stat = await fs.lstat(source);
-        if (!stat.isFile() || stat.isSymbolicLink()) continue;
-        let target = '';
-        if (extension === '.lnk' && this.resolveShortcut) {
-          try {
-            target = (await this.resolveShortcut(source))?.target || '';
-          } catch {
-            /* Unresolvable shortcuts remain usable files. */
-          }
+        if (root.scope === 'shared') await this.assertSharedSource();
+        entries = await fs.readdir(root.path, { withFileTypes: true });
+      } catch (error) {
+        if (root.scope === 'desktop') throw Error('DESKTOP_READ: ' + (error.code || ''));
+        sourceReport.status =
+          error.code === 'ENOENT'
+            ? 'missing'
+            : ['EPERM', 'EACCES'].includes(error.code)
+              ? 'denied'
+              : 'error';
+        report.warnings.push({ code: 'SHARED_DESKTOP_ACCESS', scope: root.scope });
+        continue;
+      }
+      // Sequential metadata reads keep large desktops within the handle limit.
+      for (const entry of entries) {
+        const extension = path.extname(entry.name).toLowerCase();
+        if (entry.name.startsWith('.')) {
+          report.excluded.hidden++;
+          continue;
         }
-        const override = settings.overrides?.[entry.name];
-        result.push({
-          id: entry.name,
-          name: entry.name,
-          source,
-          target,
-          category: classify({ id: entry.name, name: entry.name, target }, settings),
-          scope: 'desktop',
-          size: stat.size,
-          modified: stat.mtimeMs,
-          kind: shortcutExtensions.has(extension) ? 'shortcut' : 'file',
-          extension,
-        });
-      } catch (e) {
-        if (e.code !== 'ENOENT') throw e;
+        if (entry.isDirectory()) {
+          report.excluded.folders++;
+          continue;
+        }
+        if (!entry.isFile()) continue;
+        if (ignored.has(extension)) {
+          report.excluded.extensions++;
+          continue;
+        }
+        const source = path.join(root.path, entry.name);
+        try {
+          const stat = await fs.lstat(source);
+          if (!stat.isFile() || stat.isSymbolicLink()) continue;
+          let target = '',
+            launchUrl = '';
+          if (extension === '.lnk' && this.resolveShortcut) {
+            try {
+              target = (await this.resolveShortcut(source))?.target || '';
+            } catch {}
+          }
+          if (extension === '.url') {
+            try {
+              launchUrl = (await readInternetShortcut(source)).launchUrl || '';
+            } catch {}
+          }
+          const item = enrichItem(
+            {
+              id: root.scope === 'shared' ? this.sharedId(source) : entry.name,
+              name: entry.name,
+              source,
+              target,
+              launchUrl,
+              sourceScope: root.scope,
+              shared: root.scope === 'shared',
+              scope: 'desktop',
+              size: stat.size,
+              modified: stat.mtimeMs,
+              kind: shortcutExtensions.has(extension) ? 'shortcut' : 'file',
+              extension,
+            },
+            settings,
+          );
+          if (item.shared) sharedCatalog.set(item.id, item);
+          result.push(item);
+          sourceReport.count++;
+        } catch (error) {
+          if (error.code !== 'ENOENT')
+            report.warnings.push({
+              code: 'DESKTOP_ITEM_ACCESS',
+              scope: root.scope,
+              name: entry.name,
+            });
+        }
       }
     }
-    return result
-      .map((item) => enrichItem(item, settings))
-      .sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+    report.total = result.length;
+    this.scanReport = report;
+    this.sharedCatalog = sharedCatalog;
+    return result.sort((a, b) => a.name.localeCompare(b.name, settings.language || 'tr'));
   }
+
   async registerPaths(paths) {
     if (!Array.isArray(paths) || paths.length > 500) throw Error('DROP_INVALID');
     const results = [];
     for (const file of paths) {
       if (typeof file !== 'string') throw Error('DROP_INVALID');
       const source = path.resolve(file);
-      if (path.dirname(source) === this.desktop) {
+      if (
+        this.samePath(path.dirname(source), this.desktop) ||
+        (this.sharedDesktop && this.samePath(path.dirname(source), this.sharedDesktop))
+      ) {
         const name = path.basename(source);
         if (!validId(name)) throw Error('DROP_INVALID');
-        const item = (await this.scan()).find((i) => i.id === name);
+        const item = (await this.scan()).find((i) => this.samePath(i.source, source));
         if (!item) throw Error('SOURCE_MISSING');
         results.push(item);
         continue;
@@ -237,13 +337,17 @@ class DesktopService {
         !(
           validId(item?.id) ||
           (typeof item?.id === 'string' &&
-            (this.scanner?.catalog.has(item.id) || this.externalCatalog.has(item.id)))
+            (this.scanner?.catalog.has(item.id) ||
+              this.externalCatalog.has(item.id) ||
+              this.sharedCatalog.has(item.id)))
         ) ||
         !this.settings.categories.some((c) => c.id === categoryId(item.category))
       )
         throw Error('CATEGORY_INVALID');
       const installed = this.scanner?.catalog.get(item.id);
-      const external = this.externalCatalog.get(item.id);
+      const shared = this.sharedCatalog.get(item.id);
+      if (shared) await this.assertSharedSource(shared.source);
+      const external = shared || this.externalCatalog.get(item.id);
       const source = installed
         ? installed.source
         : external
@@ -276,7 +380,8 @@ class DesktopService {
         category: cid,
         categoryPath: segments.join(path.sep),
         name: installed?.name || external?.name || item.id,
-        sourceScope: external ? 'downloads' : 'desktop',
+        sourceScope: shared ? 'shared' : external ? 'downloads' : 'desktop',
+        shared: !!shared,
         action: installed ? 'shortcut' : mode,
         installed: installed || null,
         source,
@@ -346,9 +451,12 @@ class DesktopService {
       this.previews.delete(token);
       if (!plan || plan.expires < Date.now()) throw Error('PREVIEW_EXPIRED');
       const entries = plan.entries.filter((e) => !e.conflict);
+      if (origin !== 'manual' && entries.some((entry) => entry.sourceScope === 'shared'))
+        throw Error('SHARED_DESKTOP_MANUAL_ONLY');
       if (!entries.length) throw Error('NO_READY');
       // Preflight every selected source before changing any files.
       for (const entry of entries) {
+        if (entry.sourceScope === 'shared') await this.assertSharedSource(entry.source);
         const stat = await exists(entry.source);
         if (!stat?.isFile() || stat.isSymbolicLink() || fingerprint(stat) !== entry.fingerprint)
           throw Error(`SOURCE_CHANGED: ${entry.id}`);
@@ -416,131 +524,158 @@ class DesktopService {
       let currentJournal = null;
       try {
         for (const entry of entries) {
-          const stat = await fs.lstat(entry.source);
-          if (!stat.isFile() || stat.isSymbolicLink() || fingerprint(stat) !== entry.fingerprint)
-            throw Error(`SOURCE_CHANGED: ${entry.id}`);
-          const checksum = entry.action === 'shortcut' ? null : await digest(entry.source);
-          const journal = { ...entry, checksum, stage: 'planned', verified: false };
-          currentJournal = journal;
-          batch.entries.push(journal);
-          await this.save(log); // Record intention before creating a file or removing a source.
-          const directory = path.dirname(entry.target);
-          const missing = [];
-          let ancestor = directory;
-          while (ancestor !== this.desktop) {
-            if (!(await exists(ancestor))) missing.unshift(ancestor);
-            ancestor = path.dirname(ancestor);
-          }
-          if (await this.safeDirectory(directory, true, batch.categoryPaths)) {
-            batch.directories.push(...missing.filter((p) => !batch.directories.includes(p)));
-            await this.save(log);
-            if (this.folderIcons) {
-              for (const createdDirectory of missing) {
-                const group = plan.settings.categories.find(
-                  (c) =>
-                    path.join(this.desktop, ...categorySegments(c.id, plan.settings.categories)) ===
-                    createdDirectory,
-                );
-                if (group) {
-                  let journalFailure = null;
-                  try {
-                    await this.folderIcons.decorate(
-                      createdDirectory,
-                      group,
-                      plan.settings,
-                      async (record) => {
-                        batch.metadata.push(record);
-                        try {
-                          await this.save(log);
-                        } catch (error) {
-                          journalFailure = error;
-                          throw error;
-                        }
-                      },
-                    );
-                  } catch (error) {
-                    // Visual folder decoration is optional. A journal failure is not.
-                    if (journalFailure) throw journalFailure;
-                    batch.warnings.push({
-                      code: 'FOLDER_ICON_FAILED',
-                      id: entry.id,
-                      path: createdDirectory,
-                      detail: error.code || error.message,
-                    });
-                    await this.save(log);
+          try {
+            const stat = await fs.lstat(entry.source);
+            if (!stat.isFile() || stat.isSymbolicLink() || fingerprint(stat) !== entry.fingerprint)
+              throw Error(`SOURCE_CHANGED: ${entry.id}`);
+            const checksum = entry.action === 'shortcut' ? null : await digest(entry.source);
+            const journal = { ...entry, checksum, stage: 'planned', verified: false };
+            currentJournal = journal;
+            batch.entries.push(journal);
+            await this.save(log); // Record intention before creating a file or removing a source.
+            const directory = path.dirname(entry.target);
+            const missing = [];
+            let ancestor = directory;
+            while (ancestor !== this.desktop) {
+              if (!(await exists(ancestor))) missing.unshift(ancestor);
+              ancestor = path.dirname(ancestor);
+            }
+            if (await this.safeDirectory(directory, true, batch.categoryPaths)) {
+              batch.directories.push(...missing.filter((p) => !batch.directories.includes(p)));
+              await this.save(log);
+              if (this.folderIcons) {
+                for (const createdDirectory of missing) {
+                  const group = plan.settings.categories.find(
+                    (c) =>
+                      path.join(
+                        this.desktop,
+                        ...categorySegments(c.id, plan.settings.categories),
+                      ) === createdDirectory,
+                  );
+                  if (group) {
+                    let journalFailure = null;
+                    try {
+                      await this.folderIcons.decorate(
+                        createdDirectory,
+                        group,
+                        plan.settings,
+                        async (record) => {
+                          batch.metadata.push(record);
+                          try {
+                            await this.save(log);
+                          } catch (error) {
+                            journalFailure = error;
+                            throw error;
+                          }
+                        },
+                      );
+                    } catch (error) {
+                      // Visual folder decoration is optional. A journal failure is not.
+                      if (journalFailure) throw journalFailure;
+                      batch.warnings.push({
+                        code: 'FOLDER_ICON_FAILED',
+                        id: entry.id,
+                        path: createdDirectory,
+                        detail: error.code || error.message,
+                      });
+                      await this.save(log);
+                    }
                   }
                 }
               }
             }
-          }
-          if (entry.action === 'shortcut') {
-            if (!this.folderIcons) throw Error('SHORTCUT_UNSUPPORTED');
-            const customIcon = plan.settings.itemIcons[entry.id];
-            let icon;
-            // Preserve the application's own logo unless the user explicitly overrides it.
-            if (customIcon || this.platform !== 'win32') {
-              const iconName =
-                customIcon || plan.settings.categories.find((c) => c.id === entry.category).icon;
+            if (entry.action === 'shortcut') {
+              if (!this.folderIcons) throw Error('SHORTCUT_UNSUPPORTED');
+              const customIcon = plan.settings.itemIcons[entry.id];
+              let icon;
+              // Preserve the application's own logo unless the user explicitly overrides it.
+              if (customIcon || this.platform !== 'win32') {
+                const iconName =
+                  customIcon || plan.settings.categories.find((c) => c.id === entry.category).icon;
+                try {
+                  icon = await this.folderIcons.iconFile(iconName, plan.settings.iconPack);
+                } catch (error) {
+                  batch.warnings.push({
+                    code: 'SHORTCUT_ICON_FALLBACK',
+                    id: entry.id,
+                    path: entry.target,
+                    detail: error.code || error.message,
+                  });
+                  await this.save(log);
+                }
+              }
+              // Reserve the destination exclusively before invoking the native shortcut writer.
+              const reservation = await fs.open(entry.target, 'wx');
+              await reservation.close();
+              await this.folderIcons.shortcut(entry.target, entry.installed, icon);
+              journal.checksum = await digest(entry.target);
+            } else {
               try {
-                icon = await this.folderIcons.iconFile(iconName, plan.settings.iconPack);
+                await fs.copyFile(entry.source, entry.target, constants.COPYFILE_EXCL);
               } catch (error) {
-                batch.warnings.push({
-                  code: 'SHORTCUT_ICON_FALLBACK',
-                  id: entry.id,
-                  path: entry.target,
-                  detail: error.code || error.message,
-                });
-                await this.save(log);
+                if (entry.shared && ['EPERM', 'EACCES'].includes(error.code))
+                  throw Object.assign(Error('SHARED_DESKTOP_ACCESS'), {
+                    code: 'SHARED_DESKTOP_ACCESS',
+                  });
+                throw error;
               }
             }
-            // Reserve the destination exclusively before invoking the native shortcut writer.
-            const reservation = await fs.open(entry.target, 'wx');
-            await reservation.close();
-            await this.folderIcons.shortcut(entry.target, entry.installed, icon);
-            journal.checksum = await digest(entry.target);
-          } else await fs.copyFile(entry.source, entry.target, constants.COPYFILE_EXCL);
-          journal.stage = 'copied';
-          await this.save(log);
-          if ((await digest(entry.target)) !== journal.checksum)
-            throw Error(`COPY_VERIFY: ${entry.id}`);
-          journal.verified = true;
-          await this.save(log);
-          try {
-            await this.preserveTimestamp(entry.target, stat.atime, stat.mtime);
-          } catch (error) {
-            batch.warnings.push({
-              code: 'TIMESTAMP_NOT_PRESERVED',
-              id: entry.id,
-              path: entry.target,
-              detail: error.code || error.message,
-            });
+            journal.stage = 'copied';
             await this.save(log);
-          }
-          if (plan.mode === 'move' && entry.action !== 'shortcut') {
-            const current = await fs.lstat(entry.source);
-            if (
-              !current.isFile() ||
-              current.isSymbolicLink() ||
-              fingerprint(current) !== entry.fingerprint ||
-              (await digest(entry.source)) !== checksum
-            )
-              throw Error(`SOURCE_CHANGED: ${entry.id}`);
+            if ((await digest(entry.target)) !== journal.checksum)
+              throw Error(`COPY_VERIFY: ${entry.id}`);
+            journal.verified = true;
+            await this.save(log);
             try {
-              await this.removeSource(entry.source);
+              await this.preserveTimestamp(entry.target, stat.atime, stat.mtime);
             } catch (error) {
-              throw Error(`SOURCE_REMOVE_FAILED: ${entry.id}: ${error.code || error.message}`);
+              batch.warnings.push({
+                code: 'TIMESTAMP_NOT_PRESERVED',
+                id: entry.id,
+                path: entry.target,
+                detail: error.code || error.message,
+              });
+              await this.save(log);
             }
-            journal.stage = 'moved';
+            if (plan.mode === 'move' && entry.action !== 'shortcut') {
+              const current = await fs.lstat(entry.source);
+              if (
+                !current.isFile() ||
+                current.isSymbolicLink() ||
+                fingerprint(current) !== entry.fingerprint ||
+                (await digest(entry.source)) !== checksum
+              )
+                throw Error(`SOURCE_CHANGED: ${entry.id}`);
+              try {
+                await this.removeSource(entry.source);
+              } catch (error) {
+                if (entry.shared && ['EPERM', 'EACCES'].includes(error.code))
+                  throw Object.assign(Error('SHARED_DESKTOP_ACCESS'), {
+                    code: 'SHARED_DESKTOP_ACCESS',
+                  });
+                throw Error(`SOURCE_REMOVE_FAILED: ${entry.id}: ${error.code || error.message}`);
+              }
+              journal.stage = 'moved';
+              await this.save(log);
+            }
+            summarize();
+            currentJournal = null;
+            this.onProgress({
+              completed: batch.entries.length,
+              total: entries.length,
+              name: entry.id,
+            });
+          } catch (error) {
+            if (error.code !== 'SHARED_DESKTOP_ACCESS') throw error;
+            if (currentJournal) currentJournal.error = 'SHARED_DESKTOP_ACCESS';
+            batch.error = 'SHARED_DESKTOP_ACCESS';
+            summarize();
             await this.save(log);
+            currentJournal = null;
           }
-          summarize();
-          currentJournal = null;
-          this.onProgress({
-            completed: batch.entries.length,
-            total: entries.length,
-            name: entry.id,
-          });
         }
+        if (batch.error) throw Error(batch.error);
+
         batch.status = 'completed';
         summarize();
         await this.save(log);
@@ -571,7 +706,11 @@ class DesktopService {
       entry.action !== 'shortcut' &&
       (!validId(path.basename(entry.source)) ||
         path.dirname(entry.source) !==
-          (entry.sourceScope === 'downloads' ? this.downloads : this.desktop) ||
+          (entry.sourceScope === 'shared'
+            ? this.sharedDesktop
+            : entry.sourceScope === 'downloads'
+              ? this.downloads
+              : this.desktop) ||
         path.basename(entry.source) !== path.basename(entry.target))
     )
       throw Error('HISTORY_UNSAFE');
@@ -584,6 +723,7 @@ class DesktopService {
       const pending = [...batch.entries].reverse().filter((e) => !e.undone && e.stage !== 'undone');
       // Validate all entries before undoing the first one.
       for (const entry of pending) {
+        if (entry.sourceScope === 'shared') await this.assertSharedSource(entry.source);
         this.validateJournal(entry, batch);
         await this.safeDirectory(path.dirname(entry.target), false, batch.categoryPaths || folders);
         const target = await exists(entry.target);

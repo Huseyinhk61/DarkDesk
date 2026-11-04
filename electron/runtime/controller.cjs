@@ -14,6 +14,7 @@ class DesktopRuntime {
   constructor({
     desktop,
     downloads,
+    sharedDesktop,
     data,
     platform = process.platform,
     resolveShortcut,
@@ -23,6 +24,7 @@ class DesktopRuntime {
   }) {
     this.desktop = desktop;
     this.downloads = downloads;
+    this.sharedDesktop = sharedDesktop;
     this.data = data;
     this.platform = platform;
     this.emit = emit;
@@ -41,6 +43,7 @@ class DesktopRuntime {
     });
     this.service = new DesktopService(desktop, data, {
       downloads,
+      sharedDesktop,
       scanner: this.scanner,
       folderIcons: new FolderIcons(data, platform),
       resolveShortcut,
@@ -65,6 +68,7 @@ class DesktopRuntime {
   async status() {
     return {
       busy: this.busy,
+      desktopScanReport: structuredClone(this.service.scanReport),
       profile: await this.profiles.status(),
       automation: await this.automation.status(),
       shortcuts: this.shortcuts,

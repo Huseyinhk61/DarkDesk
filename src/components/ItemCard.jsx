@@ -1,4 +1,4 @@
-import { Check, ChevronDown, ExternalLink, Folder } from 'lucide-react';
+import { Check, ChevronDown, ExternalLink, Folder, Users } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import NativeItemIcon from './NativeItemIcon';
 import ItemDetails from './ItemDetails';
@@ -6,6 +6,7 @@ import { usePreferences } from '../preferences';
 import AppIcon from './AppIcon';
 import { icons } from '../../shared/domain';
 import { formatBytes, isShortcut } from '../utils';
+import '../desktop-scan.css';
 export default function ItemCard({
   item,
   selected,
@@ -60,6 +61,12 @@ export default function ItemCard({
             {item.name.replace(/\.(lnk|exe|url|desktop)$/i, '')}
           </button>
         </h3>
+        {(item.shared || item.sourceScope === 'shared') && (
+          <span className="shared-item-badge" title={t('scanSummary.sharedHint')}>
+            <Users size={12} />
+            {t('scanSummary.source.shared')}
+          </span>
+        )}
         {item.insight?.description?.[language] && (
           <div className="item-purpose">
             <span className={`purpose-badge ${item.insight.confidence === 'known' ? 'known' : ''}`}>

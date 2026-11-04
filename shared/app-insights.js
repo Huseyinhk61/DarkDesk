@@ -21,17 +21,27 @@ export function leafName(value = '') {
   return text.replace(/\\/g, '/').split('/').at(-1) || '';
 }
 export function normalizeAppName(value) {
-  return String(value)
+  let name = String(value)
     .slice(0, 512)
     .normalize('NFKD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .replace(/ı/g, 'i')
     .replace(/\.(exe|lnk|url|desktop|appimage|app|webloc|bat|cmd)$/i, '')
-    .replace(/\.(exe|lnk)$/i, '')
-    .replace(/\s*\(\d+\)\s*$/, '')
-    .replace(/(?:\s*[-–—]\s*)?(?:kisayol|shortcut)\s*$/, '')
-    .replace(/\s*[([](?:x64|x86|64[ -]?bit|32[ -]?bit)[)\]]\s*$/, '')
+    .replace(/\.(exe|lnk)$/i, '');
+  // Explorer can append copy, architecture and shortcut labels in either
+  // order. Removing them once leaves "Chrome (2) - Shortcut" unidentified.
+  // Only recognized decorations are removed; product/version numbers remain.
+  for (let pass = 0; pass < 4; pass++) {
+    const stripped = name
+      .replace(/\s*\(\d+\)\s*$/, '')
+      .replace(/(?:\s*[-–—]\s*)?(?:kisayol|shortcut)\s*$/, '')
+      .replace(/\s*[([](?:x64|x86|64[ -]?bit|32[ -]?bit)[)\]]\s*$/, '')
+      .trim();
+    if (stripped === name) break;
+    name = stripped;
+  }
+  return name
     .replace(/[^a-z0-9+]+/g, ' ')
     .trim()
     .replace(/\s+/g, ' ');
@@ -64,12 +74,43 @@ const launchHosts = new Set([
   'upc',
   'galaxyclient',
 ]);
+export function gameLaunchCategory(value) {
+  if (typeof value !== 'string' || value.length > 8192 || /[\x00-\x20\x7f]/.test(value))
+    return null;
+  try {
+    const url = new URL(value);
+    if (url.username || url.password || url.port) return null;
+    const protocol = url.protocol.toLowerCase(),
+      host = url.hostname.toLowerCase(),
+      pathname = url.pathname;
+    if (
+      (protocol === 'steam:' &&
+        ['run', 'rungameid'].includes(host) &&
+        /^\/\d+(?:\/|$)/.test(pathname)) ||
+      (protocol === 'uplay:' && host === 'launch' && /^\/\d+(?:\/|$)/.test(pathname)) ||
+      (protocol === 'com.epicgames.launcher:' &&
+        host === 'apps' &&
+        /^\/[a-z0-9%:_-]+\/?$/i.test(pathname) &&
+        url.searchParams.get('action') === 'launch') ||
+      (['origin:', 'link2ea:'].includes(protocol) &&
+        host === 'launchgame' &&
+        /^\/[a-z0-9%:_-]+\/?$/i.test(pathname))
+    )
+      return 'games';
+  } catch {
+    // A malformed InternetShortcut remains an ordinary, manually assignable item.
+  }
+  return null;
+}
 export function findKnownApp(item) {
   const name = leafName(item.name || item.source),
     extension = /\.([a-z0-9]+)$/i.exec(name)?.[1]?.toLowerCase();
   const appLike =
     appExtensions.has(extension) || ['shortcut', 'installed'].includes(item.kind) || !extension;
   if (!appLike) return null;
+  // A game shortcut launches through a client but does not identify that client
+  // (or another catalog app with the same shortcut label) as the game itself.
+  if (gameLaunchCategory(item.launchUrl)) return null;
   const target = leafName(item.target);
   // A product's installation directory does not identify helper executables.
   if ((target && helpers.test(target)) || (!target && helpers.test(name))) return null;
@@ -78,7 +119,11 @@ export function findKnownApp(item) {
     ? [name, productName]
     : [target, name, productName];
   for (const candidate of candidates) {
-    const app = aliases.get(normalizeAppName(candidate));
+    const normalized = normalizeAppName(candidate);
+    const versionless = normalized
+      .replace(/\s+v?\d{1,4}(?:\s+\d{1,4}){0,2}$/, '')
+      .replace(/\s+v?\d{1,4}(?:\s+\d{1,4}){0,2}(?=\s+(?:pro|studio)$)/, '');
+    const app = aliases.get(normalized) || aliases.get(versionless);
     if (app) return app;
   }
   return null;
@@ -171,6 +216,17 @@ const parentCategory = (id) =>
   ['software', 'system', 'internet', 'learning', 'finance'].find((root) => id?.startsWith(root)) ||
   id;
 export function appInsight(item, categoryId) {
+  if (gameLaunchCategory(item.launchUrl))
+    return {
+      appId: null,
+      categoryId: 'games',
+      confidence: 'inferred',
+      source: 'shortcut-protocol',
+      description: {
+        tr: 'Oyun başlatma bağlantısı içeren bir kısayol. Başlatıcı protokolüne göre oyun grubuna önerilir; oyunun kimliği yerel katalogdan doğrulanmadı.',
+        en: 'A shortcut containing a game launch link. Its launcher protocol suggests the games group; the game identity was not verified against the local catalog.',
+      },
+    };
   const app = findKnownApp(item);
   if (app)
     return {

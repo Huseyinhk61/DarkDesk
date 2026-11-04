@@ -40,6 +40,7 @@ import { useUpdates } from './useUpdates';
 import UpdateNotice from './components/UpdateNotice';
 import { refreshNativeIcons } from './components/NativeItemIcon';
 import OperationReceipt from './components/OperationReceipt';
+import DesktopScanSummary from './components/DesktopScanSummary';
 export default function App() {
   const { settings, setSettings, t, locale, errorMessage, categoryLabel } = usePreferences();
   const [view, setView] = useState('groups'),
@@ -99,8 +100,8 @@ export default function App() {
   const refresh = useCallback(async () => {
     const requestedScope = scopeRef.current;
     const request = ++refreshRequest.current;
-    const [data, batches, system, runtimeState] = await Promise.all([
-      api.scan(requestedScope),
+    const data = await api.scan(requestedScope);
+    const [batches, system, runtimeState] = await Promise.all([
       api.history(),
       api.stats(),
       api.runtimeStatus(),
@@ -591,6 +592,19 @@ export default function App() {
                 scope={scope}
                 organize={preview}
               />
+              {scope === 'desktop' && (
+                <DesktopScanSummary
+                  report={runtime?.desktopScanReport}
+                  mode={settings.mode}
+                  filteredCount={visible.length}
+                  totalCount={items.length}
+                  onClearFilters={() => {
+                    setQuery('');
+                    setFilter(null);
+                    setType('all');
+                  }}
+                />
+              )}
               <OperationReceipt
                 batch={[...history].reverse().find((batch) => batch.status !== 'undone')}
                 busy={blocked}

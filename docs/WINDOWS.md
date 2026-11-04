@@ -9,7 +9,7 @@ For a ready-to-run installer, see [Windows packages](#windows-packages). Node.js
 3. Find `package.json` inside `DarkDesk-main`. Type `powershell` in File Explorer’s address bar and press Enter.
 4. Double-click `DarkDesk-Baslat.cmd` for a guided startup, or run `npm ci` in the terminal. Once it completes successfully, run `npm run desktop`.
 
-If OneDrive manages your desktop, its folder may be under `C:\Users\...\OneDrive\Desktop` or a localized equivalent such as `Masaüstü`. DarkDesk uses the desktop location reported by the operating system for file operations. You can view this path in Settings.
+If OneDrive manages your desktop, its folder may be under `C:\Users\...\OneDrive\Desktop` or a localized equivalent such as `Masaüstü`. DarkDesk uses the desktop location reported by the operating system for file operations. You can view this path in Settings. The desktop coverage panel also shows the common Windows desktop source and any access errors.
 
 ## Troubleshooting
 
@@ -84,7 +84,7 @@ Use the [Releases page](https://github.com/Huseyinhk61/DarkDesk/releases) for pu
 Verify a downloaded installer:
 
 ```powershell
-Get-FileHash .\DarkDesk-Setup-3.4.2.exe -Algorithm SHA256
+Get-FileHash .\DarkDesk-Setup-3.4.3.exe -Algorithm SHA256
 ```
 
 Compare the result with `SHA256SUMS.txt` from the same release. Packages are currently unsigned, so Windows may show a publisher warning.
@@ -109,3 +109,5 @@ Automations start disabled. Preview them, check their destinations, then enable 
 For icons, application details, and shortcut conflicts, see the [desktop interface guide](DESKTOP-UX.md).
 
 For organization results and missing application logos, see the [organization and icon guide](ORGANIZATION.md).
+
+For remote GitHub push errors, missing EXE releases, or update-feed 404 responses, see [GitHub troubleshooting](GITHUB-TROUBLESHOOTING.md).

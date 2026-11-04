@@ -23,6 +23,8 @@ class AutomationService {
     const desktop = await this.service.scan(settings);
     const archive = desktop.filter(
       (i) =>
+        i.sourceScope !== 'shared' &&
+        !i.shared &&
         i.modified < this.clock() - config.archiveDays * 86400000 &&
         state.routed[i.id] !== version(i),
     );
@@ -66,7 +68,9 @@ class AutomationService {
       const groups = [];
       if (config.archiveEnabled)
         groups.push({
-          items: candidates.archive.map((i) => ({ ...i, category: config.archiveCategoryId })),
+          items: candidates.archive
+            .filter((i) => i.sourceScope !== 'shared' && !i.shared)
+            .map((i) => ({ ...i, category: config.archiveCategoryId })),
           mode: 'move',
           origin: 'automation-archive',
         });

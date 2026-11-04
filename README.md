@@ -34,18 +34,18 @@ Release downloads become available after the [Windows packaging workflow](https:
 
 ## Features
 
-| Capability                                | What it does                                                                                                                                              |
-| :---------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Real desktop organization**             | Move or copy selected desktop files into physical category folders. Review destinations and conflicts before applying changes.                            |
-| **Three scanning sources**                | Switch between Desktop, Installed apps, and Downloads. Installed programs stay in place; organization creates shortcuts instead.                          |
-| **Smart groups and custom rules**         | Start with **10 main groups and 25 groups in total**. Add nested categories, keyword or regex rules, and remembered manual assignments.                   |
-| **Original app icons and useful details** | Read native app icons where available. Inspect file metadata and local purpose descriptions for **91 recognized apps**, with clearly labeled fallbacks.   |
-| **Focus profiles**                        | Keep relevant desktop items visible for coding, gaming, or creative work. Restore visibility when you leave the profile.                                  |
-| **Quick launcher**                        | Press **Alt+X** on a new installation to search indexed apps, files, and commands. Assign your own global shortcuts; saved custom bindings are preserved. |
-| **Optional automation**                   | Enable archive rules for older files and routing for stable Downloads files. File operations are logged and can be undone.                                |
-| **Make it comfortable**                   | Choose **11 color palettes plus the system theme**, **4 font-family choices**, and **5 icon packs**. Adjust text size, density, and motion.               |
-| **English and Turkish**                   | Change the interface language without restarting. Native tray text follows the selected language.                                                         |
-| **In-app updates**                        | Installed Windows builds can check public GitHub Releases without a personal token. Get notified, then download and restart when you choose.              |
+| Capability                                | What it does                                                                                                                                                                                       |
+| :---------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Real desktop organization**             | Move or copy selected desktop files into physical category folders. Review destinations and conflicts before applying changes.                                                                     |
+| **Three scanning sources**                | Switch between Desktop, Installed apps, and Downloads. Desktop discovery includes personal and common Windows shortcuts. Installed programs stay in place; organization creates shortcuts instead. |
+| **Smart groups and custom rules**         | Start with **10 main groups and 25 groups in total**. Add nested categories, keyword or regex rules, and remembered manual assignments.                                                            |
+| **Original app icons and useful details** | Read native app icons where available. Inspect file metadata and local purpose descriptions for **94 recognized apps**, with clearly labeled fallbacks.                                            |
+| **Focus profiles**                        | Keep relevant desktop items visible for coding, gaming, or creative work. Restore visibility when you leave the profile.                                                                           |
+| **Quick launcher**                        | Press **Alt+X** on a new installation to search indexed apps, files, and commands. Assign your own global shortcuts; saved custom bindings are preserved.                                          |
+| **Optional automation**                   | Enable archive rules for older files and routing for stable Downloads files. File operations are logged and can be undone.                                                                         |
+| **Make it comfortable**                   | Choose **11 color palettes plus the system theme**, **4 font-family choices**, and **5 icon packs**. Adjust text size, density, and motion.                                                        |
+| **English and Turkish**                   | Change the interface language without restarting. Native tray text follows the selected language.                                                                                                  |
+| **In-app updates**                        | Installed Windows builds can check public GitHub Releases without a personal token. Get notified, then download and restart when you choose.                                                       |
 
 ### Organize in four steps
 
@@ -139,6 +139,7 @@ Install Chromium once with `npx playwright install chromium` before browser test
 ## Documentation
 
 - [Windows setup and troubleshooting](docs/WINDOWS.md)
+- [GitHub push and release troubleshooting](docs/GITHUB-TROUBLESHOOTING.md)
 - [Installation, in-app updates, and publishing](docs/UPDATES.md)
 - [Organization, icons, and recovery](docs/ORGANIZATION.md)
 - [Themes, readability, and everyday use](docs/USABILITY.md)

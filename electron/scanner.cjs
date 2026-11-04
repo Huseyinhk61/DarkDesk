@@ -1,3 +1,4 @@
+const { readInternetShortcut } = require('./internet-shortcut.cjs');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const os = require('node:os');
@@ -95,6 +96,11 @@ class DeepScanner {
             detail = await this.resolveShortcut(file);
           } catch {}
         }
+        if (extension === '.url') {
+          try {
+            Object.assign(detail, await readInternetShortcut(file));
+          } catch {}
+        }
         const target = detail.target || file;
         const key = keyOf(target) + '\0' + (detail.args || '').trim();
         if (found.has(key)) return;
@@ -104,6 +110,7 @@ class DeepScanner {
           name: path.basename(file),
           source: file,
           target,
+          launchUrl: detail.launchUrl || '',
           arguments: detail.args || '',
           workingDirectory: detail.cwd || '',
           kind: 'installed',

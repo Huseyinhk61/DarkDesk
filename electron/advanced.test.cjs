@@ -262,7 +262,11 @@ test('both locale dictionaries have identical keys and interpolation variables',
     en = require('../src/locales/en.json');
   assert.deepEqual(Object.keys(tr).sort(), Object.keys(en).sort());
   for (const key of Object.keys(tr))
-    assert.deepEqual(tr[key].match(/\{\w+\}/g) || [], en[key].match(/\{\w+\}/g) || [], key);
+    assert.deepEqual(
+      (tr[key].match(/\{\w+\}/g) || []).sort(),
+      (en[key].match(/\{\w+\}/g) || []).sort(),
+      key,
+    );
 });
 test('resuming a shortcut undo never compares or deletes the original executable', async (t) => {
   const { desktop, programs, data } = await fixture(t);

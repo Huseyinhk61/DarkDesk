@@ -7,6 +7,9 @@ app.setPath('downloads', path.join(process.env.DARKDESK_TEST_ROOT, 'Downloads'))
 app.setPath('userData', path.join(process.env.DARKDESK_TEST_ROOT, 'data'));
 process.argv.push('--production');
 const base = process.env.DARKDESK_TEST_PACKAGE || path.resolve(__dirname, '../..');
+const desktopPaths = require(path.join(base, 'electron/runtime/desktop-paths.cjs'));
+desktopPaths.resolveSharedDesktop = async () =>
+  path.join(process.env.DARKDESK_TEST_ROOT, 'Public Desktop');
 const scanner = require(path.join(base, 'electron/scanner.cjs'));
 const Original = scanner.DeepScanner;
 scanner.DeepScanner = class extends Original {

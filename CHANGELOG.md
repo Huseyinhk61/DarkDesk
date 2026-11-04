@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.4.3 — November 4, 2026
+
+- Discover personal and common Windows desktop shortcuts, with distinct identities, source counts and access diagnostics.
+- Preview common-desktop moves explicitly, preserve undo, continue other selected items after common-source permission failures, and exclude shared sources from unattended archiving.
+- Read bounded UTF-8/UTF-16 game InternetShortcut metadata locally; preserve manual/rule precedence and avoid mistaking a game for its launcher.
+- Recognize repeated shortcut/copy labels and product version suffixes; add FlutterFlow, VMware Workstation Pro and Windhawk to the 94-app local purpose catalog.
+- Show copy-mode behavior, per-item actions, shared-source badges, source paths and filtered result counts.
+- Isolate mocked icon tests from the Windows shell, normalize equivalent test paths, and expose CI failure diagnostics in GitHub annotations.
+
 ## 3.4.2 — November 4, 2026
 
 - Public GitHub update provider that requires no personal access token and never reads a historical private-feed credential.

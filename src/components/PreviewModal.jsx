@@ -1,10 +1,20 @@
-import { ArrowRight, AlertTriangle, FolderCheck, ShieldCheck, Link2 } from 'lucide-react';
+import {
+  ArrowRight,
+  AlertTriangle,
+  FolderCheck,
+  ShieldCheck,
+  Link2,
+  Copy,
+  Users,
+} from 'lucide-react';
 import Modal from './Modal';
 import { usePreferences } from '../preferences';
 import { formatBytes } from '../utils';
+import '../desktop-scan.css';
 export default function PreviewModal({ plan, native, onClose, onConfirm }) {
   const { t, locale, errorMessage } = usePreferences();
   const shortcut = plan.entries.some((e) => e.action === 'shortcut');
+  const shared = plan.entries.some((e) => e.shared || e.sourceScope === 'shared');
   return (
     <Modal title={t('preview.title')} onClose={onClose}>
       <p>{t('preview.body', { count: plan.ready })}</p>
@@ -18,6 +28,18 @@ export default function PreviewModal({ plan, native, onClose, onConfirm }) {
         <div className="notice">
           <Link2 size={17} />
           {t('scan.safe')}
+        </div>
+      )}
+      {plan.mode === 'copy' && plan.entries.some((entry) => entry.action === 'copy') && (
+        <div className="notice preview-mode-notice">
+          <Copy size={17} />
+          {t('preview.copyNotice')}
+        </div>
+      )}
+      {shared && (
+        <div className="notice preview-shared-notice">
+          <Users size={17} />
+          {t(plan.mode === 'move' ? 'preview.sharedMoveNotice' : 'preview.sharedCopyNotice')}
         </div>
       )}
       <div className="preview-totals">
@@ -43,13 +65,28 @@ export default function PreviewModal({ plan, native, onClose, onConfirm }) {
               <small title={entry.target}>
                 {entry.conflict ? errorMessage(entry.conflict) : entry.categoryPath || entry.target}
               </small>
+              {(entry.shared || entry.sourceScope === 'shared') && (
+                <span className="shared-item-badge">
+                  <Users size={12} />
+                  {t('scanSummary.source.shared')}
+                </span>
+              )}
+              {entry.source && (
+                <small className="preview-source-path" title={entry.source}>
+                  {t('preview.source')}: {entry.source}
+                </small>
+              )}
             </div>
-            <span>
+            <span className="preview-action">
               {entry.conflict
                 ? t('preview.skip')
-                : entry.action === 'shortcut'
-                  ? t('common.shortcut')
-                  : formatBytes(entry.size, locale)}
+                : t(
+                    'preview.action.' +
+                      (['move', 'copy', 'shortcut'].includes(entry.action)
+                        ? entry.action
+                        : plan.mode),
+                  )}
+              {!entry.conflict && <small>{formatBytes(entry.size, locale)}</small>}
             </span>
           </div>
         ))}

@@ -5,6 +5,7 @@ const {
   findKnownApp,
   appInsight,
   normalizeAppName,
+  gameLaunchCategory,
 } = require('../shared/app-insights.js');
 const { classify, defaultCategory, enrichItem, defaultSettings } = require('../shared/domain.js');
 const settings = () => structuredClone(defaultSettings);
@@ -21,7 +22,7 @@ test('common Windows executable names and renamed shortcuts identify useful app 
     ['Docker Desktop.exe', 'docker', 'softwaredevops'],
     ['AfterFX.exe', 'aftereffects', 'design'],
     ['resolve.exe', 'davinci', 'design'],
-    ['obs64.exe', 'obs', 'media'],
+    ['obs64.exe', 'obs', 'design'],
     ['7zFM.exe', '7zip', 'systemcompression'],
     ['SnippingTool.exe', 'snipping', 'systemutilities'],
     ['notepad.exe', 'notepad', 'office'],
@@ -55,6 +56,69 @@ test('matching normalizes shortcut suffixes, copies, Turkish letters and quoted 
     'edge',
   );
   assert.equal(normalizeAppName('Microsoft Edge.exe.lnk'), 'microsoft edge');
+});
+test('Explorer copy and shortcut suffix ordering does not send browsers to system tools', () => {
+  for (const name of [
+    'Google Chrome (2) - Shortcut.lnk',
+    'Google Chrome - Shortcut (2).lnk',
+    'Google Chrome (2) - Kısayol (3) (64-bit).lnk',
+    'Mozilla Firefox (2) - Kısayol.lnk',
+  ]) {
+    const item = enrichItem({ id: name, name });
+    assert.equal(item.category, 'internetbrowsers', name);
+    assert.equal(item.insight.source, 'local-catalog', name);
+  }
+  assert.equal(normalizeAppName('Half-Life 2.url'), 'half life 2');
+  assert.equal(normalizeAppName('Google Chrome 132.0.lnk'), 'google chrome 132 0');
+  assert.equal(findKnownApp({ name: 'Chrome notes (2) - Shortcut.txt' }), null);
+});
+test('game InternetShortcut protocols suggest games without claiming a launcher identity', () => {
+  for (const launchUrl of [
+    'steam://rungameid/220',
+    'steam://run/730//',
+    'uplay://launch/54/0',
+    'com.epicgames.launcher://apps/namespace%3Aproduct%3Aapp?action=launch&silent=true',
+    'origin://launchgame/OFB-EAST:12345',
+    'link2ea://launchgame/12345?platform=steam',
+  ]) {
+    const item = enrichItem({ id: 'game.url', name: 'Driver Update.url', launchUrl });
+    assert.equal(item.category, 'games', launchUrl);
+    assert.equal(item.insight.confidence, 'inferred');
+    assert.equal(item.insight.source, 'shortcut-protocol');
+    assert.equal(item.insight.appId, null);
+    assert.equal(item.suggestion, null);
+    assert.equal(defaultCategory(item.name, '', launchUrl), 'games');
+  }
+  const steam = { id: 'steam.url', name: 'Steam.url', launchUrl: 'steam://rungameid/220' };
+  assert.equal(findKnownApp(steam), null);
+  assert.notEqual(
+    enrichItem(steam).insight.description.en,
+    appInsight({ name: 'Steam.exe' }, 'games').description.en,
+  );
+});
+test('game launch hints retain manual and rule priority and reject unrelated or malformed links', () => {
+  const item = { id: 'game.url', name: 'Half-Life 2.url', launchUrl: 'steam://rungameid/220' };
+  let value = settings();
+  value.overrides[item.id] = 'office';
+  assert.equal(classify(item, value), 'office');
+  value = settings();
+  value.rules = [
+    { id: 'urls', pattern: '.url', match: 'extension', categoryId: 'archive', enabled: true },
+  ];
+  assert.equal(classify(item, value), 'archive');
+  value = settings();
+  value.categories = value.categories.filter((c) => c.id !== 'games');
+  assert.equal(classify(item, value), value.categories[0].id);
+  for (const launchUrl of [
+    'https://store.steampowered.com/app/220',
+    'steam://open/friends',
+    'steam://rungameid/not-a-number',
+    'steam://rungameid/220\n',
+    'com.epicgames.launcher://apps/game?action=download',
+    'unknown://run/220',
+    'not a URL',
+  ])
+    assert.equal(gameLaunchCategory(launchUrl), null, launchUrl);
 });
 test('documents and incidental installation folders cannot impersonate catalog applications', () => {
   for (const name of ['Chrome plan.pdf', 'Steam notes.txt', 'Word.png', 'Photoshop invoice.docx']) {

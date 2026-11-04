@@ -9,6 +9,7 @@ const { folders } = require('../electron/service.cjs');
   const desktop = path.join(root, 'Desktop');
   await fs.mkdir(desktop);
   await fs.mkdir(path.join(root, 'Downloads'));
+  await fs.mkdir(path.join(root, 'Public Desktop'));
   await fs.mkdir(path.join(root, 'data'));
   await fs.writeFile(path.join(desktop, 'Rapor.pdf'), 'native IPC content');
   const programs = path.join(root, 'Program Files');
@@ -211,6 +212,28 @@ const { folders } = require('../electron/service.cjs');
     await page.getByRole('button', { name: 'Automation & Settings', exact: true }).click();
     await expect(page.getByLabel('Icon pack', { exact: true })).toHaveValue('rounded');
 
+    const commonShortcut = path.join(root, 'Public Desktop', 'Counter-Strike 2.url');
+    const gameBytes = '[InternetShortcut]\r\nURL=steam://rungameid/730\r\n';
+    await fs.writeFile(commonShortcut, gameBytes);
+    const commonItems = await page.evaluate(() => window.darkdesk.scan('desktop'));
+    const common = commonItems.find((item) => item.shared);
+    assert.equal(common.category, 'games');
+    assert.equal(common.sourceScope, 'shared');
+    const coverage = await page.evaluate(() => window.darkdesk.runtimeStatus());
+    assert.equal(
+      coverage.desktopScanReport.sources.find((source) => source.scope === 'shared').count,
+      1,
+    );
+    const commonPlan = await page.evaluate(
+      (item) => window.darkdesk.preview([{ id: item.id, category: item.category }], 'move'),
+      common,
+    );
+    await page.evaluate((token) => window.darkdesk.organize(token), commonPlan.token);
+    await assert.rejects(fs.stat(commonShortcut), { code: 'ENOENT' });
+    assert.equal(await fs.readFile(commonPlan.entries[0].target, 'utf8'), gameBytes);
+    await page.evaluate(() => window.darkdesk.undo());
+    assert.equal(await fs.readFile(commonShortcut, 'utf8'), gameBytes);
+    await fs.unlink(commonShortcut);
     await page.getByRole('button', { name: 'Workspace Profiles', exact: true }).click();
     await page.locator('.profile-activate').filter({ hasText: 'Clean Desktop' }).click();
     await expect(page.locator('.activity-bar')).toHaveCount(0);
@@ -324,13 +347,21 @@ const { folders } = require('../electron/service.cjs');
     assert.equal(typeof geometry.maximized, 'boolean');
     assert.equal(await visibility.get(path.join(desktop, 'Rapor.pdf')), false);
     console.log(
-      'PASS: production Electron renderer, isolated IPC, no Node in renderer, non-mutating preview, real move/undo, file watcher, installed-app shortcuts/undo, shortcut icons, focus visibility/quit restore, source-specific scanner switching, native Spotlight dispatch, trusted native icons/metadata, shortcut capture/resume, tray hiding, archive/Downloads automation and persistent preferences.',
+      'PASS: production Electron renderer, isolated IPC, no Node in renderer, non-mutating preview, real move/undo, file watcher, installed-app shortcuts/undo, shortcut icons, focus visibility/quit restore, source-specific scanner switching, common-desktop discovery/game categorization/move/undo, native Spotlight dispatch, trusted native icons/metadata, shortcut capture/resume, tray hiding, archive/Downloads automation and persistent preferences.',
     );
   } finally {
     if (application) await application.close();
     await fs.rm(root, { recursive: true, force: true });
   }
 })().catch((error) => {
+  if (process.env.GITHUB_ACTIONS === 'true') {
+    const message = String(error.stack || error)
+      .slice(0, 6000)
+      .replaceAll('%', '%25')
+      .replaceAll('\r', '%0D')
+      .replaceAll('\n', '%0A');
+    console.log('::error title=DarkDesk native smoke test::' + message);
+  }
   console.error(error);
   process.exitCode = 1;
 });
