@@ -1,3 +1,4 @@
+import { version as appVersion } from '../../package.json';
 import {
   Layers3,
   LayoutGrid,
@@ -101,7 +102,9 @@ export default function Sidebar({ view, setView, stats, native }) {
           <span className="avatar">DD</span>
           <div>
             {t('sidebar.local')}
-            <small>v3.4.1 · {t(native ? 'sidebar.desktop' : 'sidebar.web')}</small>
+            <small>
+              v{appVersion} · {t(native ? 'sidebar.desktop' : 'sidebar.web')}
+            </small>
           </div>
           <span className="online" />
         </footer>

@@ -64,6 +64,7 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: DarkDesk-Windows
@@ -80,11 +81,11 @@ jobs:
           if gh release view "$tag" --json isDraft --jq .isDraft > /tmp/darkdesk-release-state; then
             if [ "$(cat /tmp/darkdesk-release-state)" = "true" ]; then
               gh release upload "$tag" "${assets[@]}" --clobber
-              gh release edit "$tag" --draft=false --latest
+              gh release edit "$tag" --notes-file .github/RELEASE_NOTES.md --draft=false --latest
             else
               echo "Release $tag already published. Bump package.json for another update."
             fi
           else
-            gh release create "$tag" "${assets[@]}" --target "$RELEASE_SHA" --title "DarkDesk $tag" --generate-notes --draft
+            gh release create "$tag" "${assets[@]}" --target "$RELEASE_SHA" --title "DarkDesk $tag" --notes-file .github/RELEASE_NOTES.md --draft
             gh release edit "$tag" --draft=false --latest
           fi

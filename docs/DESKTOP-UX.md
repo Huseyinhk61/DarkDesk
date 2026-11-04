@@ -1,29 +1,29 @@
-# Yerel ikonlar, ayrıntılar ve kısayollar
+# Native icons, app details, and shortcuts
 
-## Uygulama ikonları ve bilgi paneli
+## Application icons and information
 
-DarkDesk, kartlarda ve Spotlight sonuçlarında Electron `app.getFileIcon` ile dosyanın işletim sistemi ikonunu gösterir. `.lnk` için önce kısayolun ikonu, okunamazsa yerel hedefin ikonu denenir. İşletim sistemi ikon sağlayamazsa seçili kategori/öğe ikonu kullanılır. İkon paketi seçimi kategori ve yedek ikon görünümünü kişiselleştirir.
+DarkDesk uses Electron `app.getFileIcon` to show operating-system icons in cards and Spotlight results. For `.lnk` files, it first tries the shortcut's icon, then its local target. If the operating system cannot provide an icon, DarkDesk uses the selected category or item icon. Icon packs customize category and fallback icons.
 
-Kartın ikonuna veya adına tıklamak bilgi panelini açar. Klavyeyle Tab ve Enter da kullanılabilir. Dosya boyutu ve tarihler dosya sisteminden gelir; kısayollarda bu alanlar kısayol dosyasını anlatır. Windows `.exe` açıklaması ve üretici alanı sürüm kaynağından okunur; `.lnk` için yerel executable hedef kullanılır. Bu alanlar her dosyada bulunmaz ve doğrulanmış üretici kimliği sayılmaz. Eksik alanlar açıkça belirtilir.
+Click a card's icon or name to open its information panel. You can also use Tab and Enter. File sizes and dates come from the file system; for shortcuts, they describe the shortcut file. On Windows, executable descriptions and company names come from version resources; shortcuts use their local executable target. These optional fields are not verified publisher identities. Missing information is labeled explicitly.
 
-Son başlatma, yalnızca DarkDesk üzerinden başarılı olarak iletilen başlatma isteklerini gösterir. Uygulamanın başka yerden açılması veya ne kadar çalıştığı izlenmez. Tarayıcı demosu yerel ikon veya üretici bilgisi uydurmaz.
+Last launch records only launch requests successfully submitted through DarkDesk. It does not track applications opened elsewhere or their running time. The browser demo does not invent native icons or publisher metadata.
 
-Renderer, dosya yolu göndererek bilgi okuyamaz: yalnızca taranmış güvenilir öğenin kimliği IPC ile kabul edilir. İkonlar görünür kartlar için yüklenir; paralel istekler ve önbellek boyutu sınırlıdır. Windows metadata okuması dosya adını komuta birleştirmez; JSON stdin, zaman aşımı ve çıktı sınırı kullanır.
+The renderer cannot submit arbitrary file paths to read metadata: IPC accepts only IDs from the trusted scan index. Icons load for visible cards, with bounded concurrency and caches. Windows metadata extraction uses JSON over stdin, a timeout, and an output limit rather than interpolating file names into commands.
 
-## Global kısayollar
+## Global shortcuts
 
-**Çalışma Profilleri → Global kısayollar** bölümünde başlatıcı kombinasyonunu veya profil kısayolunu düzenleyin. Ayarlarda da başlatıcı kaydedicisi bulunur:
+Open **Workspace Profiles → Global shortcuts** to change the launcher or profile bindings. The launcher recorder is also available in Settings.
 
-1. **Tuş kaydet** düğmesine veya kısayol alanına tıklayın.
-2. Ctrl/Alt/Command gibi bir değiştiriciyle harf, sayı, Space veya fonksiyon tuşuna basın.
-3. Yeni kombinasyonu kaydedin. Escape kaydı iptal eder; Tab, odak kaybı ve zaman aşımı da kayıt modundan çıkarır.
+1. Click **Record keys** or the shortcut field.
+2. Press a letter, number, Space, or function key with a modifier such as Ctrl, Alt, or Command.
+3. Save the combination. Escape cancels recording; Tab, loss of focus, and a timeout also leave recording mode.
 
-Kayıt sırasında DarkDesk global kısayolları geçici durur; böylece profil tuşuna basmak yanlışlıkla profili değiştirmez. İşlem sonunda yeniden kaydedilir. Aynı kombinasyonun birden fazla profile atanması engellenir. Yeni kombinasyon başka uygulama/OS tarafından ayrılmışsa kayıt reddedilir ve önceki çalışan atama korunur. Tema gibi ilgisiz ayar değişiklikleri çalışan tuşları silip tekrar kaydetmez.
+DarkDesk temporarily suspends its global shortcuts while recording, so pressing a profile combination does not activate that profile. Registration resumes afterward. Duplicate profile bindings are rejected. If another application or the operating system owns the new combination, DarkDesk rejects it and preserves the previous working binding. Unrelated settings changes, such as changing a theme, do not unregister working shortcuts.
 
-Global kayıt başarılı olduğunda DarkDesk odakta olmasa veya tepside olsa da Electron kombinasyonu dinler. Başka uygulamanın ayırdığı tuşlar, işletim sistemi kısıtlamaları, bazı tam ekran oyunlar ve güvenli masaüstü ekranları nedeniyle evrensel tetiklenme garantisi verilemez. Durum paneli gerçek kayıt sonucunu gösterir; çakışmada örneğin `Ctrl+Shift+Space` gibi başka kombinasyon seçin. Tarayıcı demosunda tuşlar yalnızca sayfa odaktayken çalışır.
+New installations use **Alt+X** for the launcher; existing personal bindings are preserved. A successfully registered shortcut works while DarkDesk is unfocused or in the system tray. Operating-system restrictions, reserved combinations, some full-screen games, and secure desktop screens can still prevent activation. The status panel reports the actual registration result. If a combination conflicts, try another, such as `Ctrl+Shift+Space`. Browser-demo shortcuts work only while the page has focus.
 
-![Klavyeden kısayol kaydetme · tarayıcı önizlemesi](assets/shortcuts.png)
+![Recording a keyboard shortcut in the browser preview](assets/shortcuts.png)
 
-## Sabit pencere düzeni
+## Fixed desktop layout
 
-Sidebar ve sürüklenebilir başlık çubuğu ana içerik kaydırılırken yerinde kalır. Pencere kontrol alanları en az 44 × 44 pikseldir. Mobil ve kısa ekranlarda gezinme alanı erişilebilir kalacak şekilde kendi içinde kayabilir. Bilgi paneli ve diğer diyaloglar pencere üstünde açılır; Escape ile kapanır ve odağı açan düğmeye döndürür.
+The sidebar and draggable title bar stay in place while the main content scrolls. Window controls have click targets of at least 44 × 44 pixels. On narrow or short screens, navigation can scroll independently to remain accessible. Information panels and other dialogs open above the window content, close with Escape, and return focus to the button that opened them.

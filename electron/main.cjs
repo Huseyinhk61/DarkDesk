@@ -22,7 +22,7 @@ const { DesktopRuntime } = require('./runtime/controller.cjs');
 const { ShortcutManager } = require('./runtime/shortcuts.cjs');
 const { validateSettings } = require('../shared/validate.js');
 const { resolveTheme } = require('../shared/appearance.js');
-const { PrivateUpdates } = require('./runtime/private-updates.cjs');
+const { createUpdates } = require('./runtime/updates.cjs');
 const { UpdateAccessStore } = require('./runtime/update-access.cjs');
 const { restoreWindowState, WindowStateStore } = require('./runtime/window-state.cjs');
 let win,
@@ -250,7 +250,7 @@ else {
       await runtime.initialize();
       const updateEnabled =
         app.isPackaged && process.platform === 'win32' && !process.env.PORTABLE_EXECUTABLE_FILE;
-      updates = new PrivateUpdates({
+      updates = createUpdates({
         accessStore: new UpdateAccessStore({ directory: app.getPath('userData'), safeStorage }),
         autoUpdater: updateEnabled ? require('electron-updater').autoUpdater : undefined,
         appVersion: app.getVersion(),

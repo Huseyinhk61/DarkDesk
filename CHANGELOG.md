@@ -1,105 +1,113 @@
-# Değişiklikler
+# Changelog
 
-## 3.4.1 — 4 Kasım 2026
+## 3.4.2 — November 4, 2026
 
-- Gizli GitHub deposu için kullanıcıya ait okuma anahtarıyla güncelleme erişimi.
-- Windows DPAPI ile şifreli saklama; durum/ayar JSON'unda anahtar içeriği yok.
-- Anahtar yokken özel depo isteklerini engelleme, değiştirme/silme ve yeni denetim zorunluluğu.
-- Özel yayın kaynağı ve kullanıcıya anahtar gömmeyen EXE yapılandırması.
+- Public GitHub update provider that requires no personal access token and never reads a historical private-feed credential.
+- English project page, banner, screenshot gallery, documentation, release notes, and contribution guidance.
+- English bug/feature forms and pull-request template, with repository publishing instructions.
+- Packaging and runtime update-source consistency checks; app and preview version labels follow the package version.
+- A one-time manual installation of 3.4.2 or later is required to switch existing 3.4.1 private-feed installations to the public updater.
 
-## 3.4.0 — 3 Kasım 2026
+## 3.4.1 — November 4, 2026
 
-- Sistem Tarama CTA'sı seçili kaynağı tarar; masaüstü/indirilenler artık yanlışlıkla derin uygulama taramasına geçmez.
-- Kaynak geçişinde filtre temizliği, gecikmiş sonuç koruması ve kaynağa uygun durum bilgisi.
-- Dört yeni palet, dört yerel yazı tipi ailesi, Rounded/Duotone UI ve native ikon paketleri.
-- Yeni internet/eğitim/finans grupları: 10 ana grup, 25 toplam grup; schema4 geçişi mevcut kullanıcı atamalarını korur.
-- Yeni kurulumlarda varsayılan Alt+X; kayıtlı kişisel atamalar değiştirilmez.
-- `electron-updater` ile açık indirme/kurulum, OS ve uygulama içi bildirim, ilerleme ve hata durumları.
-- Windows Setup/Portable, latest.yml ve blockmap doğrulaması; sürüm numarası arttığında otomatik GitHub Release yayını.
+- Update access for a private GitHub repository using the user's own read-only access token.
+- Encrypted Windows DPAPI storage; tokens are excluded from status and settings JSON.
+- No private-repository requests without a token; replace/remove controls and a fresh check after token changes.
+- Private release configuration without embedding user credentials in the EXE.
 
-## 3.3.0 — 3 Kasım 2026
+## 3.4.0 — November 3, 2026
 
-- Klasör dekorasyonu/attrib ve tarih koruma hataları artık asıl dosya taşımasını engellemez; uyarılar işlem günlüğüne kaydedilir.
-- Yalnızca içerik doğrulaması geçen hedefler başarı sayılır. Başarısız silmede kaynak ve doğrulanmış kopya korunur.
-- İşlem sonuç paneli, gerçek aksiyon sayıları, hedef klasörleri açma, atlama nedenleri ve geri alma.
-- `.lnk` ve `.url` kısayollarında özgün ikon/başlatma bilgileri; executable kısayollarında uygulamanın kendi ikonu.
-- Sabit PowerShell/Windows API üzerinden özgün ikon kaynağı çıkarma, PNG doğrulama, süre sınırı ve manuel yenileme.
-- 82 uygulamalık yerel Türkçe/İngilizce kullanım kataloğu; ad/hedef eşleştirme ve belirsiz öğeler için açık tahmin etiketi.
-- Kompakt başlık/profil şeridi/kategori kartları ve opak Spotlight paneli; ana kategori sayacı düzeltildi.
+- The System Scanner action scans the selected source; Desktop and Downloads no longer trigger installed-app discovery by mistake.
+- Source changes clear filters, reject stale results, and show source-specific status.
+- Four new palettes, four local font-family choices, and Rounded/Duotone UI and native icon packs.
+- New internet, learning, and finance categories: 10 main groups and 25 total groups; schema 4 migration preserves user assignments.
+- Alt+X is the default launcher shortcut for new installations; existing personal bindings are preserved.
+- Explicit download/install with `electron-updater`, OS and in-app notifications, progress, and error states.
+- Validation of Windows Setup/Portable packages, `latest.yml`, and blockmaps; automatic GitHub release publication when the version increases.
 
-## 3.2.0 — 3 Kasım 2026
+## 3.3.0 — November 3, 2026
 
-- Ocean Blue, Forest Green, Rose Light, Yüksek Kontrast ve canlı sistem teması seçeneği.
-- Ortak katalogdan tema doğrulaması, güvenli görünüm önbelleği, metin ölçeği/yoğunluk/hareket tercihleri.
-- Masaüstünde okunabilir metinler, büyük seçim alanları, daha esnek kart düzeni ve klavyeyle ana içeriğe geçiş.
-- Portal diyaloglar, inert arka plan, kararlı imleç/odak, klavye ile Spotlight kapatma ve diyalog içi hata bildirimi.
-- Görünüm değiştirilirken kaydedilmemiş taşıma/kopyalama ayarlarının korunması.
-- Pencere konumu/boyutu ve büyütme durumu; değişen monitörlerde görünür alana geri alma.
-- Native arka planın seçilen temayla eşleşmesi ve ekran alanına sığan Spotlight penceresi.
-- Türkçe/İngilizce yerel Yardım & Başlangıç rehberi.
-- Paket çıktıları ve test raporları yazılırken geliştirme ekranının beklenmedik sıfırlanmasını engelleyen izleyici düzeltmesi.
+- Folder decoration/attribute and timestamp-preservation failures no longer block the underlying file move; warnings are recorded in operation history.
+- Only content-verified destinations count as successful. If source deletion fails, both the source and verified copy are retained.
+- Operation results show actual action counts, target-folder links, skip reasons, and undo.
+- Original icon and launch information for `.lnk` and `.url` shortcuts; executable shortcuts retain their app icons.
+- Native icon extraction through fixed PowerShell/Windows APIs, with PNG validation, timeouts, and manual refresh.
+- An 82-app local Turkish/English purpose catalog, name/target matching, and explicit estimate labels for unknown items.
+- Compact headings, profile strip, and category cards; an opaque Spotlight panel; corrected main-category count.
 
-## 3.1.0 — 3 Kasım 2026
+## 3.2.0 — November 3, 2026
 
-- Güvenilir indeks üzerinden orijinal `.exe` / `.lnk` ikonları; lazy yükleme ve sınırlı fingerprint önbelleği.
-- Boyut, dosya tarihleri, Windows sürüm kaynağından açıklama/üretici ve DarkDesk başlatma günlüğü ile ayrıntı paneli.
-- Sabit başlık çubuğu/sidebar, yalnızca ana içerikte kaydırma ve büyük pencere kontrol alanları.
-- Temalara uygun daha belirgin kategori kenarlıkları, metinler ve ikon vurguları.
-- Klavyeden kısayol kaydedici, yinelenen atama kontrolü, çalışan kayıtları koruyan global kısayol güncellemesi.
-- Kayıt sırasında geçici kısayol duraklatma; iptal, odak kaybı ve zaman aşımında geri yükleme.
-- Windows görünürlük çıktısında gecikmiş stdout ve parçalı UTF-8 okuma düzeltmesi.
+- Ocean Blue, Forest Green, Rose Light, High Contrast, and a live System Theme option.
+- Shared theme validation, safe appearance cache, and text-scale, density, and motion preferences.
+- More readable desktop text, larger selection targets, flexible card layouts, and a keyboard skip link.
+- Portal dialogs, inert backgrounds, stable cursor/focus, keyboard dismissal of Spotlight, and inline dialog errors.
+- Unsaved move/copy preferences survive appearance changes.
+- Window position, size, and maximized state are remembered; windows return to the visible area when monitors change.
+- Native window backgrounds follow the theme; Spotlight fits within the available screen.
+- Local Turkish/English Help & Getting Started screens.
+- Watcher fix prevents unexpected development-page resets while package outputs and test reports are written.
 
-## 3.0.0 — 3 Kasım 2026
+## 3.1.0 — November 3, 2026
 
-- Özgün Hidden niteliğini koruyan odak profilleri; Windows toplu nitelik API’si ve Linux `.hidden` adaptörü.
-- Global profil kısayolları, görünür kalacak özel dosya/klasör adları ve çıkış/kesinti kurtarması.
-- Ayrı glassmorphism Spotlight penceresi, fuzzy arama, klavye navigasyonu, kontrollü native açma ve sistem komutları.
-- Yerel kullanım sayacı ve yalnızca gözlenen altı aylık pasiflik için Arşiv önerileri.
-- Varsayılan IDE, Veritabanı, DevOps, Terminal, Sürücüler, Ağ, Sıkıştırma, Sistem Araçları ve Kurulumlar alt grupları.
-- RE2JS regex kuralları, istisna/izin listeleri ve ayarlanabilir tarama derinliği.
-- Bilinmeyen adlar için çevrimdışı vektör tabanlı etiket önerileri; kullanıcı onayı ve benzerlik açıklaması.
-- Kapalı başlayan arşiv/Downloads otomasyonları, kararlılık gecikmesi, geri alma ve geri alınan dosyayı yeniden işlememe.
-- İç ve native sürükle-bırak; dış dosyalarda kontrollü önizleme.
-- X ile tepsiye gizlenme, native sağ tık menüsü, sıradaki işi bekleyen güvenli çıkış.
-- Profil değişiminin `ctime` etkisini dosya içeriği hash’iyle yeniden doğrulayan önizleme köprüsü.
+- Original `.exe` / `.lnk` icons from the trusted index, with lazy loading and a bounded fingerprint cache.
+- Details panel with file size/dates, Windows resource description/company, and DarkDesk launch history.
+- Fixed title bar/sidebar, scrolling limited to main content, and larger window-control targets.
+- Clearer category borders, text, and icon accents across themes.
+- Keyboard shortcut recorder, duplicate-binding checks, and global-shortcut changes that preserve working registrations.
+- Temporary shortcut suspension during recording, with restoration after cancellation, focus loss, or timeout.
+- Fixed delayed stdout and partial UTF-8 decoding in Windows visibility output.
 
-## 2.0.0 — 3 Kasım 2026
+## 3.0.0 — November 3, 2026
 
-- Program Files, Başlat Menüsü, App Paths ve kayıtlı kurulum konumları için salt okunur, durdurulabilir tarayıcı; Linux uygulama dizinleri desteği.
-- Kurulu uygulamaları taşımadan kategori klasörlerine native kısayol oluşturma ve geri alma.
-- Dinamik kategori/alt grup yönetimi, güvenli klasör adları, döngü ve çakışma doğrulaması.
-- Ad/hedef metni ve uzantı kuralları; sıralama, düzenleme, etkinleştirme/devre dışı bırakma.
-- Midnight Dark, Cyberpunk Neon ve açık Minimal Slate; CSS değişkenleri ve kalıcı tercihler.
-- Lucide, Tabler ve Minimalist ikon setleri; kategori/öğe seçimi ve 36 native klasör ikonu.
-- Türkçe/İngilizce JSON sözlükleri; menü, ayar, durum, hata ve bildirim çevirileri.
-- Sağ altta geri alınabilir bildirimler, resimli boş durumlar, CSS animasyonları ve azaltılmış hareket desteği.
-- Eski ayarlar için kategori kimliği göçü; eski ve yeni hedefleri koruyan işlem günlüğü.
-- 48’lik kademeli kart yükleme, tarama sınırları ve erişim uyarıları.
+- Focus profiles preserve original Hidden attributes through Windows batch APIs and a Linux `.hidden` adapter.
+- Global profile shortcuts, custom always-visible file/folder names, and recovery after exit or interruption.
+- Separate glass-style Spotlight window with fuzzy search, keyboard navigation, controlled native opening, and system commands.
+- Local usage counters and Archive suggestions only for observed inactivity of at least six months.
+- Default IDE, Database, DevOps, Terminal, Driver, Network, Compression, System Utilities, and Installer subgroups.
+- RE2JS regex rules, exclusion/allow lists, and configurable scan depth.
+- Offline vector-based tag suggestions for unknown names, with user confirmation and an explanation of similarity.
+- Archive/Downloads automation starts disabled; stability delays, undo, and protection against immediately reprocessing restored files.
+- Internal and native drag and drop, with controlled previews for external files.
+- X hides to the tray; native context menu and orderly exit that waits for active work.
+- Preview reconciliation verifies file hashes when profile changes affect `ctime`.
 
-## 1.1.0 — 3 Kasım 2026
+## 2.0.0 — November 3, 2026
 
-### Yeni
+- Read-only, cancellable discovery of Program Files, Start Menu, App Paths, and registered install locations; Linux application-directory support.
+- Native category shortcuts for installed apps without moving installations, plus undo.
+- Dynamic categories and subgroups, safe folder names, and cycle/collision validation.
+- Ordered name/target and extension rules, with editing and enable/disable controls.
+- Midnight Dark, Cyberpunk Neon, and light Minimal Slate, using CSS variables and persistent preferences.
+- Lucide, Tabler, and Minimalist icon sets, category/item selection, and 36 native folder icons.
+- Turkish/English JSON dictionaries for navigation, settings, status, errors, and notifications.
+- Bottom-right undo notifications, illustrated empty states, CSS animation, and reduced-motion support.
+- Category-ID migration for older settings; operation history retains old and new destinations.
+- Incremental loading in batches of 48 cards, scan limits, and access warnings.
 
-- Dosya bazında hedef, boyut ve çakışma gösteren onay önizlemesi.
-- Kaydedilen taşı/kopyala tercihi, kategori atamaları, hariç tutulan uzantılar ve canlı tarama ayarı.
-- Windows kısayol hedeflerini okuma, dosya boyutu/tarih sıralaması ve dosya/kısayol filtreleri.
-- Masaüstü değişikliklerinde otomatik liste yenileme; onaysız taşıma yapılmaz.
-- Kalıcı, durum bilgili işlem geçmişi ve yeniden başlatma sonrası geri alma.
-- ZIP indiren Windows kullanıcıları için klasörü otomatik seçen çift tıklamalı başlatıcı.
-- Windows NSIS kurulum ve portable EXE paketleme iş akışı; uygulama simgeleri.
-- Windows/Linux test otomasyonu, Chromium arayüz testleri ve gerçek Electron/IPC smoke testi.
-- Ekran görüntüleri, Windows kurulum/sorun giderme rehberi ve katkı rehberi.
+## 1.1.0 — November 3, 2026
 
-### Düzeltilenler
+### Added
 
-- Geri alma yalnızca boyut ve tarih yerine SHA-256 içerik doğrulaması kullanır.
-- Kesinti sonrası kopyalama, taşıma ve geri yükleme aşamaları ayrı kaydedilir.
-- Çakışan dosyalar üzerine yazılmadan atlanır; onaydan sonra değişen kaynak/hedef kontrol edilir.
-- Filtrelenmiş görünümde toplu seçim yalnızca görünen öğelere uygulanır.
-- Renderer’dan dosyayı çalıştırmak yerine Explorer/Finder’da gösterme kullanılır.
-- IPC çağrıları ana pencere/çerçeve ile sınırlandırıldı; izin istekleri ve yeni pencere açma reddedildi.
-- Önizleme için odak yönetimi, Tab çevrimi ve Escape desteği eklendi.
+- Confirmation previews with per-file destinations, sizes, and collisions.
+- Saved move/copy preferences, category assignments, excluded extensions, and live scanning.
+- Windows shortcut-target reading, size/date sorting, and file/shortcut filters.
+- Automatic list refresh when the desktop changes, without unconfirmed moves.
+- Persistent operation history with state tracking and undo after restart.
+- Double-click launcher that selects the correct folder for Windows ZIP users.
+- Windows NSIS installer and portable EXE workflow, plus application icons.
+- Windows/Linux test automation, Chromium UI tests, and a real Electron/IPC smoke test.
+- Screenshots, Windows setup/troubleshooting documentation, and a contribution guide.
+
+### Fixed
+
+- Undo verifies SHA-256 content hashes instead of relying only on size and timestamps.
+- Copy, move, and restore stages are journaled separately for interruption recovery.
+- Collisions are skipped without overwriting files; changed sources/destinations are checked after confirmation.
+- Bulk selection in a filtered view affects visible items only.
+- Card actions reveal files in Explorer/Finder rather than executing them.
+- IPC is restricted to the main window/frame; permission requests and new windows are denied.
+- Preview dialogs support focus management, Tab cycling, and Escape.
 
 ## 1.0.0
 
-React, Tailwind CSS ve Electron ile ilk çalışma alanı, dosya kategorileri, temel taşı/kopyala ve geri alma akışı.
+Initial React, Tailwind CSS, and Electron workspace with file categories, basic move/copy operations, and undo.

@@ -1,91 +1,91 @@
-# DarkDesk 3.0: profiller, başlatıcı ve arka plan kuralları
+# Profiles, launcher, and background automation
 
-## Çalışma profilleri
+## Workspace profiles
 
-**Çalışma Profilleri** bölümünden Kodlama, Oyun, Tasarım veya Temiz Masaüstü profilini seç. Profildeki kategoriler ve alt grupları görünür kalır; diğer normal masaüstü dosya/klasörlerine geçici gizlilik uygulanır. Profil düzenleyicisinde kategori listesini, kısayolunu ve ayrıca görünür tutulacak mevcut dosya/klasör adlarını değiştirebilirsin.
+Choose Coding, Gaming, Design, or Clean Desktop in **Workspace Profiles**. Categories included in a profile, together with their subgroups, stay visible. Other ordinary desktop files and folders are temporarily hidden. The profile editor lets you change categories, the shortcut, and names of existing files or folders that should always remain visible.
 
-Varsayılanlar:
+Default profile bindings:
 
-| Profil            | Kısayol    |
-| :---------------- | :--------- |
-| Yazılım & Kodlama | Ctrl+Alt+1 |
-| Oyun              | Ctrl+Alt+2 |
-| Tasarım & Edit    | Ctrl+Alt+3 |
-| Temiz Masaüstü    | Ctrl+Alt+4 |
+| Profile       | Shortcut   |
+| :------------ | :--------- |
+| Coding        | Ctrl+Alt+1 |
+| Gaming        | Ctrl+Alt+2 |
+| Design        | Ctrl+Alt+3 |
+| Clean Desktop | Ctrl+Alt+4 |
 
-Windows’ta .NET `File.GetAttributes` / `File.SetAttributes` ile yalnızca **Hidden** biti değiştirilir; diğer nitelikler korunur. İşlemler tek bir toplu PowerShell çağrısıyla uygulanır. Explorer’a nitelik değişikliği bildirimi gönderilir. Önceden gizli öğeler açılmaz. Kullanıcının **gizli öğeleri göster** tercihi görünümü etkileyebilir; bu bir güvenlik/erişim izolasyonu değildir.
+On Windows, DarkDesk changes only the **Hidden** bit through .NET `File.GetAttributes` / `File.SetAttributes`, preserving other attributes. A single batched PowerShell call applies the changes and notifies Explorer. Previously hidden items stay hidden. The user's **Show hidden items** preference can affect the visual result; profiles do not provide access isolation.
 
-Linux’ta `.hidden` dosyasındaki isimler birleştirilir; mevcut liste korunur. Görsel sonuç masaüstü yöneticisinin `.hidden` desteğine bağlıdır. macOS profil görünürlüğü şu anda desteklenmez.
+On Linux, names are merged into `.hidden`, preserving existing entries. The visible result depends on the desktop manager's support for that file. Profile visibility is not currently supported on macOS.
 
-İlk nitelik değişiminden önce `visibility.json` günlüğü yazılır ve diske senkronize edilir. **Tümünü geri göster** veya normal **Çıkış**, özgün görünürlüğü geri yükler. Zorla sonlandırma sonrası yeniden açılışta bu günlükten kurtarma yapılır. Aynı isimle değiştirilmiş farklı bir dosyanın niteliği eski kayıtla değiştirilmez. Elektrik kesintisi, izin kaybı veya dosyaların dışarıdan değiştirilmesi durumunda eksiksiz kurtarma garantisi yoktur; günlük korunur ve hata gösterilir.
+Before the first attribute change, DarkDesk writes and syncs a `visibility.json` journal. **Show all** and a normal **Quit** restore original visibility. After a forced termination, the next launch attempts recovery from the journal. A replacement file with the same name does not inherit an old file's attributes. Power loss, permission changes, or external modifications can prevent complete recovery; DarkDesk retains the journal and reports the error.
 
-## Spotlight / hızlı başlatıcı
+## Spotlight launcher
 
-Varsayılan global kısayol **Alt+X**. **Otomasyon & Ayarlar → Başlatıcı kısayolu** ile örneğin `Ctrl+Space` seçebilirsin. OS veya başka bir uygulama kısayolu almışsa kayıt sonucu **Çalışma Profilleri → Global kısayollar** bölümünde görünür. Web demosunda `Ctrl+Space`/`Alt+X` yalnızca sayfa odaktayken çalışır.
+New installations use the global shortcut **Alt+X**. Change it in **Settings → Launcher shortcut**, for example to `Ctrl+Space`. Existing personal bindings are preserved. If another application or the operating system owns the combination, **Workspace Profiles → Global shortcuts** shows the registration result. Browser-demo shortcuts work only while the page has focus.
 
-- İndekslenen masaüstü dosyaları, keşfedilen uygulamalar ve içe alınmış Downloads öğelerinde fuzzy arama.
-- `↑` / `↓` ile seçim; `Enter` ile açma; `Esc` ile kapatma.
-- **Masaüstünü Düzenle** komutu onay önizlemesi açar; dosyaları sessizce taşımaz.
-- Profil komutları görünürlüğü değiştirir; **DarkDesk Aç** ana pencereyi gösterir.
-- Native başlatma, yalnızca ana sürecin indeksindeki ve hâlâ normal dosya olan öğeleri OS’nin kayıtlı açma yöntemiyle açar. Renderer’dan keyfi bir dosya yolu veya shell komutu çalıştırılamaz.
+- Fuzzy search covers indexed desktop files, discovered apps, and imported Downloads items.
+- Use `↑` / `↓` to select, `Enter` to open, and `Esc` to close.
+- **Organize Desktop** opens a confirmation preview; it does not silently move files.
+- Profile commands change visibility; **Open DarkDesk** shows the main window.
+- Native launch opens only indexed items that are still ordinary files, using the operating system's registered opener. The renderer cannot execute an arbitrary path or shell command.
 
-## Kullanım sıklığı ve atıl öğeler
+## Usage history and inactive items
 
-`usage.json` yalnızca **DarkDesk başlatıcısı üzerinden başarılı gönderilen açma isteklerini** kaydeder. Windows genelindeki veya başka bir uygulamadaki kullanımı izlemez. İlk kurulumda geçmişi olmayan dosya “altı aydır kullanılmadı” diye işaretlenmez.
+`usage.json` records only **launch requests successfully submitted through DarkDesk**. It does not observe Windows-wide activity or launches from other applications. Files without history on a fresh installation are not labeled unused for six months.
 
-Son gözlenen DarkDesk başlatması altı aydan eski olan öğelerde Arşiv kategorisi önerisi gösterilir. Öneriyi kabul etmek kategori tercihini değiştirir; fiziksel taşıma ayrıca onaylanır. Sayaç, bir uygulamanın ne kadar süre kullanıldığını ölçmez.
+DarkDesk suggests Archive when the last observed DarkDesk launch is more than six months old. Accepting the suggestion changes the category assignment; moving the file still requires separate confirmation. The counter does not measure running time.
 
-## Arşiv ve Downloads otomasyonu
+## Archive and Downloads automation
 
-Her iki otomasyon **başlangıçta kapalıdır**. **Otomasyon Merkezi** içinden ayarla, **Kuralları önizle**, ardından etkinleştirip **Kuralları kaydet** ile uygula.
+Both automations are **off by default**. Configure them in **Automation Center**, choose **Preview rules**, then enable them and choose **Save rules**.
 
-- **Arşiv:** Masaüstündeki normal dosyaları son değiştirilme zamanına göre değerlendirir. Varsayılan 30 günden eski dosyaları seçili Arşiv kategorisine taşır. Klasörlerin içi ve kurulu uygulama dizinleri taşınmaz.
-- **Downloads:** Tamamlanmamış `.crdownload`, `.part`, `.download`, `.tmp` ve dışlanmış dosyaları atlar. Boyut/tarih kontrolü ve varsayılan 10 saniyelik kararlılık gecikmesi sonrasında dosyayı türüne/kurallara göre masaüstüne yönlendirir. Başlangıç yöntemi **kopyalama**dır; kullanıcı taşıma seçebilir.
-- Arka plan zamanlayıcısı yaklaşık beş saniyede bir kontrol eder; uygulama tepsideyken de çalışır. Kararlılık gecikmesi indirme uygulamasının işi bitirdiğinin kesin kanıtı değildir; özel yavaş indirmelerde süreyi artır veya kopyalamayı kullan.
-- İşlemler ana dosya servisinin içerik doğrulamasını, hedef çakışması korumasını ve kalıcı geri alma günlüğünü kullanır.
-- Açık bir **Geri al** isteği, geri yüklenen dosya sürümünü tekrar işlenmekten korur. Dosya değiştiğinde kurala yeniden aday olabilir. Eşleştirme öğe kimliği, boyut/tarih sürüm bilgisi ve işlem günlüğüne dayanır.
-- Aktif profil varken fiziksel işlem öncesi özgün nitelikler geri alınır, işlemden sonra profil yeniden uygulanır. Görünürlük kaynaklı `ctime` değişimi, içeriğin değişmediği hash ile doğrulanarak önizlemeye yeniden bağlanır.
+- **Archive:** Evaluates ordinary desktop files by last modification time. By default, it moves files older than 30 days to the selected Archive category. It does not move folder contents or installed application directories.
+- **Downloads:** Skips incomplete `.crdownload`, `.part`, `.download`, `.tmp`, and excluded files. After size/date checks and a default 10-second stability delay, it routes files to desktop categories using types and rules. The default method is **copy**; users can choose move.
+- The background timer checks roughly every five seconds, including while DarkDesk is in the tray. A stable size and timestamp do not prove a download has finished; increase the delay or use copy for slow downloads.
+- Operations use the main file service's content verification, destination collision checks, and persistent undo journal.
+- An explicit **Undo** protects that restored file version from immediate reprocessing. A later modification can make it eligible again. Matching uses item identity, size/date version information, and operation history.
+- If a profile is active, DarkDesk restores original attributes before a physical operation and reapplies the profile afterward. A visibility-related `ctime` change is reconciled with the preview by verifying that the content hash is unchanged.
 
-## Regex, istisnalar ve alt gruplar
+## Rules, exclusions, and subgroups
 
-Kişisel kurallar **içeriyor**, **uzantı** veya **Regex (RE2)** olabilir. İlk eşleşen kural kazanır; manuel atama önceliklidir. Örneğin `setup|installer|driver|update`, Sistem → Kurulumlar grubuna yönlendirilebilir. Regex dosya adı ve hedef üzerinde ayrı değerlendirilir; büyük/küçük harf duyarsızdır. RE2JS motoru kullanılır; lookaround ve geri başvurular desteklenmez. Geçersiz desen kaydedilmez.
+Personal rules can use **contains**, **extension**, or **Regex (RE2)** matching. The first matching rule wins; manual assignments take priority. For example, `setup|installer|driver|update` can route to System → Installers. Regex is evaluated separately against the file name and target, without case sensitivity. The RE2JS engine does not support lookaround or backreferences. Invalid patterns cannot be saved.
 
-Varsayılan alt gruplar: IDE & Editörler, Veritabanı, DevOps & Docker, Terminal, Sürücüler, Ağ & Security, Sıkıştırma, Sistem Araçları ve Kurulumlar. Önceki özel kategoriler korunarak yeni varsayılanlar göç edilir.
+The default catalog contains 10 main groups and 25 groups in total, including IDEs & Editors, Databases, DevOps & Docker, Terminal, Drivers, Network & Security, Compression, System Utilities, Installers, and browser, communication, learning, and finance subgroups. Settings migrations preserve existing custom categories and assignments.
 
-Otomasyon Merkezi’ndeki filtrelerle dışlanan dizin adlarını, yardımcı uygulama kelimelerini, izin verilen adları ve derinliği ayarla. System32, AppData, Temp, node_modules ve cache dizinleri standart keşiften dışlanır; **Başlat Menüsü** açık bir istisna köküdür. İzin verilen dosya adları yardımcı uygulama filtresinden önceliklidir. `.dll`, `.sys`, `.ini` uygulama indeksi değildir. Varsayılan derinlik 8, izin verilen azami derinlik 12’dir.
+Automation Center filters control excluded directory names, helper-app words, allowed names, and scan depth. System32, AppData, Temp, node_modules, and cache directories are excluded from ordinary discovery; the **Start Menu** is an explicit exception root. Allowed file names take priority over helper-app filtering. `.dll`, `.sys`, and `.ini` files are not application index entries. The default depth is 8; the maximum is 12.
 
-## Yerel akıllı etiketleme
+## Local tag suggestions
 
-Bilinmeyen dosya adları, kategori başlıkları ve yerel anahtar kelime tohumlarından oluşturulan vektörlerle karşılaştırılır. TF/IDF benzeri ağırlıklı kosinüs benzerliği kullanılır. Dosya içeriği okunmaz, ağ isteği yapılmaz ve LLM/model indirmesi gerekmez.
+Unknown file names are compared with vectors built from category titles and local keyword seeds, using weighted cosine similarity similar to TF/IDF. File contents are not read, no network request is made, and no LLM or model download is required.
 
-Yeterli eşleşme yoksa öneri yapılmaz. Gösterilen benzerlik değeri kalibre edilmiş doğruluk olasılığı değildir. **Öneriyi uygula** yalnızca kullanıcı onayıyla kategori tercihini kaydeder.
+DarkDesk makes no suggestion when the match is too weak. The displayed similarity is not a calibrated probability of correctness. **Apply suggestion** saves a category assignment only with the user's confirmation.
 
-## Sürükle-bırak
+## Drag and drop
 
-Bir kartı ana kategori kartına bırakmak, kategori atamasını hemen değiştirir. Bu hareket tek başına fiziksel dosya taşımaz; klavye için açılır menü alternatifi vardır.
+Dropping a card on a main category changes its assignment immediately. It does not physically move the file. A dropdown provides the same action for keyboard users.
 
-OS’den masaüstü veya Downloads içindeki normal dosyaları kategoriye bırakmak, kontrollü bir işlem önizlemesi açar. Desktop/Downloads dışından keyfi yollar kabul edilmez. Native dosya yolu Electron `webUtils.getPathForFile` ile alınır; sayfaya genel dosya sistemi erişimi verilmez. Web demosu yalnızca örnek kayıtlar oluşturur.
+Dropping ordinary files from Desktop or Downloads onto a category opens a controlled operation preview. Arbitrary paths outside those roots are not accepted. Electron `webUtils.getPathForFile` obtains the native path without giving the page general file-system access. The browser demo creates sample records only.
 
-## Tepsi ve çıkış
+## Tray and exit
 
-`X` ana pencereyi tepsiye gizler. Tepsi menüsünde **DarkDesk Aç**, **Masaüstünü Şimdi Düzenle**, **Profil Değiştir**, **Hızlı Arama** ve **Çıkış** vardır. Sistem tepsisi oluşturulamıyorsa pencereyi erişilemez bırakmak yerine normal çıkış yapılır.
+`X` hides the main window to the tray. The tray menu includes **Open DarkDesk**, **Organize Desktop Now**, **Switch Profile**, **Quick Search**, and **Quit**. If a tray cannot be created, DarkDesk quits normally rather than leaving its window inaccessible.
 
-Çıkış, sürmekte olan dosya işlemini bekler, kullanım kayıtlarını tamamlar, profil görünürlüğünü geri yükler ve global kısayolları kaldırır. Tepsi/görünürlük desteği Linux masaüstü yöneticisine bağlıdır.
+Quitting waits for the current file operation, flushes usage records, restores profile visibility, and unregisters global shortcuts. Tray and visibility support on Linux depends on the desktop manager.
 
-## Modüller
+## Modules
 
 ```mermaid
 flowchart LR
-  UI[React çalışma alanı / Spotlight] --> IPC[Sınırlı preload IPC]
-  IPC --> R[DesktopRuntime koordinatörü]
+  UI[React workspace / Spotlight] --> IPC[Restricted preload IPC]
+  IPC --> R[DesktopRuntime coordinator]
   R --> P[ProfileService + VisibilityAdapter]
   R --> A[AutomationService]
-  R --> L[İndeks + ActivityStore]
-  A --> F[DesktopService: önizleme / SHA-256 / geri alma]
+  R --> L[Index + ActivityStore]
+  A --> F[DesktopService: preview / SHA-256 / undo]
   P --> V[visibility.json]
   L --> U[usage.json]
   A --> S[automation.json]
   F --> H[history.json]
 ```
 
-Değiştirici işler tek koordinatörde seri çalışır; global kısayol, tepsi, zamanlayıcı ve renderer aynı kapıyı kullanır. Açma işlemleri otomasyon tarafından tetiklenmez; kullanıcı başlatıcıdan seçer.
+Mutating operations run serially through one coordinator. Global shortcuts, the tray, the timer, and the renderer use the same entry point. Automation never launches applications; the user selects them in the launcher.

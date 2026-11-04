@@ -1,0 +1,23 @@
+name: Feature request
+description: Suggest a useful improvement to DarkDesk.
+title: '[Feature] '
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would this help you do?
+      description: Describe the task or problem, and how you handle it today.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Suggested behavior
+      description: Include an example of the workflow you would like.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives or additional context
+      description: Screenshots or accessibility needs can help explain the idea. Remove personal information.

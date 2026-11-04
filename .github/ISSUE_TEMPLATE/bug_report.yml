@@ -1,31 +1,51 @@
-name: Hata bildir
-description: DarkDesk'te çalışmayan bir davranışı bildir.
-title: '[Hata] '
+name: Bug report
+description: Report something that does not work as expected.
+title: '[Bug] '
 body:
   - type: markdown
     attributes:
-      value: 'Kişisel dosya içeriklerini veya gizli bilgileri paylaşmadan sorunu anlatın.'
+      value: 'Remove personal paths, file contents, and credentials before sharing. For potential vulnerabilities, follow SECURITY.md.'
   - type: input
     id: platform
     attributes:
-      label: İşletim sistemi ve DarkDesk sürümü
-      placeholder: Windows 11, DarkDesk 1.1.0
+      label: Operating system and DarkDesk version
+      placeholder: Windows 11, DarkDesk 3.4.2
+    validations:
+      required: true
+  - type: dropdown
+    id: distribution
+    attributes:
+      label: How are you running DarkDesk?
+      options:
+        - Windows Setup
+        - Windows Portable
+        - From source (Electron)
+        - Browser preview
+        - Linux package
     validations:
       required: true
   - type: textarea
     id: reproduce
     attributes:
-      label: Tekrarlama adımları
-      description: Hangi işlemi yaptınız, ne beklediniz ve ne oldu?
+      label: Steps to reproduce
+      description: Include the selected scan source and operation mode, if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual behavior
+      description: Explain what you expected and what happened instead.
     validations:
       required: true
   - type: textarea
     id: logs
     attributes:
-      label: Hata metni
+      label: Error message or relevant logs
+      description: Redact personal information. Never include a GitHub access token.
       render: text
   - type: input
     id: runtime
     attributes:
-      label: Node.js ve npm sürümü (kaynak koddan çalıştırıyorsanız)
-      placeholder: node --version ve npm --version çıktıları
+      label: Node.js and npm versions (source builds only)
+      placeholder: Output of node --version and npm --version

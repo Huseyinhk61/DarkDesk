@@ -1,22 +1,24 @@
-# Herkes için masaüstü kullanımı
+# Making DarkDesk comfortable to use
 
-DarkDesk içindeki **Yardım** ekranı internet bağlantısı gerektirmeden temel düzenleme akışını açıklar. Kullanıcı tarama, grup seçimi, önizleme/onay ve geri alma adımlarını ayrı ayrı takip edebilir. Ekrandaki yönlendirme düğmeleri dosya işlemi başlatmaz; ilgili görünüme gider.
+The in-app **Help** screen explains the organization workflow without an internet connection. It covers scanning, group selection, preview and confirmation, and undo. Its navigation buttons open the relevant view without starting file operations.
 
-- Masaüstü öğelerinin hedef grubunu değiştirmek dosyayı hemen taşımaz. Gerçek düzenleme önizlemeden sonra açık bir onay gerektirir.
-- Yüklü programın kendisi kurulu olduğu yerde kalır; masaüstünde program kısayolu oluşturulur.
-- Taşıma ve kopyalama tercihi Ayarlar içindedir. Geçmiş, geri alınabilecek son işlemi gösterir.
-- Yardım ekranındaki başlatıcı ve profil kısayolları sabit örneklerden değil, kullanıcının güncel ayarlarından alınır.
-- Tepsiye gizleme ile tamamen çıkma farklıdır. X düğmesi, tepsi kullanılabiliyorsa arka plan çalışmasını sürdürür; tepsi menüsündeki Çıkış uygulamayı kapatır ve profil görünürlüğünü geri yükler.
-- Dosya taraması, gruplama ve yerel etiket önerileri dosyaları bir sunucuya yüklemez. Başlatma geçmişi yalnızca DarkDesk üzerinden iletilen başlatma isteklerini gözlemler.
+- Changing an item's target group does not move its file immediately. Physical organization requires an explicit confirmation after preview.
+- Installed applications stay in their installation directories; DarkDesk creates desktop shortcuts for them.
+- Choose move or copy in Settings. History shows the latest operation that can be undone.
+- Help displays the user's current launcher and profile bindings, rather than fixed examples.
+- Hiding to the tray and quitting are different actions. When a tray is available, X keeps DarkDesk running in the background. **Quit** in the tray menu closes the application and restores profile visibility.
+- Scanning, grouping, and local tag suggestions do not upload files to a server. Launch history observes only launch requests submitted through DarkDesk.
 
-Görünüm tercihlerinde yeni temalar, yazı ölçeği, kart yoğunluğu ve azaltılmış hareket seçenekleri bulunur. Bu seçenekler klavye gezinmesi ve okunabilirliğe yardımcı olur; belirli bir erişilebilirlik standardına tam uyumluluk iddiası değildir.
+Appearance settings include themes, text scaling, card density, and reduced motion. These controls support readability and keyboard use; they are not a claim of full compliance with a particular accessibility standard.
 
-## Görünümü kendinize uyarlama
+## Adjusting appearance
 
-Ayarlar → Görünüm bölümünde 7 renk paleti veya Sistem Teması seçilebilir. Sistem Teması OS açık/koyu tercihini canlı izler. Metin boyutunu %115 veya %130 yapmak pencere düğmelerini büyütmeden okumayı kolaylaştırır. Sıkışık yoğunluk daha çok kart gösterir; Rahat görünüm daha fazla boşluk bırakır. Hareket azaltma, OS tercihiyle veya elle etkinleştirilebilir.
+In **Settings → Appearance**, choose from **11 color palettes or System Theme**. System Theme follows the operating system's light/dark preference. Four local font-family choices and five icon packs provide further customization. Unavailable fonts use local fallbacks; no font download is required.
 
-Tema değişiklikleri kaydedilmemiş taşıma/kopyalama tercihini silmez. Görünümü sıfırlama yalnızca görünüm tercihlerini geri alır; kuralları, kategorileri ve işlem geçmişini korur.
+Set text size to 115% or 130% to make reading easier without enlarging window controls. Compact density fits more cards; Comfortable density adds space. Reduced motion can follow the operating system or be enabled manually.
 
-Pencere boyutu/konumu sonraki açılışta hatırlanır. Monitör kaldırılırsa veya çalışma alanı küçülürse pencere görünür alana sığdırılır. Başka bir bölüme geçtiğinizde ana içerik başa döner; başlık çubuğu yerinde kalır.
+Changing appearance preserves unsaved move/copy settings. Resetting appearance resets only visual preferences, keeping rules, categories, and operation history.
 
-![Yardım ekranı](assets/help.png)
+DarkDesk remembers window size and position. If a monitor is disconnected or the available workspace shrinks, the window returns to the visible area. Switching sections scrolls the main content back to the top while the title bar stays in place.
+
+![DarkDesk Help screen](assets/help.png)

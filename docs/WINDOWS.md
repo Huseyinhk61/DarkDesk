@@ -1,23 +1,25 @@
-# Windows’ta DarkDesk
+# DarkDesk on Windows
 
-## İlk kurulum
+## First installation from source
 
-1. [Node.js 24 LTS](https://nodejs.org/) kur. Kurulumdan sonra PowerShell’i kapatıp yeniden aç.
-2. [ZIP dosyasını indir](https://github.com/Huseyinhk61/DarkDesk/archive/refs/heads/main.zip) ve **Tümünü ayıkla** ile çıkar.
-3. `DarkDesk-main` içinde `package.json` dosyasını bul. Adres çubuğuna `powershell` yazıp Enter’a bas.
-4. Daha kolay açılış için `DarkDesk-Baslat.cmd` dosyasına çift tıklayabilirsin. Terminal kullanıyorsan `npm ci` çalıştır. Hatasız tamamlanınca `npm run desktop` çalıştır.
+For a ready-to-run installer, see [Windows packages](#windows-packages). Node.js is only needed when running or building from source.
 
-OneDrive masaüstü kullanıyorsan klasörün `C:\Users\...\OneDrive\Masaüstü` altında olabilir. DarkDesk gerçek dosya işlemleri için işletim sisteminin bildirdiği masaüstü yolunu kullanır; bu yolu ayarlardan görebilirsin.
+1. Install [Node.js 24 LTS](https://nodejs.org/). Close and reopen PowerShell after installation.
+2. [Download the source ZIP](https://github.com/Huseyinhk61/DarkDesk/archive/refs/heads/main.zip) and select **Extract All**.
+3. Find `package.json` inside `DarkDesk-main`. Type `powershell` in File Explorer’s address bar and press Enter.
+4. Double-click `DarkDesk-Baslat.cmd` for a guided startup, or run `npm ci` in the terminal. Once it completes successfully, run `npm run desktop`.
 
-## Sık karşılaşılan sorunlar
+If OneDrive manages your desktop, its folder may be under `C:\Users\...\OneDrive\Desktop` or a localized equivalent such as `Masaüstü`. DarkDesk uses the desktop location reported by the operating system for file operations. You can view this path in Settings.
+
+## Troubleshooting
 
 ### `git is not recognized`
 
-Git kurulu değil veya PATH’te yok. ZIP yöntemini kullanabilirsin. Git kullanmak istersen [Git for Windows](https://git-scm.com/downloads/win) kur ve terminali yeniden aç.
+Git is not installed or is missing from PATH. Use the ZIP method above, or install [Git for Windows](https://git-scm.com/downloads/win) and reopen your terminal.
 
-### `ENOENT ... package.json` veya `npm ci` için kilit dosyası hatası
+### `ENOENT ... package.json` or a lockfile error from `npm ci`
 
-Yanlış klasördesin. Şunu çalıştır:
+The terminal is in the wrong folder. Run:
 
 ```powershell
 Get-Location
@@ -25,45 +27,45 @@ Test-Path .\package.json
 Test-Path .\package-lock.json
 ```
 
-Son iki komut `True` dönmeli. `False` ise `package.json` bulunan klasöre geç. ZIP içindeki dosyaları çıkarmadan çalıştırma. Başarısız `cd` komutundan sonra kurulum komutlarına devam etme.
+The last two commands must return `True`. If either returns `False`, change to the folder containing `package.json`. Extract the ZIP before running commands. If a `cd` command fails, correct the path before continuing with installation.
 
-### PowerShell `npm.ps1 cannot be loaded` hatası
+### PowerShell: `npm.ps1 cannot be loaded`
 
-Sistem yürütme politikasını değiştirmeden `.cmd` uzantılı komutu kullan:
+Use the `.cmd` command without changing the system execution policy:
 
 ```powershell
 npm.cmd ci
 npm.cmd run desktop
 ```
 
-### Node sürümü uyumsuz
+### Unsupported Node.js version
 
 ```powershell
 node --version
 npm --version
 ```
 
-Node.js 24 LTS önerilir; asgari sürüm 22.12.0’dır. Eski Node ile kurulmuş bağımlılıklar için sürümü güncelledikten sonra proje klasöründe yeniden `npm ci` çalıştır.
+Node.js 24 LTS is recommended; the minimum supported version is 22.12.0. After upgrading Node.js, run `npm ci` again in the project folder to replace dependencies installed with an older version.
 
-### Electron indirme / ağ hatası
+### Electron download or network error
 
-İlk kurulum npm kayıt sunucusuna ve Electron’un GitHub sürüm dosyalarına erişim gerektirir. Bağlantını ve kurum ağının proxy/CA ayarlarını kontrol et. TLS/sertifika doğrulamasını kapatma. Bağlantı düzeldiğinde proje klasöründe `npm ci` komutunu yeniden çalıştır.
+The first installation needs access to the npm registry and Electron’s GitHub release files. Check your connection and your organization’s proxy and CA settings. Keep TLS certificate verification enabled. Once the connection works, run `npm ci` again in the project folder.
 
 ### `Port 5173 is already in use`
 
-Daha önce açtığın DarkDesk/Vite terminalinde `Ctrl+C` ile durdurup `npm run desktop` komutunu yeniden çalıştır. Başka bir projeye ait sunucuyu kapatmak istemiyorsan geliştirme sunucusuna ihtiyaç duymayan `npm run desktop:preview` kullan.
+Stop the existing DarkDesk/Vite terminal with `Ctrl+C`, then run `npm run desktop` again. To avoid stopping another project’s development server, use `npm run desktop:preview`, which runs a production build without a development server.
 
-### Dosya taşıma başarısız / OneDrive dosyası çevrimdışı
+### A file cannot be moved, or a OneDrive file is offline
 
-Dosyanın başka bir uygulamada açık olmadığını ve yerelde erişilebilir olduğunu kontrol et. OneDrive kullanıyorsan ilgili dosya için **Her zaman bu cihazda tut** seçeneğini kullanabilirsin. Önizleme çakışan hedefleri atlar. Yarım kalan bir işlem varsa geçmişi kontrol et; yeniden düzenlemeden önce tamamlanan adımları geri al.
+Check that another application has not locked the file and that it is available locally. For OneDrive files, **Always keep on this device** can make them available offline. The preview skips conflicting destinations. If an operation was interrupted, review its history and undo completed steps before organizing again.
 
-### Geri alma duruyor
+### Undo stops before completing
 
-DarkDesk, hedef dosya düzenlenmişse veya orijinal konumda yeni bir dosya oluşmuşsa üzerine yazmaz. Her iki konumu Explorer’dan kontrol et. Yeni dosyalarını ayrı bir yere yedekledikten sonra çakışmayı çöz ve geri almayı yeniden dene. `history.json` dosyasını silmek dosyaları geri taşımaz; kurtarma kaydını kaybetmemek için bu dosyayı koru.
+DarkDesk will not overwrite a destination that has changed or a new file at the original location. Inspect both locations in File Explorer. Back up your new files separately, resolve the conflict, and retry Undo. Deleting `history.json` does not restore files; keep it to preserve the recovery record.
 
-## Güncelleme
+## Updating a source checkout
 
-Git ile indirdiysen, yerel kod değişikliklerini koruyarak:
+For a Git checkout, preserve your local changes and run:
 
 ```powershell
 git pull --ff-only
@@ -71,39 +73,39 @@ npm ci
 npm run desktop
 ```
 
-ZIP ile indirdiysen yeni ZIP’i farklı bir klasöre çıkarıp aynı kurulum adımlarını uygula. `npm ci` yalnızca projenin bağımlılıklarını kurar; masaüstü dosyalarını taşımaz.
+For a ZIP download, extract the newer ZIP into a different folder and repeat the installation steps. `npm ci` installs project dependencies; it does not move desktop files.
 
-## Hazır EXE paketi
+For updates downloaded and installed through DarkDesk, see the [update guide](UPDATES.md).
 
-[Windows Installer](https://github.com/Huseyinhk61/DarkDesk/actions/workflows/windows.yml) iş akışındaki başarılı çalışmadan **Artifacts → DarkDesk-Windows** arşivini indir. Arşivde kurulum ve portable sürümlerle `SHA256SUMS.txt` bulunur. `main` güncellemeleri derlemeyi otomatik başlatır. Gerekirse depo sahibi **Run workflow** ile de başlatabilir. Yeni bir sürüm numarasıyla başarılı `main` derlemesi [Releases](https://github.com/Huseyinhk61/DarkDesk/releases) sayfasında otomatik yayınlanır; aynı numaralı yayın yeniden yazılmaz.
+## Windows packages
 
-İndirdiğin EXE özetini kontrol etmek için:
+Use the [Releases page](https://github.com/Huseyinhk61/DarkDesk/releases) for published installers. You can also download **Artifacts → DarkDesk-Windows** from a successful [Windows Installer](https://github.com/Huseyinhk61/DarkDesk/actions/workflows/windows.yml) workflow run. The archive contains Setup and Portable editions and `SHA256SUMS.txt`. Updates to `main` start the build automatically; the repository owner can also select **Run workflow**. A successful `main` build with a new version number publishes a release automatically. An existing published version is not overwritten.
+
+Verify a downloaded installer:
 
 ```powershell
-Get-FileHash .\DarkDesk-Setup-3.4.1.exe -Algorithm SHA256
+Get-FileHash .\DarkDesk-Setup-3.4.2.exe -Algorithm SHA256
 ```
 
-Sonucu aynı paketteki `SHA256SUMS.txt` ile karşılaştır. Paket şu aşamada kod imzalı değildir; Windows yayıncı uyarısı gösterebilir.
+Compare the result with `SHA256SUMS.txt` from the same release. Packages are currently unsigned, so Windows may show a publisher warning.
 
-## Tema, dil, gruplar ve sistem taraması (2.0)
+## Appearance, language, groups, and scanning
 
-- **Otomasyon & Ayarlar → Görünüm & dil** üzerinden tema, Türkçe/İngilizce ve ikon paketini seç. Değişiklikler cihazda kalır.
-- **Kategoriler & Kurallar** bölümünde grupları, alt grupları ve eşleştirme kurallarını yönet. Manuel dosya atamaları kurallardan önceliklidir.
-- **Sistem Tarama** masaüstünün yanında Program Files, iki Başlat Menüsü ve App Paths/Uninstall kayıtlarından uygulama keşfi yapar. Erişilemeyen alanlar atlanır ve bildirilir. Kayıt defteri değiştirilmez.
-- Kurulu `.exe` dosyaları orijinal konumunda kalır. Onayladığında kategori klasöründe `.lnk` oluşturulur; geri alma bu kısayolu kaldırır.
-- Seçilen ikon, yeni kısayollara uygulanır. Windows’ta yeni kategori klasörlerinde `desktop.ini` ve `.darkdesk.ico` kullanılır. Explorer ikon önbelleği nedeniyle görüntü gecikebilir; klasörü yenilemeyi dene. Mevcut kategori klasörlerine ve dosya ikonlarına geriye dönük müdahale edilmez.
-- Sürüme geçişte eski taşı/kopyala ayarı ve kategori atamaları korunur. Eski işlem geçmişi geri alınabilir. Dil değiştirmek klasörleri yeniden adlandırmaz.
+- Choose a theme, Turkish or English, and an icon pack under **Automation & Settings → Appearance & language**. Preferences stay on your device.
+- Manage groups, subgroups, and matching rules under **Categories & Rules**. Manual item assignments take priority over rules.
+- **System Scanner** discovers desktop items and installed applications using Program Files, both Start Menu locations, and App Paths/Uninstall registry entries. It reports inaccessible locations and continues. It does not change the registry.
+- Installed `.exe` files stay in their original locations. After confirmation, DarkDesk creates a `.lnk` in the category folder. Undo removes that shortcut.
+- Selected icons can be applied to new shortcuts. On Windows, new category folders use `desktop.ini` and `.darkdesk.ico`. Explorer’s icon cache can delay their appearance; try refreshing the folder. Existing category folders and file icons are not changed retroactively.
+- Upgrades preserve move/copy preferences, category assignments, and undoable operation history. Changing the language does not rename existing folders.
 
-## Profiller, Spotlight ve arka plan (3.0)
+## Profiles, Spotlight, and background operation
 
-[Ekosistem rehberi](ECOSYSTEM.md) tüm ayarları ve sınırları açıklar. Yeni kurulumlarda global başlatıcı varsayılanı Alt+X; profil kısayolları Ctrl+Alt+1…4’tür. OS başka bir uygulamaya ayırmışsa kısayolu ayarlardan değiştir.
+The [ecosystem guide](ECOSYSTEM.md) explains settings and limits. On new installations, the global launcher shortcut is **Alt+X**, and profile shortcuts are **Ctrl+Alt+1…4**. If another application or the operating system reserves a combination, change it in Settings.
 
-X artık uygulamayı tepsiye gizler; tamamen çıkmak için sistem tepsisindeki DarkDesk menüsünden Çıkış seç. Çıkış, aktif profilin değiştirdiği görünürlüğü geri yükler. Uygulama zorla kapatılırsa yeniden açıp kurtarmayı bekle veya Tümünü geri göster kullan. Profil gizlemesi ACL/güvenlik izolasyonu değildir; Explorer gizli dosya tercihi sonucu etkiler.
+The window’s X button hides DarkDesk in the system tray. To quit completely, choose **Quit** from its tray menu. Quitting restores visibility changes made by the active profile. After a forced shutdown, reopen DarkDesk and let recovery finish, or use **Show all again**. Profile hiding does not provide ACL or security isolation; Explorer’s hidden-file preference affects what remains visible.
 
-Otomasyonlar kapalı başlar. Önizle, hedefleri kontrol et, sonra etkinleştirip kaydet. Downloads varsayılanı kopyalamadır; taşıma ayrıca seçilebilir. Kullanım sıklığı yalnızca DarkDesk’ten açılışları ölçer; Windows genelindeki kullanım değildir.
+Automations start disabled. Preview them, check their destinations, then enable and save. Downloads routing copies files by default; moving is a separate choice. Usage statistics only record launches through DarkDesk, not all Windows activity.
 
-İkonlar, uygulama bilgileri ve kısayol çakışmalarını çözmek için [masaüstü arayüz rehberine](DESKTOP-UX.md) bakın.
+For icons, application details, and shortcut conflicts, see the [desktop interface guide](DESKTOP-UX.md).
 
-Klasörleme ve uygulama logolarında sorun yaşıyorsanız [işlem sonucu ve ikon rehberini](ORGANIZATION.md) kullanın.
-
-Uygulama içinden indirme ve yeniden başlatıp kurma için [güncelleme rehberine](UPDATES.md) bakın.
+For organization results and missing application logos, see the [organization and icon guide](ORGANIZATION.md).

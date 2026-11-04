@@ -1,41 +1,53 @@
-# EXE kurulumu ve uygulama içi güncelleme
+# Windows installation and in-app updates
 
-## İlk kurulum
+## First installation
 
-[Releases](https://github.com/Huseyinhk61/DarkDesk/releases/latest) sayfasından **DarkDesk-Setup-3.4.1.exe** paketini indirin. İlk kurulumdan önce eski DarkDesk sürümünü tepsi menüsündeki **Çıkış** ile kapatın. NSIS kurulum sihirbazı uygulamayı kurar; Node.js veya terminal gerekmez. **Portable** paketi kurulum gerektirmeyen alternatiftir; uygulama içinden kendi üzerine kurulum desteklemez.
+Open [GitHub Releases](https://github.com/Huseyinhk61/DarkDesk/releases/latest) and download **DarkDesk-Setup-3.4.2.exe**, or a newer Setup release. Quit an existing instance from the system-tray **Quit** menu before installing. The NSIS wizard installs the app and a desktop shortcut; Node.js and a terminal are not required.
 
-3.4 öncesi sürümlerde bu güncelleme servisi bulunmaz; gizli depo erişimi için ilk kez 3.4.1 veya daha yenisini kurun; ilk kez yeni Setup paketini kurmak veya kaynak kodu güncellemek gerekir. Sonraki uygun sürümler uygulamanın kendi güncelleme ekranından alınabilir. Güncelleme kullanıcı ayarlarını ve işlem geçmişini sıfırlamaz.
+**Portable** is the alternative for running without installation. It does not replace itself through the in-app installer; download the next portable release manually.
 
-Paketler şu anda kod imzalı değildir. Windows yayıncı/SmartScreen uyarısı gösterebilir. İndirdiğiniz dosyayı resmi sürüm kaynağından alın ve `SHA256SUMS.txt` ile karşılaştırın.
+Packages are currently unsigned. Windows may display a publisher or SmartScreen warning. Use the official release source and compare the download with the matching `SHA256SUMS.txt`:
 
-## Uygulama içinden
+```powershell
+Get-FileHash .\DarkDesk-Setup-3.4.2.exe -Algorithm SHA256
+```
 
-Kurulu Windows sürümü başlangıçtan 30 saniye sonra ve arka planda 6 saatte bir sürüm denetler. Yeni sürüm varsa uygulama içinde ve işletim sistemi izin veriyorsa masaüstü bildirimi görünür. Ayarlar → **Güncellemeler** bölümünden istediğiniz zaman denetleyebilirsiniz.
+## Public release access
 
-1. **Güncellemeleri kontrol et** ile sürümü denetleyin.
-2. **Güncellemeyi indir** ile paketi indirin; ilerleme ekranda görünür.
-3. İndirme tamamlandıktan sonra **Yeniden başlat ve güncelle** seçin.
+The **3.4.2** configuration uses public GitHub Releases and requires **no personal GitHub access token**. Both the repository and its published release assets must be publicly accessible. Preparing this configuration does not itself change the GitHub repository's visibility. The owner can follow the [repository publishing guide](REPOSITORY.md).
 
-İndirme otomatik başlamaz; uygulamadan çıkmak paketi sessizce kurmaz. Dosya işlemi sürerken yeniden başlatma kapalıdır. Kurulumdan önce işlem kuyruğu ve profil görünürlüğü güvenle kapatılır. İndirme SHA-512 kontrolünü `electron-updater` uygular. Ağ/kaynak/kurulum hatasında yeniden deneme sunulur; hata halinde uygulama güncelmiş gibi gösterilmez.
+If the repository is still private, a release is unpublished, or its update metadata is missing, DarkDesk reports an unavailable source instead of claiming that the app is up to date. Try again after publication or use the official download page. GitHub outages, rate limits, proxies, and firewall restrictions can also interrupt checks.
 
-Geliştirme, Linux ve portable sürümlerde native kurulum devre dışıdır; resmi EXE indirme sayfası açılabilir. Tarayıcı demosu gerçek bir güncelleme indirip kurmaz.
+### Upgrading from the previous private-feed build
 
-## Sürüm yayınlama
+Install **3.4.2 or later manually once** if you are using 3.4.1 with its private-repository credential screen. Older installed code cannot acquire the new public-provider behavior simply because the repository becomes public. Settings, group assignments, and operation history are preserved.
 
-Yeni sürüm için `package.json` ve kilit dosyasındaki sürüm numarasını arttırıp `main` dalına gönderin. Windows iş akışı testlerden sonra Setup ve Portable EXE dosyalarını oluşturur. `scripts/verify-windows-release.cjs`, `latest.yml` sürümünü, installer dosyasını, boyutunu ve SHA-512 değerini gerçek dosyayla karşılaştırır. Blockmap ve SHA-256 özetleri de yayınlanır.
+If you previously saved a private-repository token, you can remove it from **Settings → Updates → Remove access** in 3.4.1 before upgrading. Public builds do not read, use, or transmit that historical encrypted token. Revoke the obsolete token in GitHub account settings if it is no longer needed. Never paste a token into a public issue or chat.
 
-Başarılı iş akışı `v<version>` Release oluşturur. Yayınlanmış aynı sürüm değiştirilmez; başka bir güncelleme için sürüm numarası arttırılır. Yarım kalan taslak yayın tekrar çalıştırıldığında tamamlanabilir. İlgili GitHub Actions işinin yayın için `contents: write` yetkisi kullanması gerekir; uygulamaya `GITHUB_TOKEN` veya başka bir yayınlama anahtarı gömülmez.
+## Updating inside DarkDesk
 
-Depo gizli kalır. İlk EXE indirmesi için GitHub'da depoya erişimi olan hesabınızla oturum açın. Uygulama içi güncellemeler, aşağıdaki okuma anahtarıyla özel Release varlıklarına erişir. Uygulamaya yayınlama anahtarı veya ortak bir depo anahtarı gömülmez.
+An installed Windows build checks 30 seconds after startup and every six hours while running, including in the system tray. A new version produces an in-app notice and, when the operating system allows it, a desktop notification. You can also check manually under **Automation & Settings → Updates**.
 
-## Gizli depo erişimi
+1. Select **Check for updates**.
+2. Select **Download update** when a version is available. Progress appears in the panel.
+3. After the download finishes, select **Restart and update**.
 
-1. GitHub **Settings → Developer settings → Personal access tokens → Fine-grained tokens** bölümünde anahtar oluşturun.
-2. Kaynak sahibi ve depo olarak **Huseyinhk61 / DarkDesk** seçin; yalnızca bu depoya erişim verin.
-3. **Repository permissions → Contents: Read-only** seçin. Yayınlama/yazma izni gerekmez. Hesabınızın depoya erişimi olmalıdır.
-4. Anahtarı DarkDesk **Ayarlar → Güncellemeler → Gizli depo erişimi** alanına girip kaydedin. Sohbete, issue'ya veya kaynak koda yapıştırmayın.
-5. **Güncellemeleri kontrol et** ile bağlantıyı denetleyin. Süresi dolarsa aynı alanda yenileyin; **Erişimi kaldır** ile cihazdaki anahtarı silebilirsiniz.
+Downloads do not start automatically, and quitting does not silently install a package. Restart is blocked during file operations. Before installation, the app restores profile visibility and flushes its state. `electron-updater` verifies the SHA-512 checksum. Network, metadata, download, and installation errors allow a retry.
 
-Anahtar, Windows `safeStorage`/DPAPI ile şifrelenerek kullanıcı verisi dizininde tutulur. Arayüze geri okunmaz, durum bildiriminde veya işlem günlüğünde gösterilmez; parola alanı kayıttan sonra temizlenir. Anahtar olmadan otomatik özel depo isteği yapılmaz. Düz metin saklama alternatifi yoktur; geliştirme, Linux ve portable modunda anahtar saklama kapalıdır.
+Development builds, browser previews, Linux, and portable Windows builds do not offer native in-app installation. They provide a link to the official download page instead. A browser preview never downloads or installs a real application update.
 
-Anahtarı silmek sonraki denetimleri durdurur. Önceden indirilip doğrulanmış yerel güncelleme paketi için yeniden başlatıp kurma kullanılabilir. Gerçek bir sürümden sonraki sürüme canlı Windows yükseltmesi bu geliştirme ortamında ayrıca doğrulanmış değildir.
+## Publishing a release
+
+Increase the version in `package.json` and `package-lock.json`, then push to `main`. The Windows workflow runs tests, builds the Setup and Portable packages, and verifies the update metadata against the actual installer. It publishes:
+
+- `DarkDesk-Setup-<version>.exe`
+- `DarkDesk-Portable-<version>.exe`
+- The setup `.blockmap`
+- `latest.yml`
+- `SHA256SUMS.txt`
+
+The workflow creates a draft release, uploads all assets, then publishes it as the latest release. An already-published version is not overwritten; use a new version for another update. An interrupted draft can be retried. A `v<version>` tag must match the package version.
+
+GitHub Actions uses its job-scoped `contents: write` permission for publication. No publishing token is bundled in the app. The runtime configuration in `shared/update-source.json` and the packaging source in `package.json` must agree; the release validator checks both and rejects embedded credentials.
+
+Check the [Windows workflow](https://github.com/Huseyinhk61/DarkDesk/actions/workflows/windows.yml) and [published assets](https://github.com/Huseyinhk61/DarkDesk/releases) before sharing a download link. A local source push or cross-build does not establish that the remote workflow or release publication succeeded. Validation results and platform limitations are recorded in [VALIDATION.md](VALIDATION.md).

@@ -1,26 +1,26 @@
-# Klasörleme, ikonlar ve kullanım açıklamaları
+# Organizing files, displaying icons, and explaining apps
 
-## Dosyaları gerçekten düzenleme
+## Organizing files on disk
 
-1. Masaüstünü tarayın veya Sistem Tarama ekranında yüklü uygulamaları bulun.
-2. Kartları seçin ve her öğenin hedef kategorisini kontrol edin. Başlık seçili/toplam sayısını ve taranan kaynağı gösterir.
-3. **Masaüstünü Fiziksel Düzenle** ile hedefleri önizleyin. Ardından taşıma/kopyalama ya da kısayol oluşturma onayını verin.
-4. Sonuç panelinde gerçek aksiyon sayılarını inceleyin. Hedef klasörleri açabilir veya son işlemi geri alabilirsiniz.
+1. Scan your desktop, or discover installed applications in **System Scanner**.
+2. Select cards and check each item's target category. The heading shows selected and total counts and the scanned source.
+3. Choose **Organize Desktop** to preview destinations. Confirm the proposed moves, copies, or shortcut creation.
+4. Review the actual action counts in the result panel. Open target folders or undo the latest operation from there.
 
-Kategori seçmek veya bir kartı başka gruba sürüklemek tek başına dosyayı taşımaz. Kurulu uygulamaların executable dosyaları yerinden alınmaz; kategori klasörüne çalışan kısayol oluşturulur. Masaüstündeki kendi dosya/kısayollarınız Ayarlar'daki taşıma/kopyalama tercihine göre işlenir.
+Selecting a category or dragging a card to another group does not move its file. Installed executables stay in place; DarkDesk creates working shortcuts in category folders. Your own desktop files and shortcuts follow the move/copy preference in Settings.
 
-Klasör ikonu veya dosya tarihini koruma hatası taşıma işlemini durdurmaz; sonuçta uyarı görünür. Kritik kopyalama, doğrulama, günlük veya silme hatası açıkça bildirilir. Kaynak silinemediyse doğrulanmış kopya ve kaynak korunur. Mevcut hedeflerin üzerine yazılmaz. Atlanan öğenin nedeni sonuç ayrıntılarında görünür; aynı isimli bir dosya varsa önce kontrol edin.
+Folder-icon decoration or timestamp-preservation failures do not block a successful file move; the result shows a warning. Critical copy, verification, journal, or deletion failures are reported explicitly. If the source cannot be removed, both the source and verified copy are retained. Existing destinations are never overwritten. Result details explain skipped items; check for an existing file with the same name.
 
-![İşlem sonucu · etkileşimli tarayıcı demosu](assets/result.png)
+![Operation results in the interactive browser demo](assets/result.png)
 
-## Uygulama logosu görünmüyorsa
+## If an application logo is missing
 
-**İkonları yenile** düğmesi geçici hata önbelleğini temizler. Windows'ta kısayolun özel ikon dosyası ve indeksi, executable ikon kaynakları ve `.url` dosyasındaki yerel `IconFile` bilgisi denenir. Windows kaynak çıkarımı başarısızsa Electron Shell ikonu kullanılır. Kaynağa erişilemiyorsa baş harf yedeği gösterilir; bu yedek özgün logo olarak sunulmaz.
+**Refresh icons** clears cached temporary failures. On Windows, DarkDesk tries a shortcut's custom icon file and index, executable icon resources, and local `IconFile` entries in `.url` files. If native resource extraction fails, it tries the Electron shell icon. If no source is accessible, an initials fallback appears; DarkDesk does not present it as the original logo.
 
-Tarayıcı demosu işletim sistemi ikonlarına erişemez. README ekran görüntülerindeki baş harfler bu durumu gösterir. Yeni kurulu uygulama kısayolları özgün ikonunu korur; kullanıcı açıkça özel ikon seçerse o tercih uygulanır. Klasör ikon paketi uygulamanın kimliğiyle ayrı bir tercihtir.
+The browser demo cannot access operating-system icons. Initials in the README screenshots reflect this limitation. Newly created shortcuts to installed apps preserve their original icons unless the user explicitly selects a custom icon. Folder icon packs are a separate preference from application identity.
 
-## Ne işe yarar?
+## What does this app do?
 
-Kart ve ayrıntı paneli, yerel katalogda tanınan uygulamalar için kullanım amacını gösterir. Örneğin Visual Studio Code kod yazmaya, Chrome web sayfalarını açmaya, Blender 3D içerik üretmeye yardımcı olur. Katalog eşleşmesi ad/hedef üzerinden yapılır ve executable kimliği doğrulaması değildir.
+Cards and the details panel show descriptions for applications recognized by the local catalog. For example, Visual Studio Code supports writing code, Chrome opens web pages, and Blender creates 3D content. Catalog matching uses names and targets; it does not verify executable identity.
 
-Tanınmayan öğelerde dosya türü veya kategoriye dayanan genel tahmin açıkça işaretlenir. Dosya içerikleri bu açıklamalar için okunmaz; çevrimiçi AI isteği yapılmaz. Kullanıcı grupları ve kendi kuralları otomatik sınıflandırmadan önceliklidir. Arama alanında uygulama adı yanında kullanım açıklaması da aranabilir.
+Unrecognized items receive a clearly labeled estimate based on file type or category. DarkDesk does not read file contents or call an online AI service to create these descriptions. User assignments and custom rules take priority over automatic classification. Search matches purpose descriptions as well as application names.

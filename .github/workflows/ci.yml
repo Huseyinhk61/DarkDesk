@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   core:
-    name: Dosya sistemi · ${{ matrix.os }}
+    name: File system · ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -30,7 +30,7 @@ jobs:
         if: runner.os == 'Windows'
         run: npm run test:desktop
   interface:
-    name: Tarayıcı & Electron
+    name: Browser & Electron
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -1,83 +1,102 @@
-# DarkDesk 3.4.1 doğrulama raporu
+# DarkDesk validation report
 
-Tarih: 4 Kasım 2026. Yerel doğrulama ortamı: Linux, Node.js 24, Electron 45, Chromium ve Xvfb.
+## 3.4.2 — public updates and English project page
 
-| Kontrol                             | Sonuç                                                                                                                                          |
-| :---------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm test`                          | 156 servis/model/ayar testi geçti; başarısız veya atlanan test yok.                                                                            |
-| `npm run build`                     | Üretim React/Tailwind derlemesi geçti.                                                                                                         |
-| `npm run test:e2e`                  | 67 Chromium senaryosu geçti.                                                                                                                   |
-| `npm run test:desktop`              | İzole gerçek Electron/IPC testi geçti.                                                                                                         |
-| Linux `electron-builder --dir`      | Uygulama dizini ve ASAR oluşturuldu. Bu kontrol AppImage veya Windows EXE üretildiği anlamına gelmez.                                          |
-| Paketlenmiş ASAR’dan Electron testi | Paylaşılan ESM/JSON modülleri, preload, tarayıcı, ikon dosyaları ve renderer paket içinden çalıştı.                                            |
-| Paket içeriği                       | Native ikonlar, runtime/profil/otomasyon modülleri, dil sözlükleri ve RE2 regex bağımlılığı mevcut; test giriş noktaları dağıtıma dahil değil. |
-| `npm audit --omit=dev`              | Dağıtım bağımlılıklarında bilinen açık raporlanmadı.                                                                                           |
+Date: November 4, 2026. Linux, Node.js 24, Electron 45, Chromium, and Xvfb.
 
-## 3.4.1 gizli depo ve EXE doğrulaması
+- **163** service/model/settings tests passed; no failures or skips. Seven public-provider cases cover unauthenticated checks/downloads, rejection of credential mutation, unsupported platforms, metadata errors, HTTP 401/403 messages, sanitized state, and retry behavior. The historical private-provider tests still pass.
+- Production build passed; **67** Chromium interface scenarios passed, including the public update panel without a credential form.
+- The native Electron smoke test passed against the final Windows package's ASAR using Linux Electron and disposable desktop directories. Its public source, current updater module, renderer, and version were compared with the source tree. This does not run the Windows executable.
+- Setup and Portable **3.4.2** were cross-built successfully. Both passed the `7zz t` NSIS archive integrity check. Release metadata validation passed for the installer size/SHA-512, blockmap, and matching public update-source configuration with no embedded token. SHA-256 checksums were generated for the four current release assets.
+- English screenshots were captured from the real browser demo. Local Markdown links, workflow/issue YAML syntax, Prettier formatting, and whitespace checks passed.
 
-7 erişim deposu ve 8 özel güncelleme bağlayıcısı testi; şifreli yazma/okuma, bozuk dosya, sembolik bağlantı, anahtarsız istek engeli, kimlik bilgisi değiştirme/silme, yeniden denetim zorunluluğu ve durumlarda anahtar sızıntısı olmamasını kontrol eder. İki UI testi parola alanının kayıttan sonra temizlenmesini ve erişim silinince denetimin kapanmasını doğrular. Windows DPAPI uygulaması Electron `safeStorage` API'sidir; bu Linux oturumunda gerçek kullanıcı anahtarıyla GitHub isteği veya Windows yükseltme çalıştırılmadı.
+The GitHub repository-administration request to change visibility returned **Forbidden**. The source is prepared for public releases; this report does not claim that the repository is already public or that remote release publication succeeded. Live Windows installation, upgrades, and notification delivery remain unverified in this Linux environment. Packages are unsigned.
 
-Windows Setup ve Portable **3.4.1** EXE dosyaları Linux üzerinde çapraz derlendi. Resmî electron-builder `UninstallerReader` yardımcısı, geçici NSIS uninstaller üretimi için kullanıldı; uygulama üretim kaynaklarına bunun için değişiklik yapılmadı. İki EXE'nin `7zz t` NSIS arşiv bütünlük kontrolü geçti. `verify-windows-release.cjs` sürüm, boyut ve SHA-512 değerlerini, blockmap'i ve token içermeyen `private: true` güncelleme yapılandırmasını doğruladı. Bunlar canlı Windows kurulumu testinin yerine geçmez.
+- DarkDesk-Setup-3.4.2.exe: 128,246,641 bytes; SHA-256 `6a2938cb8a5bd7ddbb7ca088d7a94faeed65e45a529b9d57eb196cfd3750f596`.
+- DarkDesk-Portable-3.4.2.exe: 114,613,621 bytes; SHA-256 `4e994948cb3210c3886317daf90c33468780e53170c4967c5ce76478bfb42d38`.
 
-- Setup: 128.245.857 bayt; SHA-256 `bb1cbafffc41adc0b32d647f5f7065ea64c4f4f483ad9f41c307c843667f2af1`.
-- Portable: 114.613.163 bayt; SHA-256 `b3fca2637eb6880192259afa264489990b07ade14064318994008cb38b7d4e47`.
+## Historical 3.4.1 run
 
-## 3.4 kapsamı
+The results below record the completed **3.4.1** validation run. They are historical evidence for that build; they do not establish validation or publication of a later version.
 
-Tarama testleri üç kaynağı ayrı ayrı seçip tarar; kurulular görünümünden masaüstüne ve indirilenlere geri dönüldüğünde farklı koleksiyonlar korunur. Filtre temizliği, kaynak okuma hatası ve gecikmiş sonuç koruması test edilir. Native Electron testi aynı geçişleri gerçek geçici Desktop/Downloads/Program Files dizinleriyle uygular.
+Date: November 4, 2026. Local environment: Linux, Node.js 24, Electron 45, Chromium, and Xvfb.
 
-Görünüm ve grup servis testleri yeni tema/font/ikon tercihlerini, 60 ICO kaynağını, schema4 grup geçişini, silinmiş grupların korunmasını ve eski geçmişin geri alınmasını kapsar. Yeni varsayılan Alt+X ve kayıtlı özel tuşun korunması ayrıca doğrulandı.
+| Check                            | Result                                                                                                                                      |
+| :------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------ |
+| `npm test`                       | 156 service, model, and settings tests passed; no failures or skips.                                                                        |
+| `npm run build`                  | Production React/Tailwind build passed.                                                                                                     |
+| `npm run test:e2e`               | 67 Chromium scenarios passed.                                                                                                               |
+| `npm run test:desktop`           | Isolated real Electron/IPC test passed.                                                                                                     |
+| Linux `electron-builder --dir`   | Application directory and ASAR built. This check alone does not produce an AppImage or a Windows EXE.                                       |
+| Electron test from packaged ASAR | Shared ESM/JSON modules, preload, scanner, icon assets, and renderer ran from the package.                                                  |
+| Package contents                 | Native icons, runtime/profile/automation modules, translations, and the RE2 regex dependency were present; test entry points were excluded. |
+| `npm audit --omit=dev`           | No known vulnerabilities were reported in production dependencies.                                                                          |
 
-Güncelleme servisi enjekte edilmiş `electron-updater` adaptörüyle kontrol edildi: eşzamanlı istekler, tek sürüm bildirimi, açık indirme, checksum hatası, erişilemeyen kaynak, kurulum sıralaması, dosya işi sırasında erteleme ve kurulum başlatma hatasından toparlanma. UI testleri indirme/ilerleme/yeniden başlatma ve portable sınırlarını kapsar. **Gerçek bir Windows makinede eski sürümden yeni sürüme kurulum bu Linux oturumunda uygulanmadı.** GitHub Release görünürlüğü ve uzaktaki iş sonucu bu ortamda doğrulanamadı (web/API erişimleri 404/403 döndü).
+## 3.4.1 update-access and EXE validation
 
-## 3.3 kapsamı
+Seven access-store tests and eight private-update adapter tests cover encrypted reading/writing, corrupt files, symbolic links, blocking requests without credentials, credential replacement/removal, required rechecks, and keeping credentials out of status objects. Two UI tests verify that the password field clears after saving and that removing access disables checks. Windows encryption uses Electron’s `safeStorage` API backed by DPAPI. This Linux session did not make GitHub requests with a real user credential or run a Windows upgrade. See the [update guide](UPDATES.md) for current distribution setup.
 
-Dosya sistemi regresyonları klasör ikonu/attrib hatasını, tarih ayarı hatasını, kritik günlük hatasını ve kaynak silme izni reddini enjekte ederek gerçek geçici dosyalarda taşıma/geri almayı kontrol eder. Bozuk hedef checksum testi başarının yanlış sayılmasını engeller. Yeni kısayolların kaynak executable ikonunu/argümanlarını koruduğu ve `.lnk`/`.url` dosyalarının kopyalanırken değişmediği test edilir.
+Windows Setup and Portable **3.4.1** EXEs were cross-built on Linux. The official electron-builder `UninstallerReader` helper handled the intermediate NSIS uninstaller generator; this required no application production-source changes. Both EXEs passed the `7zz t` NSIS archive integrity check. `verify-windows-release.cjs` verified the version, size, SHA-512 values, blockmap, and credential-free `private: true` update configuration in those artifacts. These checks do not replace a live Windows installation test.
 
-Windows ikon servisi sabit PowerShell ve Windows kaynak API'leriyle uygulanmıştır. Yerel testlerde custom ikon önceliği, `.url` UTF-16 okuması, kaynak fingerprint'i, PNG doğrulaması ve sınırlı process iletişimi enjekte edilmiş adaptörlerle doğrulandı. **Bu Linux oturumunda canlı Windows ikon çıkarımı yapılmadı.** GitHub Actions Windows Electron dalına gerçek Electron executable'ına işaret eden `.lnk` üzerinden `windows-native` PNG çıkarma kontrolü eklendi; uzak işin başarı durumu bu rapordan çıkarılamaz.
+- Setup: 128,245,857 bytes; SHA-256 `bb1cbafffc41adc0b32d647f5f7065ea64c4f4f483ad9f41c307c843667f2af1`.
+- Portable: 114,613,163 bytes; SHA-256 `b3fca2637eb6880192259afa264489990b07ade14064318994008cb38b7d4e47`.
 
-Kullanım kataloğu 82 tanımlı uygulama içerir. Testler ortak başlatıcılar, kısayol etiketleri, yanlış belge eşleşmesi, manuel kural önceliği ve belirsizlik etiketlerini kapsar. Açıklamalar uzaktan üretilmez; adı taklit edilmiş bir dosyanın kimliği veya üreticisi doğrulanmış sayılmaz.
+## 3.4 coverage
 
-Yeni UI senaryoları 1366×768 ekranda koleksiyonun başlangıcını, küçük pencerede %130 metni, opak başlatıcıyı, açıklama panelini, manuel ikon yenilemeyi ve gerçek aksiyon sayılarıyla işlem sonucunu doğrular. Gerçek Electron ve ASAR testleri izole masaüstünde taşı/geri al ve sonuç panelini de kontrol etti.
+Scanner tests select and scan each of the three sources. Desktop, Downloads, and installed-application collections remain distinct when switching between them. Tests cover filter resets, source read failures, and stale-result protection. The native Electron test repeats these transitions with real temporary Desktop, Downloads, and Program Files directories.
 
-## 3.2 kapsamı
+Appearance and group-service tests cover new theme/font/icon preferences, 60 ICO assets, schema 4 group migration, respecting deleted groups, and undoing older history. They also verify the new Alt+X default and preservation of saved custom shortcuts.
 
-Vite izleyicisi dağıtım çıktıları, test raporları ve dokümanları dışarıda bırakır. Bu dosyaların yazılması sırasında geliştirme görünümünün sıfırlanmasına yol açan yenileme giderilmiştir.
+The update service was tested with an injected `electron-updater` adapter: concurrent requests, one notification per version, explicit downloads, checksum errors, unavailable feeds, installation ordering, deferral during file operations, and recovery after installation launch failures. UI tests cover downloading, progress, restart, and Portable limitations. **No real Windows upgrade from an older version to a newer version was performed in this Linux session.** GitHub Release visibility and remote workflow results could not be verified in this environment; website/API requests returned 404/403.
 
-Yeni servis testleri 7 palet ve Sistem Teması için kalıcılığı, eski ayarlara görünüm varsayılanlarının eklenmesini, geçersiz görünüm değerlerinin reddini ve ana metin tokenlarının taban yüzeylerde kontrastını doğrular. Bu, tüm ekranların bir erişilebilirlik standardına göre sertifikalandırılması anlamına gelmez.
+## 3.3 coverage
 
-Pencere geometrisi testleri kaldırılan monitörü, negatif koordinatlı ekranları, küçük çalışma alanını, bozuk kayıtları ve sıralı kalıcı yazmayı kapsar. Gerçek Electron testi pencere durumu IPC'sini ve çıkışta kayıt dosyasını kontrol eder; fiziksel monitör çıkarma testi yapılmadı.
+Filesystem regression tests inject folder-icon/attribute failures, timestamp failures, critical journal failures, and denied source deletion into move/undo operations on real temporary files. A corrupt destination checksum test prevents false success counts. Tests verify that new shortcuts preserve the source executable’s icon and arguments, and that copying `.lnk`/`.url` files does not alter them.
 
-Arayüz senaryoları yeni paletler, canlı OS tema değişimi, %130 metin, azaltılmış hareket, kompakt yoğunluk, kaydedilmemiş işlem tercihlerini koruma, yardım ekranı ve içeriğe geçişi kapsar. Diyalog testleri yazarken imlecin korunmasını, arka plan yalıtımını, hata mesajının diyalog içinde okunmasını, odağın açan düğmeye dönüşünü ve Spotlight combobox gezinmesini doğrular. Otomatik kontroller, gerçek ekran okuyucu kullanıcı testi yerine geçmez.
+The Windows icon service uses fixed PowerShell scripts and Windows resource APIs. Local tests verify custom-icon priority, UTF-16 `.url` reading, source fingerprints, PNG validation, and bounded process communication through injected adapters. **Live Windows icon extraction was not run in this Linux session.** The Windows Electron branch in GitHub Actions includes a `windows-native` PNG-extraction check using a `.lnk` targeting the real Electron executable. This report does not establish that the remote workflow passed.
 
-## 3.1 kapsamı
+The 3.3 purpose catalog contained 82 known applications. Tests cover common launchers, shortcut labels, false document matches, manual-rule priority, and uncertainty labels. Descriptions are generated locally; a filename imitating an application does not verify its identity or publisher.
 
-Yeni servis testleri ikon kaynağı/hedef fallback davranışını, güvenilir indeks kontrolünü, metadata önbellek tahliyesi sırasında eşzamanlı istekleri, parçalı UTF-8/çıkış sonrası stdout okumasını ve kısayol çakışmasında geri almayı kapsar. UI testleri native PNG servisi simülasyonuyla ikon önceliğini, gerçek klavye kaydı/iptalini, bilgi paneli hata/yeniden deneme/odak dönüşünü ve sabit pencere düzenini kontrol eder.
+UI scenarios verify the start of the item collection at 1366×768, 130% text in small windows, the opaque launcher, description panel, manual icon refresh, and operation results with actual action counts. Real Electron and ASAR tests also check move/undo and the result panel on an isolated desktop.
 
-Gerçek Electron testi `app.getFileIcon` ile PNG veya ikon bulunamadığında `null` sonucunu, dosya sistemi metadata'sını, indeks dışındaki bilgi taleplerinin reddini ve kısayol capture/resume döngüsünü doğrular. Kayıtlı tuşlar ayrıca Electron `globalShortcut.isRegistered` ile kontrol edilir. Bu kontrol, başka bir uygulama/oyun odaktayken fiziksel tuşa basma testi değildir. Windows üretici/açıklama kaynağı enjekte edilmiş sürüm bilgisi ve sabit PowerShell süreci testleriyle doğrulanır; canlı Windows executable kaynakları bu oturumda okunmamıştır.
+## 3.2 coverage
 
-## Doğrulanan davranışlar
+The Vite watcher excludes distribution outputs, test reports, and documentation. Writing those files no longer causes a development-view reset.
 
-- Masaüstü taraması, taşı/kopyala, içerik doğrulama, hedef çakışmaları ve geri alma.
-- Yarım kalan taşıma/geri alma kayıtlarının kurtarılması; mevcut veya değiştirilmiş dosyaların korunması.
-- Eski sayısal kategori tercihlerinin yeni sabit kimliklere göçü ve eski geçmişin geri alınması.
-- Alt klasör oluşturma, döngü/rezerv Windows adları/yol kaçışı doğrulaması ve kategori silindikten sonra eski işlemi geri alma.
-- Derin tarama kökleri, kayıtlı konumlar, yardımcı dosya elemesi, hedef+argüman bazlı tekilleştirme, erişim uyarıları, sınırlar ve durdurma.
-- Kurulu uygulamaya dokunmadan `.desktop` kısayolu oluşturma, yeni kısayolu geri alma ve uygulamanın orijinal içeriğini koruma.
-- Yedi palet ve sistem teması, iki dil, ikon paketi/öğe ikonu kalıcılığı, özel kategori ve kural akışları, arama ve filtreleme.
-- İngilizce açık tema dahil 390 px genişlikte taşma kontrolü, klavye araması, diyalog odağı ve geri alınabilir bildirim.
-- Türkçe/İngilizce sözlüklerde eşit anahtarlar ve eşit yer tutucular.
-- Profil görünürlüğü, önceden gizli öğelerin korunması, profil geçişi ve çıkışta geri yükleme; Linux üzerinde gerçek `.hidden` işlemleri.
-- Profil görünürlüğü değişirken onaylanmış taşıma planının içerik doğrulamasını koruması.
-- Spotlight klavye gezinmesi, fuzzy arama, komutlar ve güvenilir indeks dışındaki yolların reddedilmesi.
-- Güvenli regex kuralları, alt kategoriler, gürültü filtreleri, yerel etiket önerileri ve yalnızca DarkDesk kullanım geçmişine dayanan arşiv önerileri.
-- İsteğe bağlı arşiv/Downloads otomasyonu, geri alma sonrası aynı sürümün yeniden taşınmaması ve sürükle-bırak kategori ataması.
-- Gerçek Electron ve paketlenmiş ASAR içinden profil/geri yükleme, Spotlight IPC, tepsiye gizlenme, arşiv ve Downloads akışları. Testte uygulama başlatma adaptörü kayıt tutan bir adaptörle değiştirilir; dış program başlatılmaz.
+Service tests verify persistence for seven palettes and System Theme, adding appearance defaults to older settings, rejecting invalid appearance values, and contrast of primary text tokens against base surfaces. This does not certify every screen against an accessibility standard.
 
-## Platform doğrulamasının sınırı
+Window-geometry tests cover removed monitors, displays with negative coordinates, small work areas, corrupt records, and ordered persistent writes. The real Electron test checks window-state IPC and the saved file at exit; physically disconnecting a monitor was not tested.
 
-Bu oturumda gerçek Windows çalıştırılmadı. Windows kayıt defteri kaynağı enjekte edilmiş örneklerle ve sabit PowerShell komutunun yollarıyla test edildi; kullanıcının canlı kayıt defteri taranmadı. Windows Hidden niteliği ve Explorer yenilenmesi, global kısayolların canlı sistemde kaydı, `.lnk` yazma, `desktop.ini` ile Explorer ikonları ve Windows EXE kurulumu burada gerçek Windows üzerinde doğrulanmış değildir. Linux `.hidden` dosyasını masaüstü yöneticisinin görsel olarak uygulaması da ortamına bağlıdır. Gerçek işletim sisteminden insan eliyle dosya sürükleme ve harici uygulamanın açılması bu testlerin kapsamında değildir.
+UI scenarios cover the new palettes, live OS theme changes, 130% text, reduced motion, compact density, preserving unsaved operation preferences, the help screen, and skip-to-content navigation. Dialog tests verify cursor preservation while typing, background isolation, error announcements inside the dialog, focus return to the opening control, and Spotlight combobox navigation. Automated checks do not replace testing with screen-reader users.
 
-GitHub Actions Windows koşucusu, servis ve gerçek Electron testlerini çalıştıracak şekilde ayarlıdır. Electron testinin Windows dalı, oluşturulan `.lnk` hedefini/ikonunu ve `desktop.ini` içeriğini ayrıca kontrol eder. Bu işlerin uzaktaki başarı durumu, yerel testlerin başarısından çıkarılamaz; [Actions](https://github.com/Huseyinhk61/DarkDesk/actions) üzerinden görülmelidir.
+## 3.1 coverage
 
-Tam geliştirme araç zinciri denetiminde paketleyicinin geçişli geliştirme bağımlılıklarına ilişkin orta seviye bildirimler bulunur. Dağıtım bağımlılıkları denetimi bunlardan ayrıdır; testlerin geçmesi bütün güvenlik açıklarının yokluğunu garanti etmez.
+Service tests cover icon source/target fallback, trusted-index checks, concurrent requests during metadata-cache eviction, chunked UTF-8 and stdout reading after process exit, and rollback on shortcut conflicts. UI tests use a simulated native PNG service to verify icon priority, keyboard capture/cancellation, information-panel errors/retries/focus return, and the fixed window layout.
+
+The real Electron test verifies a PNG from `app.getFileIcon`, or `null` when unavailable, filesystem metadata, rejection of detail requests outside the trusted index, and shortcut capture/resume. Registered keys are checked with Electron’s `globalShortcut.isRegistered`. This is not a physical keypress test while another application or game has focus. Windows publisher/description retrieval is verified with injected version information and fixed PowerShell process tests; live Windows executable resources were not read in this session.
+
+## Verified behavior
+
+- Desktop scanning, move/copy, content verification, destination conflicts, and undo.
+- Recovery of interrupted move/undo records while protecting existing or modified files.
+- Migration of older numeric category preferences to stable IDs and undoing older history.
+- Subfolder creation; validation of cycles, reserved Windows names, and path traversal; undo after category deletion.
+- Deep-scan roots, registered locations, helper-file filtering, target-and-arguments deduplication, access warnings, limits, and cancellation.
+- Creating `.desktop` shortcuts without changing the installed application, undoing those shortcuts, and preserving original application content.
+- Seven original palettes and System Theme, two languages, icon-pack/item-icon persistence, custom categories and rules, search, and filtering, with expanded 3.4 appearance coverage described above.
+- Overflow checks at 390 px width, including the English light theme; keyboard search, dialog focus, and undoable notifications.
+- Matching translation keys and placeholders in Turkish and English dictionaries.
+- Profile visibility, preserving previously hidden items, profile switching, and restoration at exit, including real Linux `.hidden` operations.
+- Content verification for an approved move plan while profile visibility changes.
+- Spotlight keyboard navigation, fuzzy search, commands, and rejection of paths outside the trusted index.
+- Safe regex rules, subcategories, noise filters, local tagging suggestions, and archive suggestions based only on DarkDesk launch history.
+- Optional archive/Downloads automation, avoiding repeated movement of the same version after undo, and drag-and-drop category assignment.
+- Profile/restoration, Spotlight IPC, tray hiding, archive, and Downloads flows in real Electron and packaged ASAR. The test replaces application launching with a recording adapter; it does not start external programs.
+
+## Limits of platform validation
+
+This session did not run Windows. The Windows registry source was tested with injected fixtures and the fixed PowerShell command’s paths, rather than the user’s live registry. Windows Hidden attributes and Explorer refresh, global shortcuts on a live Windows desktop, `.lnk` creation, Explorer folder icons via `desktop.ini`, and EXE installation were not validated on real Windows here. Whether a Linux desktop manager visually honors `.hidden` also depends on the environment. Manually dragging files from the operating system and opening external applications are outside these tests.
+
+The GitHub Actions Windows runner is configured to run service and real Electron tests. The Windows branch additionally checks generated `.lnk` targets/icons and `desktop.ini` contents. Local success does not prove the remote jobs passed; check [Actions](https://github.com/Huseyinhk61/DarkDesk/actions).
+
+A full development-toolchain audit reports moderate advisories in the packager’s transitive development dependencies. The production-dependency audit is separate; passing tests do not establish the absence of every security vulnerability.

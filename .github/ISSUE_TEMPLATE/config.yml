@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Installation and troubleshooting
+    url: https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/WINDOWS.md
+    about: Check the Windows guide for installation and startup problems.
+  - name: File organization and recovery
+    url: https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/ORGANIZATION.md
+    about: Learn how previews, conflicts, and undo work.

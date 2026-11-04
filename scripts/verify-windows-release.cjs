@@ -3,6 +3,8 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const { parse } = require('yaml');
 const { version } = require('../package.json');
+const { build } = require('../package.json');
+const source = require('../shared/update-source.json');
 
 (async () => {
   const directory = path.resolve(process.argv[2] || 'release');
@@ -13,13 +15,22 @@ const { version } = require('../package.json');
     await fs.readFile(path.join(directory, 'win-unpacked/resources/app-update.yml'), 'utf8'),
   );
   if (
-    feed.provider !== 'github' ||
-    feed.owner !== 'Huseyinhk61' ||
-    feed.repo !== 'DarkDesk' ||
-    feed.private !== true ||
+    feed.provider !== source.provider ||
+    feed.owner !== source.owner ||
+    feed.repo !== source.repo ||
+    (feed.private === true) !== source.private ||
+    !build.publish?.some(
+      (entry) =>
+        entry.provider === source.provider &&
+        entry.owner === source.owner &&
+        entry.repo === source.repo &&
+        (entry.private === true) === source.private,
+    ) ||
     'token' in feed
   )
-    throw Error('Private update source configuration is invalid or contains a credential');
+    throw Error(
+      'Update source configuration does not match the application or contains a credential',
+    );
   const installer = `DarkDesk-Setup-${version}.exe`;
   if (metadata.path !== installer || !metadata.files.some((file) => file.url === installer))
     throw Error('Updater metadata must point to the NSIS setup installer');

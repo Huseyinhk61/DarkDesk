@@ -41,7 +41,10 @@ const { folders } = require('../electron/service.cjs');
     assert.equal(await page.evaluate(() => typeof window.darkdesk.preview), 'function');
     assert.equal((await page.evaluate(() => window.darkdesk.updateStatus())).state, 'unsupported');
     const accessState = await page.evaluate(() => window.darkdesk.updateStatus());
-    assert.equal(accessState.authenticationRequired, true);
+    assert.equal(
+      accessState.authenticationRequired,
+      require('../shared/update-source.json').private === true,
+    );
     assert.equal(accessState.accessConfigured, false);
     assert.equal('token' in accessState, false);
     assert.equal(

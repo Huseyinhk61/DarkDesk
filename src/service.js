@@ -1,3 +1,4 @@
+import { version as appVersion } from '../package.json';
 import { validateSettings } from '../shared/validate';
 import { examples } from './data';
 import {
@@ -95,8 +96,8 @@ export const api = window.darkdesk || {
   updateStatus: async () => ({
     state: 'unsupported',
     reason: 'development',
-    currentVersion: '3.4.1',
-    authenticationRequired: true,
+    currentVersion: appVersion,
+    authenticationRequired: false,
     accessConfigured: false,
     accessSupported: false,
   }),
@@ -122,7 +123,7 @@ export const api = window.darkdesk || {
     total: 16 * 1024 ** 3,
     free: 9.2 * 1024 ** 3,
     storage: null,
-    version: '3.4.1',
+    version: appVersion,
     platform: 'demo',
   }),
   getSettings: async () => structuredClone(settings),

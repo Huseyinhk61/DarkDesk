@@ -35,6 +35,8 @@ test('updates are downloaded explicitly and installation waits until a package i
 }) => {
   await mockUpdates(page);
   const panel = page.locator('.update-panel');
+  await expect(panel.locator('.update-access')).toHaveCount(0);
+  await expect(panel.getByLabel('GitHub erişim anahtarı', { exact: true })).toHaveCount(0);
   await panel.getByRole('button', { name: 'Güncellemeleri kontrol et', exact: true }).click();
   await expect(panel).toContainText('3.5.0');
   await expect(
