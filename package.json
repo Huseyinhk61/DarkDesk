@@ -19,7 +19,8 @@
     "format": "prettier --write src shared electron tests scripts *.json *.js *.md docs/*.md .github",
     "postinstall": "node node_modules/electron/install.js",
     "icons": "node scripts/generate-folder-icons.mjs",
-    "verify:win": "node scripts/verify-windows-release.cjs"
+    "verify:win": "node scripts/verify-windows-release.cjs",
+    "test:ci": "node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=./scripts/ci-test-reporter.cjs --test-reporter-destination=stdout electron/*.test.cjs"
   },
   "dependencies": {
     "@tabler/icons-react": "^3.50.0",

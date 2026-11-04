@@ -32,7 +32,7 @@ jobs:
           if ($env:RELEASE_REF_TYPE -eq 'tag' -and $env:RELEASE_REF -ne "v$version") { throw 'Tag must match package version' }
           "version=$version" >> $env:GITHUB_OUTPUT
       - run: npm ci
-      - run: npm test
+      - run: npm run test:ci
       - run: npm run build
       - run: npm run test:desktop
       - name: Build setup and portable EXE

@@ -24,7 +24,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npm test
+      - run: npm run test:ci
       - run: npm run build
       - name: Windows native IPC smoke test
         if: runner.os == 'Windows'
