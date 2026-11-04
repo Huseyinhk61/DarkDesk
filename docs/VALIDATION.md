@@ -2,6 +2,15 @@
 
 ## 3.4.3 — common desktop coverage and app categorization
 
+**Published and verified:** [Windows Installer run](https://github.com/Huseyinhk61/DarkDesk/actions/runs/41824868352) succeeded, including real Windows native IPC tests, EXE packaging, metadata validation and release publication. [Test & Build](https://github.com/Huseyinhk61/DarkDesk/actions/runs/41826147065) also succeeded on Windows/Linux; its browser job reports **73 passed**. [Release v3.4.3](https://github.com/Huseyinhk61/DarkDesk/releases/tag/v3.4.3) is public. Anonymous Setup/Portable requests and the update feed returned HTTP 200; the Setup size matches `latest.yml`.
+
+Official release files (use that release's `SHA256SUMS.txt`):
+
+- Setup: 128,251,506 bytes; SHA-256 `2cbc808ab2c425ec98612538e49f02aa483b29276c805df695ab9ae3631e2a79`.
+- Portable: 114,965,879 bytes; SHA-256 `8fa2d70617fd74b42ee225d58287ecfb0c5c3ad4cee65dee4414980a4c1c9814`.
+
+The local cross-build evidence below has different packaging hashes; it is separate from the official Windows-runner assets. A desktop GUI installation and old-to-new upgrade on the user's own machine have not been tested here.
+
 Date: November 4, 2026. Linux, Node.js 24, Electron 45 and Chromium.
 
 - **174 service/model tests passed** without failures or skips. New real-filesystem cases cover common-desktop IDs and name collisions, the seven reported applications, shared move/copy/undo, denied source removal while later items continue, missing sources, substituted directory symlinks, exclusion from unattended archiving, and bounded UTF-8/UTF-16 game shortcuts.
