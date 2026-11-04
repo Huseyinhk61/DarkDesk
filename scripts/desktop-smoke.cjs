@@ -192,8 +192,10 @@ const { folders } = require('../electron/service.cjs');
         ({ shell }, file) => shell.readShortcutLink(file),
         link,
       );
-      assert.equal(details.target, installed);
-      assert.equal(details.icon, installed);
+      // The Windows shell expands 8.3 aliases such as RUNNER~1. Compare the
+      // actual files while still verifying both the shortcut target and icon.
+      assert.equal(await fs.realpath(details.target), await fs.realpath(installed));
+      assert.equal(await fs.realpath(details.icon), await fs.realpath(installed));
     }
     await page.locator('main').getByRole('button', { name: 'Geri al', exact: true }).click();
     await expect(page.locator('.activity-bar')).toHaveCount(0);
