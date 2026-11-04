@@ -95,8 +95,15 @@ export const api = window.darkdesk || {
   updateStatus: async () => ({
     state: 'unsupported',
     reason: 'development',
-    currentVersion: '3.4.0',
+    currentVersion: '3.4.1',
+    authenticationRequired: true,
+    accessConfigured: false,
+    accessSupported: false,
   }),
+  saveUpdateAccess: async () => {
+    throw Error('UPDATE_ACCESS_UNAVAILABLE');
+  },
+  clearUpdateAccess: async () => api.updateStatus(),
   checkUpdates: async () => api.updateStatus(),
   downloadUpdate: async () => api.updateStatus(),
   installUpdate: async () => {
@@ -115,7 +122,7 @@ export const api = window.darkdesk || {
     total: 16 * 1024 ** 3,
     free: 9.2 * 1024 ** 3,
     storage: null,
-    version: '3.4.0',
+    version: '3.4.1',
     platform: 'demo',
   }),
   getSettings: async () => structuredClone(settings),

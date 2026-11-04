@@ -13,6 +13,8 @@ const methods = [
   'window',
   'windowState',
   'updateStatus',
+  'saveUpdateAccess',
+  'clearUpdateAccess',
   'checkUpdates',
   'downloadUpdate',
   'installUpdate',

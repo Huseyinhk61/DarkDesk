@@ -1,6 +1,6 @@
 {
   "name": "darkdesk",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "private": true,
   "type": "module",
   "main": "electron/main.cjs",
@@ -92,7 +92,8 @@
         "provider": "github",
         "owner": "Huseyinhk61",
         "repo": "DarkDesk",
-        "releaseType": "release"
+        "releaseType": "release",
+        "private": true
       }
     ],
     "generateUpdatesFilesForAllChannels": true

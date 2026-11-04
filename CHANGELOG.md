@@ -1,5 +1,12 @@
 # Değişiklikler
 
+## 3.4.1 — 4 Kasım 2026
+
+- Gizli GitHub deposu için kullanıcıya ait okuma anahtarıyla güncelleme erişimi.
+- Windows DPAPI ile şifreli saklama; durum/ayar JSON'unda anahtar içeriği yok.
+- Anahtar yokken özel depo isteklerini engelleme, değiştirme/silme ve yeni denetim zorunluluğu.
+- Özel yayın kaynağı ve kullanıcıya anahtar gömmeyen EXE yapılandırması.
+
 ## 3.4.0 — 3 Kasım 2026
 
 - Sistem Tarama CTA'sı seçili kaynağı tarar; masaüstü/indirilenler artık yanlışlıkla derin uygulama taramasına geçmez.

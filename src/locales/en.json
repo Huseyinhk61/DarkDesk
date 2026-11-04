@@ -605,5 +605,20 @@
   "update.errors.UPDATE_CANCELLED": "The update download was cancelled. Try again when you are ready.",
   "groups.scrollHint": "Scroll to see more groups",
   "groups.previous": "Previous groups",
-  "groups.next": "Next groups"
+  "groups.next": "Next groups",
+  "update.access.title": "Private repository access",
+  "update.access.configured": "Update access is configured on this device.",
+  "update.access.required": "The DarkDesk repository is private. Add an access token to check for updates.",
+  "update.access.label": "GitHub access token",
+  "update.access.save": "Save access",
+  "update.access.clear": "Remove saved access",
+  "update.access.storage": "The token is encrypted using secure operating-system storage. Saved tokens are never loaded back into this field.",
+  "update.access.unsupported": "Secure token storage is unavailable in this version. Use the Windows installer version or download the EXE in a browser signed in to GitHub.",
+  "update.access.guideTitle": "Which token is needed?",
+  "update.access.guide": "Create a fine-grained personal access token in GitHub settings for the DarkDesk repository only. Under Repository permissions, Contents: Read-only is sufficient. Manage expiry and repository access rules on GitHub.",
+  "update.access.secret": "Do not share the token in chat, issues, screenshots or source code. It is used here only to access update files.",
+  "update.access.manual": "The manual download page opens the private GitHub Releases page. Sign in with an authorized GitHub account in your browser.",
+  "update.errors.UPDATE_AUTH_REQUIRED": "Add a GitHub access token to access updates from the private repository.",
+  "update.errors.UPDATE_AUTH_FAILED": "GitHub access could not be verified. Check token expiry, the DarkDesk repository selection and Contents read permission.",
+  "update.errors.UPDATE_ACCESS_UNAVAILABLE": "Secure access-token storage is unavailable. The token was not saved; you can use the manual download option."
 }

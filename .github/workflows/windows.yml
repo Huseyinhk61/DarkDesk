@@ -41,7 +41,9 @@ jobs:
       - name: Generate SHA-256 checksums
         shell: pwsh
         run: |
-          Get-ChildItem release/* -File | Where-Object { $_.Extension -in ".exe", ".yml", ".blockmap" } | ForEach-Object {
+          $version = "${{ steps.version.outputs.version }}"
+          $files = @("release/DarkDesk-Setup-$version.exe", "release/DarkDesk-Portable-$version.exe", "release/DarkDesk-Setup-$version.exe.blockmap", "release/latest.yml")
+          Get-Item $files | ForEach-Object {
             $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower()
             "$hash  $($_.Name)"
           } | Set-Content -Encoding utf8 release/SHA256SUMS.txt
@@ -49,9 +51,10 @@ jobs:
         with:
           name: DarkDesk-Windows
           path: |
-            release/*.exe
-            release/*.yml
-            release/*.blockmap
+            release/DarkDesk-Setup-${{ steps.version.outputs.version }}.exe
+            release/DarkDesk-Portable-${{ steps.version.outputs.version }}.exe
+            release/DarkDesk-Setup-${{ steps.version.outputs.version }}.exe.blockmap
+            release/latest.yml
             release/SHA256SUMS.txt
           if-no-files-found: error
           retention-days: 30
@@ -73,13 +76,15 @@ jobs:
           RELEASE_SHA: ${{ github.sha }}
         run: |
           tag="v$RELEASE_VERSION"
+          assets=("release/DarkDesk-Setup-$RELEASE_VERSION.exe" "release/DarkDesk-Portable-$RELEASE_VERSION.exe" "release/DarkDesk-Setup-$RELEASE_VERSION.exe.blockmap" "release/latest.yml" "release/SHA256SUMS.txt")
           if gh release view "$tag" --json isDraft --jq .isDraft > /tmp/darkdesk-release-state; then
             if [ "$(cat /tmp/darkdesk-release-state)" = "true" ]; then
-              gh release upload "$tag" release/*.exe release/*.yml release/*.blockmap release/SHA256SUMS.txt --clobber
+              gh release upload "$tag" "${assets[@]}" --clobber
               gh release edit "$tag" --draft=false --latest
             else
               echo "Release $tag already published. Bump package.json for another update."
             fi
           else
-            gh release create "$tag" release/*.exe release/*.yml release/*.blockmap release/SHA256SUMS.txt --target "$RELEASE_SHA" --title "DarkDesk $tag" --generate-notes --latest
+            gh release create "$tag" "${assets[@]}" --target "$RELEASE_SHA" --title "DarkDesk $tag" --generate-notes --draft
+            gh release edit "$tag" --draft=false --latest
           fi

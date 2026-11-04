@@ -1,5 +1,14 @@
 import { useState } from 'react';
-import { Download, RefreshCw, RotateCw, ExternalLink, CircleCheck, Info } from 'lucide-react';
+import {
+  Download,
+  RefreshCw,
+  RotateCw,
+  ExternalLink,
+  CircleCheck,
+  Info,
+  KeyRound,
+  ShieldCheck,
+} from 'lucide-react';
 import { api } from '../service';
 import { usePreferences } from '../preferences';
 import { useUpdates } from '../useUpdates';
@@ -17,6 +26,9 @@ const errorCodes = new Set([
   'UPDATE_BUSY',
   'UPDATE_NOT_READY',
   'UPDATE_CANCELLED',
+  'UPDATE_AUTH_REQUIRED',
+  'UPDATE_AUTH_FAILED',
+  'UPDATE_ACCESS_UNAVAILABLE',
 ]);
 const statusNames = new Set([
   'idle',
@@ -30,7 +42,10 @@ const statusNames = new Set([
 ]);
 function errorCode(error) {
   const raw = typeof error === 'string' ? error : error?.message || '';
-  return [...errorCodes].find((code) => raw.includes(code)) || 'GENERIC';
+  return (
+    [...errorCodes].sort((a, b) => b.length - a.length).find((code) => raw.includes(code)) ||
+    'GENERIC'
+  );
 }
 
 export default function UpdatePanel({ update, busy = false }) {
@@ -38,12 +53,17 @@ export default function UpdatePanel({ update, busy = false }) {
   const snapshot = useUpdates(update === undefined);
   const [returned, setReturned] = useState(null),
     [pending, setPending] = useState(false),
-    [failure, setFailure] = useState(null);
+    [failure, setFailure] = useState(null),
+    [accessToken, setAccessToken] = useState('');
   // Native events remain authoritative; returned snapshots also support a standalone panel.
   const value = update ?? returned ?? snapshot;
   const state = statusNames.has(value?.state) ? value.state : 'idle';
   const working = pending || state === 'checking' || state === 'downloading' || value?.installing;
   const unsupported = state === 'unsupported';
+  const authenticationRequired = value?.authenticationRequired === true;
+  const accessConfigured = value?.accessConfigured === true;
+  const accessSupported = value?.accessSupported === true && !unsupported;
+  const accessMissing = authenticationRequired && (!accessConfigured || !accessSupported);
   const error =
     failure ||
     (value?.errorCode || state === 'error'
@@ -58,18 +78,30 @@ export default function UpdatePanel({ update, busy = false }) {
       Number(typeof value.progress === 'number' ? value.progress : value.progress?.percent) || 0,
     ),
   );
-  const act = async (method) => {
+  const act = async (method, ...args) => {
     if (pending) return;
     setPending(true);
     setFailure(null);
     try {
-      const result = await api[method]();
+      const result = await api[method](...args);
       if (result?.state) setReturned(result);
+      return result;
     } catch (problem) {
       setFailure(errorCode(problem));
+      return null;
     } finally {
       setPending(false);
     }
+  };
+  const saveAccess = async (event) => {
+    event.preventDefault();
+    if (!accessSupported || working || !accessToken.trim()) return;
+    const result = await act('saveUpdateAccess', accessToken.trim());
+    if (result?.accessConfigured === true) setAccessToken('');
+  };
+  const clearAccess = async () => {
+    const result = await act('clearUpdateAccess');
+    if (result?.accessConfigured === false) setAccessToken('');
   };
   const reason = ['development', 'portable', 'platform', 'unavailable'].includes(value?.reason)
     ? value.reason
@@ -105,6 +137,76 @@ export default function UpdatePanel({ update, busy = false }) {
           </div>
         )}
       </dl>
+      {authenticationRequired && (
+        <div className="update-access">
+          <div className="update-access-heading">
+            <KeyRound size={18} />
+            <h3>{t('update.access.title')}</h3>
+          </div>
+          <p className="update-access-status" role="status">
+            {t(accessConfigured ? 'update.access.configured' : 'update.access.required')}
+          </p>
+          {accessSupported ? (
+            <form onSubmit={saveAccess} className="update-access-form">
+              <label htmlFor="update-access-token">{t('update.access.label')}</label>
+              <div className="update-access-controls">
+                <input
+                  id="update-access-token"
+                  type="password"
+                  value={accessToken}
+                  autoComplete="new-password"
+                  spellCheck={false}
+                  maxLength={512}
+                  aria-describedby="update-access-help"
+                  disabled={!!working}
+                  onChange={(event) => setAccessToken(event.target.value)}
+                />
+                <button
+                  className="btn secondary"
+                  type="submit"
+                  disabled={!!working || !accessToken.trim()}
+                >
+                  <ShieldCheck size={16} />
+                  {t('update.access.save')}
+                </button>
+                {accessConfigured && (
+                  <button
+                    className="text-btn"
+                    type="button"
+                    disabled={!!working}
+                    onClick={clearAccess}
+                  >
+                    {t('update.access.clear')}
+                  </button>
+                )}
+              </div>
+              <p id="update-access-help" className="muted">
+                {t('update.access.storage')}
+              </p>
+            </form>
+          ) : (
+            <>
+              <p className="update-note">{t('update.access.unsupported')}</p>
+              {accessConfigured && (
+                <button
+                  className="text-btn"
+                  type="button"
+                  disabled={!!working}
+                  onClick={clearAccess}
+                >
+                  {t('update.access.clear')}
+                </button>
+              )}
+            </>
+          )}
+          <details className="update-access-guidance">
+            <summary>{t('update.access.guideTitle')}</summary>
+            <p>{t('update.access.guide')}</p>
+            <p>{t('update.access.secret')}</p>
+          </details>
+          <p className="muted update-private-download">{t('update.access.manual')}</p>
+        </div>
+      )}
       {unsupported && (
         <p className="update-note">
           <Info size={17} />
@@ -141,7 +243,7 @@ export default function UpdatePanel({ update, busy = false }) {
           <button
             type="button"
             className="btn secondary"
-            disabled={!!working}
+            disabled={!!working || accessMissing}
             onClick={() => act('checkUpdates')}
           >
             <RefreshCw size={16} className={state === 'checking' ? 'spin' : ''} />
@@ -152,7 +254,7 @@ export default function UpdatePanel({ update, busy = false }) {
           <button
             type="button"
             className="btn primary"
-            disabled={!!working}
+            disabled={!!working || accessMissing}
             onClick={() => act('downloadUpdate')}
           >
             <Download size={16} />

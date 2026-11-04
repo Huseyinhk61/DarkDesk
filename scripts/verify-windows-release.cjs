@@ -9,6 +9,17 @@ const { version } = require('../package.json');
   const metadata = parse(await fs.readFile(path.join(directory, 'latest.yml'), 'utf8'));
   if (metadata.version !== version || !Array.isArray(metadata.files) || !metadata.files.length)
     throw Error('Release version/metadata does not match package.json');
+  const feed = parse(
+    await fs.readFile(path.join(directory, 'win-unpacked/resources/app-update.yml'), 'utf8'),
+  );
+  if (
+    feed.provider !== 'github' ||
+    feed.owner !== 'Huseyinhk61' ||
+    feed.repo !== 'DarkDesk' ||
+    feed.private !== true ||
+    'token' in feed
+  )
+    throw Error('Private update source configuration is invalid or contains a credential');
   const installer = `DarkDesk-Setup-${version}.exe`;
   if (metadata.path !== installer || !metadata.files.some((file) => file.url === installer))
     throw Error('Updater metadata must point to the NSIS setup installer');

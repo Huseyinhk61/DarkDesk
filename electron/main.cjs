@@ -11,6 +11,7 @@ const {
   screen,
   nativeTheme,
   Notification,
+  safeStorage,
 } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs/promises');
@@ -21,7 +22,8 @@ const { DesktopRuntime } = require('./runtime/controller.cjs');
 const { ShortcutManager } = require('./runtime/shortcuts.cjs');
 const { validateSettings } = require('../shared/validate.js');
 const { resolveTheme } = require('../shared/appearance.js');
-const { UpdateService } = require('./runtime/updater.cjs');
+const { PrivateUpdates } = require('./runtime/private-updates.cjs');
+const { UpdateAccessStore } = require('./runtime/update-access.cjs');
 const { restoreWindowState, WindowStateStore } = require('./runtime/window-state.cjs');
 let win,
   launcher,
@@ -248,7 +250,8 @@ else {
       await runtime.initialize();
       const updateEnabled =
         app.isPackaged && process.platform === 'win32' && !process.env.PORTABLE_EXECUTABLE_FILE;
-      updates = new UpdateService({
+      updates = new PrivateUpdates({
+        accessStore: new UpdateAccessStore({ directory: app.getPath('userData'), safeStorage }),
         autoUpdater: updateEnabled ? require('electron-updater').autoUpdater : undefined,
         appVersion: app.getVersion(),
         enabled: updateEnabled,
@@ -289,6 +292,7 @@ else {
           runtime.timer.unref?.();
         },
       });
+      await updates.initialize();
       shortcutManager = new ShortcutManager(globalShortcut, {
         launcher: () => openLauncher().catch(report),
         profile: (id) => runtime.applyProfile(id).catch(report),
@@ -475,6 +479,8 @@ else {
         if (error) throw Error('OPEN_FOLDER_FAILED');
       });
       handle('updateStatus', () => updates.status());
+      handle('saveUpdateAccess', (token) => updates.saveAccess(token));
+      handle('clearUpdateAccess', () => updates.clearAccess());
       handle('checkUpdates', () => updates.check());
       handle('downloadUpdate', () => updates.download());
       handle('installUpdate', () => updates.install());

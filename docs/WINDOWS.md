@@ -80,7 +80,7 @@ ZIP ile indirdiysen yeni ZIP’i farklı bir klasöre çıkarıp aynı kurulum a
 İndirdiğin EXE özetini kontrol etmek için:
 
 ```powershell
-Get-FileHash .\DarkDesk-Setup-3.4.0.exe -Algorithm SHA256
+Get-FileHash .\DarkDesk-Setup-3.4.1.exe -Algorithm SHA256
 ```
 
 Sonucu aynı paketteki `SHA256SUMS.txt` ile karşılaştır. Paket şu aşamada kod imzalı değildir; Windows yayıncı uyarısı gösterebilir.

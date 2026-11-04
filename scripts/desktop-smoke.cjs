@@ -40,6 +40,23 @@ const { folders } = require('../electron/service.cjs');
     );
     assert.equal(await page.evaluate(() => typeof window.darkdesk.preview), 'function');
     assert.equal((await page.evaluate(() => window.darkdesk.updateStatus())).state, 'unsupported');
+    const accessState = await page.evaluate(() => window.darkdesk.updateStatus());
+    assert.equal(accessState.authenticationRequired, true);
+    assert.equal(accessState.accessConfigured, false);
+    assert.equal('token' in accessState, false);
+    assert.equal(
+      await page.evaluate(async () => {
+        try {
+          await window.darkdesk.saveUpdateAccess('TEST_ONLY_NATIVE_ACCESS_1234567890');
+          return false;
+        } catch (error) {
+          return error.message.includes('UPDATE_ACCESS_UNAVAILABLE');
+        }
+      }),
+      true,
+      'Development renderer cannot persist a private update credential',
+    );
+    await assert.rejects(fs.stat(path.join(root, 'data', 'update-access.bin')));
     assert.equal(
       typeof (await page.evaluate(() => window.darkdesk.windowState())).maximized,
       'boolean',

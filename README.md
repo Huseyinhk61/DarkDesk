@@ -32,7 +32,7 @@
 | **Kalıcı ayarlar**            | Taşı/kopyala seçimi, canlı takip, hariç tutulacak uzantılar ve kategori tercihleri bu cihazda saklanır.                                                                     |
 | **Yerel ve hesapsız**         | Dosya işlemleri için hesap, API anahtarı veya bulut servisi gerekmez. Sonuç bildiriminden tek tıkla geri alınabilir.                                                        |
 
-## 🚀 3.4: doğru kaynak taraması, daha çok kişiselleştirme ve güncelleme
+## 🚀 3.4.1: doğru kaynak taraması, daha çok kişiselleştirme ve güncelleme
 
 - **Masaüstü / Yüklü uygulamalar / İndirilenler:** Sekme ve tarama düğmesi aynı kaynağı kullanır; geçişte eski filtre/sonuçlar diğer kaynağa taşınmaz.
 - **11 renk paleti + Sistem Teması:** Graphite, Amber Night, Lavender Light ve Nordic Blue eklendi.
@@ -44,7 +44,7 @@
 
 [**Windows EXE sürümleri →**](https://github.com/Huseyinhk61/DarkDesk/releases/latest) · [**Kurulum ve güncelleme rehberi →**](docs/UPDATES.md)
 
-GitHub Windows iş akışı yeni sürüm numaralı `main` güncellemelerinde Setup/Portable EXE, `latest.yml`, blockmap ve özetleri üretip Releases'a yayınlar. İndirme bağlantısı başarılı yayın sonrası kullanılabilir. GitHub sürüm kaynağı uygulamadan erişilebilir olmalıdır; gizli depo varlıkları için kullanıcıya bir erişim anahtarı gömülmez.
+GitHub Windows iş akışı yeni sürüm numaralı `main` güncellemelerinde Setup/Portable EXE, `latest.yml`, blockmap ve özetleri üretip Releases'a yayınlar. İndirme bağlantısı başarılı yayın sonrası kullanılabilir. Gizli GitHub deposu korunur. Güncelleme ekranında yalnızca bu depoya okuma erişimi olan kişisel anahtar girilir; Windows DPAPI ile şifrelenir, uygulamaya veya ayar JSON’una gömülmez.
 
 <p align="center"><img src="docs/assets/updates.png" alt="Güncelleme paneli · geliştirme sürümünde otomatik kurulum kapalı" width="900" /></p>
 
@@ -196,8 +196,8 @@ Vite’ın terminalde gösterdiği adresi aç. **Web modu örnek verilerle çal�
 
 GitHub Actions içindeki **[Windows Installer](https://github.com/Huseyinhk61/DarkDesk/actions/workflows/windows.yml)** iş akışı:
 
-- `DarkDesk-Setup-3.4.0.exe`: Kurulum sihirbazı ve masaüstü kısayolu.
-- `DarkDesk-Portable-3.4.0.exe`: Kurulum gerektirmeyen sürüm.
+- `DarkDesk-Setup-3.4.1.exe`: Kurulum sihirbazı ve masaüstü kısayolu.
+- `DarkDesk-Portable-3.4.1.exe`: Kurulum gerektirmeyen sürüm.
 - `SHA256SUMS.txt`: İndirilen dosyaları doğrulamak için özetler.
 
 `main` dalına gönderilen güncellemeler Windows paketini otomatik oluşturur. Depo sahibi ayrıca **Run workflow** ile derlemeyi başlatabilir. Başarılı çalışmanın **Artifacts → DarkDesk-Windows** bölümünden paket indirilir. `v*` etiketi gönderildiğinde testlerden geçen paketler GitHub Releases’e eklenir. **İş akışı başarıyla tamamlanmadan hazır bir EXE bulunduğunu varsayma.**

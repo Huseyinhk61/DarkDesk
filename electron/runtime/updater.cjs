@@ -38,6 +38,7 @@ function errorCode(error, fallback = 'UPDATE_CHECK_FAILED') {
   if (/SHA512|CHECKSUM|SIGNATURE|CRC_MISMATCH/.test(code + ' ' + message))
     return 'UPDATE_INTEGRITY';
   if (/EACCES|EPERM|ACCESS_DENIED/.test(code)) return 'UPDATE_ACCESS';
+  if (/(?:^|[^0-9])(401|403)(?:[^0-9]|$)/.test(code + ' ' + message)) return 'UPDATE_AUTH_FAILED';
   if (/ENOTFOUND|ECONN|ETIMEDOUT|ENET|EAI_AGAIN|CERT_|UNABLE_TO_VERIFY|ERR_NETWORK/.test(code))
     return 'UPDATE_NETWORK';
   if (

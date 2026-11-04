@@ -605,5 +605,20 @@
   "update.errors.UPDATE_CANCELLED": "Güncelleme indirmesi iptal edildi. Hazır olduğunuzda yeniden deneyebilirsiniz.",
   "groups.scrollHint": "Diğer grupları görmek için kaydır",
   "groups.previous": "Önceki gruplar",
-  "groups.next": "Sonraki gruplar"
+  "groups.next": "Sonraki gruplar",
+  "update.access.title": "Özel depo erişimi",
+  "update.access.configured": "Güncelleme erişimi bu cihazda yapılandırıldı.",
+  "update.access.required": "DarkDesk deposu özel. Güncellemeleri kontrol etmek için erişim anahtarı ekleyin.",
+  "update.access.label": "GitHub erişim anahtarı",
+  "update.access.save": "Erişimi kaydet",
+  "update.access.clear": "Kayıtlı erişimi kaldır",
+  "update.access.storage": "Anahtar işletim sisteminin güvenli depolamasıyla şifrelenir. Kaydedilen anahtar bu alana geri yüklenmez.",
+  "update.access.unsupported": "Bu sürümde güvenli anahtar depolaması kullanılamıyor. Windows kurulum sürümünü kullanın veya tarayıcıda GitHub hesabınızla EXE dosyasını indirin.",
+  "update.access.guideTitle": "Hangi anahtar gerekli?",
+  "update.access.guide": "GitHub ayarlarından yalnızca DarkDesk deposu için bir fine-grained personal access token oluşturun. Repository permissions bölümünde Contents: Read-only yeterlidir. Süre sonu ve depo erişimi kurallarını GitHub üzerinden yönetin.",
+  "update.access.secret": "Anahtarı sohbet, issue, ekran görüntüsü veya kaynak kodunda paylaşmayın. Anahtar burada yalnızca güncelleme dosyalarına erişmek için kullanılır.",
+  "update.access.manual": "Elle indirme sayfası özel GitHub Releases sayfasını açar; tarayıcıda yetkili GitHub hesabıyla giriş yapmanız gerekir.",
+  "update.errors.UPDATE_AUTH_REQUIRED": "Özel depodaki güncellemelere erişmek için GitHub erişim anahtarı ekleyin.",
+  "update.errors.UPDATE_AUTH_FAILED": "GitHub erişimi doğrulanamadı. Anahtarın süresini, DarkDesk depo seçimini ve Contents okuma iznini kontrol edin.",
+  "update.errors.UPDATE_ACCESS_UNAVAILABLE": "Güvenli erişim anahtarı depolaması kullanılamıyor. Anahtar kaydedilmedi; elle indirme seçeneğini kullanabilirsiniz."
 }

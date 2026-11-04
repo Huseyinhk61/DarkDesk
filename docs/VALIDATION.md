@@ -1,17 +1,26 @@
-# DarkDesk 3.4 doğrulama raporu
+# DarkDesk 3.4.1 doğrulama raporu
 
-Tarih: 3 Kasım 2026. Yerel doğrulama ortamı: Linux, Node.js 24, Electron 45, Chromium ve Xvfb.
+Tarih: 4 Kasım 2026. Yerel doğrulama ortamı: Linux, Node.js 24, Electron 45, Chromium ve Xvfb.
 
 | Kontrol                             | Sonuç                                                                                                                                          |
 | :---------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm test`                          | 141 servis/model/ayar testi geçti; başarısız veya atlanan test yok.                                                                            |
+| `npm test`                          | 156 servis/model/ayar testi geçti; başarısız veya atlanan test yok.                                                                            |
 | `npm run build`                     | Üretim React/Tailwind derlemesi geçti.                                                                                                         |
-| `npm run test:e2e`                  | 65 Chromium senaryosu geçti.                                                                                                                   |
+| `npm run test:e2e`                  | 67 Chromium senaryosu geçti.                                                                                                                   |
 | `npm run test:desktop`              | İzole gerçek Electron/IPC testi geçti.                                                                                                         |
 | Linux `electron-builder --dir`      | Uygulama dizini ve ASAR oluşturuldu. Bu kontrol AppImage veya Windows EXE üretildiği anlamına gelmez.                                          |
 | Paketlenmiş ASAR’dan Electron testi | Paylaşılan ESM/JSON modülleri, preload, tarayıcı, ikon dosyaları ve renderer paket içinden çalıştı.                                            |
 | Paket içeriği                       | Native ikonlar, runtime/profil/otomasyon modülleri, dil sözlükleri ve RE2 regex bağımlılığı mevcut; test giriş noktaları dağıtıma dahil değil. |
 | `npm audit --omit=dev`              | Dağıtım bağımlılıklarında bilinen açık raporlanmadı.                                                                                           |
+
+## 3.4.1 gizli depo ve EXE doğrulaması
+
+7 erişim deposu ve 8 özel güncelleme bağlayıcısı testi; şifreli yazma/okuma, bozuk dosya, sembolik bağlantı, anahtarsız istek engeli, kimlik bilgisi değiştirme/silme, yeniden denetim zorunluluğu ve durumlarda anahtar sızıntısı olmamasını kontrol eder. İki UI testi parola alanının kayıttan sonra temizlenmesini ve erişim silinince denetimin kapanmasını doğrular. Windows DPAPI uygulaması Electron `safeStorage` API'sidir; bu Linux oturumunda gerçek kullanıcı anahtarıyla GitHub isteği veya Windows yükseltme çalıştırılmadı.
+
+Windows Setup ve Portable **3.4.1** EXE dosyaları Linux üzerinde çapraz derlendi. Resmî electron-builder `UninstallerReader` yardımcısı, geçici NSIS uninstaller üretimi için kullanıldı; uygulama üretim kaynaklarına bunun için değişiklik yapılmadı. İki EXE'nin `7zz t` NSIS arşiv bütünlük kontrolü geçti. `verify-windows-release.cjs` sürüm, boyut ve SHA-512 değerlerini, blockmap'i ve token içermeyen `private: true` güncelleme yapılandırmasını doğruladı. Bunlar canlı Windows kurulumu testinin yerine geçmez.
+
+- Setup: 128.245.857 bayt; SHA-256 `bb1cbafffc41adc0b32d647f5f7065ea64c4f4f483ad9f41c307c843667f2af1`.
+- Portable: 114.613.163 bayt; SHA-256 `b3fca2637eb6880192259afa264489990b07ade14064318994008cb38b7d4e47`.
 
 ## 3.4 kapsamı
 
