@@ -24,6 +24,7 @@ test('native icon extraction is deduplicated, cached and invalidates when source
   const { file, item } = await fixture(t);
   let calls = 0;
   const service = new ItemDetailsService({
+    readWindowsIcon: async () => null,
     getFileIcon: async (source, options) => {
       calls++;
       assert.equal(source, file);

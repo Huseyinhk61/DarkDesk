@@ -63,7 +63,10 @@ test('UTF-16 InternetShortcut IconFile expands local variables and preserves neg
   const service = new ItemDetailsService({
     platform: 'win32',
     readWindowsIcon: async (candidates) => {
-      assert.deepEqual(candidates[0], { path: icon, index: -7, shell: false });
+      assert.deepEqual(
+        { ...candidates[0], path: path.normalize(candidates[0].path) },
+        { path: path.normalize(icon), index: -7, shell: false },
+      );
       assert.ok(candidates.every((candidate) => !candidate.path.includes('steam://')));
       return PNG;
     },
