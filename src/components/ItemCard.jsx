@@ -2,6 +2,8 @@ import { Check, ChevronDown, ExternalLink, Folder, Users, Sparkles } from 'lucid
 import { useCallback, useState } from 'react';
 import NativeItemIcon from './NativeItemIcon';
 import ItemDetails from './ItemDetails';
+import UsageEstimate from './UsageEstimate';
+import { folderAccentStyle } from '../../shared/folder-appearance';
 import { usePreferences } from '../preferences';
 import AppIcon from './AppIcon';
 import { icons } from '../../shared/domain';
@@ -37,7 +39,8 @@ export default function ItemCard({
       >
         <div className="item-top">
           <button
-            className={`app-icon item-info-trigger ${category.color}`}
+            className={`app-icon item-info-trigger ${category.color} ${category.customColor ? 'custom-folder-color' : ''}`}
+            style={folderAccentStyle(category)}
             onClick={() => setShowDetails(true)}
             aria-label={t('info.open', { name: item.name })}
           >
@@ -100,6 +103,7 @@ export default function ItemCard({
           </span>
           <span>{formatBytes(item.size, locale)}</span>
         </div>
+        <UsageEstimate item={item} />
         {item.suggestion && (
           <div className="smart-suggestion">
             <span>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
-import Launcher from './components/Launcher';
+const Launcher = React.lazy(() => import('./components/Launcher'));
 import './styles.css';
 import './themes.css';
 import './ecosystem.css';
@@ -15,6 +15,14 @@ const launcher = window.location.hash === '#launcher';
 if (launcher) document.documentElement.dataset.window = 'launcher';
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <PreferencesProvider>{launcher ? <Launcher /> : <App />}</PreferencesProvider>
+    <PreferencesProvider>
+      {launcher ? (
+        <React.Suspense fallback={null}>
+          <Launcher />
+        </React.Suspense>
+      ) : (
+        <App />
+      )}
+    </PreferencesProvider>
   </React.StrictMode>,
 );

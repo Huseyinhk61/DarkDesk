@@ -204,6 +204,10 @@ class DesktopRuntime {
     if (!item) throw Error('SOURCE_MISSING');
     return item;
   }
+  async setFavorite(id, favorite) {
+    this.trustedItem(id);
+    return this.activity.setFavorite(id, favorite);
+  }
   async itemIcon(id, refresh = false) {
     if (typeof refresh !== 'boolean') throw Error('ICON_INVALID');
     return this.details.icon(this.trustedItem(id), { refresh });

@@ -16,11 +16,22 @@ import AppIcon from './AppIcon';
 import Modal from './Modal';
 import FolderPreview from './FolderPreview';
 import FolderAppearanceSettings from './FolderAppearanceSettings';
-import { folderColors } from '../../shared/folder-appearance';
+import { folderColors, folderPalette, folderAccentStyle } from '../../shared/folder-appearance';
+import '../custom-folder-colors.css';
+const hexColor = /^#[a-f\d]{6}$/i;
+const gradientPresets = [
+  { id: 'aurora', from: '#6366f1', to: '#d946ef' },
+  { id: 'ocean', from: '#06b6d4', to: '#2563eb' },
+  { id: 'sunset', from: '#f59e0b', to: '#e11d48' },
+  { id: 'forest', from: '#84cc16', to: '#047857' },
+  { id: 'rose', from: '#fb7185', to: '#a21caf' },
+  { id: 'graphite', from: '#94a3b8', to: '#334155' },
+];
 export default function CategoryManager({ onSave, busy, items = [], onApplyFolders, platform }) {
   const { settings, t, label } = usePreferences();
   const [query, setQuery] = useState('');
   const [editor, setEditor] = useState(null),
+    [colorDraft, setColorDraft] = useState(null),
     [deleting, setDeleting] = useState(null),
     [rule, setRule] = useState({
       match: 'contains',
@@ -28,6 +39,21 @@ export default function CategoryManager({ onSave, busy, items = [], onApplyFolde
       categoryId: settings.categories[0].id,
       enabled: true,
     });
+  const openEditor = (category) => {
+    setEditor(category);
+    setColorDraft(category.customColor ? { ...category.customColor } : null);
+  };
+  const customValid =
+    !colorDraft || (hexColor.test(colorDraft.from) && hexColor.test(colorDraft.to));
+  const chooseCustom = (color) => {
+    setColorDraft(color);
+    if (hexColor.test(color.from) && hexColor.test(color.to))
+      setEditor((previous) => ({ ...previous, customColor: color }));
+  };
+  const updateCustom = (field, value) => {
+    const palette = folderPalette(editor);
+    chooseCustom({ ...(colorDraft || { from: palette.fill, to: palette.shade }), [field]: value });
+  };
   const descendants = (id) => {
     const result = new Set([id]);
     let previous;
@@ -68,6 +94,7 @@ export default function CategoryManager({ onSave, busy, items = [], onApplyFolde
   }, [items, rule.pattern, rule.match]);
   const saveCategory = async (e) => {
     e.preventDefault();
+    if (!customValid) return;
     const original = settings.categories.find((category) => category.id === editor.id);
     const next = {
       ...editor,
@@ -131,7 +158,7 @@ export default function CategoryManager({ onSave, busy, items = [], onApplyFolde
             className="btn primary"
             disabled={!!busy}
             onClick={() =>
-              setEditor({
+              openEditor({
                 id: crypto.randomUUID(),
                 name: '',
                 folder: '',
@@ -168,8 +195,15 @@ export default function CategoryManager({ onSave, busy, items = [], onApplyFolde
         )}
         <div className="managed-groups">
           {ordered.map((c) => (
-            <div className="managed-group" key={c.id} style={{ '--group-depth': c.depth }}>
-              <span className={`category-icon ${c.color}`}>
+            <div
+              className="managed-group"
+              key={c.id}
+              style={{ '--group-depth': c.depth, ...folderAccentStyle(c) }}
+            >
+              <span
+                className={`category-icon ${c.color} ${c.customColor ? 'custom-folder-color' : ''}`}
+                style={folderAccentStyle(c)}
+              >
                 <FolderPreview category={c} size={42} />
               </span>
               <div>
@@ -182,13 +216,14 @@ export default function CategoryManager({ onSave, busy, items = [], onApplyFolde
                 className="tool-btn"
                 aria-label={t('manager.newChild', { name: label(c) })}
                 onClick={() =>
-                  setEditor({
+                  openEditor({
                     id: crypto.randomUUID(),
                     name: '',
                     folder: '',
                     parentId: c.id,
                     icon: 'folder',
                     color: c.color,
+                    customColor: c.customColor ? { ...c.customColor } : undefined,
                     isNew: true,
                   })
                 }
@@ -198,7 +233,7 @@ export default function CategoryManager({ onSave, busy, items = [], onApplyFolde
               <button
                 disabled={!!busy}
                 className="tool-btn"
-                onClick={() => setEditor({ ...c, name: label(c) })}
+                onClick={() => openEditor({ ...c, name: label(c) })}
                 aria-label={`${t('common.edit')} ${label(c)}`}
               >
                 <Pencil size={14} />
@@ -366,12 +401,17 @@ export default function CategoryManager({ onSave, busy, items = [], onApplyFolde
           onClose={() => setEditor(null)}
         >
           <form onSubmit={saveCategory}>
-            <div className="category-editor-preview" aria-label={t('manager.preview')}>
+            <div
+              className={`category-editor-preview ${editor.customColor ? 'custom-folder-color' : ''}`}
+              style={folderAccentStyle(editor)}
+              aria-label={t('manager.preview')}
+            >
               <FolderPreview category={editor} size={84} />
               <div>
                 <b>{editor.name || t('manager.new')}</b>
                 <small>
-                  {t('folders.theme.' + settings.folderTheme)} · {t('colors.' + editor.color)}
+                  {t('folders.theme.' + settings.folderTheme)} ·{' '}
+                  {editor.customColor ? t('customFolder.custom') : t('colors.' + editor.color)}
                 </small>
               </div>
             </div>
@@ -432,21 +472,122 @@ export default function CategoryManager({ onSave, busy, items = [], onApplyFolde
                   className={`folder-color-option ${color}`}
                   type="button"
                   key={color}
+                  disabled={!!busy}
                   style={{ '--swatch': folderColors[color].fill }}
                   aria-label={t('colors.' + color)}
-                  aria-pressed={editor.color === color}
-                  onClick={() => setEditor({ ...editor, color })}
+                  aria-pressed={!editor.customColor && editor.color === color}
+                  onClick={() => {
+                    setColorDraft(null);
+                    setEditor({ ...editor, color, customColor: undefined });
+                  }}
                 >
                   {t('colors.' + color)}
                 </button>
               ))}
             </div>
+            <section className="custom-folder-editor" aria-labelledby="custom-folder-title">
+              <div className="custom-folder-heading">
+                <h3 id="custom-folder-title">{t('customFolder.title')}</h3>
+                {(editor.customColor || colorDraft) && (
+                  <button
+                    className="text-btn"
+                    type="button"
+                    disabled={!!busy}
+                    onClick={() => {
+                      setColorDraft(null);
+                      setEditor({ ...editor, customColor: undefined });
+                    }}
+                  >
+                    {t('customFolder.reset')}
+                  </button>
+                )}
+              </div>
+              <p className="muted">{t('customFolder.body')}</p>
+              <div className="custom-color-fields">
+                {['from', 'to'].map((field) => {
+                  const palette = folderPalette(editor);
+                  const value =
+                    colorDraft?.[field] ?? (field === 'from' ? palette.fill : palette.shade);
+                  const valid = hexColor.test(value);
+                  return (
+                    <div className="custom-color-field" key={field}>
+                      <label htmlFor={'custom-folder-' + field}>{t('customFolder.' + field)}</label>
+                      <div className="custom-color-inputs">
+                        <input
+                          type="color"
+                          aria-label={t('customFolder.picker.' + field)}
+                          value={valid ? value : field === 'from' ? palette.fill : palette.shade}
+                          onChange={(event) => updateCustom(field, event.target.value)}
+                          disabled={!!busy}
+                        />
+                        <input
+                          id={'custom-folder-' + field}
+                          type="text"
+                          inputMode="text"
+                          spellCheck={false}
+                          autoComplete="off"
+                          maxLength={7}
+                          value={value}
+                          placeholder="#6366f1"
+                          aria-invalid={!valid}
+                          aria-describedby={!valid ? 'custom-folder-error' : undefined}
+                          onChange={(event) => updateCustom(field, event.target.value)}
+                          disabled={!!busy}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {!customValid && (
+                <p className="custom-color-error" id="custom-folder-error" role="alert">
+                  {t('customFolder.invalid')}
+                </p>
+              )}
+              <div
+                className="custom-gradient-presets"
+                role="group"
+                aria-label={t('customFolder.presets')}
+              >
+                {gradientPresets.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    className="custom-gradient-preset"
+                    style={{ '--preset-from': preset.from, '--preset-to': preset.to }}
+                    aria-label={t('customFolder.preset.' + preset.id)}
+                    aria-pressed={
+                      editor.customColor?.from === preset.from &&
+                      editor.customColor?.to === preset.to
+                    }
+                    disabled={!!busy}
+                    onClick={() => chooseCustom({ from: preset.from, to: preset.to })}
+                  >
+                    <span aria-hidden="true" />
+                    <small>{t('customFolder.preset.' + preset.id)}</small>
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                className="text-btn"
+                disabled={!!busy || !customValid}
+                onClick={() => {
+                  const color = colorDraft?.from || folderPalette(editor).fill;
+                  chooseCustom({ from: color, to: color });
+                }}
+              >
+                {t('customFolder.solid')}
+              </button>
+              <small className="muted">{t('customFolder.applyNote')}</small>
+            </section>
             <label className="field-label">{t('common.icon')}</label>
             <div className="icon-options">
               {icons.map((icon) => (
                 <button
                   type="button"
                   key={icon}
+                  disabled={!!busy}
                   className={editor.icon === icon ? 'chosen' : ''}
                   onClick={() => setEditor({ ...editor, icon })}
                   aria-label={t('icons.' + icon)}
@@ -461,7 +602,7 @@ export default function CategoryManager({ onSave, busy, items = [], onApplyFolde
               <button className="btn secondary" type="button" onClick={() => setEditor(null)}>
                 {t('common.cancel')}
               </button>
-              <button className="btn primary" disabled={!!busy}>
+              <button className="btn primary" disabled={!!busy || !customValid}>
                 {t('manager.save')}
               </button>
             </div>

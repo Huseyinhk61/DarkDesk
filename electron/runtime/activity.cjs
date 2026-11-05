@@ -16,8 +16,13 @@ class ActivityStore {
       const records = await this.store.read();
       let changed = false;
       for (const item of items) {
-        if (!records[item.id]) {
-          records[item.id] = { firstSeen: this.clock(), count: 0, lastOpened: null };
+        if (!Object.hasOwn(records, item.id)) {
+          Object.defineProperty(records, item.id, {
+            value: { firstSeen: this.clock(), count: 0, lastOpened: null },
+            enumerable: true,
+            configurable: true,
+            writable: true,
+          });
           changed = true;
         }
       }
@@ -28,10 +33,37 @@ class ActivityStore {
   async record(id) {
     return this.locked(async () => {
       const records = await this.store.read(),
-        previous = records[id] || { firstSeen: this.clock(), count: 0 };
-      records[id] = { ...previous, count: previous.count + 1, lastOpened: this.clock() };
+        previous = Object.hasOwn(records, id) ? records[id] : { firstSeen: this.clock(), count: 0 };
+      Object.defineProperty(records, id, {
+        value: {
+          ...previous,
+          count: (Number.isFinite(previous.count) ? Math.max(0, previous.count) : 0) + 1,
+          lastOpened: this.clock(),
+        },
+        enumerable: true,
+        configurable: true,
+        writable: true,
+      });
       await this.store.write(records);
       return records[id];
+    });
+  }
+  async setFavorite(id, favorite) {
+    if (typeof id !== 'string' || !id || id.length > 512 || typeof favorite !== 'boolean')
+      throw Error('FAVORITE_INVALID');
+    return this.locked(async () => {
+      const records = await this.store.read();
+      const previous = Object.hasOwn(records, id)
+        ? records[id]
+        : { firstSeen: this.clock(), count: 0, lastOpened: null };
+      Object.defineProperty(records, id, {
+        value: { ...previous, favorite },
+        enumerable: true,
+        configurable: true,
+        writable: true,
+      });
+      await this.store.write(records);
+      return { id, favorite };
     });
   }
   async annotate(items) {

@@ -5,6 +5,7 @@ import { usePreferences } from '../preferences';
 import { formatBytes } from '../utils';
 import Modal from './Modal';
 import NativeItemIcon from './NativeItemIcon';
+import UsageEstimate from './UsageEstimate';
 import '../details.css';
 
 export default function ItemDetails({ item, fallback, onClose }) {
@@ -65,6 +66,7 @@ export default function ItemDetails({ item, fallback, onClose }) {
             {t('info.loading')}
           </p>
         )}
+        <UsageEstimate item={item} detail />
         {error && (
           <div className="item-details-error" role="alert">
             <p>{t('info.loadError')}</p>

@@ -41,10 +41,11 @@ Release downloads become available after the [Windows packaging workflow](https:
 | **Smart groups and custom rules**         | Start with **10 main groups and 25 groups in total**. Browse nested categories with accurate parent totals, matching reasons, a review filter, and keyword or regex rules.                         |
 | **Original app icons and useful details** | Read native app icons where available. Inspect file metadata and local purpose descriptions for **94 recognized apps**, with clearly labeled fallbacks.                                            |
 | **Focus profiles**                        | Keep relevant desktop items visible for coding, gaming, or creative work. Restore visibility when you leave the profile.                                                                           |
-| **Quick launcher**                        | Press **Alt+X** on a new installation to search indexed apps, files, and commands. Assign your own global shortcuts; saved custom bindings are preserved.                                          |
+| **Quick launcher**                        | Press **Alt+X** to search apps, calculate, convert units, or open a web search. Use Tab or Ctrl+K for item actions; frequent items and favorites stay close.                                       |
 | **Optional automation**                   | Enable archive rules for older files and routing for stable Downloads files. File operations are logged and can be undone.                                                                         |
 | **Make it comfortable**                   | Choose **13 color palettes plus the system theme**, **4 font-family choices**, and **5 icon packs**. Adjust text size, density, and motion.                                                        |
-| **Color-coded desktop folders**           | Choose **10 folder colors** and **3 folder styles** with matching previews. Apply them to existing Windows category folders while preserving manually customized icons.                            |
+| **Custom desktop folders**                | Choose ten preset colors, any six-digit HEX color, or a two-color gradient. Three folder styles share live previews and native Windows artwork; existing custom icons are preserved.               |
+| **Useful usage estimates**                | Cards show recorded DarkDesk launch patterns when available, or clearly labeled category estimates such as Intensive use and Continuous use.                                                       |
 | **English and Turkish**                   | Change the interface language without restarting. Native tray text follows the selected language.                                                                                                  |
 | **In-app updates**                        | Installed Windows builds can check public GitHub Releases without a personal token. Get notified, then download and restart when you choose.                                                       |
 
@@ -70,20 +71,34 @@ Release downloads become available after the [Windows packaging workflow](https:
 
 See why each item was grouped, filter uncertain matches for review, and open a subgroup without losing its parent context. Sort groups by name or item count and hide empty groups when you want a shorter overview. Manual choices remain in control; custom rule previews show matching items before saving.
 
-Choose **Gradient**, **Solid**, or **Outline** folders independently from the application theme. Each group has its own color and glyph. The Windows desktop app includes **360 matching folder icons** and an explicit **Apply to desktop folders** action; original application logos are preserved. See the [folder appearance guide](docs/FOLDER-APPEARANCE.md) for existing folders, skipped custom icons, and undo behavior.
+Choose **Gradient**, **Solid**, or **Outline** folders independently from the application theme. Each group has its own color and glyph. Start with ten preset colors or choose custom HEX values and one of six gradient palettes. Saving a visual change updates existing DarkDesk-owned Windows folder icons automatically; **Apply to desktop folders** is also available for an explicit refresh. The app retains 360 bundled preset icons and generates matching custom artwork locally. Original application logos are preserved. See the [folder appearance guide](docs/FOLDER-APPEARANCE.md) for existing folders, skipped custom icons, and undo behavior.
 
 <table>
   <tr>
     <td align="center"><strong>Three folder styles</strong></td>
-    <td align="center"><strong>Ten colors per group</strong></td>
+    <td align="center"><strong>Your own colors and gradients</strong></td>
   </tr>
   <tr>
     <td><img src="docs/assets/folder-themes-en.png" alt="Gradient, Solid and Outline folder previews" /></td>
-    <td><img src="docs/assets/folder-colors-en.png" alt="Category editor with ten folder colors and a live preview" /></td>
+    <td><img src="docs/assets/custom-colors-en.png" alt="Category editor with custom HEX colors, gradient palettes, and a live folder preview" /></td>
   </tr>
 </table>
 
 ![Subgroup navigation and item counts](docs/assets/subgroups-en.png)
+
+### More than app search
+
+Type `120 * 45` or `10 km to m`, then press **Enter** to copy the result. Search the web with `g <query>`, `yt <query>`, or `gh <query>`. On an application result, **Tab** or **Ctrl+K** opens favorites, file location, and Windows administrator actions. An empty query puts your three most-used observed items first.
+
+Windows system commands include Lock Screen, Toggle Mute, Empty Recycle Bin, and Shut Down. The last two require a separate confirmation. Read the [launcher guide](docs/LAUNCHER.md) for examples, keyboard controls, and platform support.
+
+|                            Calculate and convert                             |                                        Item actions                                        |
+| :--------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------: |
+| ![Calculator result and copy action](docs/assets/launcher-calculator-en.png) | ![Favorite, file location, and administrator actions](docs/assets/launcher-actions-en.png) |
+
+**Estimated usage** never needs to be blank: recorded DarkDesk launches take priority; otherwise a category-based label provides context. Estimates are not measurements of Windows-wide activity or time spent in an app.
+
+![Usage labels with their source](docs/assets/usage-en.png)
 
 <details>
 <summary><strong>More previews: launcher, profiles, and organization</strong></summary>
@@ -110,7 +125,7 @@ Global shortcuts depend on the operating system and other apps. DarkDesk lets yo
 
 ## Privacy and file protection
 
-Scanning, classification, and app descriptions run locally. Desktop organization requires no account or cloud AI service, and file lists are not uploaded. Release checks and downloads use GitHub; update access is documented in the [update guide](docs/UPDATES.md).
+Scanning, classification, and app descriptions run locally. Desktop organization requires no account or cloud AI service, and file lists are not uploaded. Release checks and downloads use GitHub; update access is documented in the [update guide](docs/UPDATES.md). A web-search prefix sends its query to the chosen provider only when you activate that result. Calculations and unit conversions run locally.
 
 - **Review first:** manual organization uses an explicit preview and confirmation. Background file routing runs only when you enable its automation rules.
 - **No overwrites:** conflicting destinations are skipped. Copies are verified before move sources are removed.
@@ -165,6 +180,7 @@ Install Chromium once with `npx playwright install chromium` before browser test
 - [Themes, readability, and everyday use](docs/USABILITY.md)
 - [Folder colors, styles, and existing Windows folders](docs/FOLDER-APPEARANCE.md)
 - [Native icons, app details, and shortcuts](docs/DESKTOP-UX.md)
+- [Calculator, web search, favorites, and system commands](docs/LAUNCHER.md)
 - [Profiles, launcher, and automation architecture](docs/ECOSYSTEM.md)
 - [Validation report](docs/VALIDATION.md) · [Changelog](CHANGELOG.md)
 - [Repository publishing and About settings](docs/REPOSITORY.md)

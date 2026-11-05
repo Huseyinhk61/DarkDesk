@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.6.0 — November 5, 2026
+
+- Fill Estimated usage on cards and details with observed DarkDesk launch patterns or clearly labeled category estimates; keep unknown and invalid histories usable without inventing OS telemetry.
+- Add per-category custom HEX colors, six gradient palettes, live previews, and matching Windows ICO generation from the same local artwork.
+- Apply saved visual changes to existing DarkDesk-owned Windows category folders while protecting user-customized metadata and file-operation undo.
+- Add a local calculator and unit converter to Quick Launcher, with localized display and canonical clipboard results.
+- Add explicit Google, YouTube, and GitHub prefix searches through fixed HTTPS providers.
+- Add Windows Lock Screen, Toggle Mute, Empty Recycle Bin, and Shut Down commands; destructive actions require expiring, single-use confirmation.
+- Add Tab/Ctrl+K item actions for favorites, file location, and Windows administrator launch through UAC.
+- Show result-type badges, the three most-used observed items, and persistent favorites; load the expanded launcher on demand.
+
 ## 3.5.1 — November 5, 2026
 
 - Prevent delayed runtime snapshots from overwriting newer operation events and leaving organization controls blocked after a folder-style change.

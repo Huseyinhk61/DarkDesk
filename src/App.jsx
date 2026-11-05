@@ -31,7 +31,6 @@ import { isDescendant } from '../shared/domain';
 import { classificationReason } from '../shared/grouping';
 import { matchesAccelerator } from '../shared/hotkeys';
 import Profiles from './components/Profiles';
-import Launcher from './components/Launcher';
 import { publishNotice } from './notifications';
 import { useUpdates } from './useUpdates';
 import UpdateNotice from './components/UpdateNotice';
@@ -39,6 +38,7 @@ import { refreshNativeIcons } from './components/NativeItemIcon';
 import OperationReceipt from './components/OperationReceipt';
 import DesktopScanSummary from './components/DesktopScanSummary';
 const Settings = lazy(() => import('./components/Settings'));
+const Launcher = lazy(() => import('./components/Launcher'));
 const CategoryManager = lazy(() => import('./components/CategoryManager'));
 const AutomationPanel = lazy(() => import('./components/AutomationPanel'));
 const HelpPanel = lazy(() => import('./components/HelpPanel'));
@@ -287,11 +287,39 @@ export default function App() {
   const saveSettings = async (value) => {
     if (!start('settings')) return false;
     try {
+      const folderVisuals = (input) =>
+        JSON.stringify({
+          theme: input.folderTheme,
+          categories: input.categories.map(
+            ({ id, folder, parentId, color, icon, customColor }) => ({
+              id,
+              folder,
+              parentId,
+              color,
+              icon,
+              customColor,
+            }),
+          ),
+        });
+      const updateFolders =
+        native && stats?.platform === 'win32' && folderVisuals(settings) !== folderVisuals(value);
       const saved = await api.setSettings(value);
       setSettings(saved);
+      let appearanceWarning = '';
+      if (updateFolders) {
+        try {
+          const result = await api.applyFolderAppearance();
+          if (result.failed || result.details?.some((entry) => entry.code === 'FOLDER_CUSTOMIZED'))
+            appearanceWarning = t('folders.result', result);
+        } catch (error) {
+          appearanceWarning = errorMessage(error);
+        }
+      }
       if (filter && !saved.categories.some((c) => c.id === filter)) setFilter(null);
       await refresh();
-      notify({ key: 'notify.saved' });
+      if (appearanceWarning)
+        notify(t('customFolder.savedApplyWarning', { message: appearanceWarning }), 'info');
+      else notify({ key: 'notify.saved' });
       return true;
     } catch (e) {
       notify(errorMessage(e), 'error');
@@ -1002,7 +1030,9 @@ export default function App() {
         </div>
       )}
       {launcherOpen && (
-        <Launcher onClose={() => setLauncherOpen(false)} onCommand={handleCommand} />
+        <Suspense fallback={null}>
+          <Launcher onClose={() => setLauncherOpen(false)} onCommand={handleCommand} />
+        </Suspense>
       )}
       {plan && <PreviewModal {...{ plan, native }} onClose={closePlan} onConfirm={execute} />}
     </div>

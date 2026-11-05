@@ -1,5 +1,17 @@
 # DarkDesk validation report
 
+## 3.6.0 — usage estimates, custom folder colors, and launcher tools
+
+Date: November 5, 2026. Local environment: Linux, Node.js 24, Electron 45, Chromium, and Xvfb.
+
+- **220 service/model/settings tests passed**, without failures or skips. Coverage includes observed-versus-estimated usage, custom-category ancestry, invalid/future history, custom HEX validation, native PNG/ICO generation, safe arithmetic and dimension-aware conversions, fixed web providers, favorite persistence/ranking, trusted-file actions, and expiring one-use confirmation tokens.
+- **95 Chromium scenarios passed** in the complete run. New checks cover nonempty bilingual usage labels, observed launch history, custom color/gradient persistence and live previews, automatic Windows appearance dispatch, clipboard results, encoded web searches, persistent favorites, the three most-used results, confirmation cancellation/dispatch, and an unclipped keyboard action menu for a single result.
+- Production build and real source Electron IPC smoke passed. Native checks exercise clipboard copying and restoration, favorite persistence, capability discovery, and the existing file-operation/scanner/profile flows. Actual lock, mute, shutdown, Recycle Bin deletion, and UAC elevation are tested through injected adapters; they are never executed on the test host.
+- A separate real Electron raster probe generated distinct valid 256-pixel custom-gradient ICOs. Windows-specific custom-folder application is also included in the native smoke branch for the Windows runner.
+- New English screenshots were captured from the real browser demo. Browser screenshots show unsupported native actions as unavailable; they do not imply that a web preview can change local folders or system state.
+
+Packaged-ASAR checks and public Windows release results will be recorded after completion. Usage estimates do not measure time spent in other apps or infer unobserved operating-system launch history.
+
 ## 3.5.1 — runtime-state and Undo synchronization
 
 Date: November 5, 2026.

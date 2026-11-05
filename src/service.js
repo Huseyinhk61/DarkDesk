@@ -1,6 +1,7 @@
 import { version as appVersion } from '../package.json';
 import { validateSettings } from '../shared/validate';
 import { examples } from './data';
+import { browserLauncherAction, browserLauncherCapabilities } from './launcher-actions';
 import {
   defaultSettings,
   defaultCategories,
@@ -263,6 +264,33 @@ const usage = {
     scope: 'darkdesk-only',
   },
 };
+try {
+  const saved = JSON.parse(localStorage.getItem('darkdesk-demo-usage') || '{}');
+  if (saved && typeof saved === 'object' && !Array.isArray(saved)) {
+    for (const [id, record] of Object.entries(saved).slice(0, 10000)) {
+      if (
+        !id ||
+        id.length > 512 ||
+        ['__proto__', 'constructor', 'prototype'].includes(id) ||
+        !record ||
+        typeof record !== 'object'
+      )
+        continue;
+      usage[id] = {
+        count: Number.isFinite(record.count) && record.count >= 0 ? Math.min(record.count, 1e9) : 0,
+        lastOpened:
+          Number.isFinite(record.lastOpened) &&
+          record.lastOpened > 0 &&
+          record.lastOpened <= Date.now()
+            ? record.lastOpened
+            : null,
+        favorite: record.favorite === true,
+        inactive: record.inactive === true,
+        scope: 'darkdesk-only',
+      };
+    }
+  }
+} catch {}
 let downloadItems = [
   {
     id: 'download:demo-one',
@@ -342,18 +370,33 @@ if (!native)
     },
     launcherEntries: async () => ({
       settings: structuredClone(settings),
+      capabilities: browserLauncherCapabilities(),
       items: (await api.scan())
         .concat(await api.scan('system'))
         .map((i) => ({ ...i, usage: usage[i.id] || { count: 0 } })),
     }),
+    launcherAction: browserLauncherAction,
+    setLauncherFavorite: async (id, favorite) => {
+      if (
+        typeof id !== 'string' ||
+        ![...demo, ...apps, ...downloadItems].some((item) => item.id === id)
+      )
+        throw Error('SOURCE_MISSING');
+      if (typeof favorite !== 'boolean') throw Error('LAUNCHER_INPUT_INVALID');
+      usage[id] = { ...(usage[id] || { count: 0, lastOpened: null }), favorite };
+      localStorage.setItem('darkdesk-demo-usage', JSON.stringify(usage));
+      return { id, favorite };
+    },
     launch: async (id) => {
       await delay();
       usage[id] = {
+        ...usage[id],
         count: (usage[id]?.count || 0) + 1,
         lastOpened: Date.now(),
         inactive: false,
         scope: 'darkdesk-only',
       };
+      localStorage.setItem('darkdesk-demo-usage', JSON.stringify(usage));
     },
     runCommand: async (value) => {
       if (value.type === 'profile') return api.applyProfile(value.id);

@@ -8,6 +8,10 @@ Click a card's icon or name to open its information panel. You can also use Tab 
 
 Last launch records only launch requests successfully submitted through DarkDesk. It does not track applications opened elsewhere or their running time. The browser demo does not invent native icons or publisher metadata.
 
+**Estimated usage** remains available on cards and in the details panel even when optional native metadata is unavailable. It uses valid DarkDesk launch history first; otherwise it supplies a category estimate such as Intensive use or Continuous use. The source note distinguishes observed launch counts from estimates. Neither indicates that an app is running now or measures activity elsewhere in Windows.
+
+Category icon backgrounds follow saved custom HEX or gradient colors; original application logos remain intact. See [folder appearance](FOLDER-APPEARANCE.md) for matching physical Windows icons.
+
 The renderer cannot submit arbitrary file paths to read metadata: IPC accepts only IDs from the trusted scan index. Icons load for visible cards, with bounded concurrency and caches. Windows metadata extraction uses JSON over stdin, a timeout, and an output limit rather than interpolating file names into commands.
 
 ## Global shortcuts
@@ -23,6 +27,12 @@ DarkDesk temporarily suspends its global shortcuts while recording, so pressing 
 New installations use **Alt+X** for the launcher; existing personal bindings are preserved. A successfully registered shortcut works while DarkDesk is unfocused or in the system tray. Operating-system restrictions, reserved combinations, some full-screen games, and secure desktop screens can still prevent activation. The status panel reports the actual registration result. If a combination conflicts, try another, such as `Ctrl+Shift+Space`. Browser-demo shortcuts work only while the page has focus.
 
 ![Recording a keyboard shortcut in the browser preview](assets/shortcuts.png)
+
+## Quick item actions
+
+Within Quick Launcher, select an application or file and press **Tab** or **Ctrl+K** to open its action menu. Add or remove a favorite, reveal the file location, or request **Run as Administrator** for supported Windows executable/shortcut results. The administrator action uses Windows UAC; it does not bypass approval. Escape closes the menu and restores search focus. Unsupported actions are disabled.
+
+Result badges identify applications, files, commands, calculations, conversions, and web searches. Empty search puts the three most-used observed items before other favorites. Full calculator, web-prefix, system-command, and keyboard instructions are in the [launcher guide](LAUNCHER.md).
 
 ## Fixed desktop layout
 

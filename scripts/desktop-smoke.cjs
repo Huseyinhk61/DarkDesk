@@ -40,6 +40,28 @@ const { folders } = require('../electron/service.cjs');
       'Renderer must not have Node access',
     );
     assert.equal(await page.evaluate(() => typeof window.darkdesk.preview), 'function');
+    const launcherData = await page.evaluate(() => window.darkdesk.launcherEntries());
+    assert.equal(launcherData.capabilities.copy, true);
+    assert.equal(launcherData.capabilities.web, true);
+    assert.deepEqual(
+      launcherData.capabilities.system,
+      process.platform === 'win32' ? ['empty-trash', 'lock', 'shutdown', 'mute'] : [],
+    );
+    const previousClipboard = await application.evaluate(({ clipboard }) => clipboard.readText());
+    await page.evaluate(() => window.darkdesk.launcherAction({ type: 'copy', text: '5400' }));
+    assert.equal(await application.evaluate(({ clipboard }) => clipboard.readText()), '5400');
+    await application.evaluate(
+      ({ clipboard }, text) => clipboard.writeText(text),
+      previousClipboard,
+    );
+    await page.evaluate(() => window.darkdesk.setLauncherFavorite('Rapor.pdf', true));
+    assert.equal(
+      (await page.evaluate(() => window.darkdesk.launcherEntries())).items.find(
+        (item) => item.id === 'Rapor.pdf',
+      ).usage.favorite,
+      true,
+    );
+    await page.evaluate(() => window.darkdesk.setLauncherFavorite('Rapor.pdf', false));
     assert.equal((await page.evaluate(() => window.darkdesk.updateStatus())).state, 'unsupported');
     const accessState = await page.evaluate(() => window.darkdesk.updateStatus());
     assert.equal(
@@ -134,7 +156,9 @@ const { folders } = require('../electron/service.cjs');
         ...current,
         folderTheme: 'outline',
         categories: current.categories.map((category) =>
-          category.id === 'office' ? { ...category, color: 'teal' } : category,
+          category.id === 'office'
+            ? { ...category, color: 'teal', customColor: { from: '#2255ee', to: '#dd3388' } }
+            : category,
         ),
       });
       return window.darkdesk.applyFolderAppearance();
@@ -145,6 +169,7 @@ const { folders } = require('../electron/service.cjs');
       const ini = await fs.readFile(path.join(desktop, folders[3], 'desktop.ini'), 'utf16le');
       assert.match(ini, /outline/);
       assert.match(ini, /teal/);
+      assert.match(ini, /custom-2255ee-dd3388/);
     } else assert.equal(appearanceResult.unsupported, true);
     await expect(page.locator('.activity-bar')).toHaveCount(0);
     await expect(page.locator('main')).toHaveAttribute('aria-busy', 'false');

@@ -21,6 +21,8 @@ Changing appearance preserves unsaved move/copy settings. Resetting appearance r
 
 **Solarized Night** pairs deep teal surfaces with yellow accents. **Paper Ivory** offers warm light surfaces. Folder colors and the three folder styles are independent of the app palette, so changing the interface does not require changing category colors. See [folder appearance](FOLDER-APPEARANCE.md).
 
+Per-category colors can use a preset, a custom six-digit HEX value, or one of six two-color gradient palettes. The category editor previews the result before saving. Saving a visual change updates existing DarkDesk-owned Windows category folder icons automatically while preserving personal icon metadata.
+
 Scrollbars follow the current theme, with wider rounded thumbs and stronger hover and active states. Main content, long lists, and dialogs scroll within their own regions while the title bar and sidebar stay available. High-contrast and reduced-motion preferences are respected.
 
 ## Reviewing smart groups
@@ -30,6 +32,18 @@ Main group counts include their subgroups without counting an item twice within 
 Each item explains its matching source, such as a recognized app, file type, custom rule, or your manual assignment. **Review** filters to uncertain fallback assignments in the current scanned source; it does not claim that every other assignment is correct. Change a target on its card or drag it onto the intended group or subgroup. This updates the assignment; organizing files still requires preview and confirmation.
 
 **Categories & Rules** supports search by category name or folder path, quick subgroup creation, and live rule match previews against the current source. Earlier rules and saved manual assignments take priority. Preview matches help review a pattern; they do not move files.
+
+## Understanding usage labels
+
+Cards and app details always have an **Estimated usage** label. When valid local history exists, it describes DarkDesk launch patterns, such as **Frequently launched** or **Recently launched**, and shows the observed count. Otherwise, category-based labels give context: IDEs may show **Intensive use**, browsers **Continuous use**, and utilities **On-demand use**. Custom subgroups can inherit their parent category's estimate.
+
+Category labels explicitly say **Category estimate · not measured usage**. They are not Windows-wide telemetry, running-time measurements, or a claim that an application is currently active. DarkDesk observes only launch requests made through its own launcher.
+
+![Estimated usage with its source](assets/usage-en.png)
+
+## Getting more from Quick Launcher
+
+Press **Alt+X**, type `120 * 45` or `10 km to m`, and press Enter to copy a result. Prefix a query with `g`, `yt`, or `gh` for a web search. On an application or file result, Tab or Ctrl+K opens item actions and favorites. An empty query puts the three most-used observed items first. See the [launcher guide](LAUNCHER.md) for keyboard use, system commands, and platform availability.
 
 DarkDesk remembers window size and position. If a monitor is disconnected or the available workspace shrinks, the window returns to the visible area. Switching sections scrolls the main content back to the top while the title bar stays in place.
 

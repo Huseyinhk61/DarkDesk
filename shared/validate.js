@@ -9,7 +9,7 @@ import {
 } from './domain.js';
 import { compileRule } from './regex.js';
 import { themeIds, iconPacks, fontIds } from './appearance.js';
-import { folderThemes } from './folder-appearance.js';
+import { folderThemes, normalizeFolderColor } from './folder-appearance.js';
 const defaults = defaultSettings;
 export function validateSettings(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw Error('SETTINGS_INVALID');
@@ -127,6 +127,9 @@ export function validateSettings(input) {
       parentId: c.parentId || null,
       icon: c.icon,
       color: c.color,
+      ...(c.customColor === undefined || c.customColor === null
+        ? {}
+        : { customColor: normalizeFolderColor(c.customColor) }),
       ...(defaultCategories.some((d) => d.id === c.id && d.labelKey === c.labelKey)
         ? { labelKey: c.labelKey }
         : {}),

@@ -1,0 +1,64 @@
+# Quick Launcher
+
+Press **Alt+X** on a new installation, or use your saved launcher shortcut. DarkDesk searches indexed applications, files, and commands. An empty query places the three items with the highest observed DarkDesk launch counts first, followed by other favorites. This history is local; it does not measure launches made elsewhere or running time.
+
+Use **↑ / ↓** to select a result, **Enter** to activate it, and **Esc** to close. Result badges distinguish apps, files, commands, calculations, conversions, and web searches. Type a query to return to fuzzy search across the indexed collection.
+
+## Calculate and convert
+
+Type an expression or conversion directly into the search field:
+
+| Input          | Result copied with Enter |
+| :------------- | :----------------------- |
+| `120 * 45`     | `5400`                   |
+| `(2 + 3) * 4`  | `20`                     |
+| `1,5 * 4`      | `6`                      |
+| `10 km to m`   | `10000 m`                |
+| `32 F to C`    | `0 °C`                   |
+| `1 GB to MB`   | `1000 MB`                |
+| `1 GiB to MiB` | `1024 MiB`               |
+
+The display follows the selected language's number formatting. Copied numbers omit thousands separators so they paste cleanly into another app. A conversion includes its target unit. After copying, the launcher remains open and selects the input for the next calculation.
+
+The calculator supports parentheses, unary signs, addition, subtraction, multiplication, division, powers (`^` or `**`), and binary remainder (`%`). Unit conversion covers length, mass, time, temperature, and data. Use explicit units; incompatible dimensions and non-finite results display an error and cannot be copied. These operations run locally without evaluating arbitrary code or contacting a service.
+
+![A calculation in the English browser preview](assets/launcher-calculator-en.png)
+
+## Search the web
+
+| Prefix | Destination | Example                       |
+| :----- | :---------- | :---------------------------- |
+| `g`    | Google      | `g desktop organization`      |
+| `yt`   | YouTube     | `yt DaVinci Resolve tutorial` |
+| `gh`   | GitHub      | `gh react hooks`              |
+
+Typing creates a result only. Press **Enter** or select the result to open the encoded search. The desktop app uses the default browser; browser preview opens a new tab. Native requests accept these fixed HTTPS search providers rather than an arbitrary URL or shell command. The query is sent to the chosen provider when the result is activated.
+
+## Item actions and favorites
+
+Select an application or file result, then press **Tab** or **Ctrl+K**, or choose **Actions**. Use arrow keys to move through its action menu; **Esc** returns to search without closing the launcher.
+
+- **Add to favorites / Remove from favorites** saves a local preference. A star marks saved favorites. Favoriting an item does not increase its usage count.
+- **Open File Location** reveals an indexed local file in the desktop file manager.
+- **Run as Administrator** is available for supported Windows executable and shortcut results. DarkDesk checks the trusted file and target, then uses the Windows UAC prompt. It does not bypass elevation consent.
+
+Actions unavailable on the current platform are disabled. Results are checked against the trusted index and their current files; rescan if an item has changed or moved.
+
+![Item actions in the English preview](assets/launcher-actions-en.png)
+
+## Windows system commands
+
+| Command               | Behavior                                                                                                                                                        |
+| :-------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Lock Screen**       | Requests the Windows lock screen after activation.                                                                                                              |
+| **Toggle Mute**       | Sends the system mute key; it toggles sound rather than claiming a known current mute state.                                                                    |
+| **Empty Recycle Bin** | Requests a separate confirmation before permanently clearing the bin. This is outside DarkDesk's file-operation undo.                                           |
+| **Shut Down**         | Requests confirmation before shutting down. Save open files first; DarkDesk restores its profile visibility and saves window state before the shutdown request. |
+
+Recycle-bin and shutdown confirmations expire after 30 seconds and can be used once. Cancel or press **Esc** to return to search. If a confirmation expires, cancel and select the command again. Query text alone never runs a system command.
+
+## Platform support
+
+The Windows Electron application provides the system commands and administrator action. Native file reveal depends on the desktop file manager. Browser preview supports calculator/converter results, clipboard copying where the browser permits it, and explicit web searches; it does not reveal real local files, elevate apps, or execute system commands.
+
+Automated tests use injected adapters for shutdown, lock, mute, and recycle-bin operations. They do not execute those commands on the development host. See the [validation report](VALIDATION.md) for the completed platform checks.

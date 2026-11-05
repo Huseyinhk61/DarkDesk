@@ -12,6 +12,7 @@ const {
   nativeTheme,
   Notification,
   safeStorage,
+  clipboard,
 } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs/promises');
@@ -26,6 +27,7 @@ const { createUpdates } = require('./runtime/updates.cjs');
 const { resolveSharedDesktop } = require('./runtime/desktop-paths.cjs');
 const { UpdateAccessStore } = require('./runtime/update-access.cjs');
 const { restoreWindowState, WindowStateStore } = require('./runtime/window-state.cjs');
+const { LauncherActions } = require('./runtime/launcher-actions.cjs');
 let win,
   launcher,
   tray,
@@ -250,6 +252,17 @@ else {
         },
       });
       await runtime.initialize();
+      const launcherActions = new LauncherActions({
+        shell,
+        clipboard,
+        resolveItem: (id) => runtime.trustedItem(id),
+        resolveShortcut: (file) => shell.readShortcutLink(file),
+        beforeShutdown: async () => {
+          await runtime.profiles.restore();
+          await saveWindowState();
+          await windowStore?.flush();
+        },
+      });
       const updateEnabled =
         app.isPackaged && process.platform === 'win32' && !process.env.PORTABLE_EXECUTABLE_FILE;
       updates = createUpdates({
@@ -409,7 +422,17 @@ else {
       handle('automationPreview', (value) => runtime.previewAutomation(value));
       handle('runAutomation', () => runtime.runAutomation());
       handle('registerDrop', (paths) => runtime.registerDrop(paths));
-      handle('launcherEntries', () => runtime.entries());
+      handle('launcherEntries', async () => ({
+        ...(await runtime.entries()),
+        capabilities: launcherActions.capabilities(),
+      }));
+      handle('setLauncherFavorite', (id, value) => runtime.setFavorite(id, value));
+      handle('launcherAction', async (value) => {
+        const result = await runtime.run('launcher-action', () => launcherActions.action(value));
+        if (result.type === 'admin') await runtime.activity.record(result.id);
+        if (['web', 'system', 'admin', 'reveal'].includes(result.type)) launcher?.hide();
+        return result;
+      });
       handle('launch', async (id) => {
         const result = await runtime.launch(id);
         launcher?.hide();

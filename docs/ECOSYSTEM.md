@@ -28,12 +28,21 @@ New installations use the global shortcut **Alt+X**. Change it in **Settings →
 - **Organize Desktop** opens a confirmation preview; it does not silently move files.
 - Profile commands change visibility; **Open DarkDesk** shows the main window.
 - Native launch opens only indexed items that are still ordinary files, using the operating system's registered opener. The renderer cannot execute an arbitrary path or shell command.
+- Calculations and unit conversions produce local result cards; Enter copies a canonical result while display formatting follows the interface language.
+- `g`, `yt`, and `gh` results open fixed Google, YouTube, or GitHub search URLs only after activation.
+- Tab or Ctrl+K opens item actions: persistent favorites, file location, and supported Windows administrator launch through UAC.
+- An empty query shows up to three items with the highest observed DarkDesk launch counts, then other favorites, without duplicating an item.
+- Windows Lock Screen and Toggle Mute run after selection. Empty Recycle Bin and Shut Down require a separate, single-use confirmation that expires after 30 seconds.
+
+See [Quick Launcher](LAUNCHER.md) for examples and platform availability. Native system actions are fixed operations rather than arbitrary renderer-supplied commands. Tests inject adapters for disruptive OS actions; they do not shut down, lock, mute, or clear the development host's bin.
 
 ## Usage history and inactive items
 
 `usage.json` records only **launch requests successfully submitted through DarkDesk**. It does not observe Windows-wide activity or launches from other applications. Files without history on a fresh installation are not labeled unused for six months.
 
-DarkDesk suggests Archive when the last observed DarkDesk launch is more than six months old. Accepting the suggestion changes the category assignment; moving the file still requires separate confirmation. The counter does not measure running time.
+DarkDesk suggests Archive when the last observed DarkDesk launch is more than six months old. Accepting the suggestion changes the category assignment; moving the file still requires separate confirmation. The counter does not measure running time. Favorites are stored with this local history without increasing the launch count.
+
+Cards and details derive a nonempty **Estimated usage** label from valid DarkDesk history, or from the app/category when history is unavailable. Category-derived labels are explicitly estimates, not observations of Windows processes. A recent-launch label and the six-month Archive suggestion serve different purposes; a category estimate never establishes inactivity.
 
 ## Archive and Downloads automation
 

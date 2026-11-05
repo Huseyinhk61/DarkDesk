@@ -25,14 +25,37 @@ export function fuzzyScore(query, text) {
   return score / (1 + value.length * 0.005);
 }
 export function searchEntries(query, entries) {
-  return entries
+  const frequency = (entry) =>
+    Number.isFinite(entry.usage?.count) && entry.usage.count > 0 ? entry.usage.count : 0;
+  const results = entries
     .map((entry) => ({
       ...entry,
       score:
-        fuzzyScore(query, entry.searchText || entry.name) +
-        (!query ? Math.min(30, entry.usage?.count || 0) + (entry.command ? 12 : 0) : 0),
+        Math.max(
+          fuzzyScore(query, entry.name),
+          fuzzyScore(query, entry.searchText || entry.name) * 0.8,
+        ) + (!query.trim() ? Math.min(30, frequency(entry)) + (entry.command ? 12 : 0) : 0),
     }))
     .filter((entry) => entry.score > 0)
-    .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
-    .slice(0, 9);
+    .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
+  if (query.trim()) return results.slice(0, 12);
+  const frequent = results
+    .filter((entry) => !entry.command && frequency(entry) > 0)
+    .sort(
+      (a, b) =>
+        frequency(b) - frequency(a) ||
+        (b.usage?.lastOpened || 0) - (a.usage?.lastOpened || 0) ||
+        a.name.localeCompare(b.name),
+    )
+    .slice(0, 3)
+    .map((entry) => ({ ...entry, section: 'frequent' }));
+  const chosen = new Set(frequent.map((entry) => entry.id));
+  const favorites = results
+    .filter((entry) => !entry.command && entry.usage?.favorite === true && !chosen.has(entry.id))
+    .map((entry) => ({ ...entry, section: 'favorites' }));
+  favorites.forEach((entry) => chosen.add(entry.id));
+  return [...frequent, ...favorites, ...results.filter((entry) => !chosen.has(entry.id))].slice(
+    0,
+    16,
+  );
 }

@@ -7,11 +7,12 @@ const crypto = require('node:crypto');
 const { icons } = require('../shared/domain.js');
 const { iconPacks } = require('../shared/appearance.js');
 const { folderThemes, folderColorIds } = require('../shared/folder-appearance.js');
+const { renderFolderIco } = require('./folder-raster.cjs');
 const folderIni = (category, theme) =>
   Buffer.concat([
     Buffer.from([0xff, 0xfe]),
     Buffer.from(
-      `[.ShellClassInfo]\r\nIconResource=.darkdesk.ico,0\r\n;DarkDesk=${theme}/${category.color}/${category.icon}\r\n`,
+      `[.ShellClassInfo]\r\nIconResource=.darkdesk.ico,0\r\n;DarkDesk=${theme}/${category.color}/${category.icon}${category.customColor ? '/custom-' + category.customColor.from.slice(1) + '-' + category.customColor.to.slice(1) : ''}\r\n`,
       'utf16le',
     ),
   ]);
@@ -21,6 +22,7 @@ class FolderIcons {
     this.platform = platform;
     this.shell = options.shell;
     this.run = options.run || exec;
+    this.renderFolderIco = options.renderFolderIco || renderFolderIco;
   }
   async iconFile(icon, pack) {
     if (!icons.includes(icon) || !iconPacks.includes(pack)) throw Error('ICON_INVALID');
@@ -44,6 +46,12 @@ class FolderIcons {
     return path.join(__dirname, '../build/folder-icons/themes', theme, color, icon + '.ico');
   }
   async folderContents(category, settings) {
+    if (category.customColor) {
+      return {
+        '.darkdesk.ico': await this.renderFolderIco(category, settings.folderTheme ?? 'gradient'),
+        'desktop.ini': folderIni(category, settings.folderTheme ?? 'gradient'),
+      };
+    }
     const source = await this.folderIconFile(
       category.icon,
       category.color,

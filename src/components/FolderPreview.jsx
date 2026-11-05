@@ -7,6 +7,7 @@ export default function FolderPreview({ category, size = 48, theme }) {
     color: category?.color || 'purple',
     theme: theme || settings.folderTheme,
     icon: category?.icon || 'folder',
+    customColor: category?.customColor,
   });
   return (
     <img

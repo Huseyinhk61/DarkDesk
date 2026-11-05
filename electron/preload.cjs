@@ -28,6 +28,8 @@ const methods = [
   'automationPreview',
   'runAutomation',
   'launcherEntries',
+  'launcherAction',
+  'setLauncherFavorite',
   'launch',
   'itemIcon',
   'itemDetails',

@@ -4,6 +4,8 @@ import FolderPreview from './FolderPreview';
 import { usePreferences } from '../preferences';
 import { categoryTrail, summarizeGroups, sanitizeGroupView } from '../../shared/grouping';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { folderAccentStyle } from '../../shared/folder-appearance';
+import '../custom-folder-colors.css';
 
 function savedView() {
   try {
@@ -189,7 +191,8 @@ export default function CategoryGrid({ items, filter, setFilter, onDropItem, dis
               key={category.id}
               disabled={!!disabled}
               aria-pressed={activeRoot?.id === category.id}
-              className={`category ${category.color} ${activeRoot?.id === category.id ? 'selected' : ''} ${hover === category.id ? 'drag-hover' : ''}`}
+              className={`category ${category.color} ${category.customColor ? 'custom-folder-color' : ''} ${activeRoot?.id === category.id ? 'selected' : ''} ${hover === category.id ? 'drag-hover' : ''}`}
+              style={folderAccentStyle(category)}
               {...dropProps(category.id)}
               onClick={() => setFilter(filter === category.id ? null : category.id)}
             >
@@ -245,7 +248,8 @@ export default function CategoryGrid({ items, filter, setFilter, onDropItem, dis
               <button
                 type="button"
                 disabled={!!disabled}
-                className={`subcategory-chip subcategory-all ${activeRoot.color}`}
+                className={`subcategory-chip subcategory-all ${activeRoot.color} ${activeRoot.customColor ? 'custom-folder-color' : ''}`}
+                style={folderAccentStyle(activeRoot)}
                 aria-pressed={filter === activeRoot.id}
                 onClick={() => setFilter(activeRoot.id)}
               >
@@ -258,7 +262,8 @@ export default function CategoryGrid({ items, filter, setFilter, onDropItem, dis
                   type="button"
                   key={category.id}
                   disabled={!!disabled}
-                  className={`subcategory-chip ${category.color} ${hover === category.id ? 'drag-hover' : ''}`}
+                  className={`subcategory-chip ${category.color} ${category.customColor ? 'custom-folder-color' : ''} ${hover === category.id ? 'drag-hover' : ''}`}
+                  style={folderAccentStyle(category)}
                   aria-pressed={filter === category.id}
                   {...dropProps(category.id)}
                   onClick={() => setFilter(category.id)}

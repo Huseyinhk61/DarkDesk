@@ -60,10 +60,21 @@ test('Spotlight exposes a combobox, traps focus and has a keyboard-operable clos
   await expect(search).toBeFocused();
   await page.keyboard.press('Shift+Tab');
   const close = dialog.getByRole('button', { name: 'Pencereyi kapat', exact: true });
-  await expect(close).toBeFocused();
+  await expect(
+    dialog.getByRole('button', { name: 'Öğe aksiyonlarını aç', exact: true }),
+  ).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(search).toBeFocused();
   await page.keyboard.press('Tab');
+  await expect(dialog.getByRole('menu')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(dialog.getByRole('menu')).toHaveCount(0);
+  await expect(search).toBeFocused();
+  await page.keyboard.press('Shift+Tab');
+  await expect(
+    dialog.getByRole('button', { name: 'Öğe aksiyonlarını aç', exact: true }),
+  ).toBeFocused();
+  await page.keyboard.press('Shift+Tab');
   await expect(close).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(dialog).toHaveCount(0);

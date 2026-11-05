@@ -11,12 +11,13 @@ export default function FolderAppearanceSettings({ onSave, onApply, busy, platfo
     [applying, setApplying] = useState(false);
   const appearanceVersion = JSON.stringify({
     theme: settings.folderTheme,
-    categories: settings.categories.map(({ id, folder, parentId, icon, color }) => ({
+    categories: settings.categories.map(({ id, folder, parentId, icon, color, customColor }) => ({
       id,
       folder,
       parentId,
       icon,
       color,
+      customColor,
     })),
   });
   useEffect(() => setResult(null), [appearanceVersion]);

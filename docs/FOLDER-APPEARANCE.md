@@ -1,23 +1,24 @@
 # Folder colors and styles
 
-DarkDesk 3.5 adds a separate appearance system for category folders. Changing the application palette, interface icon pack, or font does not require changing folder colors. Original application logos and existing file icons are preserved.
+DarkDesk 3.6 supports preset colors, custom HEX colors, and two-color gradients for category folders. Changing the application palette, interface icon pack, or font does not require changing folder colors. Original application logos and existing file icons are preserved.
 
 ## Choose a folder appearance
 
 1. Open **Categories & Rules**, then edit a category or create a subgroup.
-2. Choose its glyph and one of ten colors: Blue, Purple, Green, Orange, Slate, Pink, Cyan, Teal, Amber, or Red. The live preview updates before saving.
-3. In **Folder appearance**, choose **Gradient**, **Solid**, or **Outline**. The style applies across groups while each group retains its own color and glyph.
-4. Save the category. New Windows category folders receive the chosen appearance when you organize files into them.
+2. Choose its glyph and one of ten preset colors: Blue, Purple, Green, Orange, Slate, Pink, Cyan, Teal, Amber, or Red. Alternatively, use **Custom color & gradient** to pick any start and end color.
+3. Enter six-digit HEX values such as `#2255ee` and `#dd3388`, use the native color inputs, or select Aurora, Ocean, Sunset, Forest, Rose, or Graphite. **Use a single color** makes both ends match. Invalid HEX values cannot be saved.
+4. Save the category. Its card accents, icon background, and folder preview update. On Windows, DarkDesk also applies saved visual changes to existing category folders whose icon metadata it owns.
+5. In **Folder appearance**, choose **Gradient**, **Solid**, or **Outline**. The style applies across groups while each group retains its own color and glyph. Gradient uses both custom colors; Solid uses the start color. New Windows category folders receive the chosen appearance when you organize files into them.
 
-The same artwork powers interface previews and 360 bundled Windows folder icons: three styles × ten colors × twelve glyphs. Native folder artwork is distinct from the five interface icon packs.
+The same validated SVG artwork powers interface previews and Windows folder icons. Ten preset colors use 360 bundled assets: three styles × ten colors × twelve glyphs. Custom colors are rendered locally into matching PNG-backed ICOs, without downloading artwork. Native folder artwork is distinct from the five interface icon packs. Choosing a preset color or **Restore preset color** clears the custom gradient.
 
 ![Three folder styles](assets/folder-themes-en.png)
 
-![Category colors and live preview](assets/folder-colors-en.png)
+![Custom HEX colors, gradient palettes, and live preview](assets/custom-colors-en.png)
 
 ## Apply to existing Windows folders
 
-Open **Folder appearance** in **Categories & Rules** or **Automation & Settings**, then choose **Apply to desktop folders**. This explicit action updates existing category folders; it does not organize, move, copy, delete, or launch their contents. It does not create missing category folders just to show an icon.
+Saving a visual category change in the Windows desktop app updates existing DarkDesk-owned category folder icons automatically. To refresh explicitly or retry a failed update, open **Folder appearance** in **Categories & Rules** or **Automation & Settings**, then choose **Apply to desktop folders**. Both paths update appearance only: they do not organize, move, copy, delete, or launch folder contents, or create missing category folders just to show an icon.
 
 DarkDesk writes its `.darkdesk.ico` and `desktop.ini` metadata and the Explorer attributes needed to display the icon. It recognizes its own earlier metadata from operation history or its local appearance record. Manually customized or unrecognized icon metadata is skipped rather than overwritten. Symlinked or unverifiable paths are also skipped. No automatic elevation is requested.
 
@@ -31,7 +32,7 @@ The result shows how many folders were **updated**, **unchanged**, **skipped**, 
 | Icon file changed or path cannot be verified | Check the folder in File Explorer before retrying.                                                    |
 | Appearance information could not be read     | Keep the local appearance record and operation history; inspect the error before making more changes. |
 
-Explorer may cache an older icon. DarkDesk asks Explorer to refresh; if that refresh cannot complete, the result suggests opening the folder and pressing **F5**. A successful metadata update does not establish how quickly Explorer will redraw every desktop icon.
+Explorer may cache an older icon. DarkDesk asks Explorer to refresh; if that refresh cannot complete, the result suggests opening the folder and pressing **F5**. The interface preview changes immediately; Explorer may take longer to redraw a physical desktop icon.
 
 ## File undo and appearance changes
 

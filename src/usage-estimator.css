@@ -1,0 +1,41 @@
+.usage-estimate {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  margin: 0 0 12px;
+  padding: 8px 0;
+  border-block: 1px solid var(--border);
+  color: var(--muted);
+  font-size: calc(10px * var(--ui-scale, 1));
+  line-height: 1.6;
+}
+.usage-estimate-label {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+}
+.usage-estimate-label svg {
+  flex: 0 0 auto;
+  color: var(--accent);
+}
+.usage-estimate strong {
+  color: var(--ink);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.usage-estimate small {
+  font-size: inherit;
+  overflow-wrap: anywhere;
+}
+.usage-estimate-detail {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--field);
+  font-size: calc(12px * var(--ui-scale, 1));
+}
+.usage-estimate-detail p {
+  margin: 3px 0 0;
+  color: var(--muted);
+}
