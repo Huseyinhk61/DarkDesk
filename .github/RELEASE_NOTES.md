@@ -8,7 +8,9 @@ Choose a Windows x64 download under **Assets**:
 
 Quit an older DarkDesk instance from its system-tray menu before installing. Node.js is not required. Packages are currently unsigned, so Windows may display a publisher warning.
 
-## What's new in 3.5.0
+## What's new in 3.5.1
+
+- **Reliable operation controls:** fix an intermittent stale-status race that could block Undo after changing folder appearance. Native activity and interface controls now remain synchronized.
 
 - **Folder colors and styles:** ten colors, Gradient/Solid/Outline styles, live previews, and 360 Windows folder icons. Use **Apply to desktop folders** to update existing category folders; manually customized icons are preserved and files stay in place.
 - **Clearer smart groups:** accurate parent totals, subgroup navigation, breadcrumbs, remembered ordering, and hide-empty controls.

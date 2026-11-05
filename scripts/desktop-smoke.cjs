@@ -146,8 +146,22 @@ const { folders } = require('../electron/service.cjs');
       assert.match(ini, /outline/);
       assert.match(ini, /teal/);
     } else assert.equal(appearanceResult.unsupported, true);
+    await expect(page.locator('.activity-bar')).toHaveCount(0);
+    await expect(page.locator('main')).toHaveAttribute('aria-busy', 'false');
     await page.locator('main').getByRole('button', { name: 'Geri al', exact: true }).click();
-    await expect(page.locator('.item-card')).toHaveCount(1);
+    try {
+      await expect(page.locator('.item-card')).toHaveCount(1, { timeout: 15000 });
+    } catch (error) {
+      const diagnostic = await page.evaluate(async () => ({
+        runtime: await window.darkdesk.runtimeStatus(),
+        history: await window.darkdesk.history(),
+        notices: [...document.querySelectorAll('.toast, [role="alert"]')].map(
+          (node) => node.textContent,
+        ),
+      }));
+      error.message += '\nIsolated undo diagnostic: ' + JSON.stringify(diagnostic);
+      throw error;
+    }
     assert.equal(await fs.readFile(path.join(desktop, 'Rapor.pdf'), 'utf8'), 'native IPC content');
     await fs.writeFile(path.join(desktop, 'Yeni.txt'), 'watch me');
     await expect(page.locator('.item-card')).toHaveCount(2, { timeout: 10000 });

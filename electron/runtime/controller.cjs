@@ -67,11 +67,15 @@ class DesktopRuntime {
     this.timer.unref?.();
   }
   async status() {
+    const [profile, automation] = await Promise.all([
+      this.profiles.status(),
+      this.automation.status(),
+    ]);
     return {
       busy: this.busy,
       desktopScanReport: structuredClone(this.service.scanReport),
-      profile: await this.profiles.status(),
-      automation: await this.automation.status(),
+      profile,
+      automation,
       shortcuts: this.shortcuts,
       trayAvailable: this.trayAvailable,
       lastError: this.lastError,

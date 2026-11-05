@@ -69,6 +69,16 @@ export default function App() {
   const update = useUpdates();
   const [updatesRequested, setUpdatesRequested] = useState(0);
   const backendBusy = useRef(null);
+  const runtimeRevision = useRef(0);
+  const acceptRuntime = useCallback((value, revision) => {
+    if (revision !== runtimeRevision.current) return;
+    setRuntime(value);
+    backendBusy.current = value.busy;
+  }, []);
+  const syncRuntime = useCallback(async () => {
+    const revision = runtimeRevision.current;
+    acceptRuntime(await api.runtimeStatus(), revision);
+  }, [acceptRuntime]);
   const mainRef = useRef(null);
   const previousView = useRef(null);
   useEffect(() => {
@@ -103,6 +113,7 @@ export default function App() {
     const requestedScope = scopeRef.current;
     const request = ++refreshRequest.current;
     const data = await api.scan(requestedScope);
+    const revision = runtimeRevision.current;
     const [batches, system, runtimeState] = await Promise.all([
       api.history(),
       api.stats(),
@@ -123,11 +134,10 @@ export default function App() {
     setItems(data);
     setHistory(batches);
     setStats(system);
-    setRuntime(runtimeState);
-    backendBusy.current = runtimeState.busy;
+    acceptRuntime(runtimeState, revision);
     setLast(new Date());
     setError('');
-  }, []);
+  }, [acceptRuntime]);
   useEffect(() => {
     let active = true;
     (async () => {
@@ -400,7 +410,7 @@ export default function App() {
     if (!start('profile')) return;
     try {
       await api.applyProfile(id);
-      setRuntime(await api.runtimeStatus());
+      await syncRuntime();
       notify(t('profiles.applied'));
     } catch (e) {
       notify(errorMessage(e), 'error');
@@ -412,7 +422,7 @@ export default function App() {
     if (!start('profile')) return;
     try {
       await api.restoreProfile();
-      setRuntime(await api.runtimeStatus());
+      await syncRuntime();
       notify(t('profiles.restored'));
     } catch (e) {
       notify(errorMessage(e), 'error');
@@ -479,8 +489,7 @@ export default function App() {
   commandRef.current = handleCommand;
   useEffect(() => {
     const off = api.onRuntimeChanged((value) => {
-      setRuntime(value);
-      backendBusy.current = value.busy;
+      acceptRuntime(value, ++runtimeRevision.current);
     });
     const offCommand = api.onCommand((value) => commandRef.current(value));
     const keydown = (e) => {
@@ -510,7 +519,7 @@ export default function App() {
       offCommand();
       window.removeEventListener('keydown', keydown);
     };
-  }, [settings.profiles, settings.launcherShortcut]);
+  }, [settings.profiles, settings.launcherShortcut, acceptRuntime]);
   useEffect(() => {
     if (view === 'settings' && updatesRequested)
       document.getElementById('updates')?.scrollIntoView({ block: 'start', behavior: 'instant' });
@@ -747,7 +756,7 @@ export default function App() {
                       <button
                         className="text-btn"
                         onClick={undo}
-                        disabled={!canUndo(history) || !!busy}
+                        disabled={!canUndo(history) || !!blocked}
                       >
                         <Undo2 size={15} />
                         {t('common.undo')}
@@ -982,7 +991,7 @@ export default function App() {
           </span>
           <span>{toast.key ? t(toast.key, toast.params) : toast.message}</span>
           {toast.undoable && (
-            <button className="toast-undo" disabled={!!busy || !canUndo(history)} onClick={undo}>
+            <button className="toast-undo" disabled={!!blocked || !canUndo(history)} onClick={undo}>
               <Undo2 size={14} />
               {t('common.undo')}
             </button>

@@ -2,14 +2,14 @@
 
 ## First installation
 
-Open [GitHub Releases](https://github.com/Huseyinhk61/DarkDesk/releases/latest) and download **DarkDesk-Setup-3.5.0.exe**, or a newer Setup release. Quit an existing instance from the system-tray **Quit** menu before installing. The NSIS wizard installs the app and a desktop shortcut; Node.js and a terminal are not required.
+Open [GitHub Releases](https://github.com/Huseyinhk61/DarkDesk/releases/latest) and download **DarkDesk-Setup-3.5.1.exe**, or a newer Setup release. Quit an existing instance from the system-tray **Quit** menu before installing. The NSIS wizard installs the app and a desktop shortcut; Node.js and a terminal are not required.
 
 **Portable** is the alternative for running without installation. It does not replace itself through the in-app installer; download the next portable release manually.
 
 Packages are currently unsigned. Windows may display a publisher or SmartScreen warning. Use the official release source and compare the download with the matching `SHA256SUMS.txt`:
 
 ```powershell
-Get-FileHash .\DarkDesk-Setup-3.5.0.exe -Algorithm SHA256
+Get-FileHash .\DarkDesk-Setup-3.5.1.exe -Algorithm SHA256
 ```
 
 ## Public release access

@@ -1,5 +1,14 @@
 # DarkDesk validation report
 
+## 3.5.1 — runtime-state and Undo synchronization
+
+Date: November 5, 2026.
+
+- **193 service/model/settings tests passed** without failures or skips. The added regression verifies that asynchronous native status collection reports current operation activity.
+- A deterministic browser regression reproduced the stale-status failure before the fix and passed afterward. It checks that a delayed busy snapshot cannot replace a newer idle event, and that UI Undo restores all files.
+- Production build and the isolated source Electron smoke test passed. The native test now waits for idle controls and preserves diagnostic state on an Undo failure.
+- Full browser, packaged-ASAR, and public Windows release results will be recorded after the final run completes.
+
 ## 3.5.0 — folder appearance and smarter groups
 
 Date: November 5, 2026. Local environment: Linux, Node.js 24, Electron 45, Chromium, and Xvfb.
@@ -11,7 +20,7 @@ Date: November 5, 2026. Local environment: Linux, Node.js 24, Electron 45, Chrom
 - The unpacked package contains all 360 new ICOs. Packaged service modules, shared grouping/folder modules, renderer assets, and version were compared with the source tree.
 - English screenshots were captured from the actual browser demo. They show sample data; browser mode does not extract native app logos or modify real folders.
 
-Windows release publication and runner results are recorded below once verified. Local Linux success alone does not verify Windows attributes, Explorer refresh, installation, or an old-to-new upgrade.
+The [Windows Installer run](https://github.com/Huseyinhk61/DarkDesk/actions/runs/41982921144) passed and published [v3.5.0](https://github.com/Huseyinhk61/DarkDesk/releases/tag/v3.5.0). Its native test passed. A separate Windows CI run exposed an intermittent UI Undo state race, subsequently reproduced and fixed in 3.5.1. The synchronized browser checks passed all 82 scenarios on GitHub. Interactive Explorer redraw and a real old-to-new installation upgrade were not tested here.
 
 ## 3.4.3 — common desktop coverage and app categorization
 

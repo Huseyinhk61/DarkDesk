@@ -38,6 +38,21 @@ class FakeVisibility {
     for (const item of items) this.values.set(item.path, item.hidden);
   }
 }
+test('runtime status reports current activity after asynchronous profile and automation reads', async (t) => {
+  const { desktop, downloads, data } = await fixture(t);
+  const runtime = new DesktopRuntime({ desktop, downloads, data, platform: 'linux' });
+  let release;
+  runtime.profiles.status = () =>
+    new Promise((resolve) => {
+      release = resolve;
+    });
+  runtime.automation.status = async () => ({ lastRun: null });
+  runtime.busy = 'folder-appearance';
+  const pending = runtime.status();
+  runtime.busy = null;
+  release({ activeId: null });
+  assert.equal((await pending).busy, null);
+});
 test('profile focus preserves initially hidden files and restores the original visibility', async (t) => {
   const { desktop, data } = await fixture(t),
     secret = path.join(desktop, 'Report.pdf');

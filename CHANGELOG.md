@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.5.1 — November 5, 2026
+
+- Prevent delayed runtime snapshots from overwriting newer operation events and leaving organization controls blocked after a folder-style change.
+- Keep Undo controls disabled while a native operation is active, and read current activity after asynchronous native status checks.
+- Add deterministic regressions for the stale-state race and synchronize native/browser checks with completed screen loading and animations.
+
 ## 3.5.0 — November 5, 2026
 
 - Add ten per-group folder colors and Gradient, Solid, and Outline styles, with live previews and 360 matching Windows ICO assets.
