@@ -6,8 +6,17 @@ Date: November 5, 2026.
 
 - **193 service/model/settings tests passed** without failures or skips. The added regression verifies that asynchronous native status collection reports current operation activity.
 - A deterministic browser regression reproduced the stale-status failure before the fix and passed afterward. It checks that a delayed busy snapshot cannot replace a newer idle event, and that UI Undo restores all files.
-- Production build and the isolated source Electron smoke test passed. The native test now waits for idle controls and preserves diagnostic state on an Undo failure.
-- Full browser, packaged-ASAR, and public Windows release results will be recorded after the final run completes.
+- **83 Chromium scenarios passed** in the final local run, including the new runtime-event regression. Production build and the isolated source Electron smoke test passed. The native test now waits for idle controls and preserves diagnostic state on an Undo failure.
+- The Linux unpacked ASAR passed the same native smoke test. Its version is 3.5.1; native/shared modules and all renderer assets match the current source, and all 360 folder ICOs are present.
+- **Published and verified:** the [Windows Installer run](https://github.com/Huseyinhk61/DarkDesk/actions/runs/41983794758) passed native Windows IPC, Setup/Portable packaging, release validation, checksums, and publication. [Test & Build](https://github.com/Huseyinhk61/DarkDesk/actions/runs/41983794941) passed on Windows/Linux; its browser job reports **83 passed**.
+- [Release v3.5.1](https://github.com/Huseyinhk61/DarkDesk/releases/tag/v3.5.1) is public. Anonymous requests for Setup, Portable, the blockmap, and the update feed returned HTTP 200. The feed reports 3.5.1 and its installer size matches the published file.
+
+Official release files (use this release's `SHA256SUMS.txt`):
+
+- Setup: 134,389,609 bytes; SHA-256 `7954d58391e162ff329d3ad7ca903af84bc06e9dc348f3ee3178be464cdd43a3`.
+- Portable: 121,043,696 bytes; SHA-256 `91d7cac24338bfe9d93abc02799167d6e907bd4ce88388f41d859a136849def3`.
+
+The Windows runner validates native APIs and folder metadata. Interactive Explorer repaint, physical hotkeys while gaming, a GUI installation, and an old-to-new upgrade on the user's computer remain outside these automated checks.
 
 ## 3.5.0 — folder appearance and smarter groups
 
