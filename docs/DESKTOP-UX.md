@@ -6,13 +6,24 @@ DarkDesk uses Electron `app.getFileIcon` to show operating-system icons in cards
 
 Click a card's icon or name to open its information panel. You can also use Tab and Enter. File sizes and dates come from the file system; for shortcuts, they describe the shortcut file. On Windows, executable descriptions and company names come from version resources; shortcuts use their local executable target. These optional fields are not verified publisher identities. Missing information is labeled explicitly.
 
-Last launch records only launch requests successfully submitted through DarkDesk. It does not track applications opened elsewhere or their running time. The browser demo does not invent native icons or publisher metadata.
+App purpose descriptions use this order:
+
+1. A manual description saved for the item.
+2. Windows **File Description** from the executable's version resource, including a supported local executable target of a `.lnk` shortcut.
+3. The offline dictionary of **114 popular apps**, including Advanced IP Scanner, BCUninstaller, and Any Command.
+4. A filename/type hint, or a short custom-software message inviting a manual description.
+
+The source badge distinguishes your description, Windows metadata, the offline dictionary, and an estimate. The app does not treat a shortcut launcher host such as `cmd.exe` or Explorer as a reliable description of its actual destination. Version-resource text and filename matches are useful context, not independently verified app identities.
+
+To replace an explanation, open the item's details, edit **Your own description**, and save. The limit is 1,000 characters. Save an empty field to restore automatic resolution. Manual descriptions are stored in settings on this device and follow the item ID.
+
+Last launch records only launch requests successfully submitted through DarkDesk. This launch counter does not track applications opened elsewhere or their running time. The separate, opt-in [Focus Analytics](PRODUCTIVITY.md#focus-analytics) module samples foreground/open applications when enabled; it does not change the meaning of the launch counter. The browser demo does not invent native icons or publisher metadata.
 
 **Estimated usage** remains available on cards and in the details panel even when optional native metadata is unavailable. It uses valid DarkDesk launch history first; otherwise it supplies a category estimate such as Intensive use or Continuous use. The source note distinguishes observed launch counts from estimates. Neither indicates that an app is running now or measures activity elsewhere in Windows.
 
 Category icon backgrounds follow saved custom HEX or gradient colors; original application logos remain intact. See [folder appearance](FOLDER-APPEARANCE.md) for matching physical Windows icons.
 
-The renderer cannot submit arbitrary file paths to read metadata: IPC accepts only IDs from the trusted scan index. Icons load for visible cards, with bounded concurrency and caches. Windows metadata extraction uses JSON over stdin, a timeout, and an output limit rather than interpolating file names into commands.
+The renderer cannot submit arbitrary file paths to read metadata: IPC accepts only IDs from the trusted scan index. Icons and optional purpose metadata load for visible cards, with bounded concurrency and caches. Windows metadata extraction uses JSON over stdin, a timeout, and an output limit rather than interpolating file names into commands.
 
 ## Global shortcuts
 

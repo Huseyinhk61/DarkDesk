@@ -12,6 +12,7 @@ const { ItemDetailsService } = require('./item-details.cjs');
 const { enrichItem } = require('../../shared/domain.js');
 const { applyFolderAppearance } = require('../folder-appearance.cjs');
 const { LauncherCatalog } = require('./launcher-catalog.cjs');
+const { CommandUsage } = require('./command-usage.cjs');
 class DesktopRuntime {
   constructor({
     desktop,
@@ -54,6 +55,7 @@ class DesktopRuntime {
     });
     this.profiles = new ProfileService(desktop, data, new VisibilityAdapter(desktop, platform));
     this.activity = new ActivityStore(data);
+    this.commandUsage = new CommandUsage(data);
     this.details = new ItemDetailsService({ platform, resolveShortcut, getFileIcon });
     this.automation = new AutomationService(this.service, data);
     this.catalog = new Map();
@@ -225,7 +227,13 @@ class DesktopRuntime {
     if (this.catalogMutating || this.stopping) throw Error('OPERATION_BUSY');
     const result = await this.refreshLauncherCatalog();
     if (this.catalogMutating || this.stopping) throw Error('OPERATION_BUSY');
-    return result;
+    return {
+      ...result,
+      commandUsage: await this.commandUsage.read(result.settings).catch(() => ({})),
+    };
+  }
+  async recordLauncherCommand(id) {
+    return this.commandUsage.record(id, await this.settings.read());
   }
   async refreshLauncherCatalog() {
     const generation = this.catalogGeneration;
@@ -306,6 +314,9 @@ class DesktopRuntime {
     const details = await this.details.details(item);
     const [current] = await this.activity.annotate([item]);
     return { ...details, lastOpened: current.usage.lastOpened, usageScope: 'darkdesk-only' };
+  }
+  async itemPurpose(id) {
+    return this.details.purpose(await this.resolveTrustedItem(id));
   }
   async launch(id) {
     return this.run('launch', async () => {

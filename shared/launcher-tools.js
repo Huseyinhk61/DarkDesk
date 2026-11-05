@@ -195,11 +195,96 @@ export function buildWebSearch(provider, query) {
   return url.href;
 }
 
+const systemAliases = {
+  'empty-trash': [
+    'empty-trash',
+    'trash',
+    'empty trash',
+    'recycle',
+    'empty recycle bin',
+    'çöp',
+    'çöpü boşalt',
+    'çöp kutusunu boşalt',
+  ],
+  lock: ['lock', 'lock screen', 'kilitle', 'ekranı kilitle'],
+  shutdown: ['shutdown', 'shut down', 'power off', 'kapat', 'sistemi kapat', 'bilgisayarı kapat'],
+  mute: ['mute', 'unmute', 'toggle mute', 'sessiz', 'ses', 'sesi kapat', 'sesi aç'],
+};
+const normalizeCommand = (value) =>
+  value
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/ı/g, 'i')
+    .trim()
+    .replace(/\s+/g, ' ');
+function systemTool(input, query) {
+  if (query.length > MAX_INPUT)
+    return {
+      id: 'tool:system',
+      type: 'system',
+      input: input.slice(0, MAX_INPUT + 4),
+      query: '',
+      matches: [],
+      status: 'error',
+      error: 'INPUT_TOO_LONG',
+    };
+  const normalized = normalizeCommand(query);
+  const exact = Object.entries(systemAliases).find(([, aliases]) =>
+    aliases.some((alias) => normalizeCommand(alias) === normalized),
+  );
+  const matches = exact
+    ? [exact[0]]
+    : Object.entries(systemAliases)
+        .filter(
+          ([, aliases]) =>
+            !normalized || aliases.some((alias) => normalizeCommand(alias).startsWith(normalized)),
+        )
+        .map(([id]) => id);
+  return {
+    id: 'tool:system',
+    type: 'system',
+    input,
+    query,
+    matches,
+    ...(exact ? { system: exact[0] } : {}),
+    status: exact ? 'success' : matches.length ? 'incomplete' : 'error',
+    ...(!exact
+      ? { error: matches.length ? 'INCOMPLETE_SYSTEM_COMMAND' : 'UNKNOWN_SYSTEM_COMMAND' }
+      : {}),
+  };
+}
+function arithmeticTool(expression, input, locale, explicitPrefix) {
+  const explicit = explicitPrefix === 'calc' || expression.startsWith('=');
+  const source = (expression.startsWith('=') ? expression.slice(1) : expression)
+    .replace(/×/g, '*')
+    .replace(/÷/g, '/')
+    .replace(/−/g, '-')
+    .replace(/,/g, '.');
+  if (!explicit && (!/\d/.test(source) || !/^[\d.eE+*/%^()\s\-]+$/.test(source))) return null;
+  const result = {
+    id: 'tool:calculator',
+    type: 'calculation',
+    input,
+    ...(explicitPrefix ? { explicitPrefix } : {}),
+  };
+  if (source.length > MAX_INPUT) return { ...result, status: 'error', error: 'INPUT_TOO_LONG' };
+  try {
+    return { ...result, status: 'success', ...display(calculate(source), locale) };
+  } catch (error) {
+    return {
+      ...result,
+      status: error.code === 'INCOMPLETE_INPUT' ? 'incomplete' : 'error',
+      error: error.code || 'INVALID_EXPRESSION',
+    };
+  }
+}
+
 export function launcherTool(query, locale = 'en-US') {
   if (typeof query !== 'string') return null;
   const input = query.trim();
   if (!input) return null;
-  if (input.length > MAX_INPUT + 4)
+  if (input.length > MAX_INPUT + 8)
     return {
       id: 'tool:calculator',
       type: 'calculation',
@@ -207,6 +292,10 @@ export function launcherTool(query, locale = 'en-US') {
       status: 'error',
       error: 'INPUT_TOO_LONG',
     };
+  const calc = /^calc(?:\s+([\s\S]*))?$/i.exec(input);
+  if (calc) return arithmeticTool(calc[1] || '', input, locale, 'calc');
+  const system = /^sys(?:\s+([\s\S]*))?$/i.exec(input);
+  if (system) return systemTool(input, system[1] || '');
   const web = /^(g|yt|gh)(?:\s+([\s\S]*))?$/i.exec(input);
   if (web) {
     const provider = { g: 'google', yt: 'youtube', gh: 'github' }[web[1].toLowerCase()];
@@ -258,22 +347,5 @@ export function launcherTool(query, locale = 'en-US') {
       toUnit: to.id,
     };
   }
-  const explicit = input.startsWith('=');
-  const source = (explicit ? input.slice(1) : input)
-    .replace(/×/g, '*')
-    .replace(/÷/g, '/')
-    .replace(/−/g, '-')
-    .replace(/,/g, '.');
-  if (!explicit && (!/\d/.test(source) || !/^[\d.eE+*/%^()\s\-]+$/.test(source))) return null;
-  const result = { id: 'tool:calculator', type: 'calculation', input };
-  if (source.length > MAX_INPUT) return { ...result, status: 'error', error: 'INPUT_TOO_LONG' };
-  try {
-    return { ...result, status: 'success', ...display(calculate(source), locale) };
-  } catch (error) {
-    return {
-      ...result,
-      status: error.code === 'INCOMPLETE_INPUT' ? 'incomplete' : 'error',
-      error: error.code || 'INVALID_EXPRESSION',
-    };
-  }
+  return arithmeticTool(input, input, locale);
 }

@@ -42,6 +42,9 @@ const Launcher = lazy(() => import('./components/Launcher'));
 const CategoryManager = lazy(() => import('./components/CategoryManager'));
 const AutomationPanel = lazy(() => import('./components/AutomationPanel'));
 const HelpPanel = lazy(() => import('./components/HelpPanel'));
+const WidgetsPanel = lazy(() => import('./components/WidgetsPanel'));
+const SystemToolsPanel = lazy(() => import('./components/SystemToolsPanel'));
+const AnalyticsPanel = lazy(() => import('./components/AnalyticsPanel'));
 export default function App() {
   const { settings, setSettings, t, locale, errorMessage, categoryLabel } = usePreferences();
   const [view, setView] = useState('groups'),
@@ -645,7 +648,13 @@ export default function App() {
               </div>
             }
           >
-            {view === 'help' ? (
+            {view === 'widgets' ? (
+              <WidgetsPanel />
+            ) : view === 'systemTools' ? (
+              <SystemToolsPanel />
+            ) : view === 'analytics' ? (
+              <AnalyticsPanel />
+            ) : view === 'help' ? (
               <HelpPanel onNavigate={navigate} busy={!!blocked} />
             ) : view === 'profiles' ? (
               <Profiles
@@ -919,6 +928,12 @@ export default function App() {
                           saveSettings({
                             ...settings,
                             overrides: { ...settings.overrides, [item.id]: category },
+                          })
+                        }
+                        onDescription={(text) =>
+                          saveSettings({
+                            ...settings,
+                            itemDescriptions: { ...settings.itemDescriptions, [item.id]: text },
                           })
                         }
                         onIcon={(icon) =>

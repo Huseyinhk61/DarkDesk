@@ -1,7 +1,7 @@
 <div align="center">
   <img src="docs/assets/banner.svg" alt="DarkDesk — A calmer desktop. A clearer workspace." width="1100" />
   <p><strong>A calmer desktop. A clearer workspace.</strong></p>
-  <p>Find your apps, organize real files, and switch focus with a local desktop companion.<br />Preview every change. Keep control. Undo when you need to.</p>
+  <p>Find your apps, organize real files, and build a focused workspace with local desktop tools.<br />Preview every change. Keep control. Undo when you need to.</p>
   <a href="https://github.com/Huseyinhk61/DarkDesk/releases/latest"><strong>Download for Windows</strong></a> ·
   <a href="#features">Explore features</a> ·
   <a href="#run-from-source">Run from source</a> ·
@@ -39,9 +39,12 @@ Release downloads become available after the [Windows packaging workflow](https:
 | **Real desktop organization**             | Move or copy selected desktop files into physical category folders. Review destinations and conflicts before applying changes.                                                                     |
 | **Three scanning sources**                | Switch between Desktop, Installed apps, and Downloads. Desktop discovery includes personal and common Windows shortcuts. Installed programs stay in place; organization creates shortcuts instead. |
 | **Smart groups and custom rules**         | Start with **10 main groups and 25 groups in total**. Browse nested categories with accurate parent totals, matching reasons, a review filter, and keyword or regex rules.                         |
-| **Original app icons and useful details** | Read native app icons where available. Inspect file metadata and local purpose descriptions for **94 recognized apps**, with clearly labeled fallbacks.                                            |
+| **Original app icons and useful details** | Read native icons and Windows File Description metadata. Get offline descriptions for **114 apps**, name/type suggestions, or write your own explanation.                                          |
 | **Focus profiles**                        | Keep relevant desktop items visible for coding, gaming, or creative work. Restore visibility when you leave the profile.                                                                           |
-| **Quick launcher**                        | Press **Alt+X** to search apps, calculate, convert units, or open a web search. Use Tab or Ctrl+K for item actions; frequent items and favorites stay close.                                       |
+| **Quick launcher**                        | Press **Alt+X** to search apps, calculate, convert units, or use `g`, `yt`, `gh`, `calc`, and `sys`. Open the prefix guide with `?`, Space, or F1; frequent items and commands stay close.         |
+| **Desktop widgets**                       | Keep CPU/RAM, a sticky note, and a to-do list in separate transparent windows. Restore their content and positions; desktop placement falls back to floating windows when unavailable.             |
+| **Startup manager**                       | Review Windows startup entries and toggle supported current-user entries without deleting their commands or shortcuts. Machine-wide entries remain read-only.                                      |
+| **Opt-in focus analytics**                | Compare sampled foreground time, open-app time, and time in profiles. History stays on this device for 90 days; tracking starts only when enabled.                                                 |
 | **Optional automation**                   | Enable archive rules for older files and routing for stable Downloads files. File operations are logged and can be undone.                                                                         |
 | **Make it comfortable**                   | Choose **13 color palettes plus the system theme**, **4 font-family choices**, and **5 icon packs**. Adjust text size, density, and motion.                                                        |
 | **Custom desktop folders**                | Choose ten preset colors, any six-digit HEX color, or a two-color gradient. Three folder styles share live previews and native Windows artwork; existing custom icons are preserved.               |
@@ -86,9 +89,27 @@ Choose **Gradient**, **Solid**, or **Outline** folders independently from the ap
 
 ![Subgroup navigation and item counts](docs/assets/subgroups-en.png)
 
+### Your daily tools, close at hand
+
+Open **Desktop Widgets** to show a CPU/RAM monitor, sticky note, or to-do list. Drag each panel by its header; notes, tasks, enabled widgets, and positions survive a normal restart. Windows and macOS desktop placement uses native adapters. If attachment is unavailable, DarkDesk identifies the panel as a floating window. Linux uses floating widgets. The browser preview can demonstrate notes and tasks inside the page, while native CPU/RAM data requires Electron.
+
+**Startup Manager** lists Windows Run and Startup-folder entries. Supported current-user entries can be disabled and re-enabled using startup approval flags; original commands and files stay intact. Machine-wide entries are read-only. This controls the next sign-in and does not stop an app that is already running, or manage every service and scheduled task.
+
+**Focus Analytics** starts disabled. When enabled on Windows or macOS, it samples foreground and eligible open applications about every 15 seconds, excluding idle periods of 60 seconds or more, lock, and suspend. The dashboard separates foreground attention, open-app time, and profile time. Open-app time can overlap and is not a sum of process lifetimes. Data stays local for 90 days; use **Clear history** to remove it. See the [widgets, startup, and analytics guide](docs/PRODUCTIVITY.md) for scope and platform details.
+
+|                             Notes and tasks in the browser preview                             |                                 Analytics consent and empty dashboard                                 |
+| :--------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------: |
+| ![Desktop widget controls with interactive note and task previews](docs/assets/widgets-en.png) | ![Local focus analytics starts disabled with no invented usage history](docs/assets/analytics-en.png) |
+
+These screenshots show the real browser preview. Desktop attachment, startup control, and usage measurement require the native app; no sample system metrics or usage records are displayed.
+
+### Descriptions that explain the app
+
+Cards use your saved manual description first, then Windows **File Description** metadata for supported executable or shortcut targets, then the offline dictionary. The dictionary includes **Advanced IP Scanner**, **BCUninstaller**, **Any Command**, **DaVinci Resolve**, **VMware Workstation**, **FlutterFlow**, and other common apps. Unrecognized items receive a name/type hint or a prompt to add a description from their details panel. Each description shows its source. Metadata and filename matches do not independently verify a publisher or app identity.
+
 ### More than app search
 
-Type `120 * 45` or `10 km to m`, then press **Enter** to copy the result. Search the web with `g <query>`, `yt <query>`, or `gh <query>`. On an application result, **Tab** or **Ctrl+K** opens favorites, file location, and Windows administrator actions. An empty query puts your three most-used observed items first.
+Type `120 * 45`, `calc 120 * 45`, or `10 km to m`, then press **Enter** to copy the result. Search the web with `g <query>`, `yt <query>`, or `gh <query>`. On an application result, **Tab** or **Ctrl+K** opens favorites, file location, and Windows administrator actions. An empty query puts your three most-used observed items first and suggests frequent successful commands. Type `?`, press Space, or use **F1** for the prefix guide. `sys lock`, `sys mute`, `sys empty trash`, and `sys shutdown` route to the same native actions and confirmations as command results.
 
 Files organized by DarkDesk remain available through verified operation history, including after Undo or a restart. Their favorites and launch counts retain the same identity. Missing or changed managed outputs are excluded until they can be verified; recovery does not recursively scan other folders.
 
@@ -97,6 +118,8 @@ Windows system commands include Lock Screen, Toggle Mute, Empty Recycle Bin, and
 |                            Calculate and convert                             |                                        Item actions                                        |
 | :--------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------: |
 | ![Calculator result and copy action](docs/assets/launcher-calculator-en.png) | ![Favorite, file location, and administrator actions](docs/assets/launcher-actions-en.png) |
+
+![Interactive launcher prefix guide](docs/assets/launcher-guide-en.png)
 
 **Estimated usage** never needs to be blank: recorded DarkDesk launches take priority; otherwise a category-based label provides context. Estimates are not measurements of Windows-wide activity or time spent in an app.
 
@@ -121,13 +144,13 @@ Screenshots show the English browser preview with sample data. Physical destinat
 
 **Windows is the primary platform.** DarkDesk uses the operating system's desktop location, including OneDrive-redirected desktops. The app stays available in the system tray after you close the window; use **Quit** from the tray to exit fully.
 
-Linux supports desktop operations, application discovery, and `.desktop` shortcuts; an AppImage build command is included. Native Windows folder-icon customization and the Windows installer updater are platform-specific. macOS deep application scanning and signed/notarized distribution are not currently provided.
+Linux supports desktop operations, application discovery, and `.desktop` shortcuts; an AppImage build command is included. Native Windows folder-icon customization and the Windows installer updater are platform-specific. macOS supports the new widget windows and opt-in analytics, but deep application scanning, startup management, profile visibility, and signed/notarized distribution are not currently provided. Desktop widget attachment depends on the current desktop session; floating mode remains available when attachment fails.
 
 Global shortcuts depend on the operating system and other apps. DarkDesk lets you record another combination when a shortcut is already taken. Native icons and executable metadata depend on the files and permissions available on your machine.
 
 ## Privacy and file protection
 
-Scanning, classification, and app descriptions run locally. Desktop organization requires no account or cloud AI service, and file lists are not uploaded. Release checks and downloads use GitHub; update access is documented in the [update guide](docs/UPDATES.md). A web-search prefix sends its query to the chosen provider only when you activate that result. Calculations and unit conversions run locally.
+Scanning, classification, and app descriptions run locally. Desktop organization requires no account or cloud AI service, and file lists are not uploaded. Release checks and downloads use GitHub; update access is documented in the [update guide](docs/UPDATES.md). A web-search prefix sends its query to the chosen provider only when you activate that result. Calculations and unit conversions run locally. Analytics is off until you opt in; it stores application names, hashed identities, and aggregate durations locally, without window titles, document names, browser URLs, or raw executable paths. Widget notes and tasks are also stored on this device.
 
 - **Review first:** manual organization uses an explicit preview and confirmation. Background file routing runs only when you enable its automation rules.
 - **No overwrites:** conflicting destinations are skipped. Copies are verified before move sources are removed.
@@ -161,15 +184,16 @@ Open the address printed by Vite. **Browser mode uses sample data and cannot org
 
 ### Build and test
 
-| Command                | Purpose                                                      |
-| :--------------------- | :----------------------------------------------------------- |
-| `npm run build`        | Build the production interface.                              |
-| `npm test`             | Run service, model, and settings tests with temporary files. |
-| `npm run test:e2e`     | Run Chromium interface scenarios with Playwright.            |
-| `npm run test:desktop` | Exercise real Electron IPC against an isolated desktop.      |
-| `npm run check`        | Run service tests, production build, and browser tests.      |
-| `npm run dist:win`     | Build Setup and Portable EXEs into `release/`.               |
-| `npm run dist:linux`   | Build a Linux AppImage into `release/`.                      |
+| Command                                | Purpose                                                                                                   |
+| :------------------------------------- | :-------------------------------------------------------------------------------------------------------- |
+| `npm run build`                        | Build the production interface.                                                                           |
+| `npm test`                             | Run service, model, and settings tests with temporary files.                                              |
+| `npm run test:e2e`                     | Run Chromium interface scenarios with Playwright.                                                         |
+| `npm run test:desktop`                 | Exercise real Electron IPC against an isolated desktop.                                                   |
+| `node scripts/widget-native-smoke.cjs` | Check real widget windows, their restricted IPC, persistence, and native bindings in an isolated fixture. |
+| `npm run check`                        | Run service tests, production build, and browser tests.                                                   |
+| `npm run dist:win`                     | Build Setup and Portable EXEs into `release/`.                                                            |
+| `npm run dist:linux`                   | Build a Linux AppImage into `release/`.                                                                   |
 
 Install Chromium once with `npx playwright install chromium` before browser tests. Headless Linux requires `xvfb-run -a npm run test:desktop` for native tests. The [validation report](docs/VALIDATION.md) records test results and platform-specific limits; cross-built EXEs have been checked for integrity, but a live Windows install/upgrade has not been verified in the Linux development environment.
 
@@ -183,6 +207,7 @@ Install Chromium once with `npx playwright install chromium` before browser test
 - [Folder colors, styles, and existing Windows folders](docs/FOLDER-APPEARANCE.md)
 - [Native icons, app details, and shortcuts](docs/DESKTOP-UX.md)
 - [Calculator, web search, favorites, and system commands](docs/LAUNCHER.md)
+- [Widgets, startup management, and focus analytics](docs/PRODUCTIVITY.md)
 - [Profiles, launcher, and automation architecture](docs/ECOSYSTEM.md)
 - [Validation report](docs/VALIDATION.md) · [Changelog](CHANGELOG.md)
 - [Repository publishing and About settings](docs/REPOSITORY.md)

@@ -1,5 +1,17 @@
 # DarkDesk validation report
 
+## 3.7.0 — descriptions, widgets, startup control, and focus analytics
+
+Date: November 5, 2026. Local environment: Linux, Node.js 24, Electron 45, Chromium, and Xvfb.
+
+- **293 service/model/settings tests passed**, with no failures or skips. New cases cover metadata/manual/dictionary precedence, launch-host shortcut exclusions, Windows startup approval restoration and stale-entry protection, widget content/position persistence and shutdown races, foreground/open-app/profile sampling, idle/lock/suspend gaps, local midnight, retention, corrupt-history recovery, safe prefix parsing, and bounded command counts.
+- **112 Chromium scenarios passed** in the complete final run. New scenarios cover editing and clearing descriptions, prefix help and delayed-load keyboard focus, persistent note/task previews, read-only startup rows and stale-write errors, separate foreground/open durations, opt-in and clear confirmation, unsupported environments, and navigation in short windows.
+- Production build, formatting, matching English/Turkish translation keys, and whitespace checks passed. New secondary screens load on demand.
+- Both the source application and Linux unpacked ASAR passed the existing real Electron file-operation/scanner/profile/launcher smoke test and the new widget smoke test. Checks include separate windows, actual CPU/RAM counters, immediate note flush before hiding, task completion/deletion/restart persistence, restricted widget IPC, and loading the native addon inside Electron.
+- All **79 packaged Electron/shared/renderer/locale files** match the final source tree; the ASAR package version is 3.7.0. Four new English screenshots come from the real browser preview, which explicitly disables native measurement and startup controls rather than supplying invented data.
+
+Startup mutations are tested using injected registry adapters and temporary files, never by toggling the test host’s real startup entries. Analytics timing tests use injected samples; the native CI smoke includes one read-only Windows/macOS adapter probe without enabling or persisting tracking. Lock, shutdown, mute, Recycle Bin deletion, and UAC elevation are not dispatched by these checks. Windows desktop placement may use its documented floating fallback when Explorer is unavailable; macOS CI checks interactive placement of the app’s own NSWindow.
+
 ## 3.6.1 — launcher paths, favorites, and session stability
 
 Date: November 5, 2026. Local environment: Linux, Node.js 24, Electron 45, Chromium, and Xvfb.

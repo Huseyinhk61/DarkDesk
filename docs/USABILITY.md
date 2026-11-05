@@ -37,13 +37,13 @@ Each item explains its matching source, such as a recognized app, file type, cus
 
 Cards and app details always have an **Estimated usage** label. When valid local history exists, it describes DarkDesk launch patterns, such as **Frequently launched** or **Recently launched**, and shows the observed count. Otherwise, category-based labels give context: IDEs may show **Intensive use**, browsers **Continuous use**, and utilities **On-demand use**. Custom subgroups can inherit their parent category's estimate.
 
-Category labels explicitly say **Category estimate · not measured usage**. They are not Windows-wide telemetry, running-time measurements, or a claim that an application is currently active. DarkDesk observes only launch requests made through its own launcher.
+Category labels explicitly say **Category estimate · not measured usage**. They are not Windows-wide telemetry, running-time measurements, or a claim that an application is currently active. This launch-history feature observes only requests made through DarkDesk. The separate [Focus Analytics](PRODUCTIVITY.md#focus-analytics) module can collect sampled foreground/open-app durations when explicitly enabled; it does not change these card labels.
 
 ![Estimated usage with its source](assets/usage-en.png)
 
 ## Getting more from Quick Launcher
 
-Press **Alt+X**, type `120 * 45` or `10 km to m`, and press Enter to copy a result. Prefix a query with `g`, `yt`, or `gh` for a web search. On an application or file result, Tab or Ctrl+K opens item actions and favorites. An empty query puts the three most-used observed items first. See the [launcher guide](LAUNCHER.md) for keyboard use, system commands, and platform availability.
+Press **Alt+X**, type `120 * 45` or `10 km to m`, and press Enter to copy a result. Prefix a query with `g`, `yt`, or `gh` for a web search, `calc` for explicit arithmetic, or `sys` for a supported system action. Type `?`, enter a space, or press F1 for the prefix guide. On an application or file result, Tab or Ctrl+K opens item actions and favorites. An empty query puts the three most-used observed items first. See the [launcher guide](LAUNCHER.md) for keyboard use, system commands, and platform availability.
 
 DarkDesk remembers window size and position. If a monitor is disconnected or the available workspace shrinks, the window returns to the visible area. Switching sections scrolls the main content back to the top while the title bar stays in place.
 

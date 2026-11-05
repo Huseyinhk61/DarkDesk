@@ -2,6 +2,7 @@ import { Check, ChevronDown, ExternalLink, Folder, Users, Sparkles } from 'lucid
 import { useCallback, useState } from 'react';
 import NativeItemIcon from './NativeItemIcon';
 import ItemDetails from './ItemDetails';
+import NativePurpose from './NativePurpose';
 import UsageEstimate from './UsageEstimate';
 import { folderAccentStyle } from '../../shared/folder-appearance';
 import { usePreferences } from '../preferences';
@@ -15,6 +16,7 @@ export default function ItemCard({
   toggle,
   onCategory,
   onIcon,
+  onDescription,
   reveal,
   disabled,
   onAcceptSuggestion,
@@ -71,14 +73,7 @@ export default function ItemCard({
             {t('scanSummary.source.shared')}
           </span>
         )}
-        {item.insight?.description?.[language] && (
-          <div className="item-purpose">
-            <span className={`purpose-badge ${item.insight.confidence === 'known' ? 'known' : ''}`}>
-              {t(item.insight.confidence === 'known' ? 'purpose.known' : 'purpose.inferred')}
-            </span>
-            <p title={item.insight.description[language]}>{item.insight.description[language]}</p>
-          </div>
-        )}
+        <NativePurpose item={item} />
         {classification && (
           <small
             className={`classification-reason ${classification.needsReview ? 'needs-review' : ''}`}
@@ -174,7 +169,14 @@ export default function ItemCard({
           </select>
         </label>
       </article>
-      {showDetails && <ItemDetails item={item} fallback={icon} onClose={closeDetails} />}
+      {showDetails && (
+        <ItemDetails
+          item={item}
+          fallback={icon}
+          onClose={closeDetails}
+          onDescription={onDescription}
+        />
+      )}
     </>
   );
 }

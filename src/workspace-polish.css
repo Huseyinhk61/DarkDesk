@@ -789,3 +789,38 @@ main,
     min-height: 110px;
   }
 }
+
+/* Keep all destinations reachable at desktop heights and larger type sizes. */
+.sidebar {
+  overflow: hidden;
+}
+.sidebar > .brand,
+.sidebar > .workspace-label,
+.sidebar-bottom {
+  flex-shrink: 0;
+}
+.sidebar nav {
+  min-height: 0;
+  overflow-y: auto;
+  flex-shrink: 1;
+  padding: 2px;
+  margin-inline: -2px;
+}
+.sidebar-bottom {
+  padding-top: 16px;
+}
+@media (max-height: 780px) {
+  .sidebar .system {
+    display: none;
+  }
+  .sidebar {
+    padding-top: 20px;
+  }
+  .workspace-label {
+    margin-top: 24px;
+  }
+}
+
+.sidebar .tip {
+  display: none;
+}

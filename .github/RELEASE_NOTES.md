@@ -2,31 +2,25 @@
 
 Choose a Windows x64 download under **Assets**:
 
-- **`DarkDesk-Setup-<version>.exe`** — recommended for everyday use; includes in-app updates.
-- **`DarkDesk-Portable-<version>.exe`** — runs without installation; download a new package to update it.
+- **`DarkDesk-Setup-3.7.0.exe`** — recommended for everyday use; includes in-app updates.
+- **`DarkDesk-Portable-3.7.0.exe`** — runs without installation; download a new package to update it.
 - **SHA256SUMS.txt** — checksums for verifying the downloads.
 
 Quit an older DarkDesk instance from its system-tray menu before installing. Node.js is not required. Packages are currently unsigned, so Windows may display a publisher warning.
 
-## What's new in 3.6.1
+## What's new in 3.7.0
 
-- **Launcher paths stay current:** verified files organized by DarkDesk remain searchable after a move, Undo, or restart. Favorites and launch history keep the same item identity. Original files and installed executables are preferred when available.
-- **Reliable reopen behavior:** an older refresh or action can no longer replace a new session's results, show an old confirmation, or close a launcher you just reopened.
-- **Resilient usage records:** a damaged individual record no longer stops scanning or discards other valid favorites and counts.
+- **Descriptions with context:** Windows File Description metadata for supported executables and shortcut targets, an offline dictionary expanded to 114 apps, and useful filename/type fallbacks. Advanced IP Scanner, BCUninstaller, and Any Command are included. Write a manual description in app details; badges show each explanation's source.
+- **Interactive desktop widgets:** separate transparent CPU/RAM, sticky-note, and to-do windows, with saved content, enabled state, and positions. Native Windows/macOS desktop placement has an explicit floating fallback; Linux uses floating windows. Browser preview offers inline notes/tasks without inventing system metrics.
+- **Windows startup manager:** inspect Run and Startup-folder entries, then disable or re-enable supported current-user entries through StartupApproved flags. Original commands and files remain intact; machine-wide entries are read-only. Changes apply to future sign-ins, not currently running apps.
+- **Opt-in focus analytics:** a local dashboard for sampled foreground time, eligible open-app time, and time in workspace profiles. Collection starts disabled, samples about every 15 seconds on Windows/macOS, excludes idle/locked/suspended periods, and retains aggregates for 90 days. Open-app time can overlap and is not total process lifetime. Clear history from the same screen.
+- **Discoverable launcher prefixes:** `?`, whitespace, or F1 opens a guide to `g`, `yt`, `gh`, `calc`, and `sys`. `calc 120 * 45` copies a local result; `sys lock` routes to the native lock action. Successful local commands can appear as frequent suggestions. Shutdown and recycle-bin actions retain their separate confirmation.
+- **More reachable navigation:** widget, startup, and analytics destinations join the fixed sidebar, with independent scrolling when the window is short or text is enlarged.
 
-Recovery checks completed operation history and recorded Desktop destinations. Missing, changed, or symlinked managed outputs are not recovered automatically. It does not recursively scan arbitrary folders.
+All modules retain English/Turkish localization. Existing **Alt+X** launch access, three scan sources, 25 smart groups, custom rules, original app icons, reversible file organization, focus profiles, and verified organized-file launcher recovery remain available. Appearance includes 13 palettes plus System Theme, 4 font-family choices, 5 icon packs, and custom HEX/gradient folder artwork.
 
-### Also included from 3.6
+Application descriptions, widget notes/tasks, and analytics remain local. Metadata and dictionary filename matches do not independently verify an app's identity or publisher. Startup control is currently Windows-only; native analytics is Windows/macOS-only. macOS deep application scanning, profile visibility, and signed/notarized distribution are not included.
 
-- **Usage labels with context:** cards and app details show observed DarkDesk launch patterns, or clearly labeled category estimates when no reliable history exists. Windows-wide activity and app running time are not monitored.
-- **Custom folder colors:** choose any six-digit HEX color or one of six two-color gradient palettes. Live previews and native Windows folder icons share the same artwork. Saving visual changes updates existing DarkDesk-owned folders; personal icon metadata is preserved.
-- **Calculator and converter:** type `120 * 45`, `10 km to m`, or `32 F to C`, then press Enter to copy the result.
-- **Web prefixes:** `g`, `yt`, and `gh` open explicit Google, YouTube, and GitHub searches in your browser.
-- **Item actions:** Tab or Ctrl+K opens favorites, file location, and Windows administrator actions. Empty search shows the three most-used observed items first, followed by other favorites.
-- **Windows commands:** Lock Screen, Toggle Mute, Empty Recycle Bin, and Shut Down. Recycle-bin deletion and shutdown require a separate, expiring confirmation.
+Installed Windows builds use the public GitHub update feed without a personal token. You choose when to download and restart. Portable users download the new EXE manually. Older 3.4.1 private-feed installations require a one-time manual installation of a current Setup release.
 
-Desktop, Installed apps, and Downloads scanning, reversible file organization, original app logos, focus profiles, and the **Alt+X** default shortcut remain available. Appearance includes **13 palettes plus System Theme**, **4 font-family choices**, **5 interface icon packs**, and **3 folder styles**.
-
-The public update feed requires no personal GitHub token. Installed Windows builds notify you about new releases; downloading and restarting remain your choice. Older 3.4.1 private-feed installations need a one-time manual installation of 3.4.2 or later.
-
-See the [changelog](https://github.com/Huseyinhk61/DarkDesk/blob/main/CHANGELOG.md), [launcher guide](https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/LAUNCHER.md), [folder appearance guide](https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/FOLDER-APPEARANCE.md), and [Windows guide](https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/WINDOWS.md).
+Read the [productivity guide](https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/PRODUCTIVITY.md), [launcher guide](https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/LAUNCHER.md), [app metadata guide](https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/DESKTOP-UX.md), and [validation report](https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/VALIDATION.md) for behavior, platform limits, and completed checks.

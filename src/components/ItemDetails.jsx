@@ -6,13 +6,36 @@ import { formatBytes } from '../utils';
 import Modal from './Modal';
 import NativeItemIcon from './NativeItemIcon';
 import UsageEstimate from './UsageEstimate';
+import NativePurpose from './NativePurpose';
 import '../details.css';
 
-export default function ItemDetails({ item, fallback, onClose }) {
-  const { t, locale, language } = usePreferences();
+export default function ItemDetails({ item, fallback, onClose, onDescription }) {
+  const { t, locale, settings } = usePreferences();
   const [details, setDetails] = useState(null);
   const [error, setError] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  const [description, setDescription] = useState(settings.itemDescriptions?.[item.id] || ''),
+    [saving, setSaving] = useState(false),
+    [saved, setSaved] = useState(false),
+    [saveError, setSaveError] = useState(false);
+  const saveDescription = async (event) => {
+    event.preventDefault();
+    if (!onDescription || saving) return;
+    setSaving(true);
+    setSaveError(false);
+    setSaved(false);
+    try {
+      if ((await onDescription(description)) === false) setSaveError(true);
+      else {
+        setDescription(description.trim());
+        setSaved(true);
+      }
+    } catch {
+      setSaveError(true);
+    } finally {
+      setSaving(false);
+    }
+  };
   useEffect(() => {
     let active = true;
     setDetails(null);
@@ -47,18 +70,47 @@ export default function ItemDetails({ item, fallback, onClose }) {
             <p>{details?.description || (!details && !error ? t('info.loading') : unknown)}</p>
           </div>
         </div>
-        {item.insight?.description?.[language] && (
-          <section className="item-purpose-detail" aria-labelledby="item-purpose-title">
-            <h3 id="item-purpose-title">{t('purpose.title')}</h3>
-            <p>{item.insight.description[language]}</p>
-            <small>
-              {t(
-                item.insight.confidence === 'known'
-                  ? 'purpose.catalogNote'
-                  : 'purpose.inferenceNote',
-              )}
-            </small>
-          </section>
+        <NativePurpose item={item} metadata={details || undefined} detail />
+        {onDescription && (
+          <form className="purpose-description-editor" onSubmit={saveDescription}>
+            <label htmlFor="purpose-description-text">{t('purposePlus.editorTitle')}</label>
+            <textarea
+              id="purpose-description-text"
+              maxLength={1000}
+              value={description}
+              disabled={saving}
+              placeholder={t('purposePlus.editorPlaceholder')}
+              onChange={(event) => {
+                setDescription(event.target.value);
+                setSaved(false);
+                setSaveError(false);
+              }}
+            />
+            <small>{t('purposePlus.editorHint')}</small>
+            <div className="purpose-description-actions">
+              <button
+                className="btn primary"
+                type="submit"
+                disabled={saving || description === (settings.itemDescriptions?.[item.id] || '')}
+              >
+                {t(saving ? 'purposePlus.saving' : 'purposePlus.save')}
+              </button>
+              <button
+                className="btn secondary"
+                type="button"
+                disabled={saving || !description}
+                onClick={() => {
+                  setDescription('');
+                  setSaved(false);
+                  setSaveError(false);
+                }}
+              >
+                {t('purposePlus.clear')}
+              </button>
+            </div>
+            {saved && <p role="status">{t('purposePlus.saved')}</p>}
+            {saveError && <p role="alert">{t('purposePlus.saveFailed')}</p>}
+          </form>
         )}
         {!details && !error && (
           <p className="item-details-loading" role="status">

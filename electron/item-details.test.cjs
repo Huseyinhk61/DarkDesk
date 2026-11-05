@@ -177,3 +177,65 @@ test('concurrent metadata requests retain their result even when bounded cache e
   assert.ok(results.every((item) => item.icon === PNG));
   assert.equal(service.cache.size, 1);
 });
+
+test('purpose reads FileDescription without extracting icons and shares metadata with details', async (t) => {
+  const { root, file } = await fixture(t);
+  const source = path.join(root, 'Renamed Editor.lnk');
+  await fs.writeFile(source, 'link');
+  let icons = 0,
+    reads = 0;
+  const service = new ItemDetailsService({
+    platform: 'win32',
+    resolveShortcut: async () => ({ target: file, description: 'Shortcut comment' }),
+    readVersionInfo: async () => {
+      reads++;
+      return { description: 'Native file description', company: 'Example' };
+    },
+    readWindowsIcon: async () => {
+      icons++;
+      return PNG;
+    },
+  });
+  const item = { id: 'link', name: 'Renamed Editor.lnk', source };
+  const values = await Promise.all([service.purpose(item), service.purpose(item)]);
+  assert.equal(values[0].description, 'Native file description');
+  assert.equal(values[0].metadataSource, 'windows-version-info');
+  assert.equal(reads, 1);
+  assert.equal(icons, 0);
+  assert.equal((await service.details(item)).purposeDescription, values[0].description);
+  assert.equal(reads, 1);
+  assert.equal(icons, 1);
+});
+test('purpose keeps shortcut comments when executable resources are absent and excludes launch hosts', async (t) => {
+  const { root, file } = await fixture(t);
+  const source = path.join(root, 'Local Service.lnk');
+  await fs.writeFile(source, 'link');
+  const host = path.join(root, 'explorer.exe');
+  await fs.writeFile(host, 'host');
+  let reads = 0,
+    target = file,
+    description = 'Starts a local service';
+  const service = new ItemDetailsService({
+    platform: 'win32',
+    resolveShortcut: async () => ({ target, description }),
+    readVersionInfo: async () => {
+      reads++;
+      return { description: null, company: null };
+    },
+  });
+  const item = { id: 'service', name: 'Local Service.lnk', source };
+  const value = await service.purpose(item);
+  assert.equal(value.description, description);
+  assert.equal(value.metadataSource, 'windows-shortcut');
+  assert.equal(reads, 1);
+  target = host;
+  assert.equal((await service.purpose(item)).description, description);
+  assert.equal(reads, 1, 'an unrelated host must not be inspected for shortcut purpose');
+  description = null;
+  assert.deepEqual(await service.purpose(item), {
+    id: 'service',
+    description: null,
+    company: null,
+    metadataSource: 'file-system',
+  });
+});

@@ -29,6 +29,9 @@ jobs:
       - name: Windows native IPC smoke test
         if: runner.os == 'Windows'
         run: npm run test:desktop
+      - name: Windows widget windows and native addon
+        if: runner.os == 'Windows'
+        run: node scripts/widget-native-smoke.cjs
   interface:
     name: Browser & Electron
     runs-on: ubuntu-latest
@@ -43,6 +46,7 @@ jobs:
       - run: npm run test:e2e
       - run: npm run build
       - run: xvfb-run -a npm run test:desktop
+      - run: xvfb-run -a node scripts/widget-native-smoke.cjs
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -51,3 +55,15 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 7
+  mac-widgets:
+    name: macOS interactive desktop widgets
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: node scripts/widget-native-smoke.cjs

@@ -29,6 +29,7 @@ export const defaultSettings = {
   excludedExtensions: ['.ini', '.tmp'],
   overrides: {},
   itemIcons: {},
+  itemDescriptions: {},
   categories: catalog,
   rules: [],
   theme: 'midnight',
@@ -202,7 +203,7 @@ export function enrichItem(item, settings = defaultSettings) {
     ...item,
     category,
     suggestion: !explicit && fallback && !findKnownApp(item) ? suggestTags(item, settings) : null,
-    insight: appInsight(item, category),
+    insight: appInsight(item, category, settings.itemDescriptions?.[item.id]),
   };
 }
 export function isDescendant(id, parent, categories) {

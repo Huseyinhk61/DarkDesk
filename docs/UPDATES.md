@@ -2,14 +2,14 @@
 
 ## First installation
 
-Open [GitHub Releases](https://github.com/Huseyinhk61/DarkDesk/releases/latest) and download **DarkDesk-Setup-3.6.1.exe**, or a newer Setup release. Quit an existing instance from the system-tray **Quit** menu before installing. The NSIS wizard installs the app and a desktop shortcut; Node.js and a terminal are not required.
+Open [GitHub Releases](https://github.com/Huseyinhk61/DarkDesk/releases/latest) and download **DarkDesk-Setup-3.7.0.exe**, or a newer Setup release. Quit an existing instance from the system-tray **Quit** menu before installing. The NSIS wizard installs the app and a desktop shortcut; Node.js and a terminal are not required.
 
 **Portable** is the alternative for running without installation. It does not replace itself through the in-app installer; download the next portable release manually.
 
 Packages are currently unsigned. Windows may display a publisher or SmartScreen warning. Use the official release source and compare the download with the matching `SHA256SUMS.txt`:
 
 ```powershell
-Get-FileHash .\DarkDesk-Setup-3.6.1.exe -Algorithm SHA256
+Get-FileHash .\DarkDesk-Setup-3.7.0.exe -Algorithm SHA256
 ```
 
 ## Public release access
@@ -32,7 +32,7 @@ An installed Windows build checks 30 seconds after startup and every six hours w
 2. Select **Download update** when a version is available. Progress appears in the panel.
 3. After the download finishes, select **Restart and update**.
 
-Downloads do not start automatically, and quitting does not silently install a package. Restart is blocked during file operations. Before installation, the app restores profile visibility and flushes its state. `electron-updater` verifies the SHA-512 checksum. Network, metadata, download, and installation errors allow a retry.
+Downloads do not start automatically, and quitting does not silently install a package. Restart is blocked during file operations. Before installation, the app restores profile visibility, flushes widget drafts and analytics, and saves its state. A failed widget draft save stops the restart so the note can remain available for retry. `electron-updater` verifies the SHA-512 checksum. Network, metadata, download, and installation errors allow a retry.
 
 Development builds, browser previews, Linux, and portable Windows builds do not offer native in-app installation. They provide a link to the official download page instead. A browser preview never downloads or installs a real application update.
 

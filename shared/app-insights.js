@@ -74,6 +74,13 @@ const launchHosts = new Set([
   'upc',
   'galaxyclient',
 ]);
+export function unrelatedLaunchHost(item, target = item.target) {
+  return (
+    /\.lnk$/i.test(item.name || item.source || '') &&
+    launchHosts.has(normalizeAppName(leafName(target))) &&
+    normalizeAppName(leafName(item.name || item.source)) !== normalizeAppName(leafName(target))
+  );
+}
 export function gameLaunchCategory(value) {
   if (typeof value !== 'string' || value.length > 8192 || /[\x00-\x20\x7f]/.test(value))
     return null;
@@ -158,8 +165,8 @@ const categoryDescriptions = {
     'Name and classification rules suggest documents, notes or office work. This is a category-based estimate.',
   ],
   system: [
-    'Bu uygulamanın amacı adından güvenilir biçimde belirlenemedi. Önerilen grubu ve dosya konumunu kontrol edin.',
-    'The purpose of this app could not be reliably identified from its name. Check its suggested group and file location.',
+    'Özel yazılım — uygulama ayrıntılarından manuel açıklama ekleyebilirsin.',
+    'Custom software — add your own description in app details.',
   ],
   media: [
     'Ad ve sınıflandırma kurallarına göre ses veya medya çalışmalarıyla ilgili olabilir. Bu bir kategori tahminidir.',
@@ -215,7 +222,65 @@ const files = [
 const parentCategory = (id) =>
   ['software', 'system', 'internet', 'learning', 'finance'].find((root) => id?.startsWith(root)) ||
   id;
-export function appInsight(item, categoryId) {
+const nameHints = [
+  [
+    /ip[ _-]?scan|network.*scan|a[gğ].*tara/i,
+    'Adı, yerel ağdaki cihazları veya adresleri taramaya yardımcı olan bir araç olabileceğini düşündürüyor. Bu bir ad tahminidir.',
+    'Its name suggests a tool for scanning network devices or addresses. This is a filename-based estimate.',
+  ],
+  [
+    /scanner|scan(?:ning)?|taray[iı]c[iı]/i,
+    'Adı, cihazları, dosyaları veya verileri taramaya yardımcı olan bir araç olabileceğini düşündürüyor. Taramanın kapsamı doğrulanmadı.',
+    'Its name suggests a tool for scanning devices, files or data. The scope of scanning has not been verified.',
+  ],
+  [
+    /server|sunucu/i,
+    'Adı, başka uygulamalara veya cihazlara hizmet sunan bir sunucu bileşeni olabileceğini düşündürüyor. Bu bir ad tahminidir.',
+    'Its name suggests a server component that provides services to other apps or devices. This is a filename-based estimate.',
+  ],
+  [
+    /uninstall|unins\d|kald[iı]r/i,
+    'Adı, yazılım kaldırma işlemleriyle ilgili bir araç olabileceğini düşündürüyor. Kaldırma kapsamı dosya adından doğrulanamaz.',
+    'Its name suggests a software-removal utility. The scope of removal cannot be verified from its filename.',
+  ],
+  [
+    /backup|yedek/i,
+    'Adı, dosya veya sistem yedekleme iş akışlarına yardımcı olan bir araç olabileceğini düşündürüyor. Bu bir ad tahminidir.',
+    'Its name suggests a utility for file or system backup workflows. This is a filename-based estimate.',
+  ],
+  [
+    /sync|senkron/i,
+    'Adı, dosya veya verileri farklı konumlar arasında eşitlemeye yardımcı olan bir araç olabileceğini düşündürüyor.',
+    'Its name suggests a utility for synchronizing files or data between locations. This is an estimate.',
+  ],
+  [
+    /terminal|console|command|komut/i,
+    'Adı, komutları veya betikleri çalıştırmak için kullanılan bir komut aracı olabileceğini düşündürüyor. Bu bir ad tahminidir.',
+    'Its name suggests a command utility for running commands or scripts. This is a filename-based estimate.',
+  ],
+  [
+    /monitor|sensor|izleyici/i,
+    'Adı, sistem, donanım veya uygulama durumunu izlemeye yardımcı olan bir araç olabileceğini düşündürüyor.',
+    'Its name suggests a tool for monitoring system, hardware or application status. This is an estimate.',
+  ],
+  [
+    /tool|utility|ara[cç]/i,
+    'Belirli bir işi kolaylaştıran yardımcı araç olabilir. Kesin işlevi dosya özelliklerinden kontrol edebilir veya kendi açıklamanı ekleyebilirsin.',
+    'This may be a utility for a specific task. Check its file properties or add your own description to explain its exact purpose.',
+  ],
+];
+export function appInsight(item, categoryId, manualDescription) {
+  if (typeof manualDescription === 'string' && manualDescription.trim())
+    return {
+      appId: null,
+      categoryId,
+      confidence: 'manual',
+      source: 'manual',
+      description: {
+        tr: manualDescription.trim().slice(0, 1000),
+        en: manualDescription.trim().slice(0, 1000),
+      },
+    };
   if (gameLaunchCategory(item.launchUrl))
     return {
       appId: null,
@@ -239,16 +304,62 @@ export function appInsight(item, categoryId) {
     };
   const extension = /\.([a-z0-9]+)$/i.exec(item.name || '')?.[1]?.toLowerCase();
   const type = files.find(([extensions]) => extensions.includes(extension));
+  const nameHint =
+    !type &&
+    (appExtensions.has(extension) || ['shortcut', 'installed'].includes(item.kind) || !extension)
+      ? nameHints.find(([pattern]) =>
+          pattern.test(
+            leafName(item.name || item.source).slice(0, 512) +
+              ' ' +
+              leafName(item.target).slice(0, 512),
+          ),
+        )
+      : null;
   const generic = type?.slice(1) ||
+    nameHint?.slice(1) ||
     categoryDescriptions[parentCategory(categoryId)] || [
-      'Bu öğenin işlevi yerel katalogda bulunamadı. Hedef klasörü ve dosya konumunu kontrol edin.',
-      'The purpose of this item was not found in the local catalog. Check its destination group and file location.',
+      'Özel öğe — uygulama ayrıntılarından manuel açıklama ekleyebilirsin.',
+      'Custom item — add your own description in app details.',
     ];
   return {
     appId: null,
     categoryId,
     confidence: 'inferred',
-    source: type ? 'file-type' : 'category',
+    source: type ? 'file-type' : nameHint ? 'filename-hint' : 'category',
     description: { tr: generic[0], en: generic[1] },
   };
+}
+
+export function resolveAppPurpose(item, manualDescription, metadata) {
+  const fallback =
+    item.insight?.source === 'manual'
+      ? appInsight(item, item.category)
+      : item.insight || appInsight(item, item.category);
+  if (typeof manualDescription === 'string' && manualDescription.trim())
+    return appInsight(item, item.category, manualDescription);
+  const raw =
+    metadata && Object.hasOwn(metadata, 'purposeDescription')
+      ? metadata.purposeDescription
+      : metadata?.description;
+  const source = metadata?.purposeSource || metadata?.metadataSource;
+  const nativeDescription =
+    typeof raw === 'string'
+      ? raw
+          .replace(/[\x00-\x1f\x7f]/g, '')
+          .trim()
+          .slice(0, 1024)
+      : '';
+  if (
+    nativeDescription &&
+    ['windows-version-info', 'windows-shortcut'].includes(source) &&
+    (source !== 'windows-version-info' || !unrelatedLaunchHost(item))
+  )
+    return {
+      ...fallback,
+      confidence: 'metadata',
+      source,
+      description: { tr: nativeDescription, en: nativeDescription },
+      company: typeof metadata.company === 'string' ? metadata.company.slice(0, 1024) : null,
+    };
+  return fallback;
 }

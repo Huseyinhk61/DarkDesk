@@ -96,9 +96,9 @@ test('new groups identify communications, learning and financial work without re
     ['Report.pdf', 'office'],
   ];
   for (const [name, category] of cases) assert.equal(classify({ name }), category, name);
-  assert.equal(appInsight({ name: 'unknown-tool.exe' }, 'internetmeetings').source, 'category');
+  assert.equal(appInsight({ name: 'unknown-program.exe' }, 'internetmeetings').source, 'category');
   assert.match(
-    appInsight({ name: 'unknown-tool.exe' }, 'internetmeetings').description.en,
+    appInsight({ name: 'unknown-program.exe' }, 'internetmeetings').description.en,
     /estimate/,
   );
   // A deleted Internet group should fall back to a related legacy group rather than Software.

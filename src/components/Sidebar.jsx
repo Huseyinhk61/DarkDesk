@@ -13,6 +13,9 @@ import {
   Workflow,
   Search,
   CircleHelp,
+  PanelsTopLeft,
+  Cpu,
+  ChartNoAxesCombined,
 } from 'lucide-react';
 import { usePreferences } from '../preferences';
 import { formatBytes } from '../utils';
@@ -45,6 +48,9 @@ export default function Sidebar({ view, setView, stats, native }) {
           ['scan', ScanLine],
           ['categories', FolderTree],
           ['automation', Workflow],
+          ['widgets', PanelsTopLeft],
+          ['systemTools', Cpu],
+          ['analytics', ChartNoAxesCombined],
           ['settings', Settings2],
           ['help', CircleHelp],
         ].map(([id, Icon]) => (

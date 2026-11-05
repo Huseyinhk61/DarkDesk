@@ -11,20 +11,24 @@ test('recognized apps explain their purpose and distinguish it from file metadat
 }) => {
   await open(page);
   const card = vscode(page);
-  await expect(card.locator('.purpose-badge')).toHaveText('Tanımlı uygulama');
+  await expect(card.locator('.purpose-badge')).toHaveText('Yerel uygulama sözlüğü');
   await expect(card.locator('.item-purpose p')).toContainText('kod');
   await card.locator('.item-title-button').click();
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('heading', { name: 'Ne işe yarar?', exact: true })).toBeVisible();
-  await expect(dialog.locator('.item-purpose-detail')).toContainText('bilgi kataloğundan');
+  await expect(dialog.locator('.item-purpose-detail')).toContainText(
+    'çevrimdışı uygulama sözlüğünden',
+  );
   await expect(dialog.locator('.item-details-grid')).toBeVisible();
 });
 test('unknown file purposes are visibly marked as estimates', async ({ page }) => {
   await open(page);
   const card = page.locator('.item-card').filter({ hasText: 'Proje Notları.pdf' });
-  await expect(card.locator('.purpose-badge')).toHaveText('Tahmini kullanım');
+  await expect(card.locator('.purpose-badge')).toHaveText('Ad / tür tahmini');
   await card.locator('.item-title-button').click();
-  await expect(page.locator('.item-purpose-detail')).toContainText('genel bir tahmindir');
+  await expect(page.locator('.item-purpose-detail')).toContainText(
+    'Dosya adına veya türüne dayalı bir tahmindir',
+  );
   await expect(page.locator('.item-purpose-detail')).toContainText('analiz edilmedi');
 });
 test('a failed native icon can be refreshed without reopening the app', async ({ page }) => {

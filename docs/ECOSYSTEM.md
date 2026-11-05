@@ -1,4 +1,6 @@
-# Profiles, launcher, and background automation
+# Local workspace ecosystem
+
+Desktop widgets, startup management, and opt-in analytics are covered in the [productivity guide](PRODUCTIVITY.md). The sections below describe the shared profiles, launcher, classification, and file-automation services.
 
 ## Workspace profiles
 
@@ -28,6 +30,8 @@ New installations use the global shortcut **Alt+X**. Change it in **Settings →
 - **Organize Desktop** opens a confirmation preview; it does not silently move files.
 - Profile commands change visibility; **Open DarkDesk** shows the main window.
 - Native launch opens only indexed items that are still ordinary files, using the operating system's registered opener. The renderer cannot execute an arbitrary path or shell command.
+- `?`, whitespace, or F1 opens a prefix guide; successful local commands can be suggested on the empty query.
+- `calc` explicitly selects arithmetic, and `sys` routes to fixed native actions with the existing confirmation rules.
 - Calculations and unit conversions produce local result cards; Enter copies a canonical result while display formatting follows the interface language.
 - `g`, `yt`, and `gh` results open fixed Google, YouTube, or GitHub search URLs only after activation.
 - Tab or Ctrl+K opens item actions: persistent favorites, file location, and supported Windows administrator launch through UAC.
@@ -38,7 +42,7 @@ See [Quick Launcher](LAUNCHER.md) for examples and platform availability. Native
 
 ## Usage history and inactive items
 
-`usage.json` records only **launch requests successfully submitted through DarkDesk**. It does not observe Windows-wide activity or launches from other applications. Files without history on a fresh installation are not labeled unused for six months.
+`usage.json` records only **launch requests successfully submitted through DarkDesk**. This launch record does not observe Windows-wide activity or launches from other applications. The separate, opt-in Focus Analytics module samples foreground and eligible open applications; its aggregate durations are kept in `productivity.json` and are not merged into launch counts. Files without history on a fresh installation are not labeled unused for six months.
 
 DarkDesk suggests Archive when the last observed DarkDesk launch is more than six months old. Accepting the suggestion changes the category assignment; moving the file still requires separate confirmation. The counter does not measure running time. Favorites are stored with this local history without increasing the launch count.
 
@@ -79,7 +83,7 @@ Dropping ordinary files from Desktop or Downloads onto a category opens a contro
 
 `X` hides the main window to the tray. The tray menu includes **Open DarkDesk**, **Organize Desktop Now**, **Switch Profile**, **Quick Search**, and **Quit**. If a tray cannot be created, DarkDesk quits normally rather than leaving its window inaccessible.
 
-Quitting waits for the current file operation, flushes usage records, restores profile visibility, and unregisters global shortcuts. Tray and visibility support on Linux depends on the desktop manager.
+Quitting waits for the current file operation, flushes usage records and analytics, saves pending widget drafts, restores profile visibility, and unregisters global shortcuts. Enabled widgets return at their saved positions on the next launch. A widget draft-save failure keeps the app available for retry instead of destroying that note window. Tray and visibility support on Linux depends on the desktop manager.
 
 ## Modules
 
@@ -87,6 +91,12 @@ Quitting waits for the current file operation, flushes usage records, restores p
 flowchart LR
   UI[React workspace / Spotlight] --> IPC[Restricted preload IPC]
   IPC --> R[DesktopRuntime coordinator]
+  IPC --> W[WidgetManager: restricted widget bridge]
+  IPC --> T[StartupManager]
+  IPC --> Q[Opt-in ProductivityTracker]
+  W --> J[widgets.json]
+  T --> B[startup-state.json + StartupApproved]
+  Q --> D[productivity.json]
   R --> P[ProfileService + VisibilityAdapter]
   R --> A[AutomationService]
   R --> L[Index + ActivityStore]
@@ -97,4 +107,4 @@ flowchart LR
   F --> H[history.json]
 ```
 
-Mutating operations run serially through one coordinator. Global shortcuts, the tray, the timer, and the renderer use the same entry point. Automation never launches applications; the user selects them in the launcher.
+File, profile, startup, and analytics mutations use the runtime coordinator. Widget state writes have a dedicated serialized queue so draft flushing can complete during shutdown. Global shortcuts, the tray, the timer, and the renderer use the same entry point. Automation never launches applications; the user selects them in the launcher.

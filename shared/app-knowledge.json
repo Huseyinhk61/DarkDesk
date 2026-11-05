@@ -994,5 +994,205 @@
       "tr": "Windows ve uygulama davranışlarını kullanıcı tarafından seçilen özelleştirme modlarıyla değiştirmeye yarayan araç.",
       "en": "A tool for customizing Windows and application behavior with user-selected modification modules."
     }
+  },
+  {
+    "id": "advancedipscanner",
+    "name": "Advanced IP Scanner",
+    "categoryId": "systemnetwork",
+    "aliases": ["advanced ip scanner", "advanced_ip_scanner", "advancedipscanner"],
+    "description": {
+      "tr": "Yerel ağdaki cihazları, IP adreslerini ve paylaşılan kaynakları keşfetmek için kullanılan ağ tarama aracı.",
+      "en": "A network scanner for discovering devices, IP addresses and shared resources on a local network."
+    }
+  },
+  {
+    "id": "bcuninstaller",
+    "name": "Bulk Crap Uninstaller",
+    "categoryId": "systemutilities",
+    "aliases": ["bcuninstaller", "bulk crap uninstaller", "bcu"],
+    "description": {
+      "tr": "Birden çok Windows uygulamasını kaldırmaya ve kalan dosya veya kayıtları incelemeye yardımcı olan kaldırma yöneticisi.",
+      "en": "An uninstaller for removing multiple Windows applications and inspecting leftover files or entries."
+    }
+  },
+  {
+    "id": "anycommand",
+    "name": "Any Command",
+    "categoryId": "systemutilities",
+    "aliases": ["any command", "anycommand", "anycmd", "any cmd"],
+    "description": {
+      "tr": "Sık kullanılan komutları tek bir arayüzden başlatmaya ve komut iş akışlarını düzenlemeye yardımcı olan araç.",
+      "en": "A utility for launching saved commands from one interface and organizing command workflows."
+    }
+  },
+  {
+    "id": "angryipscanner",
+    "name": "Angry IP Scanner",
+    "categoryId": "systemnetwork",
+    "aliases": ["angry ip scanner", "ipscan", "ipscan win64"],
+    "description": {
+      "tr": "Ağdaki IP adreslerini, erişilebilir cihazları ve açık bağlantı noktalarını taramak için kullanılan araç.",
+      "en": "A tool for scanning IP addresses, reachable devices and open ports on a network."
+    }
+  },
+  {
+    "id": "nmap",
+    "name": "Nmap",
+    "categoryId": "systemnetwork",
+    "aliases": ["nmap", "zenmap"],
+    "description": {
+      "tr": "Ağdaki cihazları, hizmetleri ve bağlantı noktalarını keşfetmek ve güvenlik incelemeleri yapmak için kullanılan ağ aracı.",
+      "en": "A network discovery tool for inspecting devices, services and ports during authorized security reviews."
+    }
+  },
+  {
+    "id": "winscp",
+    "name": "WinSCP",
+    "categoryId": "systemnetwork",
+    "aliases": ["winscp"],
+    "description": {
+      "tr": "SFTP, SCP ve FTP gibi protokollerle yerel bilgisayar ile uzak sunucular arasında dosya aktarımı yapan istemci.",
+      "en": "A file-transfer client for moving files between a local computer and remote servers using protocols such as SFTP, SCP and FTP."
+    }
+  },
+  {
+    "id": "filezilla",
+    "name": "FileZilla",
+    "categoryId": "systemnetwork",
+    "aliases": ["filezilla", "filezilla client"],
+    "description": {
+      "tr": "FTP, FTPS ve SFTP üzerinden sunuculara bağlanmak ve dosya aktarımı yapmak için kullanılan istemci.",
+      "en": "A client for connecting to servers and transferring files over FTP, FTPS and SFTP."
+    }
+  },
+  {
+    "id": "wiztree",
+    "name": "WizTree",
+    "categoryId": "systemutilities",
+    "aliases": ["wiztree", "wiztree64"],
+    "description": {
+      "tr": "Disk alanını hangi dosya ve klasörlerin kullandığını analiz edip büyük öğeleri görselleştiren araç.",
+      "en": "A disk-space analyzer that shows which files and folders occupy storage and visualizes large items."
+    }
+  },
+  {
+    "id": "treesize",
+    "name": "TreeSize Free",
+    "categoryId": "systemutilities",
+    "aliases": ["treesize", "treesize free", "treesizefree"],
+    "description": {
+      "tr": "Klasör ve dosyaların kapladığı disk alanını analiz ederek depolama kullanımını incelemeyi sağlayan araç.",
+      "en": "A disk-space analysis tool for examining storage use by folders and files."
+    }
+  },
+  {
+    "id": "hwinfo",
+    "name": "HWiNFO",
+    "categoryId": "systemutilities",
+    "aliases": ["hwinfo", "hwinfo64", "hwinfo32"],
+    "description": {
+      "tr": "Bilgisayar donanımı, sıcaklıklar, sensörler ve performans değerleri hakkında ayrıntılı bilgi gösteren izleme aracı.",
+      "en": "A hardware-information and monitoring tool for inspecting components, temperatures, sensors and performance readings."
+    }
+  },
+  {
+    "id": "cpuz",
+    "name": "CPU-Z",
+    "categoryId": "systemutilities",
+    "aliases": ["cpu z", "cpuz", "cpuz x64", "cpuz x32"],
+    "description": {
+      "tr": "İşlemci, anakart ve bellek gibi donanım bileşenlerinin teknik özelliklerini gösteren tanılama aracı.",
+      "en": "A diagnostic utility for viewing technical information about the CPU, motherboard and memory."
+    }
+  },
+  {
+    "id": "gpuz",
+    "name": "GPU-Z",
+    "categoryId": "systemutilities",
+    "aliases": ["gpu z", "gpuz"],
+    "description": {
+      "tr": "Ekran kartının teknik özelliklerini, sürücü bilgilerini ve sensör değerlerini gösteren donanım aracı.",
+      "en": "A hardware utility for viewing graphics-card specifications, driver information and sensor readings."
+    }
+  },
+  {
+    "id": "processexplorer",
+    "name": "Process Explorer",
+    "categoryId": "systemutilities",
+    "aliases": ["process explorer", "procexp", "procexp64"],
+    "description": {
+      "tr": "Çalışan Windows süreçlerini, kaynak kullanımını ve süreçlerin açtığı dosya veya tanıtıcıları incelemeye yardımcı olan araç.",
+      "en": "A Windows process-inspection tool for examining resource use and files or handles opened by running processes."
+    }
+  },
+  {
+    "id": "autoruns",
+    "name": "Autoruns",
+    "categoryId": "systemutilities",
+    "aliases": ["autoruns", "autoruns64"],
+    "description": {
+      "tr": "Windows başlangıcında veya oturum açıldığında çalışan uygulama ve sistem girişlerini incelemeye yardımcı olan araç.",
+      "en": "A utility for inspecting application and system entries that run during Windows startup or sign-in."
+    }
+  },
+  {
+    "id": "revo",
+    "name": "Revo Uninstaller",
+    "categoryId": "systemutilities",
+    "aliases": ["revo uninstaller", "revounin", "revouninstaller"],
+    "description": {
+      "tr": "Windows uygulamalarını kaldırmaya ve kaldırma sonrasında kalan öğeleri incelemeye yardımcı olan araç.",
+      "en": "An uninstaller for removing Windows applications and inspecting remaining items afterward."
+    }
+  },
+  {
+    "id": "localsend",
+    "name": "LocalSend",
+    "categoryId": "internet",
+    "aliases": ["localsend"],
+    "description": {
+      "tr": "Aynı yerel ağdaki cihazlar arasında dosya paylaşımı yapmaya yardımcı olan, yerel aktarım odaklı uygulama.",
+      "en": "An application for sharing files between devices on the same local network."
+    }
+  },
+  {
+    "id": "syncthing",
+    "name": "Syncthing",
+    "categoryId": "systemnetwork",
+    "aliases": ["syncthing"],
+    "description": {
+      "tr": "Dosyaları seçilen cihazlar arasında eşitleyen, kullanıcı denetiminde çalışan eşler arası senkronizasyon aracı.",
+      "en": "A user-controlled peer-to-peer tool for synchronizing selected files between devices."
+    }
+  },
+  {
+    "id": "qbittorrent",
+    "name": "qBittorrent",
+    "categoryId": "internet",
+    "aliases": ["qbittorrent"],
+    "description": {
+      "tr": "BitTorrent protokolü üzerinden dosya indirmelerini ve paylaşımlarını yönetmek için kullanılan istemci.",
+      "en": "A client for managing file downloads and sharing through the BitTorrent protocol."
+    }
+  },
+  {
+    "id": "virtualbox",
+    "name": "Oracle VirtualBox",
+    "categoryId": "softwaredevops",
+    "aliases": ["virtualbox", "oracle virtualbox", "virtualboxvm"],
+    "description": {
+      "tr": "Tek bilgisayar üzerinde sanal makineler oluşturup farklı işletim sistemlerini çalıştırmak için kullanılan sanallaştırma aracı.",
+      "en": "A virtualization tool for creating virtual machines and running different operating systems on one computer."
+    }
+  },
+  {
+    "id": "wireshark",
+    "name": "Wireshark",
+    "categoryId": "systemnetwork",
+    "aliases": ["wireshark"],
+    "description": {
+      "tr": "Ağ trafiğini paket düzeyinde incelemek, protokolleri anlamak ve bağlantı sorunlarını araştırmak için kullanılan analiz aracı.",
+      "en": "A packet-analysis tool for inspecting network traffic, understanding protocols and diagnosing connection issues."
+    }
   }
 ]

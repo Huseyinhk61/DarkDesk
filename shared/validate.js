@@ -165,6 +165,33 @@ export function validateSettings(input) {
       .map(([k, v]) => [k, categoryId(v)])
       .filter(([, v]) => ids.has(v)),
   );
+  const descriptions = value.itemDescriptions;
+  if (
+    !descriptions ||
+    typeof descriptions !== 'object' ||
+    Array.isArray(descriptions) ||
+    Object.keys(descriptions).length > 10000
+  )
+    throw Error('DESCRIPTION_INVALID');
+  const itemDescriptions = {};
+  for (const [id, text] of Object.entries(descriptions)) {
+    if (
+      !id ||
+      id.length > 512 ||
+      /[\\/\0\r\n]/.test(id) ||
+      typeof text !== 'string' ||
+      text.length > 1000 ||
+      /[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/.test(text)
+    )
+      throw Error('DESCRIPTION_INVALID');
+    if (text.trim())
+      Object.defineProperty(itemDescriptions, id, {
+        value: text.trim(),
+        enumerable: true,
+        writable: true,
+        configurable: true,
+      });
+  }
   if (!Array.isArray(value.rules) || value.rules.length > 5000) throw Error('RULE_INVALID');
   const rules = value.rules.map((r) => {
     if (
@@ -312,6 +339,7 @@ export function validateSettings(input) {
     excludedExtensions: [...new Set(value.excludedExtensions.map((x) => x.toLowerCase()))],
     overrides,
     itemIcons: value.itemIcons,
+    itemDescriptions,
     categories,
     rules,
     theme: value.theme,

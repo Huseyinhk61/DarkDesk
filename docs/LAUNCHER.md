@@ -4,23 +4,38 @@ Press **Alt+X** on a new installation, or use your saved launcher shortcut. Dark
 
 Use **↑ / ↓** to select a result, **Enter** to activate it, and **Esc** to close. Result badges distinguish apps, files, commands, calculations, conversions, and web searches. Type a query to return to fuzzy search across the indexed collection.
 
+## Prefix guide and frequent commands
+
+A compact guide appears below the normal empty-query results. Type `?`, enter only spaces, or press **F1** to open its expanded form. Selecting an example fills the query; it does not run the operation. Use the arrow keys to choose a result and Enter to activate it.
+
+| Prefix | Purpose                  | Example                  |
+| :----- | :----------------------- | :----------------------- |
+| `g`    | Google search            | `g desktop widgets`      |
+| `yt`   | YouTube search           | `yt OBS Studio tutorial` |
+| `gh`   | GitHub search            | `gh electron`            |
+| `calc` | Local calculator         | `calc 120 * 45`          |
+| `sys`  | Supported system actions | `sys lock`               |
+
+Successfully activated local commands can appear as frequent suggestions on empty search. The local record contains a fixed command ID, count, and last-use timestamp. It does not save calculator input or web-search queries. Canceling a destructive confirmation does not record a successful command.
+
 ## Calculate and convert
 
 Type an expression or conversion directly into the search field:
 
-| Input          | Result copied with Enter |
-| :------------- | :----------------------- |
-| `120 * 45`     | `5400`                   |
-| `(2 + 3) * 4`  | `20`                     |
-| `1,5 * 4`      | `6`                      |
-| `10 km to m`   | `10000 m`                |
-| `32 F to C`    | `0 °C`                   |
-| `1 GB to MB`   | `1000 MB`                |
-| `1 GiB to MiB` | `1024 MiB`               |
+| Input           | Result copied with Enter |
+| :-------------- | :----------------------- |
+| `120 * 45`      | `5400`                   |
+| `calc 120 * 45` | `5400`                   |
+| `(2 + 3) * 4`   | `20`                     |
+| `1,5 * 4`       | `6`                      |
+| `10 km to m`    | `10000 m`                |
+| `32 F to C`     | `0 °C`                   |
+| `1 GB to MB`    | `1000 MB`                |
+| `1 GiB to MiB`  | `1024 MiB`               |
 
 The display follows the selected language's number formatting. Copied numbers omit thousands separators so they paste cleanly into another app. A conversion includes its target unit. After copying, the launcher remains open and selects the input for the next calculation.
 
-The calculator supports parentheses, unary signs, addition, subtraction, multiplication, division, powers (`^` or `**`), and binary remainder (`%`). Unit conversion covers length, mass, time, temperature, and data. Use explicit units; incompatible dimensions and non-finite results display an error and cannot be copied. These operations run locally without evaluating arbitrary code or contacting a service.
+The optional `calc` prefix explicitly selects arithmetic; bare expressions and bare unit conversions continue to work. The calculator supports parentheses, unary signs, addition, subtraction, multiplication, division, powers (`^` or `**`), and binary remainder (`%`). Unit conversion covers length, mass, time, temperature, and data. Use explicit units; incompatible dimensions and non-finite results display an error and cannot be copied. These operations run locally without evaluating arbitrary code or contacting a service.
 
 ![A calculation in the English browser preview](assets/launcher-calculator-en.png)
 
@@ -58,12 +73,14 @@ Closing and reopening the launcher starts a new session. A delayed response from
 
 ## Windows system commands
 
-| Command               | Behavior                                                                                                                                                        |
-| :-------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Lock Screen**       | Requests the Windows lock screen after activation.                                                                                                              |
-| **Toggle Mute**       | Sends the system mute key; it toggles sound rather than claiming a known current mute state.                                                                    |
-| **Empty Recycle Bin** | Requests a separate confirmation before permanently clearing the bin. This is outside DarkDesk's file-operation undo.                                           |
-| **Shut Down**         | Requests confirmation before shutting down. Save open files first; DarkDesk restores its profile visibility and saves window state before the shutdown request. |
+Type `sys` to list supported actions, or enter an exact alias such as `sys lock`, `sys mute`, `sys empty trash`, or `sys shutdown`. English and Turkish aliases are supported. A partial phrase selects an example to complete the input; it does not dispatch a system action. Exact prefixed commands use the same platform checks and confirmations as ordinary command results.
+
+| Command               | Behavior                                                                                                                                                                                          |
+| :-------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Lock Screen**       | Requests the Windows lock screen after activation.                                                                                                                                                |
+| **Toggle Mute**       | Sends the system mute key; it toggles sound rather than claiming a known current mute state.                                                                                                      |
+| **Empty Recycle Bin** | Requests a separate confirmation before permanently clearing the bin. This is outside DarkDesk's file-operation undo.                                                                             |
+| **Shut Down**         | Requests confirmation before shutting down. Save open files first; DarkDesk flushes widget drafts and analytics, restores profile visibility, and saves window state before the shutdown request. |
 
 Recycle-bin and shutdown confirmations expire after 30 seconds and can be used once. Before dispatch, Cancel or **Esc** returns to search. After confirming, the command has been sent and Escape does not cancel it. If a confirmation expires, cancel and select the command again. Query text alone never runs a system command.
 

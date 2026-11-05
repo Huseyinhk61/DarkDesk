@@ -33,6 +33,18 @@ const methods = [
   'launch',
   'itemIcon',
   'itemDetails',
+  'itemPurpose',
+  'recordLauncherCommand',
+  'systemToolsSnapshot',
+  'getStartupApps',
+  'setStartupAppEnabled',
+  'widgetState',
+  'saveWidgets',
+  'showWidget',
+  'hideWidget',
+  'analyticsStatus',
+  'setAnalyticsEnabled',
+  'clearAnalytics',
   'runCommand',
   'openLauncher',
   'hideLauncher',
@@ -57,6 +69,8 @@ for (const [method, channel] of [
   ['onLauncherShown', 'launcherShown'],
   ['onWindowStateChanged', 'windowStateChanged'],
   ['onUpdateChanged', 'updateChanged'],
+  ['onWidgetsChanged', 'widgetsChanged'],
+  ['onAnalyticsChanged', 'analyticsChanged'],
 ]) {
   api[method] = (callback) => {
     const listener = (_event, value) => callback(value);

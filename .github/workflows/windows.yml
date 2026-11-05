@@ -35,9 +35,15 @@ jobs:
       - run: npm run test:ci
       - run: npm run build
       - run: npm run test:desktop
+      - run: node scripts/widget-native-smoke.cjs
       - name: Build setup and portable EXE
         run: npm run dist:win -- --publish never
       - run: node scripts/verify-windows-release.cjs
+      - name: Packaged widget IPC and native bindings
+        shell: pwsh
+        run: |
+          $env:DARKDESK_TEST_PACKAGE = (Resolve-Path release/win-unpacked/resources/app.asar).Path
+          node scripts/widget-native-smoke.cjs
       - name: Generate SHA-256 checksums
         shell: pwsh
         run: |

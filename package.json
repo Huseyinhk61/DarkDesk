@@ -1,6 +1,6 @@
 {
   "name": "darkdesk",
-  "version": "3.6.1",
+  "version": "3.7.0",
   "private": true,
   "type": "module",
   "main": "electron/main.cjs",
@@ -114,5 +114,8 @@
     "windows",
     "productivity",
     "local-first"
-  ]
+  ],
+  "optionalDependencies": {
+    "koffi": "^3.3.7"
+  }
 }

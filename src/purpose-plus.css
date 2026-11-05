@@ -1,0 +1,73 @@
+.purpose-source-metadata {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent), transparent 91%);
+}
+.purpose-source-manual {
+  color: var(--ink);
+  border-color: var(--accent);
+}
+.purpose-detail-enhanced .purpose-badge {
+  display: inline-flex;
+  margin-bottom: 6px;
+}
+.purpose-detail-enhanced p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.purpose-description-editor {
+  margin: 18px 0 8px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--field);
+}
+.purpose-description-editor label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.purpose-description-editor textarea {
+  width: 100%;
+  min-height: 100px;
+  resize: vertical;
+  padding: 10px 12px;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  line-height: 1.65;
+  font-size: 12px;
+}
+.purpose-description-editor textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.purpose-description-editor > small {
+  display: block;
+  margin: 7px 0 11px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.purpose-description-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.purpose-description-actions .btn {
+  min-height: 36px;
+}
+.purpose-description-editor [role='status'] {
+  color: var(--accent);
+  font-size: 12px;
+  margin: 10px 0 0;
+}
+.purpose-description-editor [role='alert'] {
+  color: var(--danger, #ef8d8d);
+  font-size: 12px;
+  margin: 10px 0 0;
+}

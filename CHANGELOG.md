@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.7.0 — November 5, 2026
+
+- Read Windows executable and resolved shortcut descriptions lazily, expand the offline app dictionary to 114 entries, and let users save local descriptions. Explain whether a description comes from metadata, the dictionary, or a filename estimate.
+- Add independent, draggable CPU/RAM, notes and task widgets with persisted content and positions. Attach interactive widgets above Windows/macOS desktop icons when the native adapter is available; expose a floating fallback.
+- Add reversible Windows current-user startup management through StartupApproved flags; preserve commands, shortcuts and original approval values. Machine entries stay read-only.
+- Add opt-in, local productivity analytics with separate sampled foreground, open-app and workspace profile durations, local-day charts, idle/lock/suspend exclusions and 90-day retention.
+- Add an interactive Quick Launcher prefix guide, explicit calc/sys prefixes and suggestions from successfully dispatched commands.
+- Keep navigation reachable on smaller desktop windows while retaining existing folder colors, gradients and Undo protections.
+
 ## 3.6.1 — November 5, 2026
 
 - Keep organized files available in Quick Launcher using their verified operation history, stable item IDs, and current managed-folder paths. Favorites and observed launch counts survive moves, Undo, and application restarts.

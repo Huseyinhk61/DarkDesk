@@ -36,6 +36,7 @@ export default function Launcher({ onClose, onCommand }) {
     [notice, setNotice] = useState(''),
     [actions, setActions] = useState(null),
     [confirmation, setConfirmation] = useState(null),
+    [commandUsage, setCommandUsage] = useState({}),
     [now, setNow] = useState(Date.now()),
     [capabilities, setCapabilities] = useState({
       system: [],
@@ -87,10 +88,16 @@ export default function Launcher({ onClose, onCommand }) {
       if (!mounted.current || version !== loadVersion.current) return;
       setSettings(value.settings);
       setItems(value.items);
+      setCommandUsage(
+        value.commandUsage &&
+          typeof value.commandUsage === 'object' &&
+          !Array.isArray(value.commandUsage)
+          ? value.commandUsage
+          : {},
+      );
       setCapabilities(
         value.capabilities || { system: [], admin: false, reveal: true, copy: false, web: false },
       );
-      input.current?.focus();
     } catch (e) {
       if (mounted.current && version === loadVersion.current) setError(errorMessage(e));
     } finally {
@@ -110,6 +117,7 @@ export default function Launcher({ onClose, onCommand }) {
       setNotice('');
       setActions(null);
       setConfirmation(null);
+      input.current?.focus();
       refresh();
     });
     return () => {
@@ -170,7 +178,33 @@ export default function Launcher({ onClose, onCommand }) {
     })),
   ];
   const tool = useMemo(() => launcherTool(query, locale), [query, locale]);
+  const helpOnly = query.trim() === '?' || (query.length > 0 && !query.trim());
+  const showGuide = helpOnly || !query.trim();
   const entries = useMemo(() => {
+    if (helpOnly) return [];
+    if (tool?.type === 'system') {
+      const matches = commands.filter(
+        (entry) => entry.system && tool.matches.includes(entry.system),
+      );
+      if (matches.length)
+        return matches.map((entry) => ({
+          ...entry,
+          systemSuggestion: tool.status !== 'success',
+          nativeUnsupported: entry.unsupported,
+          unsupported: tool.status === 'success' && entry.unsupported,
+        }));
+      return [
+        {
+          ...tool,
+          tool: true,
+          name: t(
+            tool.error === 'INPUT_TOO_LONG'
+              ? 'launcherTools.error.INPUT_TOO_LONG'
+              : 'prefixPlus.unknownSystem',
+          ),
+        },
+      ];
+    }
     if (tool)
       return [
         {
@@ -189,7 +223,7 @@ export default function Launcher({ onClose, onCommand }) {
                 : tool.displayValue + (tool.toUnit ? ' ' + tool.toUnit : ''),
         },
       ];
-    return searchEntries(query, [
+    const result = searchEntries(query, [
       ...commands,
       ...items.map((item) => ({
         ...item,
@@ -206,7 +240,31 @@ export default function Launcher({ onClose, onCommand }) {
           (item.insight?.description?.[settings.language] || ''),
       })),
     ]);
-  }, [query, items, settings, t, tool, capabilities]);
+    if (!query.trim()) {
+      const count = (entry) =>
+        Number.isSafeInteger(commandUsage[entry.id]?.count) && commandUsage[entry.id].count > 0
+          ? commandUsage[entry.id].count
+          : 0;
+      const recommended = commands
+        .filter((entry) => count(entry) > 0)
+        .sort(
+          (a, b) =>
+            count(b) - count(a) ||
+            (commandUsage[b.id]?.lastUsed || 0) - (commandUsage[a.id]?.lastUsed || 0) ||
+            a.name.localeCompare(b.name),
+        )
+        .slice(0, 3)
+        .map((entry) => ({ ...entry, section: 'commands' }));
+      const frequent = result.filter((entry) => entry.section === 'frequent');
+      const chosen = new Set([...frequent, ...recommended].map((entry) => entry.id));
+      return [
+        ...frequent,
+        ...recommended,
+        ...result.filter((entry) => !chosen.has(entry.id)),
+      ].slice(0, 16);
+    }
+    return result;
+  }, [query, items, settings, t, tool, capabilities, commandUsage, helpOnly]);
   useEffect(() => {
     setActive(0);
     setActions(null);
@@ -218,6 +276,19 @@ export default function Launcher({ onClose, onCommand }) {
   }, [active, query]);
   const selected = entries[Math.min(active, Math.max(0, entries.length - 1))];
   const isItem = (entry) => !!entry && !entry.command && !entry.tool;
+  const recordCommand = async (id, version) => {
+    if (typeof api.recordLauncherCommand !== 'function') return;
+    try {
+      const result = await api.recordLauncherCommand(id);
+      if (!currentSession(version)) return;
+      if (result?.commandUsage) setCommandUsage(result.commandUsage);
+      else if (result?.id === id && Number.isSafeInteger(result.count))
+        setCommandUsage((previous) => ({
+          ...previous,
+          [id]: { count: result.count, lastUsed: result.lastUsed },
+        }));
+    } catch {}
+  };
   const copyResult = async (entry, version) => {
     await api.launcherAction({ type: 'copy', text: entry.copyText });
     if (!currentSession(version)) return;
@@ -227,6 +298,11 @@ export default function Launcher({ onClose, onCommand }) {
   };
   const execute = async (entry) => {
     if (!entry || busy) return;
+    if (entry.systemSuggestion) {
+      setQuery('sys ' + entry.system);
+      input.current?.focus();
+      return;
+    }
     if (loading && !entry.tool && (!entry.command || entry.system)) return;
     const version = sessionVersion.current;
     setBusy(true);
@@ -253,6 +329,7 @@ export default function Launcher({ onClose, onCommand }) {
           }
         } else {
           const outcome = await api.launcherAction({ type: 'system', id: entry.system });
+          await recordCommand(entry.id, version);
           if (currentSession(version)) close(outcome);
         }
       } else {
@@ -261,6 +338,7 @@ export default function Launcher({ onClose, onCommand }) {
             ? await onCommand(entry.command)
             : await api.runCommand(entry.command)
           : await api.launch(entry.id);
+        if (entry.command) await recordCommand(entry.id, version);
         if (currentSession(version)) close(outcome);
       }
     } catch (e) {
@@ -307,6 +385,7 @@ export default function Launcher({ onClose, onCommand }) {
         type: 'confirm-system',
         token: confirmation.token,
       });
+      await recordCommand('system:' + confirmation.id, version);
       if (currentSession(version)) {
         setConfirmation(null);
         close(outcome);
@@ -345,6 +424,11 @@ export default function Launcher({ onClose, onCommand }) {
       return;
     }
     if (e.target !== input.current || busy) return;
+    if (e.key === 'F1') {
+      e.preventDefault();
+      setQuery('?');
+      return;
+    }
     if (
       ((e.key === 'Tab' && !e.shiftKey) ||
         (e.key.toLowerCase() === 'k' && (e.ctrlKey || e.metaKey))) &&
@@ -371,9 +455,11 @@ export default function Launcher({ onClose, onCommand }) {
     entry.tool
       ? entry.type === 'web'
         ? 'web'
-        : entry.type === 'conversion'
-          ? 'conversion'
-          : 'calculation'
+        : entry.type === 'system'
+          ? 'command'
+          : entry.type === 'conversion'
+            ? 'conversion'
+            : 'calculation'
       : entry.command
         ? 'command'
         : /\.(lnk|exe|appimage|app|desktop|url)$/i.test(entry.source || entry.name) ||
@@ -476,7 +562,11 @@ export default function Launcher({ onClose, onCommand }) {
               <div key={entry.id} role="presentation">
                 {entry.section && entries[index - 1]?.section !== entry.section && (
                   <div className="launcher-section-label" role="presentation">
-                    {t('launcherPlus.section.' + entry.section)}
+                    {t(
+                      entry.section === 'commands'
+                        ? 'prefixPlus.recommended'
+                        : 'launcherPlus.section.' + entry.section,
+                    )}
                   </div>
                 )}
                 <button
@@ -489,7 +579,10 @@ export default function Launcher({ onClose, onCommand }) {
                   onClick={() => execute(entry)}
                   disabled={
                     busy ||
-                    (loading && !entry.tool && (!entry.command || entry.system)) ||
+                    (loading &&
+                      !entry.systemSuggestion &&
+                      !entry.tool &&
+                      (!entry.command || entry.system)) ||
                     entry.unsupported ||
                     (entry.tool && entry.status !== 'success')
                   }
@@ -498,6 +591,8 @@ export default function Launcher({ onClose, onCommand }) {
                     {entry.tool ? (
                       entry.type === 'web' ? (
                         <Globe />
+                      ) : entry.type === 'system' ? (
+                        <Command />
                       ) : (
                         <Calculator />
                       )
@@ -517,11 +612,13 @@ export default function Launcher({ onClose, onCommand }) {
                         ? entry.type === 'web'
                           ? entry.url || t('launcherPlus.webHint')
                           : entry.input
-                        : entry.unsupported
-                          ? t('launcherPlus.windowsOnly')
-                          : entry.command
-                            ? t('launcher.command')
-                            : entry.source}
+                        : entry.systemSuggestion
+                          ? t('prefixPlus.chooseSystem')
+                          : entry.unsupported
+                            ? t('launcherPlus.windowsOnly')
+                            : entry.command
+                              ? t('launcher.command')
+                              : entry.source}
                     </small>
                   </span>
                   <span className="launcher-result-badges">
@@ -538,13 +635,66 @@ export default function Launcher({ onClose, onCommand }) {
                 </button>
               </div>
             ))}
-            {!entries.length && (
+            {!entries.length && !helpOnly && (
               <div className="launcher-empty">
                 <Search size={28} />
                 <p>{t('launcher.empty')}</p>
               </div>
             )}
           </div>
+        )}
+        {showGuide && !confirmation && (
+          <section
+            className={`launcher-prefix-guide ${helpOnly ? 'expanded' : ''}`}
+            aria-label={t('prefixPlus.title')}
+          >
+            <div className="launcher-prefix-heading">
+              <b>{t('prefixPlus.title')}</b>
+              <span>{t('prefixPlus.helpHint')}</span>
+            </div>
+            <div
+              className="launcher-prefix-options"
+              onKeyDown={(event) => {
+                if (
+                  !['ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp', 'Home', 'End'].includes(
+                    event.key,
+                  )
+                )
+                  return;
+                const buttons = [...event.currentTarget.querySelectorAll('button')];
+                const current = buttons.indexOf(document.activeElement);
+                event.preventDefault();
+                event.stopPropagation();
+                buttons[
+                  event.key === 'Home'
+                    ? 0
+                    : event.key === 'End'
+                      ? buttons.length - 1
+                      : (current +
+                          (['ArrowLeft', 'ArrowUp'].includes(event.key) ? -1 : 1) +
+                          buttons.length) %
+                        buttons.length
+                ]?.focus();
+              }}
+            >
+              {['g', 'yt', 'gh', 'calc', 'sys'].map((prefix) => (
+                <button
+                  type="button"
+                  key={prefix}
+                  disabled={busy}
+                  aria-label={t('prefixPlus.use', { prefix })}
+                  onClick={() => {
+                    setQuery(prefix + ' ');
+                    input.current?.focus();
+                  }}
+                >
+                  <code>{prefix}</code>
+                  <span>{t('prefixPlus.' + prefix)}</span>
+                  {helpOnly && <small>{t('prefixPlus.example.' + prefix)}</small>}
+                </button>
+              ))}
+            </div>
+          </section>
         )}
         {actions && (
           <div

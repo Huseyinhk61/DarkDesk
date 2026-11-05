@@ -13,6 +13,7 @@ const {
   Notification,
   safeStorage,
   clipboard,
+  powerMonitor,
 } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs/promises');
@@ -28,6 +29,40 @@ const { resolveSharedDesktop } = require('./runtime/desktop-paths.cjs');
 const { UpdateAccessStore } = require('./runtime/update-access.cjs');
 const { restoreWindowState, WindowStateStore } = require('./runtime/window-state.cjs');
 const { LauncherActions } = require('./runtime/launcher-actions.cjs');
+const { WidgetManager } = require('./runtime/widgets.cjs');
+const { attachDesktop } = require('./runtime/widget-desktop.cjs');
+const { attachMacDesktop } = require('./runtime/widget-desktop-macos.cjs');
+const { StartupManager } = require('./runtime/startup.cjs');
+const { ProductivityTracker } = require('./runtime/productivity.cjs');
+const { SystemMetrics } = require('./runtime/system-metrics.cjs');
+let widgetManager, startupManager, productivity, systemMetrics, productivityTimer;
+let systemLocked = false;
+const widgetMethods = new Set([
+  'getSettings',
+  'widgetState',
+  'saveWidgets',
+  'showWidget',
+  'hideWidget',
+  'systemToolsSnapshot',
+]);
+function startProductivityTimer() {
+  clearInterval(productivityTimer);
+  productivityTimer = setInterval(() => productivity?.tick().catch(() => {}), 15000);
+  productivityTimer.unref?.();
+}
+async function stopExtraServices() {
+  clearInterval(productivityTimer);
+  await productivity?.stop();
+  await widgetManager?.stop();
+}
+async function restartExtraServices() {
+  productivity?.resume('stopped');
+  if (widgetManager) {
+    widgetManager.stopping = false;
+    await widgetManager.initialize();
+  }
+  startProductivityTimer();
+}
 let win,
   launcher,
   tray,
@@ -226,6 +261,7 @@ async function requestQuit() {
   quitPending = true;
   try {
     await runtime?.prepareQuit();
+    await stopExtraServices();
     await saveWindowState();
     await windowStore?.flush().catch(() => {});
     quitting = true;
@@ -234,7 +270,13 @@ async function requestQuit() {
     app.quit();
   } catch (e) {
     quitPending = false;
-    if (runtime) runtime.stopping = false;
+    if (runtime) {
+      runtime.stopping = false;
+      clearInterval(runtime.timer);
+      runtime.timer = setInterval(() => runtime.tick(), 5000);
+      runtime.timer.unref?.();
+    }
+    restartExtraServices().catch(() => {});
     report(e);
   }
 }
@@ -246,7 +288,7 @@ else {
     .then(async () => {
       if (process.platform === 'win32') app.setAppUserModelId('io.darkdesk.app');
       const emit = (name, value) => {
-        for (const window of [win, launcher])
+        for (const window of [win, launcher, ...(widgetManager?.windows() || [])])
           if (window && !window.isDestroyed()) window.webContents.send(name, value);
         if (name === 'runtimeChanged') updateTray().catch(() => {});
       };
@@ -265,12 +307,51 @@ else {
         },
       });
       await runtime.initialize();
+      systemMetrics = new SystemMetrics();
+      startupManager = new StartupManager({ data: app.getPath('userData') });
+      productivity = new ProductivityTracker({
+        data: app.getPath('userData'),
+        getProfile: () => runtime.profiles.status(),
+        idle: () => ({ idleSeconds: powerMonitor.getSystemIdleTime(), locked: systemLocked }),
+        emit: (value) => emit('analyticsChanged', value),
+      });
+      widgetManager = new WidgetManager({
+        data: app.getPath('userData'),
+        getDisplays: () => screen.getAllDisplays(),
+        getSettings: () => runtime.settings.read(),
+        emit,
+        loadWindow: async (window, id) => {
+          secureWindow(window);
+          if (production) await window.loadFile(entry, { hash: 'widget=' + id });
+          else await window.loadURL(entryURL + '#widget=' + id);
+        },
+        attachDesktop: (window) =>
+          process.platform === 'darwin' ? attachMacDesktop(window) : attachDesktop(window),
+      });
+      powerMonitor.on('suspend', () => {
+        productivity.pause('suspend');
+        productivity.flush().catch(() => {});
+      });
+      powerMonitor.on('resume', () => productivity.resume('suspend'));
+      powerMonitor.on('lock-screen', () => {
+        systemLocked = true;
+        productivity.pause('lock');
+        productivity.flush().catch(() => {});
+      });
+      powerMonitor.on('unlock-screen', () => {
+        systemLocked = false;
+        productivity.resume('lock');
+      });
       const launcherActions = new LauncherActions({
         shell,
         clipboard,
         resolveItem: (id) => runtime.resolveTrustedItem(id),
         resolveShortcut: (file) => shell.readShortcutLink(file),
         beforeShutdown: async () => {
+          await Promise.all(
+            (widgetManager?.windows() || []).map((window) => widgetManager.flushWindow(window)),
+          );
+          await productivity?.flushIfLoaded();
           await runtime.profiles.restore();
           await saveWindowState();
           await windowStore?.flush();
@@ -307,6 +388,7 @@ else {
         beforeInstall: async () => {
           if (runtime.busy || savingSettings || quitPending) throw Error('OPERATION_BUSY');
           await runtime.prepareQuit();
+          await stopExtraServices();
           await saveWindowState();
           await windowStore?.flush();
           quitting = true;
@@ -315,6 +397,7 @@ else {
           quitting = false;
           quitPending = false;
           runtime.stopping = false;
+          restartExtraServices().catch(() => {});
           clearInterval(runtime.timer);
           runtime.timer = setInterval(() => runtime.tick(), 5000);
           runtime.timer.unref?.();
@@ -378,9 +461,11 @@ else {
       const handle = (name, fn) =>
         ipcMain.handle(name, async (event, ...args) => {
           const sender = BrowserWindow.fromWebContents(event.sender);
+          const widgetSender = widgetManager?.windows().includes(sender);
           if (
             !sender ||
-            ![win, launcher].includes(sender) ||
+            (![win, launcher].includes(sender) && !widgetSender) ||
+            (widgetSender && !widgetMethods.has(name)) ||
             event.senderFrame !== sender.webContents.mainFrame ||
             event.senderFrame.url.split('#')[0] !== entryURL
           )
@@ -405,6 +490,7 @@ else {
             const settings = await runtime.saveSettings(candidate);
             updateNativeAppearance(settings);
             await updateTray();
+            await widgetManager.publish().catch(() => {});
             return settings;
           } catch (error) {
             // Settings may already be persisted if reapplying a profile failed.
@@ -428,6 +514,22 @@ else {
       });
       handle('itemIcon', (id, refresh) => runtime.itemIcon(id, refresh));
       handle('itemDetails', (id) => runtime.itemDetails(id));
+      handle('itemPurpose', (id) => runtime.itemPurpose(id));
+      handle('recordLauncherCommand', (id) => runtime.recordLauncherCommand(id));
+      handle('systemToolsSnapshot', () => systemMetrics.snapshot());
+      handle('getStartupApps', () => startupManager.list());
+      handle('setStartupAppEnabled', (id, enabled) =>
+        runtime.run('startup', () => startupManager.setEnabled(id, enabled)),
+      );
+      handle('widgetState', () => widgetManager.state());
+      handle('saveWidgets', (patch) => widgetManager.save(patch));
+      handle('showWidget', (id) => widgetManager.show(id));
+      handle('hideWidget', (id) => widgetManager.hide(id));
+      handle('analyticsStatus', () => productivity.status());
+      handle('setAnalyticsEnabled', (enabled) =>
+        runtime.run('analytics', () => productivity.setEnabled(enabled)),
+      );
+      handle('clearAnalytics', () => runtime.run('analytics', () => productivity.clear()));
       handle('runtimeStatus', () => runtime.status());
       handle('applyFolderAppearance', () => runtime.applyFolderAppearance());
       handle('applyProfile', (id) => runtime.applyProfile(id));
@@ -553,6 +655,9 @@ else {
       await registerShortcuts(await runtime.settings.read());
       if (production) await win.loadFile(entry);
       else await win.loadURL(entryURL);
+      await productivity.status().catch((error) => report(error));
+      startProductivityTimer();
+      await widgetManager.initialize().catch((error) => report(error));
       app.on('activate', showMain);
       if (updateEnabled) {
         const check = () => updates.check().catch(() => {});
@@ -592,6 +697,7 @@ app.on('before-quit', (event) => {
 app.on('will-quit', () => {
   clearTimeout(updateStartupTimer);
   clearInterval(updateTimer);
+  clearInterval(productivityTimer);
   updates?.dispose();
   shortcutManager?.dispose();
   watchers.forEach((watcher) => watcher.close());

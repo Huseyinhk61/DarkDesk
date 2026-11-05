@@ -3,6 +3,7 @@ const path = require('node:path');
 const { spawn } = require('node:child_process');
 const { StringDecoder } = require('node:string_decoder');
 const { extractWindowsIcon, validPngDataUrl } = require('./windows-icons.cjs');
+const { unrelatedLaunchHost } = require('../../shared/app-insights.js');
 
 // Paths are passed as JSON over stdin, never interpolated into executable code.
 const VERSION_SCRIPT = `[Console]::InputEncoding=[System.Text.UTF8Encoding]::new($false);[Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false);$ErrorActionPreference='Stop';try{$inputValue=[Console]::In.ReadToEnd()|ConvertFrom-Json;$v=[System.Diagnostics.FileVersionInfo]::GetVersionInfo([string]$inputValue.path);@{description=[string]$v.FileDescription;company=[string]$v.CompanyName}|ConvertTo-Json -Compress}catch{exit 1}`;
@@ -169,6 +170,7 @@ class ItemDetailsService {
     return {
       sourceStat,
       target: targetStat ? target : null,
+      shortcutDescription: cleanText(shortcut?.description),
       iconResource: resourceStat ? resource : null,
       iconCandidates: candidates,
       key:
@@ -257,31 +259,62 @@ class ItemDetailsService {
     const icon = await this.readIcon(item, ctx);
     return { id: item.id, icon, iconSource: this.cached(ctx.key)?.iconSource || 'unavailable' };
   }
-  async details(item) {
-    const ctx = await this.context(item);
+  async readMetadata(item, ctx) {
     const cached = this.cached(ctx.key);
     const metadata =
-      cached?.metadata ||
+      (cached?.metadata &&
+      ((cached.metadata.metadataSource === 'windows-version-info' &&
+        (cached.metadata.description || cached.metadata.company)) ||
+        Date.now() - cached.metadataReadAt < 30000)
+        ? cached.metadata
+        : null) ||
       (await this.once('metadata:' + ctx.key, async () => {
         const operation = this.metadataTail.then(async () => {
-          let metadata = { description: null, company: null, metadataSource: 'file-system' };
+          let metadata = {
+            description: ctx.shortcutDescription || null,
+            company: null,
+            metadataSource: ctx.shortcutDescription ? 'windows-shortcut' : 'file-system',
+          };
           const executable = ctx.target || item.source;
           if (this.platform === 'win32' && path.extname(executable).toLowerCase() === '.exe') {
             try {
               const value = await this.readVersionInfo(executable);
+              const description = cleanText(value.description);
               metadata = {
-                description: cleanText(value.description),
+                description: description || ctx.shortcutDescription || null,
                 company: cleanText(value.company),
-                metadataSource: 'windows-version-info',
+                metadataSource:
+                  description || !ctx.shortcutDescription
+                    ? 'windows-version-info'
+                    : 'windows-shortcut',
               };
             } catch {}
           }
-          this.remember(ctx.key, { ...this.cached(ctx.key), metadata });
+          this.remember(ctx.key, { ...this.cached(ctx.key), metadata, metadataReadAt: Date.now() });
           return metadata;
         });
         this.metadataTail = operation.catch(() => {});
         return operation;
       }));
+    return metadata;
+  }
+  async purpose(item) {
+    const ctx = await this.context(item);
+    // A script/game shortcut may target a general launch host. Its version
+    // resources describe that host, not the shortcut, so do not read or expose
+    // those resources when filling purpose cards.
+    if (unrelatedLaunchHost(item, ctx.target))
+      return {
+        id: item.id,
+        description: ctx.shortcutDescription || null,
+        company: null,
+        metadataSource: ctx.shortcutDescription ? 'windows-shortcut' : 'file-system',
+      };
+    return { id: item.id, ...(await this.readMetadata(item, ctx)) };
+  }
+  async details(item) {
+    const ctx = await this.context(item);
+    const metadata = await this.readMetadata(item, ctx);
     const icon = await this.readIcon(item, ctx);
     return {
       id: item.id,
@@ -290,6 +323,14 @@ class ItemDetailsService {
       created: ctx.sourceStat.birthtimeMs > 0 ? ctx.sourceStat.birthtimeMs : null,
       modified: ctx.sourceStat.mtimeMs,
       ...metadata,
+      purposeDescription: unrelatedLaunchHost(item, ctx.target)
+        ? ctx.shortcutDescription || null
+        : metadata.description,
+      purposeSource: unrelatedLaunchHost(item, ctx.target)
+        ? ctx.shortcutDescription
+          ? 'windows-shortcut'
+          : 'file-system'
+        : metadata.metadataSource,
     };
   }
 }

@@ -1,3 +1,9 @@
+import {
+  defaultWidgetState,
+  normalizeWidgetState,
+  validateWidgetPatch,
+  widgetIds,
+} from '../shared/widget-model';
 import { version as appVersion } from '../package.json';
 import { validateSettings } from '../shared/validate';
 import { examples } from './data';
@@ -53,6 +59,74 @@ function demoIndexedItems() {
   }
   return [...indexed.values()];
 }
+let widgetModel;
+try {
+  widgetModel = normalizeWidgetState(
+    JSON.parse(localStorage.getItem('darkdesk-preview-widgets') || 'null'),
+  );
+} catch {
+  widgetModel = structuredClone(defaultWidgetState);
+}
+const widgetListeners = new Set();
+function previewWidgetState() {
+  return {
+    ...structuredClone(widgetModel),
+    platform: 'demo',
+    placements: Object.fromEntries(
+      widgetIds.map((id) => [id, { mode: 'floating', supported: false, reason: 'browser' }]),
+    ),
+  };
+}
+function savePreviewWidgets(next) {
+  localStorage.setItem('darkdesk-preview-widgets', JSON.stringify(next));
+  widgetModel = next;
+  const value = previewWidgetState();
+  widgetListeners.forEach((fn) => fn(value));
+  return value;
+}
+const commandIds = new Set([
+  'command:show',
+  'command:organize',
+  'command:restore',
+  'system:empty-trash',
+  'system:lock',
+  'system:shutdown',
+  'system:mute',
+]);
+function commandAllowed(id) {
+  return commandIds.has(id) || settings.profiles.some((profile) => id === 'command:' + profile.id);
+}
+function previewCommandUsage() {
+  try {
+    const value = JSON.parse(localStorage.getItem('darkdesk-preview-commands') || '{}');
+    return Object.fromEntries(
+      Object.entries(value).filter(
+        ([id, record]) =>
+          commandAllowed(id) &&
+          record &&
+          Number.isSafeInteger(record.count) &&
+          record.count > 0 &&
+          Number.isFinite(record.lastUsed) &&
+          record.lastUsed <= Date.now(),
+      ),
+    );
+  } catch {
+    return {};
+  }
+}
+const previewAnalytics = () => ({
+  enabled: false,
+  supported: false,
+  capability: 'foreground',
+  paused: false,
+  samplingAvailable: false,
+  runningAvailable: false,
+  lastError: null,
+  sampleIntervalSeconds: 15,
+  retentionDays: 90,
+  timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  days: [],
+});
 export const native = !!window.darkdesk;
 export const api = window.darkdesk || {
   scan: async (scope) => {
@@ -238,6 +312,65 @@ export const api = window.darkdesk || {
     if (!demoIndexedItems().some((item) => item.id === id)) throw Error('SOURCE_MISSING');
     return { id, icon: null };
   },
+  itemPurpose: async (id) => {
+    if (!demoIndexedItems().some((item) => item.id === id)) throw Error('SOURCE_MISSING');
+    return {
+      id,
+      description: null,
+      company: null,
+      purposeDescription: null,
+      purposeSource: null,
+      metadataSource: 'demo',
+    };
+  },
+  systemToolsSnapshot: async () => ({
+    cpuPercent: null,
+    memory: null,
+    coreCount: null,
+    platform: 'demo',
+    sampledAt: Date.now(),
+    unsupported: true,
+  }),
+  getStartupApps: async () => ({ supported: false, platform: 'demo', items: [], warnings: [] }),
+  setStartupAppEnabled: async () => {
+    throw Error('STARTUP_UNSUPPORTED');
+  },
+  widgetState: async () => previewWidgetState(),
+  saveWidgets: async (patch) => savePreviewWidgets(validateWidgetPatch(widgetModel, patch)),
+  showWidget: async (id) => {
+    if (!widgetIds.includes(id)) throw Error('WIDGETS_INVALID');
+    const next = structuredClone(widgetModel);
+    next.widgets[id].enabled = true;
+    return savePreviewWidgets(next);
+  },
+  hideWidget: async (id) => {
+    if (!widgetIds.includes(id)) throw Error('WIDGETS_INVALID');
+    const next = structuredClone(widgetModel);
+    next.widgets[id].enabled = false;
+    return savePreviewWidgets(next);
+  },
+  onWidgetsChanged: (fn) => {
+    widgetListeners.add(fn);
+    return () => widgetListeners.delete(fn);
+  },
+  analyticsStatus: async () => previewAnalytics(),
+  setAnalyticsEnabled: async (enabled) => {
+    if (typeof enabled !== 'boolean') throw Error('ANALYTICS_INVALID');
+    if (enabled) throw Error('ANALYTICS_UNSUPPORTED');
+    return previewAnalytics();
+  },
+  clearAnalytics: async () => previewAnalytics(),
+  onAnalyticsChanged: () => () => {},
+  recordLauncherCommand: async (id) => {
+    if (!commandAllowed(id)) throw Error('LAUNCHER_INPUT_INVALID');
+    const records = previewCommandUsage();
+    records[id] = {
+      count: Math.min(Number.MAX_SAFE_INTEGER, (records[id]?.count || 0) + 1),
+      lastUsed: Date.now(),
+    };
+    localStorage.setItem('darkdesk-preview-commands', JSON.stringify(records));
+    return { id, ...records[id] };
+  },
   itemDetails: async (id) => {
     await delay();
     const item = demoIndexedItems().find((item) => item.id === id);
@@ -400,6 +533,7 @@ if (!native)
       return {
         settings: structuredClone(settings),
         capabilities: browserLauncherCapabilities(),
+        commandUsage: previewCommandUsage(),
         items: [...indexed.values()].map((item) => ({
           ...item,
           usage: usage[item.id] || { count: 0 },
