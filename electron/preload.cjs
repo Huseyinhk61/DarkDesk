@@ -70,6 +70,7 @@ for (const [method, channel] of [
   ['onWindowStateChanged', 'windowStateChanged'],
   ['onUpdateChanged', 'updateChanged'],
   ['onWidgetsChanged', 'widgetsChanged'],
+  ['onSettingsChanged', 'settingsChanged'],
   ['onAnalyticsChanged', 'analyticsChanged'],
 ]) {
   api[method] = (callback) => {

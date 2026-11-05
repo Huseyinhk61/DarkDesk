@@ -360,3 +360,20 @@ test('a first metadata rename failure restores owned native attributes even befo
     fs.rename = originalRename;
   }
 });
+
+test('Explorer resource paths change with appearance while the owned pair remains stable', async (t) => {
+  const f = await fixture(t);
+  const first = await f.folderIcons.folderContents(f.group, f.settings);
+  f.group.color = 'red';
+  const second = await f.folderIcons.folderContents(f.group, f.settings);
+  const resource = (bytes) => bytes.toString('utf16le').match(/IconResource="(.+)",0/)[1];
+  assert.notEqual(resource(first['desktop.ini']), resource(second['desktop.ini']));
+  assert.deepEqual(await fs.readFile(resource(first['desktop.ini'])), first['.darkdesk.ico']);
+  assert.deepEqual(await fs.readFile(resource(second['desktop.ini'])), second['.darkdesk.ico']);
+  assert.deepEqual(await f.folderIcons.folderContents(f.group, f.settings), second);
+  await fs.writeFile(resource(second['desktop.ini']), 'tampered');
+  await assert.rejects(
+    f.folderIcons.folderContents(f.group, f.settings),
+    /FOLDER_APPEARANCE_INVALID/,
+  );
+});

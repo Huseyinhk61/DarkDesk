@@ -66,7 +66,9 @@ class WidgetManager {
   }
   async save(patch) {
     const layout =
-      patch && typeof patch === 'object' && ('placement' in patch || 'resetPositions' in patch);
+      patch &&
+      typeof patch === 'object' &&
+      ('placement' in patch || 'resetPositions' in patch || 'collapsed' in patch);
     // Content flushes are required during stop; layout mutations can destroy
     // those same renderer windows and must wait until normal operation resumes.
     if (layout && this.stopping) throw Error('WIDGETS_UNAVAILABLE');
@@ -85,10 +87,20 @@ class WidgetManager {
       const previous = await this.read();
       const next = validateWidgetPatch(previous, patch);
       await this.persist(next);
+      if (patch.collapsed)
+        for (const [id, window] of this.open) {
+          if (!window.isDestroyed()) {
+            const normal = restoreWidgetBounds(id, next.widgets[id].bounds, this.getDisplays());
+            window.setBounds({ ...normal, height: next.collapsed[id] ? 44 : normal.height });
+          }
+        }
       if (patch.resetPositions)
         for (const [id, window] of this.open)
           if (!window.isDestroyed())
-            window.setBounds(restoreWidgetBounds(id, null, this.getDisplays()));
+            window.setBounds({
+              ...restoreWidgetBounds(id, null, this.getDisplays()),
+              ...(next.collapsed[id] ? { height: 44 } : {}),
+            });
       if ('placement' in patch && previous.placement !== next.placement) {
         // Recreate only visible windows after their content is persisted. Native
         // reparenting cannot safely be undone by merely toggling always-on-top.
@@ -121,6 +133,7 @@ class WidgetManager {
       const bounds = restoreWidgetBounds(id, model.widgets[id].bounds, this.getDisplays());
       const window = this.createWindow({
         ...bounds,
+        height: model.collapsed[id] ? 44 : bounds.height,
         frame: false,
         transparent: true,
         backgroundColor: '#00000000',
@@ -204,7 +217,14 @@ class WidgetManager {
     return this.locked(async () => {
       const next = structuredClone(await this.read());
       next.widgets[id].enabled = true;
-      next.widgets[id].bounds = restoreWidgetBounds(id, window.getBounds(), this.getDisplays());
+      next.widgets[id].bounds = restoreWidgetBounds(
+        id,
+        {
+          ...window.getBounds(),
+          ...(next.collapsed[id] ? { height: next.widgets[id].bounds?.height || 236 } : {}),
+        },
+        this.getDisplays(),
+      );
       return this.persist(next);
     });
   }
@@ -237,7 +257,15 @@ class WidgetManager {
   }
   async saveBounds(id, window) {
     if (this.stopping || window.isDestroyed()) return;
-    const bounds = restoreWidgetBounds(id, window.getBounds(), this.getDisplays());
+    const model = await this.read();
+    const bounds = restoreWidgetBounds(
+      id,
+      {
+        ...window.getBounds(),
+        ...(model.collapsed[id] ? { height: model.widgets[id].bounds?.height || 236 } : {}),
+      },
+      this.getDisplays(),
+    );
     return this.locked(async () => {
       const next = structuredClone(await this.read());
       next.widgets[id].bounds = bounds;

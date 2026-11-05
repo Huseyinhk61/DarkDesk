@@ -51,7 +51,7 @@ export function folderAccentStyle(category = {}) {
   if (!category.customColor) return undefined;
   const palette = folderPalette(category);
   return {
-    '--color': palette.fill,
+    '--color': `color-mix(in srgb, ${palette.fill}, var(--ink) 55%)`,
     '--rgb': channels(palette.fill).join(', '),
     '--folder-from': palette.fill,
     '--folder-to': palette.shade,

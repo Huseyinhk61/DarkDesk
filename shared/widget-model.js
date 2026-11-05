@@ -1,14 +1,15 @@
 export const widgetIds = ['system', 'note', 'todos'];
 export const widgetSizes = {
-  system: { width: 320, height: 236 },
-  note: { width: 340, height: 340 },
-  todos: { width: 340, height: 380 },
+  system: { width: 292, height: 230 },
+  note: { width: 292, height: 236 },
+  todos: { width: 292, height: 276 },
 };
 export const defaultWidgetState = {
   version: 1,
   note: '',
   todos: [],
   placement: 'desktop',
+  collapsed: Object.fromEntries(widgetIds.map((id) => [id, false])),
   widgets: Object.fromEntries(widgetIds.map((id) => [id, { enabled: false, bounds: null }])),
 };
 const plain = (value) => value && typeof value === 'object' && !Array.isArray(value);
@@ -55,6 +56,7 @@ export function normalizeWidgetState(input = defaultWidgetState) {
   });
   return {
     version: 1,
+    collapsed: Object.fromEntries(widgetIds.map((id) => [id, input.collapsed?.[id] === true])),
     note: input.note,
     todos,
     placement: input.placement,
@@ -80,12 +82,24 @@ export function validateWidgetPatch(current, patch) {
   if (
     !plain(patch) ||
     Object.keys(patch).some(
-      (key) => !['note', 'todos', 'placement', 'resetPositions'].includes(key),
+      (key) => !['note', 'todos', 'placement', 'resetPositions', 'collapsed'].includes(key),
     ) ||
     ('resetPositions' in patch && patch.resetPositions !== true)
   )
     invalid();
-  const next = normalizeWidgetState({ ...current, ...patch });
+  if (
+    'collapsed' in patch &&
+    (!plain(patch.collapsed) ||
+      Object.entries(patch.collapsed).some(
+        ([id, value]) => !widgetIds.includes(id) || typeof value !== 'boolean',
+      ))
+  )
+    invalid();
+  const next = normalizeWidgetState({
+    ...current,
+    ...patch,
+    collapsed: { ...current.collapsed, ...patch.collapsed },
+  });
   if (patch.resetPositions)
     widgetIds.forEach((id) => {
       next.widgets[id].bounds = null;
@@ -121,12 +135,18 @@ export function restoreWidgetBounds(id, saved, displays = []) {
   const size = widgetSizes[id],
     index = widgetIds.indexOf(id);
   const width = Math.round(
-    Math.min(screen.width, Math.max(Math.min(240, screen.width), previous?.width || size.width)),
+    Math.min(
+      screen.width,
+      Math.max(Math.min(240, screen.width), Math.min(previous?.width || size.width, size.width)),
+    ),
   );
   const height = Math.round(
     Math.min(
       screen.height,
-      Math.max(Math.min(180, screen.height), previous?.height || size.height),
+      Math.max(
+        Math.min(180, screen.height),
+        Math.min(previous?.height || size.height, size.height),
+      ),
     ),
   );
   const x = Math.round(

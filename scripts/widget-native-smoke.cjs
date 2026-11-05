@@ -149,6 +149,18 @@ async function widgetPage(application, id) {
     const cpu = await system.evaluate(() => window.darkdesk.systemToolsSnapshot());
     assert.ok(cpu.cpuPercent >= 0 && cpu.cpuPercent <= 100);
 
+    await main.evaluate(() => window.darkdesk.saveWidgets({ collapsed: { note: true } }));
+    await expect(note.locator('textarea')).toBeHidden();
+    const collapsedHeight = await application.evaluate(
+      ({ BrowserWindow }) =>
+        BrowserWindow.getAllWindows()
+          .find((window) => window.webContents.getURL().endsWith('#widget=note'))
+          .getBounds().height,
+    );
+    assert.equal(collapsedHeight, 44);
+    await main.evaluate(() => window.darkdesk.saveWidgets({ collapsed: { note: false } }));
+    await expect(note.locator('textarea')).toBeVisible();
+
     // Hide immediately, before the debounce: the native close path must flush.
     await note.locator('textarea').fill('An isolated native note — saved before hiding.');
     await main.evaluate(() => window.darkdesk.hideWidget('note'));

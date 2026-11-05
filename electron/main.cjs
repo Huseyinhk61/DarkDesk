@@ -490,7 +490,7 @@ else {
             const settings = await runtime.saveSettings(candidate);
             updateNativeAppearance(settings);
             await updateTray();
-            await widgetManager.publish().catch(() => {});
+            emit('settingsChanged', settings);
             return settings;
           } catch (error) {
             // Settings may already be persisted if reapplying a profile failed.

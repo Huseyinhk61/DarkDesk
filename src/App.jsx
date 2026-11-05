@@ -287,7 +287,7 @@ export default function App() {
       finish();
     }
   };
-  const saveSettings = async (value) => {
+  const saveSettings = async (value, { applyFolders = false } = {}) => {
     if (!start('settings')) return false;
     try {
       const folderVisuals = (input) =>
@@ -305,7 +305,9 @@ export default function App() {
           ),
         });
       const updateFolders =
-        native && stats?.platform === 'win32' && folderVisuals(settings) !== folderVisuals(value);
+        native &&
+        stats?.platform === 'win32' &&
+        (applyFolders || folderVisuals(settings) !== folderVisuals(value));
       const saved = await api.setSettings(value);
       setSettings(saved);
       let appearanceWarning = '';

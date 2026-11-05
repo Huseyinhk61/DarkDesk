@@ -1,5 +1,11 @@
 # DarkDesk validation report
 
+## 3.7.1 — compact widgets and folder appearance synchronization
+
+- 295 local service/model tests passed. Added persistence and real native-size invariants for collapsed widgets, immutable folder resource identities, cache integrity checks and per-core CPU samples.
+- 17 related browser scenarios passed, followed by six final widget/color regressions after contrast refinement. These cover draft preservation, restart, independent collapse, preventing preference reloads on note saves, palette persistence and physical-appearance dispatch.
+- Production build, existing Electron file-operation smoke and widget smoke passed locally. Cross-platform publication checks are recorded after CI completes.
+
 ## 3.7.0 — descriptions, widgets, startup control, and focus analytics
 
 Date: November 5, 2026. Local environment: Linux, Node.js 24, Electron 45, Chromium, and Xvfb.

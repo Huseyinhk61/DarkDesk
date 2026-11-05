@@ -990,5 +990,9 @@
   "errors.ANALYTICS_WRITE_FAILED": "Usage data could not be saved. Check disk space and write permissions.",
   "errors.ANALYTICS_PERMISSION": "The operating system denied access to application information. Check permissions and restart measurement.",
   "errors.ANALYTICS_SAMPLE_FAILED": "Application information could not be read. You can restart measurement.",
-  "errors.ANALYTICS_CLOCK_CHANGED": "The system clock moved backwards. Time is excluded until the clock advances again."
+  "errors.ANALYTICS_CLOCK_CHANGED": "The system clock moved backwards. Time is excluded until the clock advances again.",
+  "widgetPlus.collapse": "Collapse {name}",
+  "widgetPlus.expand": "Expand {name}",
+  "widgetPlus.cores": "CPU cores",
+  "widgetPlus.core": "Core {index}: {value}"
 }

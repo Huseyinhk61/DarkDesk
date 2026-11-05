@@ -990,5 +990,9 @@
   "errors.ANALYTICS_WRITE_FAILED": "Kullanım verileri kaydedilemedi. Disk alanını ve yazma izinlerini kontrol et.",
   "errors.ANALYTICS_PERMISSION": "İşletim sistemi uygulama bilgisine erişime izin vermedi. İzinleri kontrol edip ölçümü yeniden başlat.",
   "errors.ANALYTICS_SAMPLE_FAILED": "Uygulama bilgisi okunamadı. Ölçümü yeniden başlatabilirsin.",
-  "errors.ANALYTICS_CLOCK_CHANGED": "Sistem saati geriye alındı. Saat yeniden ilerleyene kadar aradaki süre sayılmaz."
+  "errors.ANALYTICS_CLOCK_CHANGED": "Sistem saati geriye alındı. Saat yeniden ilerleyene kadar aradaki süre sayılmaz.",
+  "widgetPlus.collapse": "{name} panelini daralt",
+  "widgetPlus.expand": "{name} panelini genişlet",
+  "widgetPlus.cores": "İşlemci çekirdekleri",
+  "widgetPlus.core": "Çekirdek {index}: {value}"
 }

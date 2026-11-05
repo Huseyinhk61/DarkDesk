@@ -106,7 +106,7 @@ export default function CategoryManager({ onSave, busy, items = [], onApplyFolde
     const categories = editor.isNew
       ? [...settings.categories, next]
       : settings.categories.map((c) => (c.id === editor.id ? next : c));
-    if (await onSave({ ...settings, categories })) setEditor(null);
+    if (await onSave({ ...settings, categories }, { applyFolders: true })) setEditor(null);
   };
   const remove = async () => {
     const excluded = descendants(deleting.id);

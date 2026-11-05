@@ -121,14 +121,14 @@ test('restored widget bounds remain visible after removing a monitor or on a neg
     restoreWidgetBounds('note', { x: 5000, y: 2000, width: 340, height: 340 }, [
       { x: 0, y: 0, width: 1024, height: 768 },
     ]),
-    { x: 684, y: 428, width: 340, height: 340 },
+    { x: 732, y: 532, width: 292, height: 236 },
   );
   assert.deepEqual(
-    restoreWidgetBounds('note', { x: -1800, y: 100, width: 340, height: 340 }, [
+    restoreWidgetBounds('note', { x: -1800, y: 100, width: 292, height: 236 }, [
       { x: 0, y: 0, width: 1920, height: 1080 },
       { x: -1920, y: 0, width: 1920, height: 1080 },
     ]),
-    { x: -1800, y: 100, width: 340, height: 340 },
+    { x: -1800, y: 100, width: 292, height: 236 },
   );
   const tiny = restoreWidgetBounds('todos', null, [{ x: 10, y: 20, width: 200, height: 150 }]);
   assert.equal(tiny.width, 200);
@@ -289,4 +289,20 @@ test('a layout change already flushing cannot recreate windows after quit begins
   await stopping;
   assert.equal((await manager.state()).placement, 'desktop');
   assert.equal(created.length, 1);
+});
+
+test('collapse resizes native panels, preserves drafts and survives restart', async (t) => {
+  const { manager, created, data } = await fixture(t);
+  await manager.show('note');
+  await manager.save({ note: 'keep me', collapsed: { note: true } });
+  assert.equal(created[0].getBounds().height, 44);
+  await manager.saveBounds('note', created[0]);
+  assert.ok((await manager.state()).widgets.note.bounds.height >= 180);
+  await manager.save({ resetPositions: true });
+  assert.equal(created[0].getBounds().height, 44);
+  await manager.stop();
+  const persisted = new WidgetManager({ data, createWindow: () => {}, loadWindow: async () => {} });
+  assert.equal((await persisted.state()).collapsed.note, true);
+  assert.equal((await persisted.state()).note, 'keep me');
+  await assert.rejects(persisted.save({ collapsed: { note: 'false' } }), /WIDGETS_INVALID/);
 });

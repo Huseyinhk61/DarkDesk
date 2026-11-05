@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.7.1 — November 5, 2026
+
+- Compact desktop widgets with persistent collapse/expand state, per-core CPU samples and a RAM percentage bar. Preserve notes, tasks and expanded bounds across collapse and restart.
+- Stop widget content saves from reloading and overwriting appearance preferences; native windows receive dedicated settings events.
+- Assign immutable content-addressed Explorer icon resource paths so changed folder colors and styles invalidate the previous icon identity. Preserve ownership checks, custom metadata and Undo.
+- Improve custom-color accent contrast, compact spacing, keyboard controls and wrapping.
+
 ## 3.7.0 — November 5, 2026
 
 - Read Windows executable and resolved shortcut descriptions lazily, expand the offline app dictionary to 114 entries, and let users save local descriptions. Explain whether a description comes from metadata, the dictionary, or a filename estimate.

@@ -21,6 +21,7 @@ test('CPU reports real deltas after warmup and shared polling reuses a bounded s
   ticks = { user: 150, sys: 150, idle: 900 };
   const sampled = metrics.snapshot();
   assert.equal(sampled.cpuPercent, 50);
+  assert.deepEqual(sampled.cores, [50]);
   assert.equal(sampled.memory.used, 750);
   assert.equal(sampled.memory.percent, 75);
   now = 2100;

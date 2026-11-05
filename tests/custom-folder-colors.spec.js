@@ -126,3 +126,22 @@ native=true;
     snapshots[0].categories.find((category) => category.id === 'software').customColor,
   ).toEqual({ from: '#f59e0b', to: '#e11d48' });
 });
+
+test('saving the same Windows category retries appearance for pre-update folders', async ({
+  page,
+}) => {
+  await page.route('**/src/service.js*', async (route) => {
+    const response = await route.fetch();
+    await route.fulfill({
+      response,
+      body:
+        (await response.text()).replace('export const native =', 'export let native =') +
+        `
+const statsBeforeRetry=api.stats;api.stats=async()=>({...await statsBeforeRetry(),platform:'win32'});api.applyFolderAppearance=async()=>{window.__sameStyleApplies=(window.__sameStyleApplies||0)+1;return {updated:0,unchanged:1,skipped:0,failed:0,details:[]};};native=true;`,
+    });
+  });
+  const dialog = await editSoftware(page);
+  await dialog.getByRole('button', { name: 'Kategoriyi kaydet', exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  expect(await page.evaluate(() => window.__sameStyleApplies)).toBe(1);
+});

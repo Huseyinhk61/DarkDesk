@@ -1,5 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Cpu, StickyNote, ListTodo, X, Plus, Trash2, GripHorizontal, Check } from 'lucide-react';
+import {
+  Cpu,
+  StickyNote,
+  ListTodo,
+  X,
+  Plus,
+  Trash2,
+  GripHorizontal,
+  Check,
+  ChevronDown,
+  ChevronUp,
+} from 'lucide-react';
 import { api, native } from '../service';
 import { usePreferences } from '../preferences';
 import { formatBytes } from '../utils';
@@ -57,6 +68,7 @@ export function WidgetContent({ id, embedded = false }) {
       if (alive.current) accept(value);
     };
     const appearance = () => {
+      if (embedded) return;
       const current = ++request;
       api
         .getSettings()
@@ -67,8 +79,13 @@ export function WidgetContent({ id, embedded = false }) {
     };
     const off = api.onWidgetsChanged?.((value) => {
       receive(value);
-      appearance();
     });
+    const offSettings = !embedded
+      ? api.onSettingsChanged?.((value) => {
+          ++request;
+          setSettings(value);
+        })
+      : null;
     api
       .widgetState()
       .then(receive)
@@ -81,12 +98,13 @@ export function WidgetContent({ id, embedded = false }) {
       if (dirty.current) commit().catch(() => {});
       alive.current = false;
       off?.();
+      offSettings?.();
       clearTimeout(timer.current);
       if (window.__darkdeskWidgetFlush === commit) delete window.__darkdeskWidgetFlush;
     };
   }, [accept, commit, embedded, id, setSettings]);
   useEffect(() => {
-    if (id !== 'system') return;
+    if (id !== 'system' || state?.collapsed?.[id]) return;
     let active = true;
     const poll = () => {
       if (document.hidden) return;
@@ -108,7 +126,7 @@ export function WidgetContent({ id, embedded = false }) {
       clearInterval(clock);
       document.removeEventListener('visibilitychange', poll);
     };
-  }, [id]);
+  }, [id, state?.collapsed?.[id]]);
   const updateTodos = async (todos) => {
     if (action.current) return false;
     action.current = true;
@@ -129,11 +147,34 @@ export function WidgetContent({ id, embedded = false }) {
   const title = t('widgetPlus.' + id);
   const Icon = id === 'system' ? Cpu : id === 'note' ? StickyNote : ListTodo;
   return (
-    <section className={'desktop-widget ' + (embedded ? 'widget-embedded' : '')} aria-label={title}>
+    <section
+      className={
+        'desktop-widget ' +
+        (embedded ? 'widget-embedded ' : '') +
+        (state?.collapsed?.[id] ? 'widget-collapsed' : '')
+      }
+      aria-label={title}
+    >
       <header className="widget-drag">
         <Icon size={16} />
         <b>{title}</b>
-        <GripHorizontal size={15} />
+        <button
+          type="button"
+          className="widget-no-drag"
+          disabled={!state}
+          aria-expanded={!state?.collapsed?.[id]}
+          aria-label={t(state?.collapsed?.[id] ? 'widgetPlus.expand' : 'widgetPlus.collapse', {
+            name: title,
+          })}
+          onClick={() =>
+            api
+              .saveWidgets({ collapsed: { [id]: !state.collapsed?.[id] } })
+              .then(accept)
+              .catch((reason) => setError(message.current(reason)))
+          }
+        >
+          {state?.collapsed?.[id] ? <ChevronDown size={15} /> : <ChevronUp size={15} />}
+        </button>
         <button
           className="widget-no-drag"
           type="button"
@@ -143,7 +184,7 @@ export function WidgetContent({ id, embedded = false }) {
           <X size={15} />
         </button>
       </header>
-      <div className="widget-content">
+      <div className="widget-content" hidden={state?.collapsed?.[id]}>
         {id === 'system' ? (
           <>
             <div className="widget-metric-row">
@@ -159,6 +200,29 @@ export function WidgetContent({ id, embedded = false }) {
                 {t('widgetPlus.memory')}
                 <strong>{metrics?.memory ? Math.round(metrics.memory.percent) + '%' : '—'}</strong>
               </span>
+            </div>
+            <div
+              className="widget-memory-track"
+              role="progressbar"
+              aria-label={t('widgetPlus.memory')}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={metrics?.memory ? Math.round(metrics.memory.percent) : undefined}
+            >
+              <i style={{ width: (metrics?.memory?.percent || 0) + '%' }} />
+            </div>
+            <div className="widget-cores" aria-label={t('widgetPlus.cores')}>
+              {metrics?.cores?.map((value, index) => (
+                <span
+                  key={index}
+                  title={t('widgetPlus.core', {
+                    index: index + 1,
+                    value: value === null ? '—' : Math.round(value) + '%',
+                  })}
+                >
+                  <i style={{ height: (value || 0) + '%' }} />
+                </span>
+              ))}
             </div>
             <svg
               className="widget-chart"

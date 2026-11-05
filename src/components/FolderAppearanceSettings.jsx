@@ -49,7 +49,7 @@ export default function FolderAppearanceSettings({ onSave, onApply, busy, platfo
             disabled={!!busy || applying}
             onClick={() => {
               setResult(null);
-              onSave({ ...settings, folderTheme: theme });
+              onSave({ ...settings, folderTheme: theme }, { applyFolders: true });
             }}
           >
             <div className="folder-preview-row" aria-hidden="true">

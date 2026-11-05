@@ -91,7 +91,7 @@ Choose **Gradient**, **Solid**, or **Outline** folders independently from the ap
 
 ### Your daily tools, close at hand
 
-Open **Desktop Widgets** to show a CPU/RAM monitor, sticky note, or to-do list. Drag each panel by its header; notes, tasks, enabled widgets, and positions survive a normal restart. Windows and macOS desktop placement uses native adapters. If attachment is unavailable, DarkDesk identifies the panel as a floating window. Linux uses floating widgets. The browser preview can demonstrate notes and tasks inside the page, while native CPU/RAM data requires Electron.
+Open **Desktop Widgets** to show a CPU/RAM monitor, sticky note, or to-do list. Collapse panels from their headers; expanded panels use compact bounds and the system monitor includes per-core samples and a RAM bar. Drag each panel by its header; notes, tasks, enabled widgets, and positions survive a normal restart. Windows and macOS desktop placement uses native adapters. If attachment is unavailable, DarkDesk identifies the panel as a floating window. Linux uses floating widgets. The browser preview can demonstrate notes and tasks inside the page, while native CPU/RAM data requires Electron.
 
 **Startup Manager** lists Windows Run and Startup-folder entries. Supported current-user entries can be disabled and re-enabled using startup approval flags; original commands and files stay intact. Machine-wide entries are read-only. This controls the next sign-in and does not stop an app that is already running, or manage every service and scheduled task.
 
