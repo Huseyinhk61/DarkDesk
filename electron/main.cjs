@@ -45,6 +45,12 @@ let win,
   watchTimer,
   quitting = false,
   quitPending = false;
+let launcherEpoch = 0;
+function hideLauncher(epoch = launcherEpoch) {
+  if (epoch !== launcherEpoch) return;
+  ++launcherEpoch;
+  if (launcher && !launcher.isDestroyed()) launcher.hide();
+}
 const production = app.isPackaged || process.argv.includes('--production');
 const entry = path.join(__dirname, '../dist/index.html'),
   entryURL = production ? pathToFileURL(entry).href : 'http://127.0.0.1:5173/';
@@ -95,8 +101,9 @@ function showMain() {
   win.focus();
 }
 async function openLauncher() {
+  const epoch = ++launcherEpoch;
   if (launcher?.isVisible() && launcher.isFocused()) {
-    launcher.hide();
+    hideLauncher(epoch);
     return;
   }
   if (!launcher) {
@@ -119,17 +126,23 @@ async function openLauncher() {
       },
     });
     secureWindow(launcher);
-    launcher.on('blur', () => launcher?.hide());
+    launcher.on('blur', () => {
+      if (launcher && !launcher.isDestroyed() && !launcher.isFocused()) hideLauncher();
+    });
     launcher.on('close', (e) => {
       if (!quitting) {
         e.preventDefault();
-        launcher.hide();
+        hideLauncher();
       }
     });
-    launcher.on('closed', () => (launcher = null));
+    launcher.on('closed', () => {
+      launcher = null;
+      ++launcherEpoch;
+    });
     if (production) await launcher.loadFile(entry, { hash: 'launcher' });
     else await launcher.loadURL(entryURL + '#launcher');
   }
+  if (epoch !== launcherEpoch || !launcher || launcher.isDestroyed()) return;
   const { workArea } = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
   launcher.setSize(
     Math.min(720, Math.max(320, workArea.width - 24)),
@@ -255,7 +268,7 @@ else {
       const launcherActions = new LauncherActions({
         shell,
         clipboard,
-        resolveItem: (id) => runtime.trustedItem(id),
+        resolveItem: (id) => runtime.resolveTrustedItem(id),
         resolveShortcut: (file) => shell.readShortcutLink(file),
         beforeShutdown: async () => {
           await runtime.profiles.restore();
@@ -428,23 +441,30 @@ else {
       }));
       handle('setLauncherFavorite', (id, value) => runtime.setFavorite(id, value));
       handle('launcherAction', async (value) => {
+        const epoch = launcherEpoch;
         const result = await runtime.run('launcher-action', () => launcherActions.action(value));
         if (result.type === 'admin') await runtime.activity.record(result.id);
-        if (['web', 'system', 'admin', 'reveal'].includes(result.type)) launcher?.hide();
-        return result;
+        if (['web', 'system', 'admin', 'reveal'].includes(result.type)) hideLauncher(epoch);
+        return { ...result, launcherEpoch: epoch };
       });
       handle('launch', async (id) => {
+        const epoch = launcherEpoch;
         const result = await runtime.launch(id);
-        launcher?.hide();
-        return result;
+        hideLauncher(epoch);
+        return { ...result, launcherEpoch: epoch };
       });
       handle('runCommand', async (value) => {
+        const epoch = launcherEpoch;
         const result = await command(value);
-        launcher?.hide();
-        return result;
+        hideLauncher(epoch);
+        return { ...result, launcherEpoch: epoch };
       });
       handle('openLauncher', openLauncher);
-      handle('hideLauncher', () => launcher?.hide());
+      handle('hideLauncher', (epoch) => {
+        if (epoch !== undefined && !Number.isSafeInteger(epoch))
+          throw Error('LAUNCHER_INPUT_INVALID');
+        hideLauncher(epoch);
+      });
       handle('stats', async () => {
         let storage = null;
         try {
@@ -464,14 +484,7 @@ else {
         };
       });
       handle('reveal', async (id) => {
-        let item =
-          runtime.catalog.get(id) ||
-          runtime.scanner.catalog.get(id) ||
-          runtime.service.externalCatalog.get(id);
-        if (!item) item = (await runtime.scan()).find((i) => i.id === id);
-        if (!item) throw Error('SOURCE_MISSING');
-        const stat = await fs.lstat(item.source);
-        if (!stat.isFile() || stat.isSymbolicLink()) throw Error('SOURCE_MISSING');
+        const item = await runtime.resolveTrustedItem(id);
         shell.showItemInFolder(item.source);
       });
       handle('revealOutput', async (batchId, index = 0) => {

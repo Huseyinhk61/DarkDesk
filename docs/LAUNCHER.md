@@ -42,7 +42,17 @@ Select an application or file result, then press **Tab** or **Ctrl+K**, or choos
 - **Open File Location** reveals an indexed local file in the desktop file manager.
 - **Run as Administrator** is available for supported Windows executable and shortcut results. DarkDesk checks the trusted file and target, then uses the Windows UAC prompt. It does not bypass elevation consent.
 
-Actions unavailable on the current platform are disabled. Results are checked against the trusted index and their current files; rescan if an item has changed or moved.
+Actions unavailable on the current platform are disabled. Results are checked against the trusted index and their current files.
+
+### Organized files and restarts
+
+DarkDesk 3.6.1 recovers launcher entries for files it organized by checking completed, verified operation history and recorded category destinations beneath the Desktop. A moved item keeps its original identity, so its favorite and observed launch counts follow it into the category folder. Undo returns the launcher entry to the restored source; recovery also works after restarting the app.
+
+When an original copy or indexed installed executable is still available, it takes priority over a generated copy or shortcut. Missing and stale entries are removed. Unchanged managed outputs reuse a bounded verification cache; changing a file invalidates that verification.
+
+This recovery does not recursively index arbitrary folders. It rejects symlinked paths and managed outputs whose contents no longer match the recorded operation. User-modified or missing outputs may therefore be absent from the recovered results. To index an edited file, use a supported scan source such as Desktop or Downloads and scan it explicitly. File-operation Undo retains its existing content checks and does not become less restrictive.
+
+Closing and reopening the launcher starts a new session. A delayed response from the previous session cannot replace its results, show an older confirmation, or close the new palette.
 
 ![Item actions in the English preview](assets/launcher-actions-en.png)
 
@@ -55,7 +65,7 @@ Actions unavailable on the current platform are disabled. Results are checked ag
 | **Empty Recycle Bin** | Requests a separate confirmation before permanently clearing the bin. This is outside DarkDesk's file-operation undo.                                           |
 | **Shut Down**         | Requests confirmation before shutting down. Save open files first; DarkDesk restores its profile visibility and saves window state before the shutdown request. |
 
-Recycle-bin and shutdown confirmations expire after 30 seconds and can be used once. Cancel or press **Esc** to return to search. If a confirmation expires, cancel and select the command again. Query text alone never runs a system command.
+Recycle-bin and shutdown confirmations expire after 30 seconds and can be used once. Before dispatch, Cancel or **Esc** returns to search. After confirming, the command has been sent and Escape does not cancel it. If a confirmation expires, cancel and select the command again. Query text alone never runs a system command.
 
 ## Platform support
 

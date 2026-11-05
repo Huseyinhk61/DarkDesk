@@ -33,6 +33,26 @@ let apps = [],
   cancelled = false;
 const copies = new Set(),
   listeners = new Set();
+function demoIndexedItems() {
+  const indexed = new Map([...demo, ...apps, ...downloadItems].map((item) => [item.id, item]));
+  for (const batch of [...history].reverse()) {
+    if (batch.status !== 'completed') continue;
+    for (const entry of batch.entries) {
+      if (
+        indexed.has(entry.id) ||
+        entry.action === 'shortcut' ||
+        !['moved', 'copied'].includes(entry.stage)
+      )
+        continue;
+      indexed.set(entry.id, {
+        ...entry,
+        source: 'C:\\Users\\User\\' + entry.target,
+        scope: 'managed',
+      });
+    }
+  }
+  return [...indexed.values()];
+}
 export const native = !!window.darkdesk;
 export const api = window.darkdesk || {
   scan: async (scope) => {
@@ -215,13 +235,12 @@ export const api = window.darkdesk || {
     batch.status = 'undone';
   },
   itemIcon: async (id, _refresh = false) => {
-    if (![...demo, ...apps, ...downloadItems].some((item) => item.id === id))
-      throw Error('SOURCE_MISSING');
+    if (!demoIndexedItems().some((item) => item.id === id)) throw Error('SOURCE_MISSING');
     return { id, icon: null };
   },
   itemDetails: async (id) => {
     await delay();
-    const item = [...demo, ...apps, ...downloadItems].find((item) => item.id === id);
+    const item = demoIndexedItems().find((item) => item.id === id);
     if (!item) throw Error('SOURCE_MISSING');
     return {
       id,
@@ -368,19 +387,28 @@ if (!native)
       notifyRuntime();
       return runtime.profile;
     },
-    launcherEntries: async () => ({
-      settings: structuredClone(settings),
-      capabilities: browserLauncherCapabilities(),
-      items: (await api.scan())
-        .concat(await api.scan('system'))
-        .map((i) => ({ ...i, usage: usage[i.id] || { count: 0 } })),
-    }),
+    launcherEntries: async () => {
+      const indexed = new Map(
+        (await api.scan()).concat(await api.scan('system')).map((item) => [item.id, item]),
+      );
+      const known = new Map(demoIndexedItems().map((item) => [item.id, item]));
+      for (const batch of history.filter((batch) => batch.status === 'completed'))
+        for (const entry of batch.entries) {
+          if (!indexed.has(entry.id) && known.has(entry.id))
+            indexed.set(entry.id, enrichItem(known.get(entry.id), settings));
+        }
+      return {
+        settings: structuredClone(settings),
+        capabilities: browserLauncherCapabilities(),
+        items: [...indexed.values()].map((item) => ({
+          ...item,
+          usage: usage[item.id] || { count: 0 },
+        })),
+      };
+    },
     launcherAction: browserLauncherAction,
     setLauncherFavorite: async (id, favorite) => {
-      if (
-        typeof id !== 'string' ||
-        ![...demo, ...apps, ...downloadItems].some((item) => item.id === id)
-      )
+      if (typeof id !== 'string' || !demoIndexedItems().some((item) => item.id === id))
         throw Error('SOURCE_MISSING');
       if (typeof favorite !== 'boolean') throw Error('LAUNCHER_INPUT_INVALID');
       usage[id] = { ...(usage[id] || { count: 0, lastOpened: null }), favorite };
@@ -389,8 +417,10 @@ if (!native)
     },
     launch: async (id) => {
       await delay();
+      if (!demoIndexedItems().some((item) => item.id === id)) throw Error('SOURCE_MISSING');
       usage[id] = {
         ...usage[id],
+        firstSeen: usage[id]?.firstSeen || Date.now(),
         count: (usage[id]?.count || 0) + 1,
         lastOpened: Date.now(),
         inactive: false,

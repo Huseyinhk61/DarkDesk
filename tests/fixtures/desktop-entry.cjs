@@ -28,11 +28,22 @@ runtimes.DesktopRuntime = class extends OriginalRuntime {
   constructor(options) {
     super({
       ...options,
-      launch: async (item) =>
-        require('node:fs/promises').writeFile(
+      launch: async (item) => {
+        const fs = require('node:fs/promises');
+        const gate = path.join(process.env.DARKDESK_TEST_ROOT, 'launch-gate');
+        if (require('node:fs').existsSync(gate)) {
+          await fs.writeFile(path.join(process.env.DARKDESK_TEST_ROOT, 'launch-started'), item.id);
+          const deadline = Date.now() + 15000;
+          while (require('node:fs').existsSync(gate)) {
+            if (Date.now() > deadline) throw Error('TEST_LAUNCH_GATE_TIMEOUT');
+            await new Promise((resolve) => setTimeout(resolve, 20));
+          }
+        }
+        await fs.writeFile(
           path.join(process.env.DARKDESK_TEST_ROOT, 'launch-log.json'),
           JSON.stringify({ id: item.id, source: item.source }),
-        ),
+        );
+      },
     });
   }
   async initialize() {

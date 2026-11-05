@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.6.1 — November 5, 2026
+
+- Keep organized files available in Quick Launcher using their verified operation history, stable item IDs, and current managed-folder paths. Favorites and observed launch counts survive moves, Undo, and application restarts.
+- Prefer available original files and installed executables, remove stale or deleted results, and reject changed managed outputs and substituted directory symlinks. Recovery stays within recorded Desktop destinations; it does not recursively index arbitrary folders.
+- Cache verified output checksums with bounded file fingerprints to avoid repeatedly hashing unchanged managed files.
+- Prevent older refresh errors and completed actions from changing or closing a newly opened launcher session. Expired sessions cannot display an old confirmation, and Escape no longer implies cancellation after a confirmed command has been dispatched.
+- Normalize damaged individual usage records while preserving valid favorites and counts.
+
 ## 3.6.0 — November 5, 2026
 
 - Fill Estimated usage on cards and details with observed DarkDesk launch patterns or clearly labeled category estimates; keep unknown and invalid histories usable without inventing OS telemetry.

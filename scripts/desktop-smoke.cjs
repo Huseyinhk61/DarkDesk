@@ -138,6 +138,7 @@ const { folders } = require('../electron/service.cjs');
         ),
         true,
       );
+    await page.evaluate(() => window.darkdesk.setLauncherFavorite('Rapor.pdf', true));
     await page.getByRole('button', { name: 'Masaüstünü Fiziksel Düzenle' }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
     assert.deepEqual(await fs.readdir(desktop), ['Rapor.pdf'], 'Preview must not change files');
@@ -148,6 +149,18 @@ const { folders } = require('../electron/service.cjs');
       await fs.readFile(path.join(desktop, folders[3], 'Rapor.pdf'), 'utf8'),
       'native IPC content',
     );
+    const managedItem = (await page.evaluate(() => window.darkdesk.launcherEntries())).items.find(
+      (item) => item.id === 'Rapor.pdf',
+    );
+    assert.ok(managedItem, 'An organized file remains indexed for the launcher');
+    assert.equal(
+      await fs.realpath(managedItem.source),
+      await fs.realpath(path.join(desktop, folders[3], 'Rapor.pdf')),
+    );
+    assert.equal(managedItem.usage.favorite, true);
+    await page.evaluate(() => window.darkdesk.launch('Rapor.pdf'));
+    const managedLaunch = JSON.parse(await fs.readFile(path.join(root, 'launch-log.json'), 'utf8'));
+    assert.equal(await fs.realpath(managedLaunch.source), await fs.realpath(managedItem.source));
     const appearanceSettings = await page.evaluate(() => window.darkdesk.getSettings());
     assert.equal(appearanceSettings.folderTheme, 'gradient');
     const appearanceResult = await page.evaluate(async () => {
@@ -188,6 +201,14 @@ const { folders } = require('../electron/service.cjs');
       throw error;
     }
     assert.equal(await fs.readFile(path.join(desktop, 'Rapor.pdf'), 'utf8'), 'native IPC content');
+    const restoredFavorite = (
+      await page.evaluate(() => window.darkdesk.launcherEntries())
+    ).items.find((item) => item.id === 'Rapor.pdf');
+    assert.equal(
+      await fs.realpath(restoredFavorite.source),
+      await fs.realpath(path.join(desktop, 'Rapor.pdf')),
+    );
+    assert.equal(restoredFavorite.usage.favorite, true);
     await fs.writeFile(path.join(desktop, 'Yeni.txt'), 'watch me');
     await expect(page.locator('.item-card')).toHaveCount(2, { timeout: 10000 });
     assert.equal(
@@ -326,8 +347,54 @@ const { folders } = require('../electron/service.cjs');
         );
         return recorded['Rapor.pdf']?.count;
       })
-      .toBe(1);
+      .toBe(2);
     assert.ok((await page.evaluate(() => window.darkdesk.itemDetails('Rapor.pdf'))).lastOpened > 0);
+    await page.evaluate(() => window.darkdesk.openLauncher());
+    await expect(quick.getByRole('combobox', { name: 'Quick search' })).toBeVisible();
+    const gate = path.join(root, 'launch-gate');
+    await fs.writeFile(gate, 'hold launch until the next palette is open');
+    const pendingLaunch = quick
+      .evaluate(() => window.darkdesk.launch('Rapor.pdf'))
+      .then(
+        (value) => ({ value }),
+        (error) => ({ error }),
+      );
+    try {
+      await expect
+        .poll(async () => fs.readFile(path.join(root, 'launch-started'), 'utf8').catch(() => null))
+        .toBe('Rapor.pdf');
+      await page.evaluate(() => window.darkdesk.hideLauncher());
+      await page.evaluate(() => window.darkdesk.openLauncher());
+      const launcherVisible = () =>
+        application.evaluate(
+          ({ BrowserWindow }) =>
+            BrowserWindow.getAllWindows()
+              .find((window) => window.webContents.getURL().includes('#launcher'))
+              ?.isVisible() || false,
+        );
+      await expect.poll(launcherVisible).toBe(true);
+      await fs.unlink(gate);
+      const completed = await pendingLaunch;
+      if (completed.error) throw completed.error;
+      assert.equal(
+        await launcherVisible(),
+        true,
+        'An earlier launch completion must not hide a newly opened palette',
+      );
+      assert.ok(Number.isSafeInteger(completed.value.launcherEpoch));
+      await quick.evaluate(
+        (epoch) => window.darkdesk.hideLauncher(epoch),
+        completed.value.launcherEpoch,
+      );
+      assert.equal(
+        await launcherVisible(),
+        true,
+        'A stale renderer close request must not hide a newer native session',
+      );
+      await page.evaluate(() => window.darkdesk.hideLauncher());
+    } finally {
+      await fs.unlink(gate).catch(() => {});
+    }
     const trayState = await page.evaluate(() => window.darkdesk.runtimeStatus());
     if (trayState.trayAvailable) {
       await page.getByRole('button', { name: 'Close', exact: true }).click();

@@ -90,6 +90,8 @@ Choose **Gradient**, **Solid**, or **Outline** folders independently from the ap
 
 Type `120 * 45` or `10 km to m`, then press **Enter** to copy the result. Search the web with `g <query>`, `yt <query>`, or `gh <query>`. On an application result, **Tab** or **Ctrl+K** opens favorites, file location, and Windows administrator actions. An empty query puts your three most-used observed items first.
 
+Files organized by DarkDesk remain available through verified operation history, including after Undo or a restart. Their favorites and launch counts retain the same identity. Missing or changed managed outputs are excluded until they can be verified; recovery does not recursively scan other folders.
+
 Windows system commands include Lock Screen, Toggle Mute, Empty Recycle Bin, and Shut Down. The last two require a separate confirmation. Read the [launcher guide](docs/LAUNCHER.md) for examples, keyboard controls, and platform support.
 
 |                            Calculate and convert                             |                                        Item actions                                        |

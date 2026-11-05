@@ -1,5 +1,17 @@
 # DarkDesk validation report
 
+## 3.6.1 — launcher paths, favorites, and session stability
+
+Date: November 5, 2026. Local environment: Linux, Node.js 24, Electron 45, Chromium, and Xvfb.
+
+- **234 service/model/settings tests passed**, without failures or skips. New real-filesystem cases cover move/Undo/restart with stable usage/favorites, copy and installed-source precedence, Downloads identities, verified managed-shortcut recovery, stale-source pruning, preserved-mtime tampering, ancestor symlinks, invalid journals, category changes, concurrent refreshes, and bounded checksum caching. Individual damaged usage records recover without discarding valid records.
+- **100 Chromium scenarios passed** with the final renderer. New lifecycle regressions reproduced stale refresh errors, old launch completions closing a replacement palette, and outdated destructive-action preparation before the fix. Tests also cover retained favorites through organization/Undo and preserving the state of a dispatched confirmation.
+- Production build and real source Electron smoke passed. The native test launches an organized temporary file at its new path, verifies the same favorite after Undo, holds a launch while reopening the native palette, and rejects an old renderer session's close request.
+- The Linux unpacked ASAR passed the same native smoke. Its version, main process, catalog/activity/session modules, and all renderer assets match the current source tree.
+- Formatting and whitespace checks passed. Public Windows release results will be recorded after completion.
+
+Recovery reads completed, verified DarkDesk operation history; it does not recursively index arbitrary desktop folders. Missing, modified, symlinked, or otherwise unverifiable managed outputs are excluded. No real external application, lock, shutdown, Recycle Bin deletion, or elevation is executed by these tests.
+
 ## 3.6.0 — usage estimates, custom folder colors, and launcher tools
 
 Date: November 5, 2026. Local environment: Linux, Node.js 24, Electron 45, Chromium, and Xvfb.

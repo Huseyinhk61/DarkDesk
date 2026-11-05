@@ -8,7 +8,15 @@ Choose a Windows x64 download under **Assets**:
 
 Quit an older DarkDesk instance from its system-tray menu before installing. Node.js is not required. Packages are currently unsigned, so Windows may display a publisher warning.
 
-## What's new in 3.6.0
+## What's new in 3.6.1
+
+- **Launcher paths stay current:** verified files organized by DarkDesk remain searchable after a move, Undo, or restart. Favorites and launch history keep the same item identity. Original files and installed executables are preferred when available.
+- **Reliable reopen behavior:** an older refresh or action can no longer replace a new session's results, show an old confirmation, or close a launcher you just reopened.
+- **Resilient usage records:** a damaged individual record no longer stops scanning or discards other valid favorites and counts.
+
+Recovery checks completed operation history and recorded Desktop destinations. Missing, changed, or symlinked managed outputs are not recovered automatically. It does not recursively scan arbitrary folders.
+
+### Also included from 3.6
 
 - **Usage labels with context:** cards and app details show observed DarkDesk launch patterns, or clearly labeled category estimates when no reliable history exists. Windows-wide activity and app running time are not monitored.
 - **Custom folder colors:** choose any six-digit HEX color or one of six two-color gradient palettes. Live previews and native Windows folder icons share the same artwork. Saving visual changes updates existing DarkDesk-owned folders; personal icon metadata is preserved.

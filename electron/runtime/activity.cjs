@@ -1,5 +1,23 @@
 const path = require('node:path');
 const { JsonStore } = require('./json-store.cjs');
+const validTime = (value, now) => Number.isFinite(value) && value > 0 && value <= now;
+function normalizedRecord(value, now) {
+  const record = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  return {
+    ...record,
+    firstSeen: validTime(record.firstSeen, now) ? record.firstSeen : now,
+    count: Number.isSafeInteger(record.count) && record.count >= 0 ? record.count : 0,
+    lastOpened: validTime(record.lastOpened, now) ? record.lastOpened : null,
+    favorite: record.favorite === true,
+  };
+}
+const assign = (records, id, value) =>
+  Object.defineProperty(records, id, {
+    value,
+    enumerable: true,
+    configurable: true,
+    writable: true,
+  });
 class ActivityStore {
   constructor(data, clock = () => Date.now()) {
     this.store = new JsonStore(path.join(data, 'usage.json'), {});
@@ -16,13 +34,10 @@ class ActivityStore {
       const records = await this.store.read();
       let changed = false;
       for (const item of items) {
-        if (!Object.hasOwn(records, item.id)) {
-          Object.defineProperty(records, item.id, {
-            value: { firstSeen: this.clock(), count: 0, lastOpened: null },
-            enumerable: true,
-            configurable: true,
-            writable: true,
-          });
+        const previous = Object.hasOwn(records, item.id) ? records[item.id] : undefined;
+        const value = normalizedRecord(previous, this.clock());
+        if (JSON.stringify(previous) !== JSON.stringify(value)) {
+          assign(records, item.id, value);
           changed = true;
         }
       }
@@ -33,16 +48,14 @@ class ActivityStore {
   async record(id) {
     return this.locked(async () => {
       const records = await this.store.read(),
-        previous = Object.hasOwn(records, id) ? records[id] : { firstSeen: this.clock(), count: 0 };
-      Object.defineProperty(records, id, {
-        value: {
-          ...previous,
-          count: (Number.isFinite(previous.count) ? Math.max(0, previous.count) : 0) + 1,
-          lastOpened: this.clock(),
-        },
-        enumerable: true,
-        configurable: true,
-        writable: true,
+        previous = normalizedRecord(
+          Object.hasOwn(records, id) ? records[id] : undefined,
+          this.clock(),
+        );
+      assign(records, id, {
+        ...previous,
+        count: Math.min(Number.MAX_SAFE_INTEGER, previous.count + 1),
+        lastOpened: this.clock(),
       });
       await this.store.write(records);
       return records[id];
@@ -53,15 +66,11 @@ class ActivityStore {
       throw Error('FAVORITE_INVALID');
     return this.locked(async () => {
       const records = await this.store.read();
-      const previous = Object.hasOwn(records, id)
-        ? records[id]
-        : { firstSeen: this.clock(), count: 0, lastOpened: null };
-      Object.defineProperty(records, id, {
-        value: { ...previous, favorite },
-        enumerable: true,
-        configurable: true,
-        writable: true,
-      });
+      const previous = normalizedRecord(
+        Object.hasOwn(records, id) ? records[id] : undefined,
+        this.clock(),
+      );
+      assign(records, id, { ...previous, favorite });
       await this.store.write(records);
       return { id, favorite };
     });

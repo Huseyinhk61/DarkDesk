@@ -50,15 +50,27 @@ export default function Launcher({ onClose, onCommand }) {
     menu = useRef(null),
     cancel = useRef(null),
     mounted = useRef(true),
-    loadVersion = useRef(0);
+    loadVersion = useRef(0),
+    sessionVersion = useRef(0);
   const standalone = window.location.hash === '#launcher';
-  const close = () => (onClose ? onClose() : api.hideLauncher());
+  const currentSession = (version) => mounted.current && version === sessionVersion.current;
+  const close = (outcome) => {
+    ++sessionVersion.current;
+    ++loadVersion.current;
+    setBusy(false);
+    return onClose
+      ? onClose()
+      : api.hideLauncher(
+          Number.isSafeInteger(outcome?.launcherEpoch) ? outcome.launcherEpoch : undefined,
+        );
+  };
   useDialog({
     layer,
     panel,
     initialFocus: input,
     onClose: () => {
       if (confirmation) {
+        if (busy) return;
         setConfirmation(null);
         input.current?.focus();
       } else if (actions) {
@@ -80,17 +92,20 @@ export default function Launcher({ onClose, onCommand }) {
       );
       input.current?.focus();
     } catch (e) {
-      if (mounted.current) setError(errorMessage(e));
+      if (mounted.current && version === loadVersion.current) setError(errorMessage(e));
     } finally {
       if (mounted.current && version === loadVersion.current) setLoading(false);
     }
   };
   useEffect(() => {
     mounted.current = true;
+    ++sessionVersion.current;
     refresh();
     const off = api.onLauncherShown(() => {
+      ++sessionVersion.current;
       setQuery('');
       setActive(0);
+      setBusy(false);
       setError('');
       setNotice('');
       setActions(null);
@@ -99,6 +114,7 @@ export default function Launcher({ onClose, onCommand }) {
     });
     return () => {
       mounted.current = false;
+      ++sessionVersion.current;
       ++loadVersion.current;
       off();
     };
@@ -202,8 +218,9 @@ export default function Launcher({ onClose, onCommand }) {
   }, [active, query]);
   const selected = entries[Math.min(active, Math.max(0, entries.length - 1))];
   const isItem = (entry) => !!entry && !entry.command && !entry.tool;
-  const copyResult = async (entry) => {
+  const copyResult = async (entry, version) => {
     await api.launcherAction({ type: 'copy', text: entry.copyText });
+    if (!currentSession(version)) return;
     setNotice(t('launcherPlus.copied', { value: entry.copyText }));
     input.current?.focus();
     input.current?.select();
@@ -211,6 +228,7 @@ export default function Launcher({ onClose, onCommand }) {
   const execute = async (entry) => {
     if (!entry || busy) return;
     if (loading && !entry.tool && (!entry.command || entry.system)) return;
+    const version = sessionVersion.current;
     setBusy(true);
     setError('');
     setNotice('');
@@ -219,39 +237,48 @@ export default function Launcher({ onClose, onCommand }) {
       if (entry.tool) {
         if (entry.status !== 'success') return;
         if (entry.type === 'web') {
-          await api.launcherAction({ type: 'web', provider: entry.provider, query: entry.query });
-          close();
-        } else await copyResult(entry);
+          const outcome = await api.launcherAction({
+            type: 'web',
+            provider: entry.provider,
+            query: entry.query,
+          });
+          if (currentSession(version)) close(outcome);
+        } else await copyResult(entry, version);
       } else if (entry.system) {
         if (['empty-trash', 'shutdown'].includes(entry.system)) {
           const prepared = await api.launcherAction({ type: 'prepare-system', id: entry.system });
-          setConfirmation(prepared);
-          setActions(null);
+          if (currentSession(version)) {
+            setConfirmation(prepared);
+            setActions(null);
+          }
         } else {
-          await api.launcherAction({ type: 'system', id: entry.system });
-          close();
+          const outcome = await api.launcherAction({ type: 'system', id: entry.system });
+          if (currentSession(version)) close(outcome);
         }
       } else {
-        if (entry.command) {
-          if (onCommand) await onCommand(entry.command);
-          else await api.runCommand(entry.command);
-        } else await api.launch(entry.id);
-        close();
+        const outcome = entry.command
+          ? onCommand
+            ? await onCommand(entry.command)
+            : await api.runCommand(entry.command)
+          : await api.launch(entry.id);
+        if (currentSession(version)) close(outcome);
       }
     } catch (e) {
-      setError(errorMessage(e));
+      if (currentSession(version)) setError(errorMessage(e));
     } finally {
-      setBusy(false);
+      if (currentSession(version)) setBusy(false);
     }
   };
   const runAction = async (type) => {
     if (!actions || busy) return;
+    const version = sessionVersion.current;
     setBusy(true);
     setError('');
     try {
       if (type === 'favorite') {
         const favorite = !actions.usage?.favorite;
         await api.setLauncherFavorite(actions.id, favorite);
+        if (!currentSession(version)) return;
         setItems((previous) =>
           previous.map((item) =>
             item.id === actions.id ? { ...item, usage: { ...item.usage, favorite } } : item,
@@ -261,29 +288,37 @@ export default function Launcher({ onClose, onCommand }) {
         setActions(null);
         input.current?.focus();
       } else {
-        await api.launcherAction({ type, id: actions.id });
-        close();
+        const outcome = await api.launcherAction({ type, id: actions.id });
+        if (currentSession(version)) close(outcome);
       }
     } catch (e) {
-      setError(errorMessage(e));
+      if (currentSession(version)) setError(errorMessage(e));
     } finally {
-      setBusy(false);
+      if (currentSession(version)) setBusy(false);
     }
   };
   const confirmSystem = async () => {
     if (!confirmation || busy || now >= confirmation.expiresAt) return;
+    const version = sessionVersion.current;
     setBusy(true);
     setError('');
     try {
-      await api.launcherAction({ type: 'confirm-system', token: confirmation.token });
-      setConfirmation(null);
-      close();
+      const outcome = await api.launcherAction({
+        type: 'confirm-system',
+        token: confirmation.token,
+      });
+      if (currentSession(version)) {
+        setConfirmation(null);
+        close(outcome);
+      }
     } catch (e) {
-      setError(errorMessage(e));
-      setConfirmation(null);
-      input.current?.focus();
+      if (currentSession(version)) {
+        setError(errorMessage(e));
+        setConfirmation(null);
+        input.current?.focus();
+      }
     } finally {
-      setBusy(false);
+      if (currentSession(version)) setBusy(false);
     }
   };
   const keyDown = (e) => {
