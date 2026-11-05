@@ -9,6 +9,7 @@ import './usability.css';
 import './item-presentations.css';
 import './receipt.css';
 import './desktop.css';
+import './workspace-polish.css';
 import { PreferencesProvider } from './preferences';
 const launcher = window.location.hash === '#launcher';
 if (launcher) document.documentElement.dataset.window = 'launcher';

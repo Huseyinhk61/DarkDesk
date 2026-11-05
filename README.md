@@ -38,12 +38,13 @@ Release downloads become available after the [Windows packaging workflow](https:
 | :---------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Real desktop organization**             | Move or copy selected desktop files into physical category folders. Review destinations and conflicts before applying changes.                                                                     |
 | **Three scanning sources**                | Switch between Desktop, Installed apps, and Downloads. Desktop discovery includes personal and common Windows shortcuts. Installed programs stay in place; organization creates shortcuts instead. |
-| **Smart groups and custom rules**         | Start with **10 main groups and 25 groups in total**. Add nested categories, keyword or regex rules, and remembered manual assignments.                                                            |
+| **Smart groups and custom rules**         | Start with **10 main groups and 25 groups in total**. Browse nested categories with accurate parent totals, matching reasons, a review filter, and keyword or regex rules.                         |
 | **Original app icons and useful details** | Read native app icons where available. Inspect file metadata and local purpose descriptions for **94 recognized apps**, with clearly labeled fallbacks.                                            |
 | **Focus profiles**                        | Keep relevant desktop items visible for coding, gaming, or creative work. Restore visibility when you leave the profile.                                                                           |
 | **Quick launcher**                        | Press **Alt+X** on a new installation to search indexed apps, files, and commands. Assign your own global shortcuts; saved custom bindings are preserved.                                          |
 | **Optional automation**                   | Enable archive rules for older files and routing for stable Downloads files. File operations are logged and can be undone.                                                                         |
-| **Make it comfortable**                   | Choose **11 color palettes plus the system theme**, **4 font-family choices**, and **5 icon packs**. Adjust text size, density, and motion.                                                        |
+| **Make it comfortable**                   | Choose **13 color palettes plus the system theme**, **4 font-family choices**, and **5 icon packs**. Adjust text size, density, and motion.                                                        |
+| **Color-coded desktop folders**           | Choose **10 folder colors** and **3 folder styles** with matching previews. Apply them to existing Windows category folders while preserving manually customized icons.                            |
 | **English and Turkish**                   | Change the interface language without restarting. Native tray text follows the selected language.                                                                                                  |
 | **In-app updates**                        | Installed Windows builds can check public GitHub Releases without a personal token. Get notified, then download and restart when you choose.                                                       |
 
@@ -60,10 +61,29 @@ Release downloads become available after the [Windows packaging workflow](https:
     <td align="center"><strong>Light and readable</strong></td>
   </tr>
   <tr>
-    <td><img src="docs/assets/appearance-en.png" alt="DarkDesk appearance settings with twelve theme choices and readability controls" /></td>
-    <td><img src="docs/assets/lavender-en.png" alt="DarkDesk Lavender Light appearance" /></td>
+    <td><img src="docs/assets/appearance-en.png" alt="DarkDesk appearance settings with fourteen theme choices and readability controls" /></td>
+    <td><img src="docs/assets/paper-en.png" alt="DarkDesk Paper Ivory appearance with warm light surfaces" /></td>
   </tr>
 </table>
+
+### Clearer groups, real folder colors
+
+See why each item was grouped, filter uncertain matches for review, and open a subgroup without losing its parent context. Sort groups by name or item count and hide empty groups when you want a shorter overview. Manual choices remain in control; custom rule previews show matching items before saving.
+
+Choose **Gradient**, **Solid**, or **Outline** folders independently from the application theme. Each group has its own color and glyph. The Windows desktop app includes **360 matching folder icons** and an explicit **Apply to desktop folders** action; original application logos are preserved. See the [folder appearance guide](docs/FOLDER-APPEARANCE.md) for existing folders, skipped custom icons, and undo behavior.
+
+<table>
+  <tr>
+    <td align="center"><strong>Three folder styles</strong></td>
+    <td align="center"><strong>Ten colors per group</strong></td>
+  </tr>
+  <tr>
+    <td><img src="docs/assets/folder-themes-en.png" alt="Gradient, Solid and Outline folder previews" /></td>
+    <td><img src="docs/assets/folder-colors-en.png" alt="Category editor with ten folder colors and a live preview" /></td>
+  </tr>
+</table>
+
+![Subgroup navigation and item counts](docs/assets/subgroups-en.png)
 
 <details>
 <summary><strong>More previews: launcher, profiles, and organization</strong></summary>
@@ -143,6 +163,7 @@ Install Chromium once with `npx playwright install chromium` before browser test
 - [Installation, in-app updates, and publishing](docs/UPDATES.md)
 - [Organization, icons, and recovery](docs/ORGANIZATION.md)
 - [Themes, readability, and everyday use](docs/USABILITY.md)
+- [Folder colors, styles, and existing Windows folders](docs/FOLDER-APPEARANCE.md)
 - [Native icons, app details, and shortcuts](docs/DESKTOP-UX.md)
 - [Profiles, launcher, and automation architecture](docs/ECOSYSTEM.md)
 - [Validation report](docs/VALIDATION.md) · [Changelog](CHANGELOG.md)

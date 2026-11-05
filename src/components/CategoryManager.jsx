@@ -1,11 +1,25 @@
-import { useState } from 'react';
-import { Plus, Pencil, Trash2, ArrowUp, ArrowDown, FolderTree, Workflow } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  ArrowUp,
+  ArrowDown,
+  FolderTree,
+  Workflow,
+  Search,
+  FolderPlus,
+} from 'lucide-react';
 import { usePreferences } from '../preferences';
-import { icons, colors, categorySegments } from '../../shared/domain';
+import { icons, colors, categorySegments, normalize, matchesRule } from '../../shared/domain';
 import AppIcon from './AppIcon';
 import Modal from './Modal';
-export default function CategoryManager({ onSave, busy }) {
+import FolderPreview from './FolderPreview';
+import FolderAppearanceSettings from './FolderAppearanceSettings';
+import { folderColors } from '../../shared/folder-appearance';
+export default function CategoryManager({ onSave, busy, items = [], onApplyFolders, platform }) {
   const { settings, t, label } = usePreferences();
+  const [query, setQuery] = useState('');
   const [editor, setEditor] = useState(null),
     [deleting, setDeleting] = useState(null),
     [rule, setRule] = useState({
@@ -25,13 +39,46 @@ export default function CategoryManager({ onSave, busy }) {
     } while (previous !== result.size);
     return result;
   };
+  const ordered = useMemo(() => {
+    const rows = [];
+    const walk = (parent, depth) =>
+      settings.categories
+        .filter((category) => category.parentId === parent)
+        .forEach((category) => {
+          rows.push({ ...category, depth });
+          if (depth < 15) walk(category.id, depth + 1);
+        });
+    walk(null, 0);
+    const search = normalize(query.trim());
+    return rows.filter(
+      (category) =>
+        !search ||
+        normalize(
+          label(category) + ' ' + categorySegments(category.id, settings.categories).join(' / '),
+        ).includes(search),
+    );
+  }, [settings.categories, query, label]);
+  const rulePreview = useMemo(() => {
+    if (!rule.pattern.trim()) return null;
+    try {
+      return { matches: items.filter((item) => matchesRule(rule, item)) };
+    } catch {
+      return { invalid: true };
+    }
+  }, [items, rule.pattern, rule.match]);
   const saveCategory = async (e) => {
     e.preventDefault();
+    const original = settings.categories.find((category) => category.id === editor.id);
+    const next = {
+      ...editor,
+      isNew: undefined,
+      depth: undefined,
+      labelKey:
+        original?.labelKey && editor.name === label(original) ? original.labelKey : undefined,
+    };
     const categories = editor.isNew
-      ? [...settings.categories, { ...editor, isNew: undefined }]
-      : settings.categories.map((c) =>
-          c.id === editor.id ? { ...editor, labelKey: undefined } : c,
-        );
+      ? [...settings.categories, next]
+      : settings.categories.map((c) => (c.id === editor.id ? next : c));
     if (await onSave({ ...settings, categories })) setEditor(null);
   };
   const remove = async () => {
@@ -66,6 +113,14 @@ export default function CategoryManager({ onSave, busy }) {
       <h1 className="settings-title">{t('manager.title')}</h1>
       <p className="muted">{t('manager.body')}</p>
       <section className="settings-panel">
+        <FolderAppearanceSettings
+          onSave={onSave}
+          onApply={onApplyFolders}
+          busy={busy}
+          platform={platform}
+        />
+      </section>
+      <section className="settings-panel">
         <div className="manager-heading">
           <h2>
             <FolderTree size={20} />
@@ -91,16 +146,55 @@ export default function CategoryManager({ onSave, busy }) {
             {t('manager.new')}
           </button>
         </div>
+        <div className="manager-toolbar">
+          <label className="manager-search">
+            <Search size={16} />
+            <input
+              type="search"
+              aria-label={t('manager.search')}
+              placeholder={t('manager.searchPlaceholder')}
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+          </label>
+          <span className="muted">
+            {ordered.length} / {settings.categories.length}
+          </span>
+        </div>
+        {!ordered.length && (
+          <p className="muted" role="status">
+            {t('manager.noResults')}
+          </p>
+        )}
         <div className="managed-groups">
-          {settings.categories.map((c) => (
-            <div className="managed-group" key={c.id}>
+          {ordered.map((c) => (
+            <div className="managed-group" key={c.id} style={{ '--group-depth': c.depth }}>
               <span className={`category-icon ${c.color}`}>
-                <AppIcon name={c.icon} />
+                <FolderPreview category={c} size={42} />
               </span>
               <div>
                 <b>{label(c)}</b>
                 <small>{categorySegments(c.id, settings.categories).join(' / ')}</small>
               </div>
+              <button
+                type="button"
+                disabled={!!busy || c.depth >= 15}
+                className="tool-btn"
+                aria-label={t('manager.newChild', { name: label(c) })}
+                onClick={() =>
+                  setEditor({
+                    id: crypto.randomUUID(),
+                    name: '',
+                    folder: '',
+                    parentId: c.id,
+                    icon: 'folder',
+                    color: c.color,
+                    isNew: true,
+                  })
+                }
+              >
+                <FolderPlus size={15} />
+              </button>
               <button
                 disabled={!!busy}
                 className="tool-btn"
@@ -178,6 +272,25 @@ export default function CategoryManager({ onSave, busy }) {
           )}
         </form>
         <p className="muted">{t('manager.regexHelp')}</p>
+        {rulePreview && (
+          <div className="rule-preview" role="status">
+            {rulePreview.invalid ? (
+              t('manager.previewInvalid')
+            ) : (
+              <>
+                <b>{t('manager.previewMatches', { count: rulePreview.matches.length })}</b>
+                <small>{t('manager.previewNote')}</small>
+                {!!rulePreview.matches.length && (
+                  <ul>
+                    {rulePreview.matches.slice(0, 4).map((item) => (
+                      <li key={item.id}>{item.name}</li>
+                    ))}
+                  </ul>
+                )}
+              </>
+            )}
+          </div>
+        )}
         <div className="rules-list">
           {!settings.rules.length && <p className="muted">{t('manager.ruleEmpty')}</p>}
           {settings.rules.map((r, index) => (
@@ -253,6 +366,15 @@ export default function CategoryManager({ onSave, busy }) {
           onClose={() => setEditor(null)}
         >
           <form onSubmit={saveCategory}>
+            <div className="category-editor-preview" aria-label={t('manager.preview')}>
+              <FolderPreview category={editor} size={84} />
+              <div>
+                <b>{editor.name || t('manager.new')}</b>
+                <small>
+                  {t('folders.theme.' + settings.folderTheme)} · {t('colors.' + editor.color)}
+                </small>
+              </div>
+            </div>
             <div className="editor-grid">
               <label>
                 {t('common.name')}
@@ -296,20 +418,28 @@ export default function CategoryManager({ onSave, busy }) {
                     ))}
                 </select>
               </label>
-              <label>
-                {t('common.color')}
-                <select
-                  aria-label={t('common.color')}
-                  value={editor.color}
-                  onChange={(e) => setEditor({ ...editor, color: e.target.value })}
+            </div>
+            <span className="field-label" id="folder-color-options-label">
+              {t('common.color')}
+            </span>
+            <div
+              className="folder-color-options"
+              role="group"
+              aria-labelledby="folder-color-options-label"
+            >
+              {colors.map((color) => (
+                <button
+                  className={`folder-color-option ${color}`}
+                  type="button"
+                  key={color}
+                  style={{ '--swatch': folderColors[color].fill }}
+                  aria-label={t('colors.' + color)}
+                  aria-pressed={editor.color === color}
+                  onClick={() => setEditor({ ...editor, color })}
                 >
-                  {colors.map((c) => (
-                    <option key={c} value={c}>
-                      {t('colors.' + c)}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                  {t('colors.' + color)}
+                </button>
+              ))}
             </div>
             <label className="field-label">{t('common.icon')}</label>
             <div className="icon-options">

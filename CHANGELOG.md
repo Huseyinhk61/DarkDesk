@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.5.0 — November 5, 2026
+
+- Add ten per-group folder colors and Gradient, Solid, and Outline styles, with live previews and 360 matching Windows ICO assets.
+- Apply folder appearance to existing category folders explicitly. Protect manually customized metadata, verify ownership, recover interrupted updates, and keep appearance changes separate from file-move undo.
+- Preserve original application logos and shortcut icons while customizing category folders.
+- Show accurate nested group totals, subgroup navigation, breadcrumbs, remembered group ordering, and an option to hide empty groups.
+- Explain automatic assignments, expose uncertain fallback matches through a review filter, and keep manual assignments and custom rules first.
+- Improve file-type classification so source files, images, media, archives, and reading formats are not redirected by unrelated topic words.
+- Add category search, quick subgroup creation, and live keyword/regex match previews.
+- Add Solarized Night and Paper Ivory, bringing application appearance to 13 palettes plus System Theme.
+- Refine desktop spacing, folder cards, contrast, and themed scrollbars with visible hover, keyboard, reduced-motion, and forced-color behavior.
+- Load secondary screens on demand and exclude native source/build outputs from development-view reloads.
+
 ## 3.4.3 — November 4, 2026
 
 - Discover personal and common Windows desktop shortcuts, with distinct identities, source counts and access diagnostics.

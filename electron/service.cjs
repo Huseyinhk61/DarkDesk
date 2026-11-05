@@ -871,6 +871,13 @@ class DesktopService {
       }
       for (const directory of [...(batch.directories || [])].sort((a, b) => b.length - a.length)) {
         await this.safeDirectory(directory, false, batch.categoryPaths || folders);
+        // Later appearance choices or user files keep this folder alive. Do
+        // not clear Explorer's icon attributes unless it can actually be removed.
+        const remaining = await fs.readdir(directory).catch((error) => {
+          if (error.code === 'ENOENT') return [];
+          throw error;
+        });
+        if (remaining.length) continue;
         try {
           await this.folderIcons?.removeAttributes(directory);
         } catch (error) {

@@ -10,6 +10,7 @@ test('appearance defaults migrate older settings without changing file operation
   assert.equal(value.uiScale, 100);
   assert.equal(value.density, 'comfortable');
   assert.equal(value.motion, 'system');
+  assert.equal(value.folderTheme, 'gradient');
   assert.equal(value.mode, 'copy');
   assert.deepEqual(value.excludedExtensions, ['.bak']);
 });
@@ -39,6 +40,7 @@ test('invalid native appearance options are rejected rather than entering the CS
     { uiScale: '130' },
     { density: 'unknown' },
     { motion: 'full' },
+    { folderTheme: '../custom' },
   ])
     assert.throws(() => validateSettings(input), /SETTINGS_INVALID/);
 });
@@ -51,12 +53,15 @@ test('untrusted appearance cache only returns validated presentation keys', () =
   ]) {
     const safe = sanitizeAppearance(value);
     assert.equal(safe.theme, 'midnight');
+    assert.equal(safe.folderTheme, 'gradient');
     assert.equal(safe.uiScale, 100);
     assert.equal(safe.language, 'tr');
     assert.equal(safe.mode, undefined);
     assert.equal(safe.categories, undefined);
   }
   assert.equal(sanitizeAppearance({ theme: 'forest', motion: 'reduced' }).theme, 'forest');
+  assert.equal(sanitizeAppearance({ folderTheme: '__proto__' }).folderTheme, 'gradient');
+  assert.equal(sanitizeAppearance({ folderTheme: 'outline' }).folderTheme, 'outline');
 });
 test('system theme resolution follows OS appearance without changing explicit choices', () => {
   assert.equal(resolveTheme('system', true).id, 'midnight');

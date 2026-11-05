@@ -1,4 +1,5 @@
 import themes from './themes.json' with { type: 'json' };
+import { folderThemes } from './folder-appearance.js';
 export { themes };
 export const themeIds = themes.map((theme) => theme.id);
 export const iconPacks = ['lucide', 'tabler', 'minimal', 'rounded', 'duotone'];
@@ -14,6 +15,7 @@ export const appearanceKeys = [
   'language',
   'iconPack',
   'fontFamily',
+  'folderTheme',
   'uiScale',
   'density',
   'motion',
@@ -23,6 +25,7 @@ const options = {
   language: ['tr', 'en'],
   iconPack: iconPacks,
   fontFamily: fontIds,
+  folderTheme: folderThemes,
   uiScale: [100, 115, 130],
   density: ['comfortable', 'compact'],
   motion: ['system', 'reduced'],
@@ -32,6 +35,7 @@ const fallback = {
   language: 'tr',
   iconPack: 'lucide',
   fontFamily: 'system',
+  folderTheme: 'gradient',
   uiScale: 100,
   density: 'comfortable',
   motion: 'system',

@@ -209,6 +209,44 @@
     }
   },
   {
+    "id": "solarized",
+    "scheme": "dark",
+    "tokens": {
+      "bg": "#002b36",
+      "sidebar": "#00252e",
+      "surface": "#07323d",
+      "raised": "#12414b",
+      "field": "#00232c",
+      "ink": "#eef6dc",
+      "muted": "#c2d4b9",
+      "faint": "#bac9ad",
+      "border": "#85a6a166",
+      "accent": "#e8c56a",
+      "accent-rgb": "232, 197, 106",
+      "primary-ink": "#143238",
+      "shadow": "#00151b88"
+    }
+  },
+  {
+    "id": "paper",
+    "scheme": "light",
+    "tokens": {
+      "bg": "#f7f3e9",
+      "sidebar": "#fffcf6",
+      "surface": "#fffdf8",
+      "raised": "#eee6d7",
+      "field": "#fcf8ee",
+      "ink": "#332e25",
+      "muted": "#625748",
+      "faint": "#66594a",
+      "border": "#8c795e66",
+      "accent": "#8a4b25",
+      "accent-rgb": "138, 75, 37",
+      "primary-ink": "#fffdf8",
+      "shadow": "#53422d20"
+    }
+  },
+  {
     "id": "system",
     "scheme": "system",
     "tokens": null

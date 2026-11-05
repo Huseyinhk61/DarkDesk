@@ -2,8 +2,9 @@ import { Check, Globe, Paintbrush, RotateCcw, Accessibility } from 'lucide-react
 import { themes, resolveTheme, iconPacks, fontIds } from '../../shared/appearance';
 import { usePreferences } from '../preferences';
 import AppIcon from './AppIcon';
+import FolderAppearanceSettings from './FolderAppearanceSettings';
 import '../appearance.css';
-export default function AppearanceSettings({ onSave, busy }) {
+export default function AppearanceSettings({ onSave, busy, onApplyFolders, platform }) {
   const { settings, t } = usePreferences();
   const update = (patch) => onSave({ ...settings, ...patch });
   return (
@@ -54,6 +55,12 @@ export default function AppearanceSettings({ onSave, busy }) {
           );
         })}
       </div>
+      <FolderAppearanceSettings
+        onSave={onSave}
+        onApply={onApplyFolders}
+        busy={busy}
+        platform={platform}
+      />
       <h2>
         <Accessibility size={20} />
         {t('appearance.accessibility')}
@@ -163,6 +170,7 @@ export default function AppearanceSettings({ onSave, busy }) {
         onClick={() =>
           update({
             theme: 'midnight',
+            folderTheme: 'gradient',
             iconPack: 'lucide',
             fontFamily: 'system',
             uiScale: 100,

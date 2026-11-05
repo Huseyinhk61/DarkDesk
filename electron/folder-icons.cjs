@@ -6,6 +6,15 @@ const exec = promisify(execFile);
 const crypto = require('node:crypto');
 const { icons } = require('../shared/domain.js');
 const { iconPacks } = require('../shared/appearance.js');
+const { folderThemes, folderColorIds } = require('../shared/folder-appearance.js');
+const folderIni = (category, theme) =>
+  Buffer.concat([
+    Buffer.from([0xff, 0xfe]),
+    Buffer.from(
+      `[.ShellClassInfo]\r\nIconResource=.darkdesk.ico,0\r\n;DarkDesk=${theme}/${category.color}/${category.icon}\r\n`,
+      'utf16le',
+    ),
+  ]);
 class FolderIcons {
   constructor(data, platform = process.platform, options = {}) {
     this.data = data;
@@ -29,20 +38,61 @@ class FolderIcons {
     }
     return output;
   }
+  async folderIconFile(icon = 'folder', color = 'purple', theme = 'gradient') {
+    if (!icons.includes(icon) || !folderColorIds.includes(color) || !folderThemes.includes(theme))
+      throw Error('FOLDER_APPEARANCE_INVALID');
+    return path.join(__dirname, '../build/folder-icons/themes', theme, color, icon + '.ico');
+  }
+  async folderContents(category, settings) {
+    const source = await this.folderIconFile(
+      category.icon,
+      category.color,
+      settings.folderTheme ?? 'gradient',
+    );
+    return {
+      '.darkdesk.ico': await fs.readFile(source),
+      'desktop.ini': folderIni(category, settings.folderTheme ?? 'gradient'),
+    };
+  }
+  async applyAttributes(directory) {
+    await this.run('attrib.exe', ['+r', directory, '/l'], { windowsHide: true });
+    await this.run('attrib.exe', ['+h', '+s', path.join(directory, 'desktop.ini'), '/l'], {
+      windowsHide: true,
+    });
+    await this.run('attrib.exe', ['+h', path.join(directory, '.darkdesk.ico'), '/l'], {
+      windowsHide: true,
+    });
+  }
+  async clearFileAttributes(file) {
+    await this.run('attrib.exe', ['-h', '-s', '-r', file, '/l'], { windowsHide: true });
+  }
+  async notifyChanged(directories) {
+    if (this.platform !== 'win32' || !directories.length) return;
+    await fs.mkdir(this.data, { recursive: true });
+    const file = path.join(this.data, 'folder-refresh-' + crypto.randomUUID() + '.json');
+    await fs.writeFile(file, JSON.stringify(directories), { flag: 'wx', mode: 0o600 });
+    const encodedFile = Buffer.from(file, 'utf8').toString('base64');
+    const script = `$ErrorActionPreference='Stop'; Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public static class DarkDeskFolderRefresh { [DllImport("shell32.dll", CharSet=CharSet.Unicode)] public static extern void SHChangeNotify(uint change, uint flags, string path, IntPtr extra); }'; $file=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encodedFile}')); $paths=Get-Content -Raw -LiteralPath $file -Encoding UTF8 | ConvertFrom-Json; foreach($p in $paths){ [DarkDeskFolderRefresh]::SHChangeNotify(0x2000,0x5,[string]$p,[IntPtr]::Zero) }`;
+    try {
+      await this.run(
+        'powershell.exe',
+        [
+          '-NoProfile',
+          '-NonInteractive',
+          '-EncodedCommand',
+          Buffer.from(script, 'utf16le').toString('base64'),
+        ],
+        { windowsHide: true, timeout: 10000, maxBuffer: 64 * 1024 },
+      );
+    } finally {
+      await fs.unlink(file).catch(() => {});
+    }
+  }
   async decorate(directory, category, settings, onCreated = async () => {}) {
     if (this.platform !== 'win32') return [];
-    const source = await this.iconFile(category.icon, settings.iconPack);
+    const contentsByName = await this.folderContents(category, settings);
     const records = [];
-    for (const [name, contents] of [
-      ['.darkdesk.ico', await fs.readFile(source)],
-      [
-        'desktop.ini',
-        Buffer.concat([
-          Buffer.from([0xff, 0xfe]),
-          Buffer.from('[.ShellClassInfo]\r\nIconResource=.darkdesk.ico,0\r\n', 'utf16le'),
-        ]),
-      ],
-    ]) {
+    for (const [name, contents] of Object.entries(contentsByName)) {
       const file = path.join(directory, name);
       await fs.writeFile(file, contents, { flag: 'wx' });
       const record = {
@@ -52,13 +102,7 @@ class FolderIcons {
       records.push(record);
       await onCreated(record);
     }
-    await this.run('attrib.exe', ['+r', directory], { windowsHide: true });
-    await this.run('attrib.exe', ['+h', '+s', path.join(directory, 'desktop.ini')], {
-      windowsHide: true,
-    });
-    await this.run('attrib.exe', ['+h', path.join(directory, '.darkdesk.ico')], {
-      windowsHide: true,
-    });
+    await this.applyAttributes(directory);
     return records;
   }
   async removeAttributes(directory) {

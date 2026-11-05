@@ -7,6 +7,8 @@
 3. Choose **Organize Desktop** to preview destinations. Confirm the proposed moves, copies, or shortcut creation.
 4. Review the actual action counts in the result panel. Open target folders or undo the latest operation from there.
 
+Parent group totals include their subgroups once per item. Subgroup chips and breadcrumbs help narrow the list; each item shows the source of its category match. Use **Review** to inspect uncertain fallback assignments before organization.
+
 Selecting a category or dragging a card to another group does not move its file. Installed executables stay in place; DarkDesk creates working shortcuts in category folders. Your own desktop files and shortcuts follow the move/copy preference in Settings.
 
 Folder-icon decoration or timestamp-preservation failures do not block a successful file move; the result shows a warning. Critical copy, verification, journal, or deletion failures are reported explicitly. If the source cannot be removed, both the source and verified copy are retained. Existing destinations are never overwritten. Result details explain skipped items; check for an existing file with the same name.
@@ -17,7 +19,7 @@ Folder-icon decoration or timestamp-preservation failures do not block a success
 
 **Refresh icons** clears cached temporary failures. On Windows, DarkDesk tries a shortcut's custom icon file and index, executable icon resources, and local `IconFile` entries in `.url` files. If native resource extraction fails, it tries the Electron shell icon. If no source is accessible, an initials fallback appears; DarkDesk does not present it as the original logo.
 
-The browser demo cannot access operating-system icons. Initials in the README screenshots reflect this limitation. Newly created shortcuts to installed apps preserve their original icons unless the user explicitly selects a custom icon. Folder icon packs are a separate preference from application identity.
+The browser demo cannot access operating-system icons. Initials in the README screenshots reflect this limitation. Newly created shortcuts to installed apps preserve their original icons unless the user explicitly selects a custom icon. Folder styles are a separate preference from application identity. Category folders have ten color options and three styles with matching native Windows icons. The [folder appearance guide](FOLDER-APPEARANCE.md) explains how to update existing folders without replacing manually customized icons.
 
 ## What does this app do?
 

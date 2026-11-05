@@ -15,7 +15,7 @@ import { usePreferences } from '../preferences';
 import AppearanceSettings from './AppearanceSettings';
 import KeyBinder from './KeyBinder';
 import UpdatePanel from './UpdatePanel';
-export default function Settings({ onSave, stats, history, undo, busy, update }) {
+export default function Settings({ onSave, stats, history, undo, busy, update, onApplyFolders }) {
   const { settings, t, locale, errorMessage } = usePreferences();
   const operationDraft = (value) => ({
     mode: value.mode,
@@ -53,7 +53,12 @@ export default function Settings({ onSave, stats, history, undo, busy, update })
       <h1 className="settings-title">{t('settings.title')}</h1>
       <p className="muted">{t('settings.body')}</p>
       <UpdatePanel update={update} busy={!!busy} />
-      <AppearanceSettings onSave={onSave} busy={busy} />
+      <AppearanceSettings
+        onSave={onSave}
+        busy={busy}
+        onApplyFolders={onApplyFolders}
+        platform={stats?.platform}
+      />
       <form onSubmit={submit}>
         <fieldset disabled={!!busy}>
           <section className="settings-panel">

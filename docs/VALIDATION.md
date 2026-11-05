@@ -1,5 +1,18 @@
 # DarkDesk validation report
 
+## 3.5.0 — folder appearance and smarter groups
+
+Date: November 5, 2026. Local environment: Linux, Node.js 24, Electron 45, Chromium, and Xvfb.
+
+- **192 service/model/settings tests passed**, without failures or skips. New cases cover 360 bundled folder ICOs, ownership of existing folder metadata, custom-icon preservation, interrupted appearance changes, exclusive publication on cloud-backed filesystems, attribute recovery, and undo after a later appearance change. Appearance validation also covers old settings and untrusted folder-theme cache values.
+- **82 Chromium scenarios passed**, including folder-style and color persistence, localized built-in category labels after color editing, subgroup totals/filtering/drag-and-drop, remembered group ordering, rule previews, uncertain-assignment review, and theme-aware scrollbars with fixed window controls.
+- The production build passed. Route-level loading keeps the initial JavaScript chunk below 500 kB. Prettier and whitespace checks passed.
+- The real Electron IPC smoke test passed from source and from the Linux unpacked ASAR, using disposable Desktop, common Desktop, Downloads, and application directories. It exercises file move/undo, scanner switching, icons, launcher, profiles, automation, and the folder-appearance IPC. Linux correctly reports native Windows folder customization as unsupported.
+- The unpacked package contains all 360 new ICOs. Packaged service modules, shared grouping/folder modules, renderer assets, and version were compared with the source tree.
+- English screenshots were captured from the actual browser demo. They show sample data; browser mode does not extract native app logos or modify real folders.
+
+Windows release publication and runner results are recorded below once verified. Local Linux success alone does not verify Windows attributes, Explorer refresh, installation, or an old-to-new upgrade.
+
 ## 3.4.3 — common desktop coverage and app categorization
 
 **Published and verified:** [Windows Installer run](https://github.com/Huseyinhk61/DarkDesk/actions/runs/41824868352) succeeded, including real Windows native IPC tests, EXE packaging, metadata validation and release publication. [Test & Build](https://github.com/Huseyinhk61/DarkDesk/actions/runs/41826147065) also succeeded on Windows/Linux; its browser job reports **73 passed**. [Release v3.4.3](https://github.com/Huseyinhk61/DarkDesk/releases/tag/v3.4.3) is public. Anonymous Setup/Portable requests and the update feed returned HTTP 200; the Setup size matches `latest.yml`.

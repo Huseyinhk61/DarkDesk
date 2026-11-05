@@ -9,6 +9,7 @@ import {
 } from './domain.js';
 import { compileRule } from './regex.js';
 import { themeIds, iconPacks, fontIds } from './appearance.js';
+import { folderThemes } from './folder-appearance.js';
 const defaults = defaultSettings;
 export function validateSettings(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw Error('SETTINGS_INVALID');
@@ -22,7 +23,8 @@ export function validateSettings(input) {
     !['system', 'reduced'].includes(value.motion) ||
     !['tr', 'en'].includes(value.language) ||
     !iconPacks.includes(value.iconPack) ||
-    !fontIds.includes(value.fontFamily)
+    !fontIds.includes(value.fontFamily) ||
+    !folderThemes.includes(value.folderTheme)
   )
     throw Error('SETTINGS_INVALID');
   if (
@@ -316,5 +318,6 @@ export function validateSettings(input) {
     language: value.language,
     iconPack: value.iconPack,
     fontFamily: value.fontFamily,
+    folderTheme: value.folderTheme,
   };
 }

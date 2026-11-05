@@ -22,6 +22,7 @@ const methods = [
   'getSettings',
   'setSettings',
   'runtimeStatus',
+  'applyFolderAppearance',
   'applyProfile',
   'restoreProfile',
   'automationPreview',

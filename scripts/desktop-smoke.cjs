@@ -126,6 +126,26 @@ const { folders } = require('../electron/service.cjs');
       await fs.readFile(path.join(desktop, folders[3], 'Rapor.pdf'), 'utf8'),
       'native IPC content',
     );
+    const appearanceSettings = await page.evaluate(() => window.darkdesk.getSettings());
+    assert.equal(appearanceSettings.folderTheme, 'gradient');
+    const appearanceResult = await page.evaluate(async () => {
+      const current = await window.darkdesk.getSettings();
+      await window.darkdesk.setSettings({
+        ...current,
+        folderTheme: 'outline',
+        categories: current.categories.map((category) =>
+          category.id === 'office' ? { ...category, color: 'teal' } : category,
+        ),
+      });
+      return window.darkdesk.applyFolderAppearance();
+    });
+    if (process.platform === 'win32') {
+      assert.equal(appearanceResult.failed, 0);
+      assert.ok(appearanceResult.updated >= 1);
+      const ini = await fs.readFile(path.join(desktop, folders[3], 'desktop.ini'), 'utf16le');
+      assert.match(ini, /outline/);
+      assert.match(ini, /teal/);
+    } else assert.equal(appearanceResult.unsupported, true);
     await page.locator('main').getByRole('button', { name: 'Geri al', exact: true }).click();
     await expect(page.locator('.item-card')).toHaveCount(1);
     assert.equal(await fs.readFile(path.join(desktop, 'Rapor.pdf'), 'utf8'), 'native IPC content');
@@ -349,7 +369,7 @@ const { folders } = require('../electron/service.cjs');
     assert.equal(typeof geometry.maximized, 'boolean');
     assert.equal(await visibility.get(path.join(desktop, 'Rapor.pdf')), false);
     console.log(
-      'PASS: production Electron renderer, isolated IPC, no Node in renderer, non-mutating preview, real move/undo, file watcher, installed-app shortcuts/undo, shortcut icons, focus visibility/quit restore, source-specific scanner switching, common-desktop discovery/game categorization/move/undo, native Spotlight dispatch, trusted native icons/metadata, shortcut capture/resume, tray hiding, archive/Downloads automation and persistent preferences.',
+      'PASS: production Electron renderer, isolated IPC, no Node in renderer, non-mutating preview, real move/undo, file watcher, installed-app shortcuts/undo, shortcut icons, focus visibility/quit restore, source-specific scanner switching, common-desktop discovery/game categorization/move/undo, color-aware folder appearance IPC, native Spotlight dispatch, trusted native icons/metadata, shortcut capture/resume, tray hiding, archive/Downloads automation and persistent preferences.',
     );
   } finally {
     if (application) await application.close();

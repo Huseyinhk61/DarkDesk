@@ -10,6 +10,7 @@ const { ActivityStore } = require('./activity.cjs');
 const { AutomationService } = require('./automation.cjs');
 const { ItemDetailsService } = require('./item-details.cjs');
 const { enrichItem } = require('../../shared/domain.js');
+const { applyFolderAppearance } = require('../folder-appearance.cjs');
 class DesktopRuntime {
   constructor({
     desktop,
@@ -152,6 +153,11 @@ class DesktopRuntime {
         await this.automation.suppress(batch);
         return batch;
       }),
+    );
+  }
+  async applyFolderAppearance() {
+    return this.run('folder-appearance', async () =>
+      applyFolderAppearance(this.service, await this.settings.read()),
     );
   }
   async applyProfile(id) {

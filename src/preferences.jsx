@@ -52,6 +52,7 @@ export function PreferencesProvider({ children }) {
     root.dataset.colorScheme = theme.scheme;
     root.dataset.density = settings.density;
     root.dataset.font = settings.fontFamily;
+    root.dataset.folderTheme = settings.folderTheme;
     root.style.fontFamily = fonts[settings.fontFamily] || fonts.system;
     root.dataset.motion = settings.motion === 'reduced' || reduced ? 'reduced' : 'full';
     root.style.setProperty('--ui-scale', String(settings.uiScale / 100));
@@ -70,6 +71,7 @@ export function PreferencesProvider({ children }) {
     language,
     settings.iconPack,
     settings.fontFamily,
+    settings.folderTheme,
     dark,
     reduced,
   ]);

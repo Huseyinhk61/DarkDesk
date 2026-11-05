@@ -84,7 +84,7 @@ Use the [Releases page](https://github.com/Huseyinhk61/DarkDesk/releases) for pu
 Verify a downloaded installer:
 
 ```powershell
-Get-FileHash .\DarkDesk-Setup-3.4.3.exe -Algorithm SHA256
+Get-FileHash .\DarkDesk-Setup-3.5.0.exe -Algorithm SHA256
 ```
 
 Compare the result with `SHA256SUMS.txt` from the same release. Packages are currently unsigned, so Windows may show a publisher warning.
@@ -92,10 +92,10 @@ Compare the result with `SHA256SUMS.txt` from the same release. Packages are cur
 ## Appearance, language, groups, and scanning
 
 - Choose a theme, Turkish or English, and an icon pack under **Automation & Settings → Appearance & language**. Preferences stay on your device.
-- Manage groups, subgroups, and matching rules under **Categories & Rules**. Manual item assignments take priority over rules.
+- Manage groups, subgroups, matching rules, and per-group folder colors under **Categories & Rules**. Search categories by name or path and preview keyword/regex matches before saving. Manual item assignments take priority over rules.
 - **System Scanner** discovers desktop items and installed applications using Program Files, both Start Menu locations, and App Paths/Uninstall registry entries. It reports inaccessible locations and continues. It does not change the registry.
 - Installed `.exe` files stay in their original locations. After confirmation, DarkDesk creates a `.lnk` in the category folder. Undo removes that shortcut.
-- Selected icons can be applied to new shortcuts. On Windows, new category folders use `desktop.ini` and `.darkdesk.ico`. Explorer’s icon cache can delay their appearance; try refreshing the folder. Existing category folders and file icons are not changed retroactively.
+- Choose one of three folder styles independently from the application theme. On Windows, new category folders use `desktop.ini` and `.darkdesk.ico`. Use **Apply to desktop folders** to update existing category folders; manually customized icon files are skipped. This action does not move files or replace application logos. See [folder appearance](FOLDER-APPEARANCE.md) for results, Explorer refresh, and undo behavior.
 - Upgrades preserve move/copy preferences, category assignments, and undoable operation history. Changing the language does not rename existing folders.
 
 ## Profiles, Spotlight, and background operation

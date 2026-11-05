@@ -127,6 +127,14 @@ export const api = window.darkdesk || {
     platform: 'demo',
   }),
   getSettings: async () => structuredClone(settings),
+  applyFolderAppearance: async () => ({
+    updated: 0,
+    unchanged: 0,
+    skipped: 0,
+    failed: 0,
+    details: [],
+    unsupported: true,
+  }),
   setSettings: async (value) => {
     settings = validateSettings(value);
     localStorage.setItem('darkdesk-settings', JSON.stringify(settings));

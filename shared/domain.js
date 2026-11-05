@@ -1,6 +1,8 @@
 import catalog from './catalog.json' with { type: 'json' };
+import { folderColorIds } from './folder-appearance.js';
 import runtimeDefaults from './runtime-defaults.json' with { type: 'json' };
 import { regexMatches } from './regex.js';
+import { fileTypeCategory } from './file-types.js';
 import { suggestTags } from './smart-tags.js';
 import { findKnownApp, appInsight, leafName, gameLaunchCategory } from './app-insights.js';
 export const icons = [
@@ -17,7 +19,7 @@ export const icons = [
   'archive',
   'heart',
 ];
-export const colors = ['blue', 'purple', 'green', 'orange', 'slate', 'pink'];
+export const colors = folderColorIds;
 export const defaultCategories = catalog;
 export const defaultSettings = {
   schemaVersion: 4,
@@ -36,6 +38,7 @@ export const defaultSettings = {
   language: 'tr',
   iconPack: 'lucide',
   fontFamily: 'system',
+  folderTheme: 'gradient',
 };
 export const normalize = (value) =>
   String(value)
@@ -70,35 +73,9 @@ export function defaultCategory(name, target = '', launchUrl = '') {
   if (gameCategory) return gameCategory;
   const app = findKnownApp({ name, target });
   if (app) return categoryRoot(app.categoryId);
-  const text = normalize(`${leafName(name)} ${leafName(target)}`),
-    ext = normalize(name).split('.').at(-1);
-  // A document mentioning a product is still a document, not that application.
-  if (
-    [
-      'doc',
-      'docx',
-      'xls',
-      'xlsx',
-      'ppt',
-      'pptx',
-      'pdf',
-      'txt',
-      'csv',
-      'md',
-      'odt',
-      'ods',
-      'odp',
-    ].includes(ext)
-  )
-    return 'office';
-  if (['jpg', 'jpeg', 'png', 'svg', 'psd', 'ai', 'webp', 'gif', 'sketch'].includes(ext))
-    return 'design';
-  if (
-    ['js', 'jsx', 'ts', 'tsx', 'py', 'json', 'html', 'css', 'go', 'rs', 'sql', 'sh'].includes(ext)
-  )
-    return 'software';
-  if (['mp3', 'mp4', 'wav', 'flac', 'aac', 'ogg', 'mov', 'mkv', 'avi', 'webm'].includes(ext))
-    return 'media';
+  const fileCategory = fileTypeCategory(name);
+  if (fileCategory) return categoryRoot(fileCategory);
+  const text = normalize(`${leafName(name)} ${leafName(target)}`);
   if (
     /\b(figma|adobe|photoshop|premiere|blender|davinci|illustrator|canva|inkscape|gimp)\b/.test(
       text,
@@ -143,48 +120,29 @@ export function classify(item, settings = defaultSettings) {
     if (availableFallback) return availableFallback;
   }
   let inferred = defaultCategory(item.name, item.target, item.launchUrl);
-  const extension = (item.name || '').split('.').at(-1).toLowerCase();
+  const fileCategory = fileTypeCategory(item.name);
   const filename = normalize(leafName(item.name));
+  const documentHint = !fileCategory || fileCategory === 'office';
   const contentGroup =
+    documentHint &&
     /(?:^|[\s._-])(?:invoice|receipt|budget|fatura|butce|muhasebe)(?:$|[\s._-]|\d)/.test(filename)
       ? 'financeaccounting'
-      : /(?:^|[\s._-])(?:course|lesson|lecture|kurs|ders)(?:$|[\s._-]|\d)/.test(filename)
+      : documentHint &&
+          /(?:^|[\s._-])(?:course|lesson|lecture|kurs|ders)(?:$|[\s._-]|\d)/.test(filename)
         ? 'learningcourses'
-        : ['epub', 'mobi', 'azw', 'azw3', 'djvu'].includes(extension)
+        : fileCategory === 'learningreading'
           ? 'learningreading'
           : null;
-  // These are filename/type suggestions, not claims that document content was read.
+  // Topic hints describe documents or unknown filenames. They do not turn a
+  // source file, archive, image or recording into a document of that subject.
   if (contentGroup && known.has(contentGroup)) return contentGroup;
 
-  if (
-    [
-      'pdf',
-      'doc',
-      'docx',
-      'xls',
-      'xlsx',
-      'csv',
-      'ppt',
-      'pptx',
-      'odt',
-      'ods',
-      'odp',
-      'txt',
-      'md',
-      'png',
-      'jpg',
-      'jpeg',
-      'gif',
-      'svg',
-      'webp',
-      'mp3',
-      'wav',
-      'mp4',
-      'mkv',
-      'mov',
-    ].includes(extension)
-  )
-    return known.has(inferred) ? inferred : categories[0].id;
+  if (fileCategory)
+    return known.has(fileCategory)
+      ? fileCategory
+      : known.has(inferred)
+        ? inferred
+        : categories[0].id;
   const name = normalize(leafName(item.name) + ' ' + leafName(item.target));
   const sub = /setup|installer|driver.*update|update|install/.test(name)
     ? 'systeminstallers'

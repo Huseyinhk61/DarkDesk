@@ -1,4 +1,4 @@
-import { Check, ChevronDown, ExternalLink, Folder, Users } from 'lucide-react';
+import { Check, ChevronDown, ExternalLink, Folder, Users, Sparkles } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import NativeItemIcon from './NativeItemIcon';
 import ItemDetails from './ItemDetails';
@@ -16,6 +16,7 @@ export default function ItemCard({
   reveal,
   disabled,
   onAcceptSuggestion,
+  classification,
 }) {
   const { settings, t, label, locale, language } = usePreferences();
   const [showDetails, setShowDetails] = useState(false);
@@ -74,6 +75,15 @@ export default function ItemCard({
             </span>
             <p title={item.insight.description[language]}>{item.insight.description[language]}</p>
           </div>
+        )}
+        {classification && (
+          <small
+            className={`classification-reason ${classification.needsReview ? 'needs-review' : ''}`}
+            title={t('groups.reason.' + classification.source, classification)}
+          >
+            <Sparkles size={12} />
+            {t('groups.reason.' + classification.source, classification)}
+          </small>
         )}
         <p className="file-path" title={item.target || item.source}>
           {item.target || item.source}

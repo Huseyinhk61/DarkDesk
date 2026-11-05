@@ -403,6 +403,7 @@ else {
       handle('itemIcon', (id, refresh) => runtime.itemIcon(id, refresh));
       handle('itemDetails', (id) => runtime.itemDetails(id));
       handle('runtimeStatus', () => runtime.status());
+      handle('applyFolderAppearance', () => runtime.applyFolderAppearance());
       handle('applyProfile', (id) => runtime.applyProfile(id));
       handle('restoreProfile', () => runtime.restoreProfile());
       handle('automationPreview', (value) => runtime.previewAutomation(value));

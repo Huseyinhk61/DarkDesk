@@ -5,8 +5,12 @@ export default defineConfig(({ command }) => ({
   base: './',
   server: {
     watch: {
-      // Reports, packages and documentation are not renderer dependencies.
+      // Native main/preload code needs an Electron restart. It must not
+      // reset renderer state when backend tests or packaging touch files.
+      // Reports, assets and documentation are not renderer dependencies.
       ignored: [
+        '**/electron/**',
+        '**/build/**',
         '**/release/**',
         '**/dist/**',
         '**/playwright-report/**',

@@ -8,10 +8,15 @@ Choose a Windows x64 download under **Assets**:
 
 Quit an older DarkDesk instance from its system-tray menu before installing. Node.js is not required. Packages are currently unsigned, so Windows may display a publisher warning.
 
-## Features
+## What's new in 3.5.0
 
-Separate Desktop, Installed apps, and Downloads scanning; reversible file organization; native app icons; focus profiles; and an **Alt+X** launcher on new installations. Customize the workspace with **11 color palettes plus System**, **4 font-family choices**, **5 icon packs**, and **25 groups**.
+- **Folder colors and styles:** ten colors, Gradient/Solid/Outline styles, live previews, and 360 Windows folder icons. Use **Apply to desktop folders** to update existing category folders; manually customized icons are preserved and files stay in place.
+- **Clearer smart groups:** accurate parent totals, subgroup navigation, breadcrumbs, remembered ordering, and hide-empty controls.
+- **Better classification:** see matching reasons, review uncertain items, search categories, add subgroups quickly, and preview custom rules before saving.
+- **More comfortable appearance:** Solarized Night and Paper Ivory bring the choice to 13 palettes plus System. Refined desktop spacing and themed scrollbars improve everyday use.
+
+Separate Desktop, Installed apps, and Downloads scanning, reversible file organization, original app icons, focus profiles, and the **Alt+X** launcher remain available. Personalize the workspace with **4 font-family choices**, **5 interface icon packs**, and **25 starting groups**. Folder styles are independent of interface icon packs and preserve application logos.
 
 The public update feed does not require a personal GitHub token. Installed Windows builds notify you about new releases; downloading and restarting remain your choice. Older 3.4.1 private-feed installations need a one-time manual installation of 3.4.2 or later.
 
-See the [changelog](https://github.com/Huseyinhk61/DarkDesk/blob/main/CHANGELOG.md), [Windows guide](https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/WINDOWS.md), and [update guide](https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/UPDATES.md) for details.
+See the [changelog](https://github.com/Huseyinhk61/DarkDesk/blob/main/CHANGELOG.md), [Windows guide](https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/WINDOWS.md), and [update guide](https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/UPDATES.md), and [folder appearance guide](https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/FOLDER-APPEARANCE.md) for details.
