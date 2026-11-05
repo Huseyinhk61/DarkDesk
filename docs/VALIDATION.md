@@ -4,7 +4,12 @@
 
 - 295 local service/model tests passed. Added persistence and real native-size invariants for collapsed widgets, immutable folder resource identities, cache integrity checks and per-core CPU samples.
 - 17 related browser scenarios passed, followed by six final widget/color regressions after contrast refinement. These cover draft preservation, restart, independent collapse, preventing preference reloads on note saves, palette persistence and physical-appearance dispatch.
-- Production build, existing Electron file-operation smoke and widget smoke passed locally. Cross-platform publication checks are recorded after CI completes.
+- Production build, existing Electron file-operation smoke and widget smoke passed locally. Cross-platform checks and publication completed successfully.
+
+- **CI verified:** [Windows Installer](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42108117765) passed source and packaged Electron checks, Setup/Portable generation, checksum/update verification and publication. [Test & Build](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42108117458) passed Windows/Linux services, **115 browser scenarios**, and real macOS widget collapse/expand controls.
+- [Release v3.7.1](https://github.com/Huseyinhk61/DarkDesk/releases/tag/v3.7.1), Setup, Portable and blockmap are publicly accessible (HTTP 200). The update feed reports 3.7.1 with matching installer size.
+- Setup: 134,885,816 bytes; SHA-256 `2b43dd2457f6c00076296011a1bed300628ff19b86817f471c6f7ad20745ac03`.
+- Portable: 121,503,700 bytes; SHA-256 `5117a031e675c09bf45733832b71beaed216a5973fadd970aa04a1e3a27f8e42`.
 
 ## 3.7.0 — descriptions, widgets, startup control, and focus analytics
 

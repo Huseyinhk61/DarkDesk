@@ -78,3 +78,9 @@ A normal quit flushes pending aggregate records. Forced termination can lose the
 - [Profiles and background file automation](ECOSYSTEM.md)
 - [Folder colors and themes](FOLDER-APPEARANCE.md)
 - [Validation and platform limits](VALIDATION.md)
+
+### Compact controls in 3.7.1
+
+Each panel can collapse to a 44-pixel header without discarding its note or tasks. Collapse state survives restart, and expanding restores compact content bounds. The system panel shows per-core CPU samples and a memory percentage bar; its polling pauses while collapsed.
+
+Folder artwork now uses immutable content-addressed files in DarkDesk’s local `folder-artwork` cache. Windows `desktop.ini` references this cache so Explorer distinguishes color and style changes from its previous icon identity. Existing custom folder metadata remains protected. Saving an unchanged category also retries the appearance update for older folders.
