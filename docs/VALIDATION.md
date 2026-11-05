@@ -10,7 +10,16 @@ Date: November 5, 2026. Local environment: Linux, Node.js 24, Electron 45, Chrom
 - A separate real Electron raster probe generated distinct valid 256-pixel custom-gradient ICOs. Windows-specific custom-folder application is also included in the native smoke branch for the Windows runner.
 - New English screenshots were captured from the real browser demo. Browser screenshots show unsupported native actions as unavailable; they do not imply that a web preview can change local folders or system state.
 
-Packaged-ASAR checks and public Windows release results will be recorded after completion. Usage estimates do not measure time spent in other apps or infer unobserved operating-system launch history.
+- The Linux unpacked ASAR passed the same Electron smoke. Packaged models, native raster/actions, translations, renderer assets, version 3.6.0, and all 360 preset ICOs were compared with current source.
+- **Published and verified:** [Windows Installer](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42005932582) passed service tests, native IPC including custom-gradient folder application, Setup/Portable packaging, release metadata checks, and publication. [Test & Build](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42005932607) passed Windows/Linux jobs and **95 browser scenarios**.
+- [Release v3.6.0](https://github.com/Huseyinhk61/DarkDesk/releases/tag/v3.6.0) is public. Anonymous requests for Setup, Portable, blockmap, and update feed returned HTTP 200. The update feed reports 3.6.0 and its installer size matches the published file.
+
+Official release files (use this release's `SHA256SUMS.txt`):
+
+- Setup: 134,410,697 bytes; SHA-256 `66f252ae23adbced9cae249c4553b401f6483e3957cac19ff99ff60332f19cc5`.
+- Portable: 121,064,005 bytes; SHA-256 `0e79a5adb01d41452de9dae3fedea1616ca594b1bdac1ed5db6aa1be1eecdea2`.
+
+Usage estimates do not measure time spent in other apps or infer unobserved operating-system launch history. Native Windows metadata and custom ICO generation were checked on the runner; interactive Explorer repaint and a GUI installation/old-to-new upgrade on the user's computer were not performed.
 
 ## 3.5.1 — runtime-state and Undo synchronization
 
