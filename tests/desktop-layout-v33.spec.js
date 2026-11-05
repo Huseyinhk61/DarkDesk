@@ -53,6 +53,7 @@ test('Spotlight uses an opaque panel so underlying application text cannot bleed
   await page.getByRole('button', { name: 'Hızlı Başlatıcı', exact: true }).click();
   const panel = page.locator('.launcher-panel');
   await expect(panel).toBeVisible();
+  await expect(panel).toHaveCSS('opacity', '1');
   const surface = await panel.evaluate((element) => {
     const style = getComputedStyle(element);
     return { background: style.backgroundColor, opacity: style.opacity };

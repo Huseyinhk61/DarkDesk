@@ -117,6 +117,7 @@ test('scrollbars follow themes while window controls stay fixed during settings 
   await page.setViewportSize({ width: 1366, height: 768 });
   await open(page);
   await page.getByRole('button', { name: 'Otomasyon & Ayarlar', exact: true }).click();
+  await expect(page.locator('.folder-appearance-panel')).toBeVisible();
   const main = page.locator('main');
   await expect(main).toHaveCSS('scrollbar-gutter', 'stable');
   const before = await page.locator('.titlebar').boundingBox();
