@@ -164,10 +164,11 @@ async function widgetPage(application, id) {
     await todoInput.fill('Verify the real widget window');
     await todoInput.press('Enter');
     await expect(todos.locator('.widget-todos li')).toHaveCount(1);
-    await todos.locator('.widget-todos input[type=checkbox]').check();
+    await todos.locator('.widget-todos input[type=checkbox]').click();
     await expect
       .poll(async () => (await main.evaluate(() => window.darkdesk.widgetState())).todos[0]?.done)
       .toBe(true);
+    await expect(todos.locator('.widget-todos input[type=checkbox]')).toBeChecked();
     await todos.locator('.widget-todos button').click();
     await expect(todos.locator('.widget-todos li')).toHaveCount(0);
     await todoInput.fill('Persist across application restart');
