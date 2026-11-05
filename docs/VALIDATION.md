@@ -12,6 +12,15 @@ Date: November 5, 2026. Local environment: Linux, Node.js 24, Electron 45, Chrom
 
 Startup mutations are tested using injected registry adapters and temporary files, never by toggling the test host’s real startup entries. Analytics timing tests use injected samples; the native CI smoke includes one read-only Windows/macOS adapter probe without enabling or persisting tracking. Lock, shutdown, mute, Recycle Bin deletion, and UAC elevation are not dispatched by these checks. Windows desktop placement may use its documented floating fallback when Explorer is unavailable; macOS CI checks interactive placement of the app’s own NSWindow.
 
+**Published and verified:** [Windows Installer](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42087105712) passed source and packaged widget IPC, native bindings, Setup/Portable packaging, release verification, and publication. [Test & Build](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42087105670) passed Windows/Linux service and native checks, **112 browser scenarios**, and the macOS interactive desktop-layer widget check. Read-only Windows startup and Windows/macOS foreground adapters ran successfully without enabling analytics or modifying real startup entries.
+
+[Release v3.7.0](https://github.com/Huseyinhk61/DarkDesk/releases/tag/v3.7.0) is public. Anonymous Setup, Portable, blockmap, and update-feed requests returned HTTP 200. The public feed reports **3.7.0** and its installer size matches the published asset.
+
+Official release files (use this release’s `SHA256SUMS.txt`):
+
+- Setup: 134,877,571 bytes; SHA-256 `067830951529b99b529fe14ca972a03563e6a45b75c2aca74f599428f8b0ea0b`.
+- Portable: 121,504,923 bytes; SHA-256 `0e5ae97dd6c7339b3237ae123b2f62a4ed59f0a93475fe2756f55822d253796d`.
+
 ## 3.6.1 — launcher paths, favorites, and session stability
 
 Date: November 5, 2026. Local environment: Linux, Node.js 24, Electron 45, Chromium, and Xvfb.
