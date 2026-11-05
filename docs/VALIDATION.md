@@ -8,7 +8,14 @@ Date: November 5, 2026. Local environment: Linux, Node.js 24, Electron 45, Chrom
 - **100 Chromium scenarios passed** with the final renderer. New lifecycle regressions reproduced stale refresh errors, old launch completions closing a replacement palette, and outdated destructive-action preparation before the fix. Tests also cover retained favorites through organization/Undo and preserving the state of a dispatched confirmation.
 - Production build and real source Electron smoke passed. The native test launches an organized temporary file at its new path, verifies the same favorite after Undo, holds a launch while reopening the native palette, and rejects an old renderer session's close request.
 - The Linux unpacked ASAR passed the same native smoke. Its version, main process, catalog/activity/session modules, and all renderer assets match the current source tree.
-- Formatting and whitespace checks passed. Public Windows release results will be recorded after completion.
+- Formatting and whitespace checks passed.
+- **Published and verified:** [Windows Installer](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42023577199) passed native Windows file/path/session regressions, EXE packaging, metadata verification, and publication. [Test & Build](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42023577235) passed Windows/Linux jobs and **100 browser scenarios**.
+- [Release v3.6.1](https://github.com/Huseyinhk61/DarkDesk/releases/tag/v3.6.1) is public. Anonymous Setup/Portable/blockmap requests and the update feed returned HTTP 200. The feed reports 3.6.1 and its installer size matches the published asset.
+
+Official release files (use this release's `SHA256SUMS.txt`):
+
+- Setup: 134,413,076 bytes; SHA-256 `6159b8df3dcc3caa20ecb81963d8fbe485e527bd35ed8eddf2ad37dea447c22c`.
+- Portable: 121,069,998 bytes; SHA-256 `dd29c3f8806647cc9c76f4224eb79f6cc60d5685883e5594a9f1d6e74501b73d`.
 
 Recovery reads completed, verified DarkDesk operation history; it does not recursively index arbitrary desktop folders. Missing, modified, symlinked, or otherwise unverifiable managed outputs are excluded. No real external application, lock, shutdown, Recycle Bin deletion, or elevation is executed by these tests.
 
