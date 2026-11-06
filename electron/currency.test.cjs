@@ -10,6 +10,11 @@ const { validateSettings } = require('../shared/validate.js');
 test('currency parsing keeps units separate and computes cross rates without arithmetic execution', () => {
   assert.deepEqual(parseCurrencyInput('50 USD to TRY'), { amount: 50, from: 'USD', to: 'TRY' });
   assert.deepEqual(parseCurrencyInput('100 EUR'), { amount: 100, from: 'EUR', to: 'TRY' });
+  assert.deepEqual(parseCurrencyInput('USD to TRY'), { amount: 1, from: 'USD', to: 'TRY' });
+  assert.deepEqual(parseCurrencyInput('EUR'), { amount: 1, from: 'EUR', to: 'TRY' });
+  assert.deepEqual(parseCurrencyInput('eur in usd'), { amount: 1, from: 'EUR', to: 'USD' });
+  for (const input of ['to TRY', '-1 USD', 'USD to', '1e3 USD', 'USD TRY', 'EUR extra'])
+    assert.equal(parseCurrencyInput(input), null, input);
   assert.equal(parseCurrencyInput('10 km to m'), null);
   assert.equal(parseCurrencyInput('2 XYZ to TRY'), null);
   assert.equal(parseCurrencyInput('Infinity USD'), null);

@@ -1,6 +1,26 @@
 import glyphs from './minimal-icons.json' with { type: 'json' };
 
 export const folderThemes = ['gradient', 'solid', 'outline'];
+export function resolveFolderTheme(category, fallback = 'gradient') {
+  return category?.folderTheme ?? fallback;
+}
+// One signature drives both native synchronization and preview invalidation.
+export function folderAppearanceVersion(settings) {
+  return JSON.stringify({
+    theme: settings.folderTheme,
+    categories: settings.categories.map(
+      ({ id, folder, parentId, color, icon, customColor, folderTheme }) => ({
+        id,
+        folder,
+        parentId,
+        color,
+        icon,
+        customColor,
+        folderTheme,
+      }),
+    ),
+  });
+}
 export const folderColors = {
   blue: { fill: '#6388ff', shade: '#3452c2', stroke: '#b9c9ff' },
   purple: { fill: '#a17cf7', shade: '#6540b1', stroke: '#dbc7ff' },

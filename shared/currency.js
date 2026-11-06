@@ -5,14 +5,13 @@ export const currencies = new Set(
 );
 export function parseCurrencyInput(input, target = 'TRY') {
   if (typeof input !== 'string' || input.length > 128) return null;
-  const match = /^\s*(\d+(?:[.,]\d{1,8})?)\s*([a-z]{3})(?:\s+(?:to|in|=)\s*([a-z]{3}))?\s*$/i.exec(
-    input,
-  );
+  const match =
+    /^\s*(?:(\d+(?:[.,]\d{1,8})?)\s*)?([a-z]{3})(?:\s+(?:to|in|=)\s*([a-z]{3}))?\s*$/i.exec(input);
   if (!match) return null;
   const from = match[2].toUpperCase(),
     to = (match[3] || target).toUpperCase();
   if (!currencies.has(from) || !currencies.has(to)) return null;
-  const amount = Number(match[1].replace(',', '.'));
+  const amount = match[1] === undefined ? 1 : Number(match[1].replace(',', '.'));
   if (!Number.isFinite(amount) || amount > 1e12) return null;
   return { amount, from, to };
 }

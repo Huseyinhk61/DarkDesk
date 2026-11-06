@@ -7,6 +7,8 @@ const {
   folderSvg,
   folderPalette,
   normalizeFolderColor,
+  resolveFolderTheme,
+  folderAppearanceVersion,
 } = require('../shared/folder-appearance.js');
 const { defaultSettings, categorySegments } = require('../shared/domain.js');
 const { validateSettings } = require('./settings.cjs');
@@ -17,6 +19,72 @@ const { renderFolderIco, pngToIco } = require('./folder-raster.cjs');
 
 const artwork = (color = 'blue') =>
   fs.readFile(path.join(__dirname, '../build/folder-icons/themes/gradient', color, 'code.ico'));
+
+test('per-category styles survive validation and use a shared synchronization signature', () => {
+  const input = structuredClone(defaultSettings);
+  const before = folderAppearanceVersion(input);
+  input.categories[0].folderTheme = 'outline';
+  const settings = validateSettings(input);
+  assert.equal(settings.categories[0].folderTheme, 'outline');
+  assert.equal(resolveFolderTheme(settings.categories[0], 'solid'), 'outline');
+  assert.equal(resolveFolderTheme(settings.categories[1], 'solid'), 'solid');
+  assert.notEqual(folderAppearanceVersion(settings), before);
+  assert.deepEqual(validateSettings(settings), settings);
+  settings.categories[0].folderTheme = 'invalid';
+  assert.throws(() => validateSettings(settings), /CATEGORY_INVALID/);
+});
+
+test('native folder artwork honors an individual style before the global style', async (t) => {
+  const data = await fs.mkdtemp(path.join(os.tmpdir(), 'darkdesk-category-style-'));
+  t.after(() => fs.rm(data, { recursive: true, force: true }));
+  const icons = new FolderIcons(data, 'win32');
+  const category = { color: 'blue', icon: 'code', folderTheme: 'outline' };
+  const settings = { folderTheme: 'solid' };
+  const contents = await icons.folderContents(category, settings);
+  assert.deepEqual(
+    contents['.darkdesk.ico'],
+    await fs.readFile(await icons.folderIconFile('code', 'blue', 'outline')),
+  );
+  assert.match(contents['desktop.ini'].toString('utf16le'), /DarkDesk=outline\/blue\/code/);
+  category.customColor = { from: '#112233', to: '#445566' };
+  let theme;
+  icons.renderFolderIco = async (input, style) => {
+    theme = style;
+    return contents['.darkdesk.ico'];
+  };
+  await icons.folderContents(category, settings);
+  assert.equal(theme, 'outline');
+});
+
+test('applying category styles rewrites owned folder files and preserves a global change override', async (t) => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'darkdesk-style-sync-'));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  const desktop = path.join(root, 'Desktop'),
+    data = path.join(root, 'data');
+  await fs.mkdir(desktop);
+  const folderIcons = new FolderIcons(data, 'win32', { run: async () => {} });
+  const service = new DesktopService(desktop, data, { platform: 'win32', folderIcons });
+  const settings = structuredClone(defaultSettings),
+    category = settings.categories[0];
+  const directory = path.join(desktop, ...categorySegments(category.id, settings.categories));
+  await fs.mkdir(directory);
+  const metadata = await folderIcons.decorate(directory, category, settings);
+  await service.save([{ status: 'completed', directories: [directory], metadata, entries: [] }]);
+  category.folderTheme = 'outline';
+  assert.equal((await applyFolderAppearance(service, settings)).updated, 1);
+  const outline = await fs.readFile(path.join(directory, '.darkdesk.ico'));
+  assert.deepEqual(
+    outline,
+    await fs.readFile(await folderIcons.folderIconFile(category.icon, category.color, 'outline')),
+  );
+  settings.folderTheme = 'solid';
+  assert.equal((await applyFolderAppearance(service, settings)).unchanged, 1);
+  assert.deepEqual(await fs.readFile(path.join(directory, '.darkdesk.ico')), outline);
+  delete category.folderTheme;
+  assert.equal((await applyFolderAppearance(service, settings)).updated, 1);
+  assert.notDeepEqual(await fs.readFile(path.join(directory, '.darkdesk.ico')), outline);
+  assert.match(await fs.readFile(path.join(directory, 'desktop.ini'), 'utf16le'), /DarkDesk=solid/);
+});
 
 test('custom folder gradients validate and persist normalized colors without changing legacy groups', () => {
   const legacy = validateSettings({});

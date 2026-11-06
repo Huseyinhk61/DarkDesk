@@ -1,5 +1,16 @@
 # DarkDesk validation report
 
+## Unreleased — production polish
+
+Date: November 6, 2026. Source changes prepared for review; published 3.8.1 assets are unchanged.
+
+- **307 Linux service/model tests passed**, including real temporary-folder writes for individual style changes, global-style override preservation/reset, metadata checks and retained custom-icon ownership. Category style validation and appearance-signature invalidation share the renderer/native model. Existing AI migration, popular-tool recognition and manual override tests pass.
+- **125 browser scenarios passed** in the full run. After the final stationary-pointer selection fix, **16 focused launcher/production scenarios passed**, including actual pointer movement versus layout hover, command/application favorite persistence, amount-free FX inputs, custom palette/style restart and Windows apply dispatch, stale asynchronous results and large-text scanner/startup layouts.
+- Production build, source Electron file-operation/IPC smoke and real widget-window smoke passed. The native launcher correctly dispatched the searched file after the selection fix; preview, move/Undo, scanner source switching and widget persistence also passed.
+- Formatting and whitespace checks passed. Scanner/startup screens were visually inspected at small desktop widths and 130% text. Expanded startup command paths wrap without horizontal clipping; scanner controls and long application names remain within their cards.
+
+Folder-style tests write real ICO/INI files with an injected Windows attribute adapter. This Linux run does not establish how a live Windows Explorer session redraws them. FX arithmetic/refresh/error checks use controlled dated responses; the cloud FX host permission remains a saved draft, so this report does not claim a successful live-provider request. Rates are institutional reference snapshots, not streaming market prices. New installers were not generated for these unreleased source changes.
+
 ## 3.8.1 — Linux packages and proxy-aware currency
 
 - 304 Linux service/model tests passed, including actual GIO dispatch against an isolated temporary marker entry, invalid-entry failure, desktop metadata localization/filtering, manual FX refresh, cache status and bounded response checks. The actual GIO integration case is Linux-only and explicitly skipped on other operating systems.

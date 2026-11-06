@@ -6,7 +6,11 @@ const exec = promisify(execFile);
 const crypto = require('node:crypto');
 const { icons } = require('../shared/domain.js');
 const { iconPacks } = require('../shared/appearance.js');
-const { folderThemes, folderColorIds } = require('../shared/folder-appearance.js');
+const {
+  folderThemes,
+  folderColorIds,
+  resolveFolderTheme,
+} = require('../shared/folder-appearance.js');
 const { renderFolderIco } = require('./folder-raster.cjs');
 const folderIni = (category, theme, resource = '.darkdesk.ico') =>
   Buffer.concat([
@@ -46,15 +50,10 @@ class FolderIcons {
     return path.join(__dirname, '../build/folder-icons/themes', theme, color, icon + '.ico');
   }
   async folderContents(category, settings) {
+    const theme = resolveFolderTheme(category, settings.folderTheme);
     const bytes = category.customColor
-      ? await this.renderFolderIco(category, settings.folderTheme ?? 'gradient')
-      : await fs.readFile(
-          await this.folderIconFile(
-            category.icon,
-            category.color,
-            settings.folderTheme ?? 'gradient',
-          ),
-        );
+      ? await this.renderFolderIco(category, theme)
+      : await fs.readFile(await this.folderIconFile(category.icon, category.color, theme));
     // Explorer caches icons by resource path. An immutable content address gives
     // each appearance a new identity while the journal still owns the same pair.
     const directory = path.join(this.data, 'folder-artwork');
@@ -74,7 +73,7 @@ class FolderIcons {
       throw Error('FOLDER_APPEARANCE_INVALID');
     return {
       '.darkdesk.ico': bytes,
-      'desktop.ini': folderIni(category, settings.folderTheme ?? 'gradient', resource),
+      'desktop.ini': folderIni(category, theme, resource),
     };
   }
 

@@ -744,7 +744,11 @@ export default function Launcher({ onClose, onCommand }) {
                   aria-selected={active === index}
                   id={'result-' + entry.id}
                   className={`launcher-result ${active === index ? 'selected' : ''} ${entry.tool ? 'launcher-tool-result' : ''}`}
-                  onMouseEnter={() => setActive(index)}
+                  onMouseMove={(event) => {
+                    // Results can move under a stationary pointer while typing
+                    // or scrolling. Only real pointer motion changes selection.
+                    if (event.movementX || event.movementY) setActive(index);
+                  }}
                   onClick={() => execute(entry)}
                   disabled={
                     busy ||
@@ -811,7 +815,13 @@ export default function Launcher({ onClose, onCommand }) {
             {!entries.length && !helpOnly && (
               <div className="launcher-empty">
                 <Search size={28} />
-                <p>{t('launcher.empty')}</p>
+                <p>
+                  {t(
+                    favoritesOnly && !query.trim()
+                      ? 'launcherNext.emptyFavorites'
+                      : 'launcher.empty',
+                  )}
+                </p>
               </div>
             )}
           </div>

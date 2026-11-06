@@ -1014,5 +1014,9 @@
   "sources.linuxSnap": "Snap",
   "sources.linuxAppImages": "AppImage uygulamaları",
   "purposePlus.source.linux": "Linux uygulama açıklaması",
-  "purposePlus.note.linux": "Bu metin .desktop dosyasının Comment alanından gelir; uygulama çalıştırılmadı."
+  "purposePlus.note.linux": "Bu metin .desktop dosyasının Comment alanından gelir; uygulama çalıştırılmadı.",
+  "folders.categoryStyle": "Bu klasörün stili",
+  "folders.inheritStyle": "Genel stili kullan · {style}",
+  "startupPlus.command": "Başlatma komutunu göster",
+  "launcherNext.emptyFavorites": "Henüz favorin yok. Tümü bölümünde bir uygulama veya komut seçip Ctrl+D ile sabitle."
 }

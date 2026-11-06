@@ -3,6 +3,7 @@ const { constants } = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { categorySegments } = require('../shared/domain.js');
+const { resolveFolderTheme } = require('../shared/folder-appearance.js');
 const { validateSettings } = require('./settings.cjs');
 const { JsonStore } = require('./runtime/json-store.cjs');
 
@@ -196,7 +197,7 @@ async function applyFolderAppearance(service, input) {
             manifest.folders[key] = {
               categoryId: category.id,
               color: category.color,
-              theme: settings.folderTheme,
+              theme: resolveFolderTheme(category, settings.folderTheme),
               files: Object.fromEntries(names.map((name) => [name, hash(desired[name])])),
             };
             try {
@@ -236,7 +237,7 @@ async function applyFolderAppearance(service, input) {
         manifest.folders[key] = {
           categoryId: category.id,
           color: category.color,
-          theme: settings.folderTheme,
+          theme: resolveFolderTheme(category, settings.folderTheme),
           files: Object.fromEntries(names.map((name) => [name, hash(desired[name])])),
         };
         try {

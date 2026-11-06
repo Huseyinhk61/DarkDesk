@@ -268,7 +268,10 @@ export default function SystemToolsPanel({ busy = false }) {
                       <span className="startup-source">
                         {t('startupPlus.source.' + item.source)}
                       </span>
-                      <code title={item.command}>{item.command}</code>
+                      <details className="startup-command">
+                        <summary>{t('startupPlus.command')}</summary>
+                        <code>{item.command}</code>
+                      </details>
                       {!item.canEdit && (
                         <span className="startup-readonly">
                           <LockKeyhole size={12} aria-hidden="true" />

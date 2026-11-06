@@ -28,6 +28,7 @@ import { api, native } from './service';
 import { canUndo, formatBytes, isShortcut } from './utils';
 import { usePreferences } from './preferences';
 import { isDescendant } from '../shared/domain';
+import { folderAppearanceVersion } from '../shared/folder-appearance';
 import { classificationReason } from '../shared/grouping';
 import { matchesAccelerator } from '../shared/hotkeys';
 import Profiles from './components/Profiles';
@@ -291,24 +292,10 @@ export default function App() {
   const saveSettings = async (value, { applyFolders = false } = {}) => {
     if (!start('settings')) return false;
     try {
-      const folderVisuals = (input) =>
-        JSON.stringify({
-          theme: input.folderTheme,
-          categories: input.categories.map(
-            ({ id, folder, parentId, color, icon, customColor }) => ({
-              id,
-              folder,
-              parentId,
-              color,
-              icon,
-              customColor,
-            }),
-          ),
-        });
       const updateFolders =
         native &&
         stats?.platform === 'win32' &&
-        (applyFolders || folderVisuals(settings) !== folderVisuals(value));
+        (applyFolders || folderAppearanceVersion(settings) !== folderAppearanceVersion(value));
       const saved = await api.setSettings(value);
       setSettings(saved);
       let appearanceWarning = '';
@@ -318,7 +305,7 @@ export default function App() {
           if (
             result.failed ||
             result.refreshPending ||
-            result.details?.some((entry) => entry.code === 'FOLDER_CUSTOMIZED')
+            result.details?.some((entry) => entry.code && entry.code !== 'FOLDER_NOT_CREATED')
           )
             appearanceWarning =
               t('folders.result', result) +

@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased — production polish
+
+- Persist a category-specific Gradient/Solid/Outline override or follow the global folder style. Share appearance signatures and style resolution across React previews, native ICO generation and synchronization records.
+- Report skipped unsafe/changed folder updates alongside apply failures while preserving independent Explorer customizations.
+- Accept `USD to TRY` and `EUR` as one-unit currency queries; retain explicit amounts, unit conversions, dated reference rates and offline/error labeling.
+- Guide first-time users through pinning both command and application favorites, preserve AI grouping/manual routing, and prevent stationary-pointer hover events from stealing keyboard selection when results move.
+- Give scanner cards a readable minimum column width and wrapped titles. Collapse startup commands into keyboard-accessible details with fully wrapped paths, aligned controls and large-text support.
+
 ## 3.8.1 — November 6, 2026
 
 - Publish verified Linux AppImage/DEB packages alongside Windows installers; add an AppImage update feed and desktop-menu association.

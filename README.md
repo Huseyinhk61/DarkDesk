@@ -78,7 +78,7 @@ See the [Linux installation and platform guide](docs/LINUX.md) for DEB/AppImage 
 
 See why each item was grouped, filter uncertain matches for review, and open a subgroup without losing its parent context. Sort groups by name or item count and hide empty groups when you want a shorter overview. Manual choices remain in control; custom rule previews show matching items before saving.
 
-Choose **Gradient**, **Solid**, or **Outline** folders independently from the application theme. Each group has its own color and glyph. Start with ten preset colors or choose custom HEX values and one of six gradient palettes. Saving a visual change updates existing DarkDesk-owned Windows folder icons automatically; **Apply to desktop folders** is also available for an explicit refresh. The app retains 360 bundled preset icons and generates matching custom artwork locally. Original application logos are preserved. See the [folder appearance guide](docs/FOLDER-APPEARANCE.md) for existing folders, skipped custom icons, and undo behavior.
+Choose **Gradient**, **Solid**, or **Outline** folders independently from the application theme. Each group has its own color and glyph. In its editor, **Style for this folder** can override the global style or follow it; the same saved style powers previews and Windows folder artwork. Start with ten preset colors or choose custom HEX values and one of six gradient palettes. Saving a visual change updates existing DarkDesk-owned Windows folder icons automatically; **Apply to desktop folders** is also available for an explicit refresh. The app retains 360 bundled preset icons and generates matching custom artwork locally. Original application logos are preserved. See the [folder appearance guide](docs/FOLDER-APPEARANCE.md) for existing folders, skipped custom icons, and undo behavior.
 
 <table>
   <tr>
@@ -121,7 +121,7 @@ Quick Launcher has **All / Favorites** views for both applications and commands.
 
 ### Dated online currency conversion
 
-Type **50 USD to TRY** or **100 EUR**. An omitted target uses TRY in Turkish and USD in English. Frankfurter supplies institutional reference rates with their published date; these are not streaming market quotes. The app requests one fixed USD-based feed, without sending the typed amount, search query, filenames or app inventory. Quotes refresh after one hour; a valid cached snapshot can be used offline for up to seven days and is labeled as offline. Unsupported currencies and unavailable rates show an explicit error, not an invented number. Existing local unit conversions remain available.
+Type **50 USD to TRY**, **100 EUR**, **USD to TRY**, or **EUR**. Omitting the amount means one unit. An omitted target uses TRY in Turkish and USD in English. Frankfurter supplies institutional reference rates with their published date; these are not streaming market quotes. The app requests one fixed USD-based feed, without sending the typed amount, search query, filenames or app inventory. Quotes refresh after one hour; a valid cached snapshot can be used offline for up to seven days and is labeled as offline. Unsupported currencies and unavailable rates show an explicit error, not an invented number. Existing local unit conversions remain available.
 
 ### More than app search
 

@@ -123,6 +123,20 @@
   min-width: 0;
   overflow-wrap: anywhere;
 }
+.item-card h3 {
+  white-space: normal;
+}
+.items-grid:not(.list-layout) {
+  grid-template-columns: repeat(auto-fit, minmax(min(270px, 100%), 1fr));
+  gap: 16px;
+}
+.item-card .item-metadata {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  line-height: 1.6;
+}
 .item-card .item-title-button {
   width: 100%;
   text-align: left;

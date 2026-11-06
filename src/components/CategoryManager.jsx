@@ -16,7 +16,13 @@ import AppIcon from './AppIcon';
 import Modal from './Modal';
 import FolderPreview from './FolderPreview';
 import FolderAppearanceSettings from './FolderAppearanceSettings';
-import { folderColors, folderPalette, folderAccentStyle } from '../../shared/folder-appearance';
+import {
+  folderColors,
+  folderPalette,
+  folderAccentStyle,
+  resolveFolderTheme,
+  folderThemes,
+} from '../../shared/folder-appearance';
 import '../custom-folder-colors.css';
 const hexColor = /^#[a-f\d]{6}$/i;
 const gradientPresets = [
@@ -410,7 +416,7 @@ export default function CategoryManager({ onSave, busy, items = [], onApplyFolde
               <div>
                 <b>{editor.name || t('manager.new')}</b>
                 <small>
-                  {t('folders.theme.' + settings.folderTheme)} ·{' '}
+                  {t('folders.theme.' + resolveFolderTheme(editor, settings.folderTheme))} ·{' '}
                   {editor.customColor ? t('customFolder.custom') : t('colors.' + editor.color)}
                 </small>
               </div>
@@ -459,6 +465,26 @@ export default function CategoryManager({ onSave, busy, items = [], onApplyFolde
                 </select>
               </label>
             </div>
+            <label className="category-style-field">
+              {t('folders.categoryStyle')}
+              <select
+                aria-label={t('folders.categoryStyle')}
+                value={editor.folderTheme || ''}
+                disabled={!!busy}
+                onChange={(event) =>
+                  setEditor({ ...editor, folderTheme: event.target.value || undefined })
+                }
+              >
+                <option value="">
+                  {t('folders.inheritStyle', { style: t('folders.theme.' + settings.folderTheme) })}
+                </option>
+                {folderThemes.map((theme) => (
+                  <option key={theme} value={theme}>
+                    {t('folders.theme.' + theme)}
+                  </option>
+                ))}
+              </select>
+            </label>
             <span className="field-label" id="folder-color-options-label">
               {t('common.color')}
             </span>

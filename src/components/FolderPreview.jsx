@@ -1,11 +1,11 @@
-import { folderSvg } from '../../shared/folder-appearance';
+import { folderSvg, resolveFolderTheme } from '../../shared/folder-appearance';
 import { usePreferences } from '../preferences';
 
 export default function FolderPreview({ category, size = 48, theme }) {
   const { settings } = usePreferences();
   const svg = folderSvg({
     color: category?.color || 'purple',
-    theme: theme || settings.folderTheme,
+    theme: theme || resolveFolderTheme(category, settings.folderTheme),
     icon: category?.icon || 'folder',
     customColor: category?.customColor,
   });

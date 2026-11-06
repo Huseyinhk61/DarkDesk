@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Check, FolderSync, FolderHeart } from 'lucide-react';
-import { folderThemes } from '../../shared/folder-appearance';
+import { folderThemes, folderAppearanceVersion } from '../../shared/folder-appearance';
 import { usePreferences } from '../preferences';
 import FolderPreview from './FolderPreview';
 import { native } from '../service';
@@ -9,17 +9,7 @@ export default function FolderAppearanceSettings({ onSave, onApply, busy, platfo
   const { settings, t, categoryLabel, errorMessage } = usePreferences();
   const [result, setResult] = useState(null),
     [applying, setApplying] = useState(false);
-  const appearanceVersion = JSON.stringify({
-    theme: settings.folderTheme,
-    categories: settings.categories.map(({ id, folder, parentId, icon, color, customColor }) => ({
-      id,
-      folder,
-      parentId,
-      icon,
-      color,
-      customColor,
-    })),
-  });
+  const appearanceVersion = folderAppearanceVersion(settings);
   useEffect(() => setResult(null), [appearanceVersion]);
   const supported = native && platform === 'win32';
   const apply = async () => {

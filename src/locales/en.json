@@ -1014,5 +1014,9 @@
   "sources.linuxSnap": "Snap",
   "sources.linuxAppImages": "AppImage applications",
   "purposePlus.source.linux": "Linux desktop description",
-  "purposePlus.note.linux": "This text comes from the .desktop Comment field; the application was not executed."
+  "purposePlus.note.linux": "This text comes from the .desktop Comment field; the application was not executed.",
+  "folders.categoryStyle": "Style for this folder",
+  "folders.inheritStyle": "Use global style · {style}",
+  "startupPlus.command": "Show startup command",
+  "launcherNext.emptyFavorites": "No favorites yet. Select an app or command in All and pin it with Ctrl+D."
 }

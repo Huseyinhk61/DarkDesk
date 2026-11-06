@@ -1,6 +1,6 @@
 # Folder colors and styles
 
-DarkDesk 3.6 supports preset colors, custom HEX colors, and two-color gradients for category folders. Changing the application palette, interface icon pack, or font does not require changing folder colors. Original application logos and existing file icons are preserved.
+DarkDesk supports preset colors, custom HEX colors, and two-color gradients for category folders. Changing the application palette, interface icon pack, or font does not require changing folder colors. Original application logos and existing file icons are preserved.
 
 ## Choose a folder appearance
 
@@ -8,7 +8,7 @@ DarkDesk 3.6 supports preset colors, custom HEX colors, and two-color gradients 
 2. Choose its glyph and one of ten preset colors: Blue, Purple, Green, Orange, Slate, Pink, Cyan, Teal, Amber, or Red. Alternatively, use **Custom color & gradient** to pick any start and end color.
 3. Enter six-digit HEX values such as `#2255ee` and `#dd3388`, use the native color inputs, or select Aurora, Ocean, Sunset, Forest, Rose, or Graphite. **Use a single color** makes both ends match. Invalid HEX values cannot be saved.
 4. Save the category. Its card accents, icon background, and folder preview update. On Windows, DarkDesk also applies saved visual changes to existing category folders whose icon metadata it owns.
-5. In **Folder appearance**, choose **Gradient**, **Solid**, or **Outline**. The style applies across groups while each group retains its own color and glyph. Gradient uses both custom colors; Solid uses the start color. New Windows category folders receive the chosen appearance when you organize files into them.
+5. In **Folder appearance**, choose the global **Gradient**, **Solid**, or **Outline** style. In an individual category editor, **Style for this folder** overrides it for that category. Select **Use global style** to follow later global changes again. Each group retains its own color and glyph. Gradient uses both custom colors; Solid uses the start color. New Windows category folders receive the chosen appearance when you organize files into them.
 
 The same validated SVG artwork powers interface previews and Windows folder icons. Ten preset colors use 360 bundled assets: three styles × ten colors × twelve glyphs. Custom colors are rendered locally into matching PNG-backed ICOs, without downloading artwork. Native folder artwork is distinct from the five interface icon packs. Choosing a preset color or **Restore preset color** clears the custom gradient.
 
