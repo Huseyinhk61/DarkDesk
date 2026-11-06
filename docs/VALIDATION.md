@@ -7,6 +7,15 @@
 - Production build, AppImage ELF/extraction, DEB metadata/extraction, Linux update SHA-512, and identical packaged ASAR checks passed. All 83 packaged code/renderer/locale files match source. Source and packaged native Electron smoke suites passed.
 - The FX host permission was saved using the supported cloud environment configuration draft workflow. Runtime revision 1 still does not grant that host; live FX validation remains pending review/save/publication of that configuration. No proxy, TLS or security-policy bypass was used.
 
+**Published and verified:** [Desktop Installers](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42222354380) passed Windows Setup/Portable and Linux AppImage/DEB packaging, checksum/update verification, source/packaged native IPC checks and publication. [Test & Build](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42222354277) passed Windows/Linux service checks, **120 browser scenarios**, and macOS widget/native IPC checks.
+
+[Release v3.8.1](https://github.com/Huseyinhk61/DarkDesk/releases/tag/v3.8.1) is public. Anonymous Setup, Portable, AppImage, DEB and update-metadata requests returned HTTP 200. Both latest update feeds report 3.8.1, with matching installer/AppImage sizes. Linux update metadata also matches the published SHA-256 record. The cloud FX-provider permission remains a saved draft; these release checks do not establish live-provider access.
+
+- DarkDesk-Setup-3.8.1.exe: 134,894,469 bytes; SHA-256 `86bf54a9bd90fa2f7764ddcc6b186d3f9ba200c863d54c1626d115813991ea00`.
+- DarkDesk-Portable-3.8.1.exe: 121,515,056 bytes; SHA-256 `9aa22bea44c30e99c45b17f75d6c59c170f051c4b9e74a0a13771274c9978477`.
+- DarkDesk-3.8.1-x86_64.AppImage: 142,790,204 bytes; SHA-256 `60a244af94dbdc45e9900d43785e64ad08ba64d6881e37ba2106238dbd15097e`.
+- DarkDesk-3.8.1-amd64.deb: 113,688,312 bytes; SHA-256 `a78af1c5444056ba3fadc1cbd2ef5398fa86e0ea7c1db35a4b996b8286cbb91a`.
+
 ## 3.8.0 — AI groups, command favorites, and currency tools
 
 - **299 local service/model/settings tests passed.** New coverage includes fixed-endpoint FX requests, cross-rate arithmetic, request deduplication, offline restart, expired-cache rejection, AI schema migration, user override precedence and generic-metadata fallback.
