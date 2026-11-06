@@ -337,11 +337,15 @@ export function resolveAppPurpose(item, manualDescription, metadata) {
       : item.insight || appInsight(item, item.category);
   if (typeof manualDescription === 'string' && manualDescription.trim())
     return appInsight(item, item.category, manualDescription);
-  const raw =
+  let raw =
     metadata && Object.hasOwn(metadata, 'purposeDescription')
       ? metadata.purposeDescription
       : metadata?.description;
-  const source = metadata?.purposeSource || metadata?.metadataSource;
+  let source = metadata?.purposeSource || metadata?.metadataSource;
+  if (!raw && item.desktopDescription) {
+    raw = item.desktopDescription;
+    source = 'linux-desktop';
+  }
   const nativeDescription =
     typeof raw === 'string'
       ? raw
@@ -362,7 +366,7 @@ export function resolveAppPurpose(item, manualDescription, metadata) {
     nativeDescription &&
     !titleOnly &&
     !generic &&
-    ['windows-version-info', 'windows-shortcut'].includes(source) &&
+    ['windows-version-info', 'windows-shortcut', 'linux-desktop'].includes(source) &&
     (source !== 'windows-version-info' || !unrelatedLaunchHost(item))
   )
     return {
@@ -370,7 +374,7 @@ export function resolveAppPurpose(item, manualDescription, metadata) {
       confidence: 'metadata',
       source,
       description: { tr: nativeDescription, en: nativeDescription },
-      company: typeof metadata.company === 'string' ? metadata.company.slice(0, 1024) : null,
+      company: typeof metadata?.company === 'string' ? metadata.company.slice(0, 1024) : null,
     };
   return fallback;
 }

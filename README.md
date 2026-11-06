@@ -2,7 +2,7 @@
   <img src="docs/assets/banner.svg" alt="DarkDesk — A calmer desktop. A clearer workspace." width="1100" />
   <p><strong>A calmer desktop. A clearer workspace.</strong></p>
   <p>Find your apps, organize real files, and build a focused workspace with local desktop tools.<br />Preview every change. Keep control. Undo when you need to.</p>
-  <a href="https://github.com/Huseyinhk61/DarkDesk/releases/latest"><strong>Download for Windows</strong></a> ·
+  <a href="https://github.com/Huseyinhk61/DarkDesk/releases/latest"><strong>Download for Windows & Linux</strong></a> ·
   <a href="#features">Explore features</a> ·
   <a href="#run-from-source">Run from source</a> ·
   <a href="https://github.com/Huseyinhk61/DarkDesk/issues">Report an issue</a>
@@ -20,17 +20,21 @@
 
 ## Get DarkDesk
 
-Open **[GitHub Releases](https://github.com/Huseyinhk61/DarkDesk/releases/latest)** and choose a Windows x64 package:
+Open **[GitHub Releases](https://github.com/Huseyinhk61/DarkDesk/releases/latest)** and choose a Windows or Linux x86-64 package:
 
-| Download                                  | Best for                                                                         |
-| :---------------------------------------- | :------------------------------------------------------------------------------- |
-| **DarkDesk-Setup-&lt;version&gt;.exe**    | Everyday use: installation wizard, desktop shortcut, and in-app updates.         |
-| **DarkDesk-Portable-&lt;version&gt;.exe** | Trying the app without installing it. Updates require downloading a new package. |
-| **SHA256SUMS.txt**                        | Checking the integrity of downloaded release files.                              |
+| Download                                     | Best for                                                                         |
+| :------------------------------------------- | :------------------------------------------------------------------------------- |
+| **DarkDesk-Setup-&lt;version&gt;.exe**       | Everyday use: installation wizard, desktop shortcut, and in-app updates.         |
+| **DarkDesk-Portable-&lt;version&gt;.exe**    | Trying the app without installing it. Updates require downloading a new package. |
+| **DarkDesk-&lt;version&gt;-x86_64.AppImage** | Linux desktop application, with in-app AppImage updates.                         |
+| **DarkDesk-&lt;version&gt;-amd64.deb**       | Ubuntu/Debian installation with desktop-menu integration.                        |
+| **SHA256SUMS.txt**                           | Checking the integrity of downloaded release files.                              |
 
 No Node.js or terminal is needed for the packaged app. Before replacing an older installation, quit DarkDesk from its system-tray menu. Packages are currently **unsigned**; Windows may show a publisher or SmartScreen warning.
 
-Release downloads become available after the [Windows packaging workflow](https://github.com/Huseyinhk61/DarkDesk/actions/workflows/windows.yml) finishes successfully. For installation, update access, and troubleshooting, see the [update guide](docs/UPDATES.md) and [Windows guide](docs/WINDOWS.md).
+Release downloads become available after the [desktop packaging workflow](https://github.com/Huseyinhk61/DarkDesk/actions/workflows/windows.yml) finishes successfully. For installation, update access, and troubleshooting, see the [update guide](docs/UPDATES.md) and [Windows guide](docs/WINDOWS.md).
+
+See the [Linux installation and platform guide](docs/LINUX.md) for DEB/AppImage prerequisites and supported features.
 
 ## Features
 

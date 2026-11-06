@@ -86,3 +86,23 @@ test('late currency responses cannot replace a newer query result', async ({ pag
   await page.evaluate(() => window.__fxPending[50]());
   await expect(page.getByRole('option')).toContainText('4.000 TRY');
 });
+test('manual rate refresh bypasses a fresh browser snapshot and shows the new response', async ({
+  page,
+}) => {
+  let requests = 0;
+  await page.route('https://api.frankfurter.dev/**', (route) =>
+    route.fulfill({
+      json: {
+        base: 'USD',
+        date: new Date().toISOString().slice(0, 10),
+        rates: { TRY: ++requests === 1 ? 40 : 41, EUR: 0.8 },
+      },
+    }),
+  );
+  const input = await open(page);
+  await input.fill('50 USD to TRY');
+  await expect(page.getByRole('option')).toContainText('2.000 TRY');
+  await page.getByRole('button', { name: 'Kuru yenile', exact: true }).click();
+  await expect(page.getByRole('option')).toContainText('2.050 TRY');
+  expect(requests).toBe(2);
+});

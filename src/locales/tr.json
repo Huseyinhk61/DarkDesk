@@ -1008,5 +1008,11 @@
   "launcherNext.fxError": "Kur alınamadı veya para birimi desteklenmiyor.",
   "launcherNext.fxDate": "Referans kuru · {date}",
   "launcherNext.fxCached": "Çevrimdışı önbellek",
-  "launcherNext.fxHelp": "Örnek: 50 USD to TRY · 100 EUR (Türkçe: TRY, İngilizce: USD). Kurlar sağlayıcının yayınladığı referans tarihine aittir."
+  "launcherNext.fxHelp": "Örnek: 50 USD to TRY · 100 EUR (Türkçe: TRY, İngilizce: USD). Kurlar sağlayıcının yayınladığı referans tarihine aittir.",
+  "currency.refresh": "Kuru yenile",
+  "sources.linuxFlatpak": "Flatpak",
+  "sources.linuxSnap": "Snap",
+  "sources.linuxAppImages": "AppImage uygulamaları",
+  "purposePlus.source.linux": "Linux uygulama açıklaması",
+  "purposePlus.note.linux": "Bu metin .desktop dosyasının Comment alanından gelir; uygulama çalıştırılmadı."
 }

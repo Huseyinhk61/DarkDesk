@@ -1,9 +1,11 @@
+const { launchLinuxItem } = require('./runtime/linux-apps.cjs');
 const { CurrencyService } = require('./runtime/currency.cjs');
 const {
   app,
   BrowserWindow,
   ipcMain,
   shell,
+  net,
   session,
   Tray,
   Menu,
@@ -304,13 +306,18 @@ else {
         emit,
         getFileIcon: (file, options) => app.getFileIcon(file, options),
         launch: async (item) => {
+          if (process.platform === 'linux')
+            return launchLinuxItem(item, { openPath: (file) => shell.openPath(file) });
           const error = await shell.openPath(item.source);
           if (error) throw Error('LAUNCH_FAILED: ' + error);
         },
       });
       await runtime.initialize();
       systemMetrics = new SystemMetrics();
-      currencyService = new CurrencyService({ data: app.getPath('userData') });
+      currencyService = new CurrencyService({
+        data: app.getPath('userData'),
+        fetch: (url, options) => net.fetch(url, options),
+      });
       startupManager = new StartupManager({ data: app.getPath('userData') });
       productivity = new ProductivityTracker({
         data: app.getPath('userData'),
@@ -361,7 +368,9 @@ else {
         },
       });
       const updateEnabled =
-        app.isPackaged && process.platform === 'win32' && !process.env.PORTABLE_EXECUTABLE_FILE;
+        app.isPackaged &&
+        ((process.platform === 'win32' && !process.env.PORTABLE_EXECUTABLE_FILE) ||
+          (process.platform === 'linux' && !!process.env.APPIMAGE));
       updates = createUpdates({
         accessStore: new UpdateAccessStore({ directory: app.getPath('userData'), safeStorage }),
         autoUpdater: updateEnabled ? require('electron-updater').autoUpdater : undefined,

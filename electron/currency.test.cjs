@@ -83,3 +83,33 @@ test('AI migration is one-time, preserves custom groups and respects manual rout
   });
   assert.deepEqual(pinned.launcherCommandFavorites, ['command:show', 'system:lock']);
 });
+test('manual currency refresh fetches newer data and oversized responses never become rates', async (t) => {
+  const data = await fs.mkdtemp(path.join(os.tmpdir(), 'darkdesk-fx-refresh-'));
+  t.after(() => fs.rm(data, { recursive: true, force: true }));
+  let now = Date.parse('2026-11-06T12:00Z'),
+    calls = 0;
+  const service = new CurrencyService({
+    data,
+    clock: () => now,
+    fetch: async () =>
+      new Response(
+        JSON.stringify({
+          base: 'USD',
+          date: '2026-11-06',
+          rates: { TRY: ++calls === 1 ? 40 : 41 },
+        }),
+      ),
+  });
+  const query = { amount: 50, from: 'USD', to: 'TRY' };
+  assert.equal((await service.quote(query)).value, 2000);
+  assert.equal((await service.quote({ ...query, refresh: true })).cached, false);
+  now += 6000;
+  assert.equal((await service.quote({ ...query, refresh: true })).value, 2050);
+  assert.equal(calls, 2);
+  const { readCurrencyResponse } = require('../shared/currency-response.js');
+  await assert.rejects(readCurrencyResponse(new Response('x'.repeat(131073))), /FX_UNAVAILABLE/);
+  assert.throws(
+    () => validateRates({ base: 'USD', date: '2026-11-06', rates: {} }, now),
+    /FX_UNAVAILABLE/,
+  );
+});

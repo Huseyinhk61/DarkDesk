@@ -17,6 +17,7 @@ import {
   Shield,
   AlertTriangle,
   Copy,
+  RefreshCw,
 } from 'lucide-react';
 import { api, native } from '../service';
 import { usePreferences } from '../preferences';
@@ -32,6 +33,7 @@ export default function Launcher({ onClose, onCommand }) {
     [query, setQuery] = useState(''),
     [favoritesOnly, setFavoritesOnly] = useState(false),
     [currencyResult, setCurrencyResult] = useState(null),
+    [currencyRefresh, setCurrencyRefresh] = useState(0),
     [active, setActive] = useState(0),
     [busy, setBusy] = useState(false),
     [loading, setLoading] = useState(true),
@@ -180,6 +182,7 @@ export default function Launcher({ onClose, onCommand }) {
       searchText: t('launcherPlus.system.' + id) + ' ' + id,
     })),
   ];
+  useEffect(() => setCurrencyRefresh(0), [query]);
   const currencyQuery = useMemo(
     () => parseCurrencyInput(query, settings.language === 'tr' ? 'TRY' : 'USD'),
     [query, settings.language],
@@ -191,7 +194,7 @@ export default function Launcher({ onClose, onCommand }) {
     const timer = setTimeout(
       () =>
         api
-          .currencyQuote(currencyQuery)
+          .currencyQuote({ ...currencyQuery, refresh: currencyRefresh > 0 })
           .then((value) => {
             if (active)
               setCurrencyResult({
@@ -223,7 +226,7 @@ export default function Launcher({ onClose, onCommand }) {
       active = false;
       clearTimeout(timer);
     };
-  }, [currencyQuery, query, locale]);
+  }, [currencyQuery, query, locale, currencyRefresh]);
   const tool = useMemo(
     () =>
       currencyQuery
@@ -300,7 +303,7 @@ export default function Launcher({ onClose, onCommand }) {
             settings.itemIcons[item.id] ||
             settings.categories.find((c) => c.id === item.category)?.icon ||
             'file',
-          name: item.name.replace(/\.(lnk|exe|desktop)$/i, ''),
+          name: (item.productName || item.name).replace(/\.(lnk|exe|desktop)$/i, ''),
           searchText:
             item.name +
             ' ' +
@@ -652,6 +655,18 @@ export default function Launcher({ onClose, onCommand }) {
               <Star size={13} />
               {t('launcherNext.favorites')}
             </button>
+            {currencyQuery && (
+              <button
+                type="button"
+                disabled={tool?.status === 'loading'}
+                aria-label={t('currency.refresh')}
+                title={t('currency.refresh')}
+                onClick={() => setCurrencyRefresh((n) => n + 1)}
+              >
+                <RefreshCw size={14} />
+                {t('currency.refresh')}
+              </button>
+            )}
             <button
               type="button"
               className="launcher-pin-selected"

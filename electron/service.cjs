@@ -1,3 +1,4 @@
+const { readDesktopEntry } = require('./runtime/linux-apps.cjs');
 const fs = require('node:fs/promises');
 const { createReadStream, constants } = require('node:fs');
 const path = require('node:path');
@@ -193,10 +194,17 @@ class DesktopService {
               launchUrl = (await readInternetShortcut(source)).launchUrl || '';
             } catch {}
           }
+          let desktopDetail = {};
+          if (this.platform === 'linux' && extension === '.desktop')
+            try {
+              desktopDetail = await readDesktopEntry(source, settings.language);
+            } catch {}
           const item = enrichItem(
             {
               id: root.scope === 'shared' ? this.sharedId(source) : entry.name,
               name: entry.name,
+              productName: desktopDetail.productName || '',
+              desktopDescription: desktopDetail.desktopDescription || '',
               source,
               target,
               launchUrl,

@@ -1,3 +1,4 @@
+const { readDesktopEntry } = require('./runtime/linux-apps.cjs');
 const { readInternetShortcut } = require('./internet-shortcut.cjs');
 const fs = require('node:fs/promises');
 const path = require('node:path');
@@ -85,7 +86,23 @@ class DeepScanner {
           file.split(/[\\/]/).some((part) => skipDirectory(part, settings.scanFilters))
         )
           return;
-        const stat = await fs.lstat(file);
+        let stat = await fs.lstat(file);
+        if (this.platform === 'linux' && origin === 'linuxFlatpak' && stat.isSymbolicLink()) {
+          const real = await fs.realpath(file);
+          const trusted = [
+            '/var/lib/flatpak/app',
+            path.join(os.homedir(), '.local/share/flatpak/app'),
+          ];
+          if (
+            !trusted.some((root) => {
+              const relative = path.relative(root, real);
+              return relative && !relative.startsWith('..') && !path.isAbsolute(relative);
+            })
+          )
+            return;
+          file = real;
+          stat = await fs.lstat(file);
+        }
         if (!stat.isFile() || stat.isSymbolicLink()) return;
         const extension = path.extname(file).toLowerCase();
         if (!['.exe', '.lnk', '.url', '.desktop', '.appimage'].includes(extension)) return;
@@ -101,6 +118,11 @@ class DeepScanner {
             Object.assign(detail, await readInternetShortcut(file));
           } catch {}
         }
+        if (this.platform === 'linux' && extension === '.desktop') {
+          const desktop = await readDesktopEntry(file, settings.language);
+          if (desktop.hidden || !desktop.application) return;
+          Object.assign(detail, desktop);
+        }
         const target = detail.target || file;
         const key = keyOf(target) + '\0' + (detail.args || '').trim();
         if (found.has(key)) return;
@@ -110,6 +132,8 @@ class DeepScanner {
           name: path.basename(file),
           source: file,
           target,
+          productName: detail.productName || '',
+          desktopDescription: detail.desktopDescription || '',
           launchUrl: detail.launchUrl || '',
           arguments: detail.args || '',
           workingDirectory: detail.cwd || '',
@@ -135,6 +159,13 @@ class DeepScanner {
                 { path: '/usr/share/applications', label: 'linuxSystem' },
                 { path: path.join(os.homedir(), '.local/share/applications'), label: 'linuxUser' },
                 { path: '/opt', label: 'linuxOpt' },
+                { path: '/var/lib/flatpak/exports/share/applications', label: 'linuxFlatpak' },
+                {
+                  path: path.join(os.homedir(), '.local/share/flatpak/exports/share/applications'),
+                  label: 'linuxFlatpak',
+                },
+                { path: '/var/lib/snapd/desktop/applications', label: 'linuxSnap' },
+                { path: path.join(os.homedir(), 'Applications'), label: 'linuxAppImages' },
               ]
             : [];
       if (this.platform === 'win32' && this.registryEnabled) {
@@ -195,7 +226,10 @@ class DeepScanner {
               !skipDirectory(entry.name, settings.scanFilters)
             )
               queue.push({ path: full, label: root.label, depth: root.depth + 1 });
-            else if (entry.isFile()) {
+            else if (
+              entry.isFile() ||
+              (this.platform === 'linux' && root.label === 'linuxFlatpak' && entry.isSymbolicLink())
+            ) {
               files++;
               await add(full, root.label);
             }

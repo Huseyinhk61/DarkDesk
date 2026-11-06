@@ -43,6 +43,7 @@ export function validateRates(data, now = Date.now()) {
       value < 1e12
     )
       rates[code] = value;
+  if (Object.keys(rates).length < 2) throw Error('FX_UNAVAILABLE');
   return { base: 'USD', date: data.date, rates };
 }
 export function validCurrencyQuery(query) {

@@ -1,3 +1,4 @@
+const { readDesktopEntry } = require('./linux-apps.cjs');
 const fs = require('node:fs/promises');
 const { constants } = require('node:fs');
 const path = require('node:path');
@@ -212,8 +213,14 @@ class LauncherCatalog {
         detail = await readInternetShortcut(source);
       } catch {}
     }
+    if (this.service.platform === 'linux' && extension === '.desktop')
+      try {
+        Object.assign(detail, await readDesktopEntry(source));
+      } catch {}
     return {
       id: entry.id,
+      productName: detail.productName || entry.productName || '',
+      desktopDescription: detail.desktopDescription || entry.desktopDescription || '',
       name,
       source,
       scope,

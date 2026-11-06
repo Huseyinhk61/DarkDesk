@@ -89,7 +89,7 @@ export default function NativePurpose({ item, metadata: provided, detail = false
   const source =
     purpose.source === 'manual'
       ? 'manual'
-      : ['windows-version-info', 'windows-shortcut'].includes(purpose.source)
+      : ['windows-version-info', 'windows-shortcut', 'linux-desktop'].includes(purpose.source)
         ? 'metadata'
         : purpose.source === 'local-catalog'
           ? 'catalog'
@@ -104,10 +104,14 @@ export default function NativePurpose({ item, metadata: provided, detail = false
       <span
         className={`purpose-badge ${source === 'catalog' ? 'known' : ''} purpose-source-${source}`}
       >
-        {t('purposePlus.source.' + source)}
+        {t('purposePlus.source.' + (purpose.source === 'linux-desktop' ? 'linux' : source))}
       </span>
       <p title={text}>{text}</p>
-      {detail && <small>{t('purposePlus.note.' + source)}</small>}
+      {detail && (
+        <small>
+          {t('purposePlus.note.' + (purpose.source === 'linux-desktop' ? 'linux' : source))}
+        </small>
+      )}
     </div>
   );
 }

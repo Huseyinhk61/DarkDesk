@@ -1,12 +1,20 @@
-## DarkDesk 3.8.0
+## DarkDesk 3.8.1 — Windows and Linux
 
-Download **DarkDesk-Setup-3.8.0.exe** for installation and in-app updates, or **DarkDesk-Portable-3.8.0.exe** for portable use. SHA256SUMS.txt contains release checksums.
+### Downloads
 
-- Add All / Favorites launcher views for applications and system/profile commands, with Ctrl+D pinning and Ctrl+1/2 navigation. Destructive actions keep confirmation.
-- Add dated online currency conversion, such as `50 USD to TRY` and `100 EUR`, with a fixed public Frankfurter feed, bounded requests, reference dates and labeled offline cache. Rates are published reference rates, not streaming market prices.
-- Add AI & Intelligent Tools plus Assistant, Coding, Local Model and AI Media subgroups. Migrate old settings once and recognize Claude, Cursor, ChatGPT, Ollama and more. Manual assignments and custom rules retain precedence.
-- Expand the bilingual offline app dictionary to 134 entries. Application names and file paths are not uploaded for description matching.
-- Share folder palette accents across category cards, item icons and destination selectors; report delayed Explorer refreshes after physical appearance updates.
-- Improve scanner card wrapping, footer alignment, contrast and keyboard navigation.
+- **DarkDesk-Setup-3.8.1.exe**: recommended Windows installation and in-app updates.
+- **DarkDesk-Portable-3.8.1.exe**: portable Windows application.
+- **DarkDesk-3.8.1-x86_64.AppImage**: Linux x86-64 desktop application with in-app AppImage updates.
+- **DarkDesk-3.8.1-amd64.deb**: Ubuntu/Debian package with application-menu integration.
+- **SHA256SUMS.txt**: checksums for Windows/Linux artifacts and update feeds.
 
-No account or API key is required. Native folder artwork is Windows-specific; the browser preview does not modify desktop files. See docs/VALIDATION.md for completed checks and network-test scope.
+### Fixes
+
+- Use Electron’s OS-aware network/proxy transport for native currency requests. Add manual rate refresh, shared response-size validation, empty-feed rejection and accurate cache status.
+- Read Linux desktop-entry names and comments for useful card labels, descriptions and categorization. Filter hidden service entries and add Flatpak, Snap and AppImage discovery roots.
+- Launch desktop entries through GIO and report dispatch errors; launch executable AppImages directly without a shell. Preserve executable bits on copied launchers and align the installed desktop name with the window class.
+- Build and verify both AppImage and DEB artifacts and publish a Linux update feed. Existing Windows-native folder icons/startup tools remain platform-specific.
+
+Currency conversion uses the computer’s network/proxy configuration and the provider’s published reference date. No API key is required; an offline fallback is labeled. These are reference rates, not streaming trading prices.
+
+Read [Linux support](https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/LINUX.md) and [validation](https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/VALIDATION.md) for completed checks and remaining network-validation scope.

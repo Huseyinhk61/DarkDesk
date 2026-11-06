@@ -1,6 +1,6 @@
 {
   "name": "darkdesk",
-  "version": "3.8.0",
+  "version": "3.8.1",
   "private": true,
   "type": "module",
   "main": "electron/main.cjs",
@@ -15,7 +15,7 @@
     "test:desktop": "node scripts/desktop-smoke.cjs",
     "check": "npm test && npm run build && npm run test:e2e",
     "dist:win": "npm run build && electron-builder --win nsis portable --x64",
-    "dist:linux": "npm run build && electron-builder --linux AppImage --x64",
+    "dist:linux": "npm run build && electron-builder --linux AppImage deb --x64",
     "format": "prettier --write src shared electron tests scripts *.json *.js *.md docs/*.md .github",
     "postinstall": "node node_modules/electron/install.js",
     "icons": "node scripts/generate-folder-icons.mjs && node scripts/generate-colored-folder-icons.mjs",
@@ -84,9 +84,14 @@
       "artifactName": "DarkDesk-Portable-${version}.${ext}"
     },
     "linux": {
-      "target": "AppImage",
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "category": "Utility",
-      "icon": "build/icon.png"
+      "icon": "build/icon.png",
+      "artifactName": "DarkDesk-${version}-${arch}.${ext}",
+      "syncDesktopName": true
     },
     "publish": [
       {
@@ -97,7 +102,22 @@
         "private": false
       }
     ],
-    "generateUpdatesFilesForAllChannels": true
+    "generateUpdatesFilesForAllChannels": true,
+    "deb": {
+      "depends": [
+        "libgtk-3-0",
+        "libnotify4",
+        "libnss3",
+        "libxss1",
+        "libxtst6",
+        "xdg-utils",
+        "libatspi2.0-0",
+        "libuuid1",
+        "libsecret-1-0",
+        "libglib2.0-bin"
+      ],
+      "maintainer": "DarkDesk contributors"
+    }
   },
   "repository": {
     "type": "git",
@@ -117,5 +137,6 @@
   ],
   "optionalDependencies": {
     "koffi": "^3.3.7"
-  }
+  },
+  "desktopName": "darkdesk.desktop"
 }

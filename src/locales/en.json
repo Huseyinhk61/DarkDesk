@@ -1008,5 +1008,11 @@
   "launcherNext.fxError": "Rates unavailable or currency unsupported.",
   "launcherNext.fxDate": "Reference rate · {date}",
   "launcherNext.fxCached": "Offline cache",
-  "launcherNext.fxHelp": "Try 50 USD to TRY · 100 EUR (Turkish: TRY, English: USD). Rates use the provider’s published reference date."
+  "launcherNext.fxHelp": "Try 50 USD to TRY · 100 EUR (Turkish: TRY, English: USD). Rates use the provider’s published reference date.",
+  "currency.refresh": "Refresh rates",
+  "sources.linuxFlatpak": "Flatpak",
+  "sources.linuxSnap": "Snap",
+  "sources.linuxAppImages": "AppImage applications",
+  "purposePlus.source.linux": "Linux desktop description",
+  "purposePlus.note.linux": "This text comes from the .desktop Comment field; the application was not executed."
 }

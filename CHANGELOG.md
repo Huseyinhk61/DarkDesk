@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.8.1 — November 6, 2026
+
+- Publish verified Linux AppImage/DEB packages alongside Windows installers; add an AppImage update feed and desktop-menu association.
+- Route native currency requests through Electron networking, add manual refresh, bound browser/native responses and correct cache status.
+- Read Linux desktop metadata without executing it; discover Flatpak/Snap/AppImage sources and launch entries through GIO with failure reporting.
+- Fix null metadata handling for Linux descriptions and preserve executable launcher copies.
+
 ## 3.8.0 — November 6, 2026
 
 - Add persistent application and command favorites with dedicated launcher views and keyboard shortcuts.

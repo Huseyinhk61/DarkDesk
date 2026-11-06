@@ -180,9 +180,10 @@ class FolderIcons {
         })
       )
         throw Error('SHORTCUT_FAILED');
-    } else if (this.platform === 'linux' && item.extension === '.desktop')
+    } else if (this.platform === 'linux' && item.extension === '.desktop') {
       await fs.copyFile(item.source, destination);
-    else if (this.platform === 'linux') {
+      await fs.chmod(destination, 0o755);
+    } else if (this.platform === 'linux') {
       const quote = (value) => '"' + value.replace(/%/g, '%%').replace(/([\\"`$])/g, '\\$1') + '"';
       await fs.writeFile(
         destination,

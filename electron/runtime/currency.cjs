@@ -1,3 +1,4 @@
+const { readCurrencyResponse } = require('../../shared/currency-response.js');
 const path = require('node:path');
 const { JsonStore } = require('./json-store.cjs');
 const { validateRates, convertCurrency, validCurrencyQuery } = require('../../shared/currency.js');
@@ -10,8 +11,9 @@ class CurrencyService {
     this.inflight = null;
     this.memory = null;
     this.lastAttempt = 0;
+    this.lastFailure = false;
   }
-  async rates() {
+  async rates(force = false) {
     const now = this.clock();
     let saved = this.memory;
     if (!saved)
@@ -26,6 +28,7 @@ class CurrencyService {
         saved = null;
       }
     if (
+      !force &&
       saved &&
       Number.isFinite(saved.fetchedAt) &&
       saved.fetchedAt <= now &&
@@ -33,8 +36,12 @@ class CurrencyService {
     )
       return { ...saved, cached: false };
     if (this.inflight) return this.inflight;
-    if (this.lastAttempt && now - this.lastAttempt < 30000) {
-      if (saved) return { ...saved, cached: true };
+    if (
+      this.lastAttempt &&
+      now >= this.lastAttempt &&
+      now - this.lastAttempt < (force ? 5000 : 30000)
+    ) {
+      if (saved) return { ...saved, cached: this.lastFailure };
       throw Error('FX_UNAVAILABLE');
     }
     this.lastAttempt = now;
@@ -45,21 +52,13 @@ class CurrencyService {
           redirect: 'error',
           headers: { Accept: 'application/json' },
         });
-        if (!response.ok) throw Error('FX_UNAVAILABLE');
-        let text = '';
-        let size = 0;
-        const decoder = new TextDecoder();
-        for await (const chunk of response.body) {
-          size += chunk.byteLength;
-          if (size > 131072) throw Error('FX_UNAVAILABLE');
-          text += decoder.decode(chunk, { stream: true });
-        }
-        text += decoder.decode();
-        const value = { ...validateRates(JSON.parse(text), now), fetchedAt: now };
+        const value = { ...(await readCurrencyResponse(response, now)), fetchedAt: now };
+        this.lastFailure = false;
         this.memory = value;
         await this.store.write(value).catch(() => {});
         return { ...value, cached: false };
       } catch {
+        this.lastFailure = true;
         if (saved) return { ...saved, cached: true };
         throw Error('FX_UNAVAILABLE');
       } finally {
@@ -70,7 +69,7 @@ class CurrencyService {
   }
   async quote(query) {
     if (!validCurrencyQuery(query)) throw Error('FX_INVALID');
-    const data = await this.rates();
+    const data = await this.rates(query.refresh === true);
     return { ...convertCurrency(query, data), cached: data.cached };
   }
 }

@@ -64,7 +64,7 @@ export default function ItemCard({
             onClick={() => setShowDetails(true)}
             aria-label={t('info.open', { name: item.name })}
           >
-            {item.name.replace(/\.(lnk|exe|url|desktop)$/i, '')}
+            {(item.productName || item.name).replace(/\.(lnk|exe|url|desktop)$/i, '')}
           </button>
         </h3>
         {(item.shared || item.sourceScope === 'shared') && (

@@ -1,5 +1,12 @@
 # DarkDesk validation report
 
+## 3.8.1 — Linux packages and proxy-aware currency
+
+- 304 Linux service/model tests passed, including actual GIO dispatch against an isolated temporary marker entry, invalid-entry failure, desktop metadata localization/filtering, manual FX refresh, cache status and bounded response checks. The actual GIO integration case is Linux-only and explicitly skipped on other operating systems.
+- 119 browser scenarios passed in the full local run; five focused launcher cases, including manual refresh, passed afterward.
+- Production build, AppImage ELF/extraction, DEB metadata/extraction, Linux update SHA-512, and identical packaged ASAR checks passed. All 83 packaged code/renderer/locale files match source. Source and packaged native Electron smoke suites passed.
+- The FX host permission was saved using the supported cloud environment configuration draft workflow. Runtime revision 1 still does not grant that host; live FX validation remains pending review/save/publication of that configuration. No proxy, TLS or security-policy bypass was used.
+
 ## 3.8.0 — AI groups, command favorites, and currency tools
 
 - **299 local service/model/settings tests passed.** New coverage includes fixed-endpoint FX requests, cross-rate arithmetic, request deduplication, offline restart, expired-cache rejection, AI schema migration, user override precedence and generic-metadata fallback.

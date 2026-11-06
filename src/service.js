@@ -1,3 +1,4 @@
+import { readCurrencyResponse } from '../shared/currency-response';
 import { validateRates, convertCurrency } from '../shared/currency';
 import {
   defaultWidgetState,
@@ -328,6 +329,7 @@ export const api = window.darkdesk || {
       cached = null;
     }
     if (
+      !query.refresh &&
       cached &&
       Number.isFinite(cached.fetchedAt) &&
       cached.fetchedAt <= Date.now() &&
@@ -338,8 +340,7 @@ export const api = window.darkdesk || {
       const response = await fetch('https://api.frankfurter.dev/v1/latest?base=USD', {
         signal: AbortSignal.timeout(7000),
       });
-      if (!response.ok) throw Error('FX_UNAVAILABLE');
-      const value = { ...validateRates(await response.json()), fetchedAt: Date.now() };
+      const value = { ...(await readCurrencyResponse(response)), fetchedAt: Date.now() };
       try {
         localStorage.setItem('darkdesk-fx-cache', JSON.stringify(value));
       } catch {}
