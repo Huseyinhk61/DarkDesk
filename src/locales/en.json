@@ -574,7 +574,7 @@
   "update.state.unsupported": "Manual update",
   "update.unsupported.development": "Update the development version from its source code. Use the Windows Setup EXE version for in-app installation.",
   "update.unsupported.portable": "Update the portable version manually from the download page. In-app installation is available in the Windows Setup EXE version.",
-  "update.unsupported.platform": "In-app installation is unavailable on this platform. Get the appropriate version from the download page.",
+  "update.unsupported.platform": "This installation type does not support in-app updates. Use Windows Setup or Linux AppImage, or update the package manually.",
   "update.unsupported.unavailable": "In-app updates are unavailable in this version. You can open the official download page.",
   "update.ready": "The update has downloaded. Restart and install when you are ready.",
   "update.progress": "Update download progress",
@@ -582,9 +582,9 @@
   "update.download": "Download update",
   "update.install": "Restart and update",
   "update.installing": "Restarting…",
-  "update.manual": "Open EXE download page",
+  "update.manual": "Open download page",
   "update.waitForFiles": "Wait for the current file operation to finish before installing the update.",
-  "update.policy": "New releases are checked regularly. Downloads and restarts require your confirmation.",
+  "update.policy": "Updates are checked at startup and in the background. Connection failures retry after 15 minutes; downloads and restarts require your action.",
   "update.noticeAvailable": "DarkDesk {version} is available",
   "update.noticeBody": "Review the new release and download it from the app.",
   "update.noticeReady": "DarkDesk {version} has downloaded",
@@ -1018,5 +1018,6 @@
   "folders.categoryStyle": "Style for this folder",
   "folders.inheritStyle": "Use global style · {style}",
   "startupPlus.command": "Show startup command",
-  "launcherNext.emptyFavorites": "No favorites yet. Select an app or command in All and pin it with Ctrl+D."
+  "launcherNext.emptyFavorites": "No favorites yet. Select an app or command in All and pin it with Ctrl+D.",
+  "update.releaseNotes": "What's new in this release"
 }

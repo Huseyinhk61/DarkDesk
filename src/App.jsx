@@ -604,7 +604,7 @@ export default function App() {
       >
         {t('a11y.skipContent')}
       </a>
-      <Sidebar {...{ view, stats, native }} setView={navigate} />
+      <Sidebar {...{ view, stats, native, update }} setView={navigate} />
       <div className="main-shell">
         <Titlebar view={view} native={native} />
         <main

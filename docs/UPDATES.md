@@ -1,15 +1,15 @@
-# Windows installation and in-app updates
+# Desktop installation and in-app updates
 
 ## First installation
 
-Open [GitHub Releases](https://github.com/Huseyinhk61/DarkDesk/releases/latest) and download **DarkDesk-Setup-3.7.0.exe**, or a newer Setup release. Quit an existing instance from the system-tray **Quit** menu before installing. The NSIS wizard installs the app and a desktop shortcut; Node.js and a terminal are not required.
+Open [GitHub Releases](https://github.com/Huseyinhk61/DarkDesk/releases/latest) and download **DarkDesk-Setup-3.8.2.exe**, or a newer Setup release. Quit an existing instance from the system-tray **Quit** menu before installing. The NSIS wizard installs the app and a desktop shortcut; Node.js and a terminal are not required.
 
 **Portable** is the alternative for running without installation. It does not replace itself through the in-app installer; download the next portable release manually.
 
 Packages are currently unsigned. Windows may display a publisher or SmartScreen warning. Use the official release source and compare the download with the matching `SHA256SUMS.txt`:
 
 ```powershell
-Get-FileHash .\DarkDesk-Setup-3.7.0.exe -Algorithm SHA256
+Get-FileHash .\DarkDesk-Setup-3.8.2.exe -Algorithm SHA256
 ```
 
 ## Public release access
@@ -26,7 +26,7 @@ If you previously saved a private-repository token, you can remove it from **Set
 
 ## Updating inside DarkDesk
 
-An installed Windows build checks 30 seconds after startup and every six hours while running, including in the system tray. A new version produces an in-app notice and, when the operating system allows it, a desktop notification. You can also check manually under **Automation & Settings → Updates**.
+Installed Windows Setup and Linux AppImage builds check 30 seconds after startup and every six hours while running, including in the system tray. Failed checks retry after 15 minutes. Returning to the app or resuming from sleep also checks when the previous check was at least 30 minutes ago; recent errors retain their 15-minute cooldown. Concurrent signals share one native check. A new version produces an in-app notice and, when the operating system allows it, a desktop notification. You can also check manually under **Automation & Settings → Updates**.
 
 1. Select **Check for updates**.
 2. Select **Download update** when a version is available. Progress appears in the panel.
@@ -34,7 +34,15 @@ An installed Windows build checks 30 seconds after startup and every six hours w
 
 Downloads do not start automatically, and quitting does not silently install a package. Restart is blocked during file operations. Before installation, the app restores profile visibility, flushes widget drafts and analytics, and saves its state. A failed widget draft save stops the restart so the note can remain available for retry. `electron-updater` verifies the SHA-512 checksum. Network, metadata, download, and installation errors allow a retry.
 
-Development builds, browser previews, Linux, and portable Windows builds do not offer native in-app installation. They provide a link to the official download page instead. A browser preview never downloads or installs a real application update.
+Development builds, browser previews, Linux DEB installations, and portable Windows builds do not offer native in-app installation. Packaged Linux AppImages do support native updates through `latest-linux.yml`. They provide a link to the official download page instead. A browser preview never downloads or installs a real application update.
+
+## When an update does not appear
+
+Compare the **Current version** in Settings → Updates with the latest published GitHub release, then select **Check for updates**. Downloading source changes or pushing a review branch does not create a newer installer: the application version must increase and both packaging jobs must publish their assets successfully. A build failure is not a released update.
+
+Use the installed Setup build for Windows in-app updates; Portable builds require downloading a new package. Old 3.4.1 private-feed builds need the one-time manual upgrade described above. A development window launched with npm also does not replace an installed application.
+
+The sidebar update indicator stays visible after dismissing the notice. **What's new in this release** opens the official version page without starting a download. Downloads and restart remain explicit actions.
 
 ## Publishing a release
 
@@ -44,6 +52,7 @@ Increase the version in `package.json` and `package-lock.json`, then push to `ma
 - `DarkDesk-Portable-<version>.exe`
 - The setup `.blockmap`
 - `latest.yml`
+- Linux AppImage and DEB packages, plus `latest-linux.yml`
 - `SHA256SUMS.txt`
 
 The workflow creates a draft release, uploads all assets, then publishes it as the latest release. An already-published version is not overwritten; use a new version for another update. An interrupted draft can be retried. A `v<version>` tag must match the package version.

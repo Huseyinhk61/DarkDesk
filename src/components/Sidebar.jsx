@@ -16,10 +16,11 @@ import {
   PanelsTopLeft,
   Cpu,
   ChartNoAxesCombined,
+  Download,
 } from 'lucide-react';
 import { usePreferences } from '../preferences';
 import { formatBytes } from '../utils';
-export default function Sidebar({ view, setView, stats, native }) {
+export default function Sidebar({ view, setView, stats, native, update }) {
   const { t, locale } = usePreferences();
   const used = stats ? 100 * (1 - stats.free / stats.total) : 0;
   return (
@@ -64,7 +65,17 @@ export default function Sidebar({ view, setView, stats, native }) {
           >
             <Icon size={19} />
             {t('nav.' + id)}
-            {view === id && <span className="nav-dot" />}
+            {id === 'settings' &&
+            ['available', 'downloading', 'downloaded'].includes(update?.state) ? (
+              <span
+                className="sidebar-update-badge"
+                title={t('update.noticeAvailable', { version: update.version })}
+              >
+                <Download size={13} aria-hidden="true" />
+              </span>
+            ) : (
+              view === id && <span className="nav-dot" />
+            )}
           </button>
         ))}
       </nav>

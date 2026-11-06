@@ -83,7 +83,7 @@ test('portable installations offer a manual EXE download and do not offer an in-
   await expect(
     panel.getByRole('button', { name: 'Yeniden başlat ve güncelle', exact: true }),
   ).toHaveCount(0);
-  await panel.getByRole('button', { name: 'EXE indirme sayfasını aç', exact: true }).click();
+  await panel.getByRole('button', { name: 'İndirme sayfasını aç', exact: true }).click();
   expect(await page.evaluate(() => window.updateTest.opens)).toBe(1);
 });
 
@@ -128,4 +128,70 @@ test('removing private repository access disables future update checks and expos
   ).toHaveCount(0);
   await expect(panel.getByRole('alert')).toContainText('GitHub erişim anahtarı ekleyin');
   expect(await page.evaluate(() => window.updateTest.status().accessConfigured)).toBe(false);
+});
+
+test('the release notes action opens details without downloading or installing', async ({
+  page,
+}) => {
+  await page.route('**/src/service.js*', async (route) => {
+    const response = await route.fetch();
+    await route.fulfill({
+      response,
+      body:
+        (await response.text()) +
+        `
+window.__releaseActions=[];
+api.updateStatus=async()=>({state:'available',currentVersion:'3.8.1',version:'3.8.2'});
+api.openReleaseNotes=async()=>window.__releaseActions.push('notes');
+api.downloadUpdate=async()=>window.__releaseActions.push('download');
+api.installUpdate=async()=>window.__releaseActions.push('install');`,
+    });
+  });
+  await page.goto('/');
+  await expect(page.locator('.item-card')).toHaveCount(12);
+  await page.getByRole('button', { name: 'Otomasyon & Ayarlar', exact: true }).click();
+  await page.getByRole('button', { name: 'Sürümdeki yenilikler', exact: true }).click();
+  expect(await page.evaluate(() => window.__releaseActions)).toEqual(['notes']);
+});
+
+test('a delayed initial status error cannot hide a newer available-update event', async ({
+  page,
+}) => {
+  await page.route('**/src/service.js*', async (route) => {
+    const response = await route.fetch();
+    await route.fulfill({
+      response,
+      body:
+        (await response.text()) +
+        `
+api.updateStatus=()=>new Promise((resolve,reject)=>{window.__rejectOldUpdateStatus=()=>reject(Error('old request failed'));});
+api.onUpdateChanged=fn=>{window.__updateListener=fn;return()=>{};};`,
+    });
+  });
+  await page.goto('/');
+  await expect(page.locator('.item-card')).toHaveCount(12);
+  await page.evaluate(() =>
+    window.__updateListener({ state: 'available', currentVersion: '3.8.1', version: '3.8.2' }),
+  );
+  await expect(page.locator('.update-notice')).toContainText('3.8.2');
+  await page.evaluate(() => window.__rejectOldUpdateStatus());
+  await page.getByRole('button', { name: 'Otomasyon & Ayarlar', exact: true }).click();
+  await expect(page.locator('.update-panel .update-state')).toHaveText('Yeni sürüm var');
+  await expect(page.locator('.update-notice')).toContainText('3.8.2');
+});
+
+test('an available update stays discoverable in navigation after its notice is dismissed', async ({
+  page,
+}) => {
+  await mockUpdates(page);
+  await page
+    .locator('.update-panel')
+    .getByRole('button', { name: 'Güncellemeleri kontrol et', exact: true })
+    .click();
+  await expect(page.locator('.sidebar-update-badge')).toBeVisible();
+  await page.locator('.update-notice-close').click();
+  await expect(page.locator('.update-notice')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Akıllı Gruplar', exact: true }).click();
+  await expect(page.locator('.sidebar-update-badge')).toBeVisible();
+  await expect(page.locator('.sidebar-update-badge')).toHaveAttribute('title', /3.5.0/);
 });

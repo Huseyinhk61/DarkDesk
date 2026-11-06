@@ -1,6 +1,14 @@
 # DarkDesk validation report
 
-## Unreleased — production polish
+## 3.8.2 — published delivery and resilient update checks
+
+- **311 Linux service/model tests passed.** New scheduler cases cover the initial delay, the fifteen-minute error retry, six-hour normal checks, throttled wake signals, recent manual checks, download/install exclusion, deduplicated requests and disposal. Release-note links are limited to the official repository with validated version tags.
+- **14 focused update/layout UI scenarios passed**, including progress/install ordering, unsupported Portable builds, a retained navigation indicator after dismissal, release-note actions and protection against delayed status failures. The included production-polish source previously passed 125 full browser scenarios and 16 final focused checks; remote validation of the 3.8.2 release is recorded below after completion.
+- The 3.8.2 production build, real source Electron/file-operation smoke and widget-window smoke passed. New release-notes IPC is present in the isolated preload. Actual updates remain explicit downloads/restarts; no unattended application installation was dispatched during these tests.
+
+Publication and remote cross-platform checks are pending at the time of this source commit. Live Windows upgrades and Explorer redraw cannot be established by Linux tests. Currency-provider live access is still outside this run's network permission; controlled response tests do not establish a successful provider request.
+
+## Production-polish source checks (included in 3.8.2)
 
 Date: November 6, 2026. Source changes prepared for review; published 3.8.1 assets are unchanged.
 

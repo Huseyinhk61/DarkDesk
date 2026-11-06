@@ -63,6 +63,7 @@ const { folders } = require('../electron/service.cjs');
     );
     await page.evaluate(() => window.darkdesk.setLauncherFavorite('Rapor.pdf', false));
     assert.equal((await page.evaluate(() => window.darkdesk.updateStatus())).state, 'unsupported');
+    assert.equal(await page.evaluate(() => typeof window.darkdesk.openReleaseNotes), 'function');
     const accessState = await page.evaluate(() => window.darkdesk.updateStatus());
     assert.equal(
       accessState.authenticationRequired,

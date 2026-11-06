@@ -19,6 +19,7 @@ const methods = [
   'downloadUpdate',
   'installUpdate',
   'openDownloads',
+  'openReleaseNotes',
   'getSettings',
   'setSettings',
   'runtimeStatus',

@@ -1,3 +1,4 @@
+import { releaseNotesUrl } from '../shared/update-links';
 import { readCurrencyResponse } from '../shared/currency-response';
 import { validateRates, convertCurrency } from '../shared/currency';
 import {
@@ -209,6 +210,9 @@ export const api = window.darkdesk || {
     throw Error('UPDATE_NOT_READY');
   },
   onUpdateChanged: () => () => {},
+  openReleaseNotes: async () => {
+    window.open(releaseNotesUrl(appVersion), '_blank', 'noopener,noreferrer');
+  },
   openDownloads: async () => {
     window.open(
       'https://github.com/Huseyinhk61/DarkDesk/releases/latest',

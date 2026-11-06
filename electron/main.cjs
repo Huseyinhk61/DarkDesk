@@ -28,6 +28,8 @@ const { ShortcutManager } = require('./runtime/shortcuts.cjs');
 const { validateSettings } = require('../shared/validate.js');
 const { resolveTheme } = require('../shared/appearance.js');
 const { createUpdates } = require('./runtime/updates.cjs');
+const { UpdateScheduler } = require('./runtime/update-scheduler.cjs');
+const { releaseNotesUrl } = require('../shared/update-links.js');
 const { resolveSharedDesktop } = require('./runtime/desktop-paths.cjs');
 const { UpdateAccessStore } = require('./runtime/update-access.cjs');
 const { restoreWindowState, WindowStateStore } = require('./runtime/window-state.cjs');
@@ -73,8 +75,8 @@ let win,
   runtime,
   shortcutManager,
   updates,
-  updateTimer,
-  updateStartupTimer,
+  updateScheduler,
+  wakeUpdates,
   windowStore,
   windowSaveTimer,
   preferredTheme = 'midnight',
@@ -655,6 +657,9 @@ else {
       handle('checkUpdates', () => updates.check());
       handle('downloadUpdate', () => updates.download());
       handle('installUpdate', () => updates.install());
+      handle('openReleaseNotes', () =>
+        shell.openExternal(releaseNotesUrl(updates.status().version || app.getVersion())),
+      );
       handle('openDownloads', () =>
         shell.openExternal('https://github.com/Huseyinhk61/DarkDesk/releases/latest'),
       );
@@ -689,11 +694,11 @@ else {
       await widgetManager.initialize().catch((error) => report(error));
       app.on('activate', showMain);
       if (updateEnabled) {
-        const check = () => updates.check().catch(() => {});
-        updateStartupTimer = setTimeout(check, 30000);
-        updateStartupTimer.unref?.();
-        updateTimer = setInterval(check, 6 * 60 * 60 * 1000);
-        updateTimer.unref?.();
+        updateScheduler = new UpdateScheduler(updates);
+        wakeUpdates = () => updateScheduler.wake().catch(() => {});
+        powerMonitor.on('resume', wakeUpdates);
+        win.on('focus', wakeUpdates);
+        updateScheduler.start();
       }
       for (const directory of [
         ...new Set([runtime.desktop, runtime.sharedDesktop].filter(Boolean)),
@@ -724,8 +729,11 @@ app.on('before-quit', (event) => {
   }
 });
 app.on('will-quit', () => {
-  clearTimeout(updateStartupTimer);
-  clearInterval(updateTimer);
+  updateScheduler?.dispose();
+  if (wakeUpdates) {
+    powerMonitor.removeListener('resume', wakeUpdates);
+    win?.removeListener('focus', wakeUpdates);
+  }
   clearInterval(productivityTimer);
   updates?.dispose();
   shortcutManager?.dispose();

@@ -32,6 +32,8 @@ Open **[GitHub Releases](https://github.com/Huseyinhk61/DarkDesk/releases/latest
 
 No Node.js or terminal is needed for the packaged app. Before replacing an older installation, quit DarkDesk from its system-tray menu. Packages are currently **unsigned**; Windows may show a publisher or SmartScreen warning.
 
+The update panel includes **What’s new in this release**, and a sidebar indicator remains visible after dismissing an available-update notice. Failed checks retry after 15 minutes.
+
 Release downloads become available after the [desktop packaging workflow](https://github.com/Huseyinhk61/DarkDesk/actions/workflows/windows.yml) finishes successfully. For installation, update access, and troubleshooting, see the [update guide](docs/UPDATES.md) and [Windows guide](docs/WINDOWS.md).
 
 See the [Linux installation and platform guide](docs/LINUX.md) for DEB/AppImage prerequisites and supported features.

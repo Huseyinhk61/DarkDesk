@@ -274,6 +274,15 @@ export default function UpdatePanel({ update, busy = false }) {
         )}
         <button
           type="button"
+          className="text-btn update-release-notes"
+          disabled={pending}
+          onClick={() => act('openReleaseNotes')}
+        >
+          <ExternalLink size={15} />
+          {t('update.releaseNotes')}
+        </button>
+        <button
+          type="button"
           className="text-btn update-manual"
           disabled={pending}
           onClick={() => act('openDownloads')}

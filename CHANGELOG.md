@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased — production polish
+## 3.8.2 — November 6, 2026
+
+- Publish the previously reviewed production-polish changes with a new application version so installed builds can actually discover the update.
+- Retry failed update checks after 15 minutes, check on resume/return after a cooldown, and retain normal six-hour background checks without automatic downloads.
+- Keep a navigation indicator after dismissing an update notice and add official per-version release notes. Protect new update events from a delayed initial-status error.
 
 - Persist a category-specific Gradient/Solid/Outline override or follow the global folder style. Share appearance signatures and style resolution across React previews, native ICO generation and synchronization records.
 - Report skipped unsafe/changed folder updates alongside apply failures while preserving independent Explorer customizations.

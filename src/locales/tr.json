@@ -574,7 +574,7 @@
   "update.state.unsupported": "Elle güncelleme",
   "update.unsupported.development": "Geliştirme sürümünü kaynak kodundan güncelleyin. Uygulama içi kurulum için Windows Setup EXE sürümünü kullanın.",
   "update.unsupported.portable": "Taşınabilir sürümü indirme sayfasından elle güncelleyin. Uygulama içi kurulum Windows Setup EXE sürümünde kullanılabilir.",
-  "update.unsupported.platform": "Bu platformda uygulama içi kurulum kullanılamıyor. İndirme sayfasından uygun sürümü edinin.",
+  "update.unsupported.platform": "Bu kurulum türünde uygulama içi güncelleme desteklenmiyor. Windows için Setup, Linux için AppImage kullanabilir veya paketi elle güncelleyebilirsin.",
   "update.unsupported.unavailable": "Bu sürümde uygulama içi güncelleme kullanılamıyor. Resmî indirme sayfasını açabilirsiniz.",
   "update.ready": "Güncelleme indirildi. Hazır olduğunda yeniden başlatıp kurabilirsiniz.",
   "update.progress": "Güncelleme indirme ilerlemesi",
@@ -582,9 +582,9 @@
   "update.download": "Güncellemeyi indir",
   "update.install": "Yeniden başlat ve güncelle",
   "update.installing": "Yeniden başlatılıyor…",
-  "update.manual": "EXE indirme sayfasını aç",
+  "update.manual": "İndirme sayfasını aç",
   "update.waitForFiles": "Güncellemeyi kurmak için devam eden dosya işleminin tamamlanmasını bekleyin.",
-  "update.policy": "Yeni sürümler düzenli kontrol edilir. İndirme ve yeniden başlatma sizin onayınızla yapılır.",
+  "update.policy": "Güncellemeler açılışta ve arka planda kontrol edilir. Bağlantı hatalarında 15 dakika sonra tekrar denenir; indirme ve yeniden başlatma senin onayınla yapılır.",
   "update.noticeAvailable": "DarkDesk {version} hazır",
   "update.noticeBody": "Yeni sürümü inceleyip uygulamadan indirebilirsin.",
   "update.noticeReady": "DarkDesk {version} indirildi",
@@ -1018,5 +1018,6 @@
   "folders.categoryStyle": "Bu klasörün stili",
   "folders.inheritStyle": "Genel stili kullan · {style}",
   "startupPlus.command": "Başlatma komutunu göster",
-  "launcherNext.emptyFavorites": "Henüz favorin yok. Tümü bölümünde bir uygulama veya komut seçip Ctrl+D ile sabitle."
+  "launcherNext.emptyFavorites": "Henüz favorin yok. Tümü bölümünde bir uygulama veya komut seçip Ctrl+D ile sabitle.",
+  "update.releaseNotes": "Sürümdeki yenilikler"
 }

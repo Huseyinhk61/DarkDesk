@@ -24,7 +24,10 @@ export function useUpdates(enabled = true) {
       .then((value) => {
         if (!receivedEvent) accept(value);
       })
-      .catch(() => accept({ ...initialUpdate, state: 'error', errorCode: 'UPDATE_CHECK_FAILED' }));
+      .catch(() => {
+        if (!receivedEvent)
+          accept({ ...initialUpdate, state: 'error', errorCode: 'UPDATE_CHECK_FAILED' });
+      });
     return () => {
       active = false;
       unsubscribe?.();
