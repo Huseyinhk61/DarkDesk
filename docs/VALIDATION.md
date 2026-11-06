@@ -11,7 +11,14 @@ Date: November 7, 2026 (Europe/Istanbul).
 
 The live FX provider is outside this managed cloud runtime's allowed hosts, so converter math, caching and transport responses use controlled dated data. This is not a successful live-provider probe. Windows interactive editors intentionally use focusable floating windows; system/clock panels can attach to the desktop. Native Explorer redraw and a real end-user Windows upgrade are not established by Linux checks. macOS retains its interactive desktop-level adapter, with platform checks in CI.
 
-Publication and final cross-platform release checks are pending at this source commit.
+**Published and verified:** [Desktop Installers](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42301212527) passed Windows Setup/Portable and Linux AppImage/DEB builds, metadata/checksum validation, packaged widget IPC/native bindings and publication. [Test & Build](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42301212548) passed Windows/Linux services and native checks, **134 browser scenarios**, and macOS interactive widget checks.
+
+[Release v3.9.0](https://github.com/Huseyinhk61/DarkDesk/releases/tag/v3.9.0) is public and its tag points to final source commit `901f742`, including the one-time category-editor request fix. Windows and Linux latest update feeds report 3.9.0. Anonymous Setup, Portable, blockmap, AppImage and DEB requests returned HTTP 200. Complete Setup and AppImage downloads matched the release SHA-256 records and the update feeds’ SHA-512/size metadata. Currency/gallery layouts were also inspected in browser preview using a controlled sample reference rate; this does not extend the live-provider verification scope.
+
+- DarkDesk-Setup-3.9.0.exe: 134,905,380 bytes; SHA-256 `60e65cc84ead3b4e529205036fb5c020e8b0af33d08d66eb2ea2615e608af2cf`.
+- DarkDesk-Portable-3.9.0.exe: 121,522,762 bytes; SHA-256 `8b3ab25c326f1d1c9cd6278a32e3a18daaadf4feead6c02442e289ea9d8d05ab`.
+- DarkDesk-3.9.0-x86_64.AppImage: 142,802,010 bytes; SHA-256 `2ac18e772fa5d3ea45bc2541e68501a55214cc440745a5a134d3867848058107`.
+- DarkDesk-3.9.0-amd64.deb: 113,700,196 bytes; SHA-256 `fa97d6b278024357e649ecf6e93bd383b560cdad18fe62afc690fddc5747fa3e`.
 
 ## 3.8.2 — published delivery and resilient update checks
 
