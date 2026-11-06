@@ -113,6 +113,8 @@ The **AI & Intelligent Tools** group includes assistants, coding tools, local mo
 
 Quick Launcher has **All / Favorites** views for both applications and commands. Pin the selected result with **Ctrl+D**, or switch views with **Ctrl+1 / Ctrl+2**. Pinning a system command never runs it and destructive commands retain their confirmation.
 
+![Pinned application and command favorites](docs/assets/launcher-favorites-en.png)
+
 ### Dated online currency conversion
 
 Type **50 USD to TRY** or **100 EUR**. An omitted target uses TRY in Turkish and USD in English. Frankfurter supplies institutional reference rates with their published date; these are not streaming market quotes. The app requests one fixed USD-based feed, without sending the typed amount, search query, filenames or app inventory. Quotes refresh after one hour; a valid cached snapshot can be used offline for up to seven days and is labeled as offline. Unsupported currencies and unavailable rates show an explicit error, not an invented number. Existing local unit conversions remain available.

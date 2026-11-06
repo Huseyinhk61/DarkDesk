@@ -7,6 +7,13 @@
 - Production build and real Electron file-operation/widget checks passed. Native IPC covers command favorite writes and currency conversion using an injected reference snapshot. Formatting and whitespace checks passed.
 - The cloud network policy blocks the Frankfurter host. Currency arithmetic, cache, error states and HTTP response handling were tested with controlled responses; this is not a claim of a successful live-provider probe from this environment. The application uses the published reference date and never invents missing rates.
 
+**Published and verified:** [Windows Installer](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42212614412) passed service, source and packaged Electron IPC checks, EXE packaging, checksum/update verification and publication. [Test & Build](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42212614470) passed Windows/Linux services, **119 browser scenarios**, and macOS widget/native IPC checks.
+
+[Release v3.8.0](https://github.com/Huseyinhk61/DarkDesk/releases/tag/v3.8.0) is public. Setup, Portable, blockmap and the public update feed returned HTTP 200; the feed reports 3.8.0 with a matching installer size. Currency-provider network restrictions described above still apply to the scope of verification.
+
+- Setup: 134,893,055 bytes; SHA-256 `fd9f938c003aaee129a09283cc89322926bfc0a2c33cc28ad6a7e095fe6b4605`.
+- Portable: 121,514,148 bytes; SHA-256 `69eabd383869afc9a64debd7aa7875613163b073cc77e68c0a9a7336f373941f`.
+
 ## 3.7.1 — compact widgets and folder appearance synchronization
 
 - 295 local service/model tests passed. Added persistence and real native-size invariants for collapsed widgets, immutable folder resource identities, cache integrity checks and per-core CPU samples.
