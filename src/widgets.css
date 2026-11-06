@@ -407,3 +407,145 @@
   max-height: 22px;
   overflow: auto;
 }
+/* Only the header drags; every editor and control keeps native hit testing. */
+.widget-content,
+.widget-content :is(input, textarea, select, button, label),
+.widget-no-drag {
+  -webkit-app-region: no-drag;
+}
+.desktop-widget {
+  background: color-mix(in srgb, var(--surface) var(--widget-opacity, 92%), transparent);
+}
+.widget-content :is(textarea, input, select):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 5px;
+}
+.widget-system-details {
+  display: grid;
+  gap: 7px;
+  margin: 4px 0;
+  font-size: 11px;
+}
+.widget-system-details div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+  gap: 8px;
+}
+.widget-system-details dt {
+  color: var(--muted);
+}
+.widget-system-details dd {
+  margin: 0;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.widget-disk {
+  display: grid;
+  gap: 7px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.widget-disk progress {
+  width: 100%;
+  accent-color: var(--accent);
+}
+.widget-appearance-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  padding-top: 10px;
+  margin-top: 5px;
+  border-top: 1px solid var(--border);
+  grid-column: 1/-1;
+}
+.widget-appearance-control label,
+.widget-system-options > label {
+  display: grid;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--muted);
+  min-width: 0;
+}
+.widget-appearance-control output {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.widget-appearance-control :is(input, select),
+.widget-system-options select {
+  min-width: 0;
+  width: 100%;
+  accent-color: var(--accent);
+}
+.widget-appearance-control select,
+.widget-system-options select {
+  padding: 8px;
+  background: var(--field);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+.widget-system-toggles {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin: 18px 0;
+}
+.widget-system-toggles label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+}
+.widget-system-options > label {
+  max-width: 240px;
+}
+.clock-widget,
+.focus-widget {
+  display: grid;
+  gap: 10px;
+  text-align: center;
+  margin: auto 0;
+}
+.clock-widget > strong,
+.focus-widget > strong {
+  font-size: 36px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  letter-spacing: -1px;
+}
+.clock-widget p,
+.focus-widget p {
+  font-size: 12px;
+  margin: 0;
+  color: var(--muted);
+}
+.focus-widget label {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+}
+.focus-widget input {
+  width: 70px;
+  padding: 7px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  color: var(--ink);
+  background: var(--field);
+}
+.focus-widget .currency-actions {
+  justify-content: center;
+}
+.widget-module-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+}
+.widget-module-card .widget-appearance-control {
+  grid-column: 1/-1;
+}
+@media (max-width: 450px) {
+  .widget-appearance-control {
+    grid-template-columns: 1fr;
+  }
+}

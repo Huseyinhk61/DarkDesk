@@ -113,6 +113,10 @@ These screenshots show the real browser preview. Desktop attachment, startup con
 
 Cards use your saved manual description first, then Windows **File Description** metadata for supported executable or shortcut targets, then the offline dictionary. The dictionary includes **Advanced IP Scanner**, **BCUninstaller**, **Any Command**, **DaVinci Resolve**, **VMware Workstation**, **FlutterFlow**, and other common apps. Unrecognized items receive a name/type hint or a prompt to add a description from their details panel. Each description shows its source. Metadata and filename matches do not independently verify a publisher or app identity.
 
+### A personal widget workspace
+
+Choose System Monitor, Sticky Note, To-do List, Currency Converter, Clock & Date and Focus Timer. Each widget has independent background opacity and size presets; native windows also resize from their edges. Windows note/task editors stay in focusable windows for reliable typing. System panels can show real per-core CPU usage, memory, disk capacity, processor details and uptime. See [widget controls and platform behavior](docs/PRODUCTIVITY.md).
+
 ### AI tools and pinned favorites
 
 The **AI & Intelligent Tools** group includes assistants, coding tools, local models and AI media tools. Claude, ChatGPT, Cursor, Windsurf, Ollama, LM Studio and other recognized tools route here automatically; custom rules and manual choices keep precedence. Existing preferences migrate once, preserving user-defined groups.
@@ -121,9 +125,9 @@ Quick Launcher has **All / Favorites** views for both applications and commands.
 
 ![Pinned application and command favorites](docs/assets/launcher-favorites-en.png)
 
-### Dated online currency conversion
+### Easy currency conversion
 
-Type **50 USD to TRY**, **100 EUR**, **USD to TRY**, or **EUR**. Omitting the amount means one unit. An omitted target uses TRY in Turkish and USD in English. Frankfurter supplies institutional reference rates with their published date; these are not streaming market quotes. The app requests one fixed USD-based feed, without sending the typed amount, search query, filenames or app inventory. Quotes refresh after one hour; a valid cached snapshot can be used offline for up to seven days and is labeled as offline. Unsupported currencies and unavailable rates show an explicit error, not an invented number. Existing local unit conversions remain available.
+Open **Currency Converter** in the sidebar for amount/from/to controls, swap, refresh and copy, or add its desktop widget. The launcher remains available: type **50 USD to TRY**, **100 EUR**, **USD to TRY**, or **EUR**. Omitting the amount means one unit. An omitted target uses TRY in Turkish and USD in English. Frankfurter supplies institutional reference rates with their published date; these are not streaming market quotes. The app requests one fixed USD-based feed, without sending the typed amount, search query, filenames or app inventory. Quotes refresh after one hour; a valid cached snapshot can be used offline for up to seven days and is labeled as offline. Unsupported currencies and unavailable rates show an explicit error, not an invented number. Existing local unit conversions remain available.
 
 ### More than app search
 

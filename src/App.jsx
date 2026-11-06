@@ -40,6 +40,7 @@ import OperationReceipt from './components/OperationReceipt';
 import DesktopScanSummary from './components/DesktopScanSummary';
 const Settings = lazy(() => import('./components/Settings'));
 const Launcher = lazy(() => import('./components/Launcher'));
+const CurrencyConverter = lazy(() => import('./components/CurrencyConverter'));
 const CategoryManager = lazy(() => import('./components/CategoryManager'));
 const AutomationPanel = lazy(() => import('./components/AutomationPanel'));
 const HelpPanel = lazy(() => import('./components/HelpPanel'));
@@ -72,6 +73,12 @@ export default function App() {
     [launcherOpen, setLauncherOpen] = useState(false);
   useEffect(() => api.onSettingsChanged?.((value) => setSettings(value)), [setSettings]);
   const update = useUpdates();
+  const [requestedCategory, setRequestedCategory] = useState(null),
+    [folderResult, setFolderResult] = useState(null);
+  const customizeCategory = (id) => {
+    setRequestedCategory(id || null);
+    setView('categories');
+  };
   const [updatesRequested, setUpdatesRequested] = useState(0);
   const backendBusy = useRef(null);
   const runtimeRevision = useRef(0);
@@ -276,6 +283,7 @@ export default function App() {
     if (!start('folder-appearance')) return null;
     try {
       const result = await api.applyFolderAppearance();
+      setFolderResult(result);
       await refresh();
       notify(
         t('folders.result', result),
@@ -285,6 +293,18 @@ export default function App() {
     } catch (error) {
       notify(errorMessage(error), 'error');
       return null;
+    } finally {
+      finish();
+    }
+  };
+  const prepareFolder = async (id) => {
+    if (!start('folder-appearance')) return;
+    try {
+      const result = await api.prepareCategoryFolder(id);
+      setFolderResult(result);
+      notify(t('folders.result', result), result.failed ? 'error' : 'info');
+    } catch (error) {
+      notify(errorMessage(error), 'error');
     } finally {
       finish();
     }
@@ -302,6 +322,7 @@ export default function App() {
       if (updateFolders) {
         try {
           const result = await api.applyFolderAppearance();
+          setFolderResult(result);
           if (
             result.failed ||
             result.refreshPending ||
@@ -644,7 +665,9 @@ export default function App() {
               </div>
             }
           >
-            {view === 'widgets' ? (
+            {view === 'currency' ? (
+              <CurrencyConverter />
+            ) : view === 'widgets' ? (
               <WidgetsPanel />
             ) : view === 'systemTools' ? (
               <SystemToolsPanel />
@@ -680,6 +703,9 @@ export default function App() {
                 busy={busy}
                 items={items}
                 onApplyFolders={applyFolders}
+                onPrepareFolder={prepareFolder}
+                lastFolderResult={folderResult}
+                requestedCategory={requestedCategory}
                 platform={stats?.platform}
               />
             ) : (
@@ -748,6 +774,7 @@ export default function App() {
                 </div>
                 <fieldset disabled={!!busy} className="category-fieldset">
                   <CategoryGrid
+                    onCustomize={customizeCategory}
                     {...{ items, filter, setFilter }}
                     disabled={!!blocked}
                     onDropItem={dropItem}

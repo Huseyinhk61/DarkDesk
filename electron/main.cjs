@@ -50,6 +50,8 @@ const widgetMethods = new Set([
   'showWidget',
   'hideWidget',
   'systemToolsSnapshot',
+  'currencyQuote',
+  'copyText',
 ]);
 function startProductivityTimer() {
   clearInterval(productivityTimer);
@@ -315,7 +317,7 @@ else {
         },
       });
       await runtime.initialize();
-      systemMetrics = new SystemMetrics();
+      systemMetrics = new SystemMetrics({ diskPath: app.getPath('desktop') });
       currencyService = new CurrencyService({
         data: app.getPath('userData'),
         fetch: (url, options) => net.fetch(url, options),
@@ -530,8 +532,13 @@ else {
       handle('itemDetails', (id) => runtime.itemDetails(id));
       handle('itemPurpose', (id) => runtime.itemPurpose(id));
       handle('recordLauncherCommand', (id) => runtime.recordLauncherCommand(id));
-      handle('systemToolsSnapshot', () => systemMetrics.snapshot());
+      handle('systemToolsSnapshot', () => systemMetrics.detailedSnapshot());
       handle('currencyQuote', (query) => currencyService.quote(query));
+      handle('copyText', (text) => {
+        if (typeof text !== 'string' || text.length > 256) throw Error('LAUNCHER_INPUT_INVALID');
+        clipboard.writeText(text);
+        return true;
+      });
       handle('setCommandFavorite', (id, favorite) =>
         runtime.run('command-favorite', async () => {
           const settings = await runtime.settings.read();
@@ -563,6 +570,7 @@ else {
       handle('clearAnalytics', () => runtime.run('analytics', () => productivity.clear()));
       handle('runtimeStatus', () => runtime.status());
       handle('applyFolderAppearance', () => runtime.applyFolderAppearance());
+      handle('prepareCategoryFolder', (id) => runtime.prepareCategoryFolder(id));
       handle('applyProfile', (id) => runtime.applyProfile(id));
       handle('restoreProfile', () => runtime.restoreProfile());
       handle('automationPreview', (value) => runtime.previewAutomation(value));

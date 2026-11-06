@@ -10,11 +10,17 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
+  Coins,
+  Clock3,
+  Timer,
 } from 'lucide-react';
 import { api, native } from '../service';
 import { usePreferences } from '../preferences';
 import { formatBytes } from '../utils';
 import '../widgets.css';
+import { widgetIds, widgetPresetSize } from '../../shared/widget-model';
+import CurrencyConverter from './CurrencyConverter';
+import { ClockWidget, FocusWidget } from './UtilityWidgets';
 export function WidgetContent({ id, embedded = false }) {
   const { t, setSettings, locale, errorMessage } = usePreferences();
   const [state, setState] = useState(null),
@@ -63,7 +69,8 @@ export function WidgetContent({ id, embedded = false }) {
   }, [accept]);
   useEffect(() => {
     alive.current = true;
-    let request = 0;
+    let request = 0,
+      receivedEvent = false;
     const receive = (value) => {
       if (alive.current) accept(value);
     };
@@ -78,6 +85,7 @@ export function WidgetContent({ id, embedded = false }) {
         .catch(() => {});
     };
     const off = api.onWidgetsChanged?.((value) => {
+      receivedEvent = true;
       receive(value);
     });
     const offSettings = !embedded
@@ -88,7 +96,9 @@ export function WidgetContent({ id, embedded = false }) {
       : null;
     api
       .widgetState()
-      .then(receive)
+      .then((value) => {
+        if (!receivedEvent) receive(value);
+      })
       .catch((reason) => {
         if (alive.current) setError(message.current(reason));
       });
@@ -119,14 +129,24 @@ export function WidgetContent({ id, embedded = false }) {
         .catch(() => {});
     };
     poll();
-    const clock = setInterval(poll, 2000);
+    const clock = setInterval(poll, (state?.system?.interval || 2) * 1000);
     document.addEventListener('visibilitychange', poll);
     return () => {
       active = false;
       clearInterval(clock);
       document.removeEventListener('visibilitychange', poll);
     };
-  }, [id, state?.collapsed?.[id]]);
+  }, [id, state?.collapsed?.[id], state?.system?.interval]);
+  useEffect(() => {
+    if (embedded || !state || state.collapsed?.[id] || !['note', 'todos'].includes(id)) return;
+    const focusEditor = () =>
+      document
+        .querySelector(id === 'note' ? '.widget-content textarea' : '.widget-todo-form input')
+        ?.focus();
+    window.addEventListener('focus', focusEditor);
+    focusEditor();
+    return () => window.removeEventListener('focus', focusEditor);
+  }, [embedded, id, !!state, state?.collapsed?.[id]]);
   const updateTodos = async (todos) => {
     if (action.current) return false;
     action.current = true;
@@ -145,7 +165,14 @@ export function WidgetContent({ id, embedded = false }) {
     }
   };
   const title = t('widgetPlus.' + id);
-  const Icon = id === 'system' ? Cpu : id === 'note' ? StickyNote : ListTodo;
+  const Icon = {
+    system: Cpu,
+    note: StickyNote,
+    todos: ListTodo,
+    currency: Coins,
+    clock: Clock3,
+    focus: Timer,
+  }[id];
   return (
     <section
       className={
@@ -153,6 +180,16 @@ export function WidgetContent({ id, embedded = false }) {
         (embedded ? 'widget-embedded ' : '') +
         (state?.collapsed?.[id] ? 'widget-collapsed' : '')
       }
+      style={{
+        '--widget-opacity': (state?.appearance?.[id]?.opacity ?? 92) + '%',
+        ...(embedded
+          ? {
+              height: state?.collapsed?.[id]
+                ? 44
+                : widgetPresetSize(id, state?.appearance?.[id]?.size).height,
+            }
+          : {}),
+      }}
       aria-label={title}
     >
       <header className="widget-drag">
@@ -211,38 +248,42 @@ export function WidgetContent({ id, embedded = false }) {
             >
               <i style={{ width: (metrics?.memory?.percent || 0) + '%' }} />
             </div>
-            <div className="widget-cores" aria-label={t('widgetPlus.cores')}>
-              {metrics?.cores?.map((value, index) => (
-                <span
-                  key={index}
-                  title={t('widgetPlus.core', {
-                    index: index + 1,
-                    value: value === null ? '—' : Math.round(value) + '%',
-                  })}
-                >
-                  <i style={{ height: (value || 0) + '%' }} />
-                </span>
-              ))}
-            </div>
-            <svg
-              className="widget-chart"
-              viewBox="0 0 280 72"
-              role="img"
-              aria-label={t('widgetPlus.cpuChart')}
-            >
-              <path d="M0 24H280M0 48H280" className="widget-gridline" />
-              {points.length > 1 && (
-                <polyline
-                  fill="none"
-                  points={points
-                    .map(
-                      (value, index) =>
-                        `${(index * 280) / Math.max(1, points.length - 1)},${70 - value * 0.66}`,
-                    )
-                    .join(' ')}
-                />
-              )}
-            </svg>
+            {state?.system?.cores && (
+              <div className="widget-cores" aria-label={t('widgetPlus.cores')}>
+                {metrics?.cores?.map((value, index) => (
+                  <span
+                    key={index}
+                    title={t('widgetPlus.core', {
+                      index: index + 1,
+                      value: value === null ? '—' : Math.round(value) + '%',
+                    })}
+                  >
+                    <i style={{ height: (value || 0) + '%' }} />
+                  </span>
+                ))}
+              </div>
+            )}
+            {state?.system?.chart && (
+              <svg
+                className="widget-chart"
+                viewBox="0 0 280 72"
+                role="img"
+                aria-label={t('widgetPlus.cpuChart')}
+              >
+                <path d="M0 24H280M0 48H280" className="widget-gridline" />
+                {points.length > 1 && (
+                  <polyline
+                    fill="none"
+                    points={points
+                      .map(
+                        (value, index) =>
+                          `${(index * 280) / Math.max(1, points.length - 1)},${70 - value * 0.66}`,
+                      )
+                      .join(' ')}
+                  />
+                )}
+              </svg>
+            )}
             <small>
               {metrics?.memory
                 ? formatBytes(metrics.memory.used, locale) +
@@ -250,7 +291,59 @@ export function WidgetContent({ id, embedded = false }) {
                   formatBytes(metrics.memory.total, locale)
                 : t(native ? 'widgetPlus.warming' : 'widgetPlus.metricsDesktop')}
             </small>
+            {state?.system?.details && metrics && !metrics.unsupported && (
+              <dl className="widget-system-details">
+                <div>
+                  <dt>{t('widgetMore.processor')}</dt>
+                  <dd>{metrics.cpuModel || '—'}</dd>
+                </div>
+                <div>
+                  <dt>{t('widgetPlus.cores')}</dt>
+                  <dd>
+                    {metrics.coreCount} · {metrics.speedMHz || '—'} MHz
+                  </dd>
+                </div>
+                <div>
+                  <dt>{t('widgetMore.freeMemory')}</dt>
+                  <dd>{metrics.memory ? formatBytes(metrics.memory.free, locale) : '—'}</dd>
+                </div>
+                <div>
+                  <dt>{t('widgetMore.appMemory')}</dt>
+                  <dd>{metrics.process ? formatBytes(metrics.process.rss, locale) : '—'}</dd>
+                </div>
+                <div>
+                  <dt>{t('widgetMore.uptime')}</dt>
+                  <dd>
+                    {Number.isFinite(metrics.uptimeSeconds)
+                      ? Math.floor(metrics.uptimeSeconds / 3600) +
+                        'h ' +
+                        Math.floor((metrics.uptimeSeconds % 3600) / 60) +
+                        'm'
+                      : '—'}
+                  </dd>
+                </div>
+              </dl>
+            )}
+            {state?.system?.disk && metrics?.disk && (
+              <div className="widget-disk">
+                <span>
+                  {t('widgetMore.diskFree')}: {formatBytes(metrics.disk.free, locale)} /{' '}
+                  {formatBytes(metrics.disk.total, locale)}
+                </span>
+                <progress
+                  aria-label={t('widgetMore.diskUsed')}
+                  max="100"
+                  value={metrics.disk.percent}
+                />
+              </div>
+            )}
           </>
+        ) : id === 'currency' ? (
+          <CurrencyConverter compact />
+        ) : id === 'clock' ? (
+          <ClockWidget />
+        ) : id === 'focus' ? (
+          state && <FocusWidget value={state.focus} accept={accept} />
         ) : id === 'note' ? (
           <>
             <label className="sr-only" htmlFor={'widget-note-' + (embedded ? 'preview' : 'native')}>
@@ -363,5 +456,5 @@ export function WidgetContent({ id, embedded = false }) {
 }
 export default function WidgetWindow() {
   const id = new URLSearchParams(window.location.hash.slice(1)).get('widget');
-  return ['system', 'note', 'todos'].includes(id) ? <WidgetContent id={id} /> : null;
+  return widgetIds.includes(id) ? <WidgetContent id={id} /> : null;
 }

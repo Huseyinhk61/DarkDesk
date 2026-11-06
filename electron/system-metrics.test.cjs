@@ -46,3 +46,31 @@ test('command suggestions count only explicitly recorded allowlisted commands an
   );
   await assert.rejects(store.record('__proto__', defaultSettings), /LAUNCHER_INPUT_INVALID/);
 });
+
+test('disk capacity uses real statfs data, caches reads, and fails without invented metrics', async () => {
+  let calls = 0,
+    now = 20000;
+  const metrics = new SystemMetrics({
+    clock: () => now,
+    statfs: async () => {
+      calls++;
+      return { blocks: 100, bavail: 25, bsize: 1024 };
+    },
+    uptime: () => 3600,
+  });
+  const [first, second] = await Promise.all([
+    metrics.detailedSnapshot(),
+    metrics.detailedSnapshot(),
+  ]);
+  assert.equal(calls, 1);
+  assert.equal(first.disk.total, 102400);
+  assert.equal(first.disk.percent, 75);
+  assert.equal(second.uptimeSeconds, 3600);
+  await metrics.detailedSnapshot();
+  assert.equal(calls, 1);
+  now += 16000;
+  metrics.statfs = async () => {
+    throw Error('unavailable');
+  };
+  assert.equal((await metrics.detailedSnapshot()).disk, null);
+});

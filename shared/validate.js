@@ -139,6 +139,7 @@ export function validateSettings(input) {
       !safeSegment(c.folder) ||
       !icons.includes(c.icon) ||
       !colors.includes(c.color) ||
+      (c.folderGlyphSize != null && !['small', 'normal', 'large'].includes(c.folderGlyphSize)) ||
       (c.folderTheme != null && !folderThemes.includes(c.folderTheme)) ||
       !(c.parentId === null || typeof c.parentId === 'string')
     )
@@ -150,6 +151,7 @@ export function validateSettings(input) {
       parentId: c.parentId || null,
       icon: c.icon,
       color: c.color,
+      ...(c.folderGlyphSize == null ? {} : { folderGlyphSize: c.folderGlyphSize }),
       ...(c.folderTheme == null ? {} : { folderTheme: c.folderTheme }),
       ...(c.customColor === undefined || c.customColor === null
         ? {}

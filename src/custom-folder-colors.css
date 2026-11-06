@@ -190,3 +190,21 @@
   border-color: color-mix(in srgb, var(--folder-from), var(--border) 45%);
   color: color-mix(in srgb, var(--folder-from), var(--ink) 55%);
 }
+.managed-group {
+  grid-template-columns: 42px minmax(0, 1fr) repeat(4, auto);
+  gap: 8px;
+}
+@media (max-width: 700px) {
+  .managed-group {
+    grid-template-columns: 36px minmax(0, 1fr) repeat(2, auto);
+  }
+  .managed-group > button:nth-last-child(-n + 2) {
+    grid-row: 2;
+  }
+  .managed-group > button:nth-last-child(2) {
+    grid-column: 3;
+  }
+  .managed-group > button:last-child {
+    grid-column: 4;
+  }
+}

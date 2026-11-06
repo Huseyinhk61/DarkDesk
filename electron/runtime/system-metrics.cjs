@@ -1,4 +1,5 @@
 const os = require('node:os');
+const fs = require('node:fs/promises');
 class SystemMetrics {
   constructor({
     cpus = () => os.cpus(),
@@ -7,6 +8,9 @@ class SystemMetrics {
     rss = () => process.memoryUsage().rss,
     clock = () => Date.now(),
     platform = process.platform,
+    uptime = () => os.uptime(),
+    diskPath = os.homedir(),
+    statfs = fs.statfs,
   } = {}) {
     Object.assign(this, {
       readCpus: cpus,
@@ -15,7 +19,13 @@ class SystemMetrics {
       readRss: rss,
       clock,
       platform,
+      uptime,
+      diskPath,
+      statfs,
     });
+    this.diskCache = null;
+    this.diskRead = null;
+    this.diskAt = -Infinity;
     this.last = null;
     this.percent = null;
     this.cores = [];
@@ -61,11 +71,44 @@ class SystemMetrics {
       platform: this.platform,
       cpuPercent: this.percent,
       coreCount: cpus.length,
+      cpuModel: cpus[0]?.model || null,
+      speedMHz: cpus.length
+        ? Math.round(cpus.reduce((total, cpu) => total + (cpu.speed || 0), 0) / cpus.length)
+        : null,
+      uptimeSeconds: this.uptime(),
       cores: this.cores,
       sampledAt: this.sampledAt,
       memory: { total, free, used, percent: total > 0 ? (used * 100) / total : 0 },
       process: { rss: this.readRss() },
     };
+  }
+  async detailedSnapshot() {
+    if (this.clock() - this.diskAt >= 15000 || this.clock() < this.diskAt) {
+      if (!this.diskRead)
+        this.diskRead = Promise.resolve()
+          .then(() => this.statfs(this.diskPath))
+          .then((value) => {
+            const total = value.blocks * value.bsize,
+              free = value.bavail * value.bsize;
+            this.diskCache =
+              Number.isFinite(total) &&
+              Number.isFinite(free) &&
+              total > 0 &&
+              free >= 0 &&
+              free <= total
+                ? { total, free, percent: (100 * (total - free)) / total }
+                : null;
+          })
+          .catch(() => {
+            this.diskCache = null;
+          })
+          .finally(() => {
+            this.diskAt = this.clock();
+            this.diskRead = null;
+          });
+      await this.diskRead;
+    }
+    return { ...this.snapshot(), disk: this.diskCache };
   }
 }
 module.exports = { SystemMetrics };

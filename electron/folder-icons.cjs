@@ -51,9 +51,10 @@ class FolderIcons {
   }
   async folderContents(category, settings) {
     const theme = resolveFolderTheme(category, settings.folderTheme);
-    const bytes = category.customColor
-      ? await this.renderFolderIco(category, theme)
-      : await fs.readFile(await this.folderIconFile(category.icon, category.color, theme));
+    const bytes =
+      category.customColor || (category.folderGlyphSize && category.folderGlyphSize !== 'normal')
+        ? await this.renderFolderIco(category, theme)
+        : await fs.readFile(await this.folderIconFile(category.icon, category.color, theme));
     // Explorer caches icons by resource path. An immutable content address gives
     // each appearance a new identity while the journal still owns the same pair.
     const directory = path.join(this.data, 'folder-artwork');

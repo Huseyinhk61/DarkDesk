@@ -1,12 +1,12 @@
 # Widgets, startup management, and focus analytics
 
-DarkDesk 3.7 adds three local tools alongside file organization. Their platform support differs, and the interface reports unsupported capabilities instead of inventing system data.
+DarkDesk provides local widgets, startup tools and focus analytics alongside file organization. Their platform support differs, and the interface reports unsupported capabilities instead of inventing system data.
 
-| Tool                             | Windows                                                                              | macOS                                                               | Linux                   | Browser preview                                   |
-| :------------------------------- | :----------------------------------------------------------------------------------- | :------------------------------------------------------------------ | :---------------------- | :------------------------------------------------ |
-| CPU/RAM, note, and to-do widgets | Native transparent windows; desktop attachment with floating fallback                | Native interactive windows at desktop level, with floating fallback | Native floating windows | Inline note/to-do preview; no native CPU/RAM data |
-| Startup management               | Supported current-user Run and Startup-folder entries; machine Run entries read-only | Unsupported                                                         | Unsupported             | Unsupported                                       |
-| Foreground/open-app analytics    | Opt-in native sampling                                                               | Opt-in native sampling                                              | Unsupported             | Unsupported; no fabricated history                |
+| Tool                                   | Windows                                                                              | macOS                                                               | Linux                   | Browser preview                                   |
+| :------------------------------------- | :----------------------------------------------------------------------------------- | :------------------------------------------------------------------ | :---------------------- | :------------------------------------------------ |
+| System, note, task and utility widgets | Native transparent windows; desktop attachment with floating fallback                | Native interactive windows at desktop level, with floating fallback | Native floating windows | Inline note/to-do preview; no native CPU/RAM data |
+| Startup management                     | Supported current-user Run and Startup-folder entries; machine Run entries read-only | Unsupported                                                         | Unsupported             | Unsupported                                       |
+| Foreground/open-app analytics          | Opt-in native sampling                                                               | Opt-in native sampling                                              | Unsupported             | Unsupported; no fabricated history                |
 
 The Windows installer remains the primary distributed package. macOS support for these modules does not imply a signed/notarized macOS installer, deep app discovery, or profile visibility support.
 
@@ -17,12 +17,21 @@ Open **Desktop Widgets** in the sidebar and show any combination of:
 - **System monitor:** sampled CPU utilization, RAM consumption, and a short CPU history graph. The first CPU sample displays a dash until a time delta is available.
 - **Sticky note:** a plain-text note, up to 20,000 characters, saved after a short typing delay.
 - **To-do list:** up to 100 tasks, with completion and removal controls.
+- **Currency converter:** amount/currency controls, swap, dated results, refresh and copy. Also available as a full sidebar screen. Provider errors and offline snapshots are explicitly labeled; these are reference rates, not streaming prices.
+- **Clock & date:** local time, date and timezone.
+- **Focus timer:** 1–180 minutes with start, pause, resume and reset. The persisted deadline continues to elapse while the app is closed; the completion message appears when its widget is open.
 
-Drag a widget by its header. The text fields, checkboxes, and buttons remain interactive. Hiding a widget retains its contents. Enabled widgets, their bounds, the note, tasks, and placement mode are stored in `widgets.json` under Electron's application-data directory. Enabled widgets return at the next normal launch. Saved bounds are clamped to available work areas if a monitor has been removed. **Reset positions** brings the panels back into view.
+Choose each widget’s **Background opacity** (25–100%) and **Size** in its gallery card. Release the opacity slider or finish a keyboard adjustment to save. Opacity changes the background while text remains readable. Drag a native window edge for custom dimensions; saved larger dimensions are retained. Show/hide and layout changes do not erase content.
+
+The system options let you choose core bars, history, details and disk capacity, and a 1/2/5/10-second CPU polling interval. CPU model, reported MHz, free RAM, DarkDesk main-process RSS and system uptime come from native APIs. Disk capacity uses the Desktop volume and is cached for 15 seconds; it is not a disk throughput measurement. Unavailable metrics remain unavailable.
+
+Drag a widget by its header. The text fields, checkboxes, and buttons remain interactive. Hiding a widget retains its contents. Enabled widgets, their bounds, the note, tasks, and placement mode are stored in `widgets.json` under Electron's application-data directory. Enabled widgets return at the next normal launch. Saved bounds are clamped to available work areas if a monitor has been removed. **Reset positions** tiles the default panels without overlap on a standard 1024×768 or larger work area, and clamps panels to smaller screens. Existing user positions remain until reset.
 
 ### Desktop or floating placement
 
-**Desktop** placement uses an Explorer desktop-host adapter on Windows and an interactive native window-level adapter on macOS. The adapters operate on DarkDesk's own widget windows. A desktop session without a suitable host, native-binding failure, or an unsupported platform produces an explicitly labeled **Floating** fallback. The placement status reflects the adapter result; selecting Desktop does not guarantee attachment.
+**Desktop** placement uses an Explorer desktop-host adapter for read-only system/clock panels on Windows and an interactive native window-level adapter on macOS. The adapters operate on DarkDesk's own widget windows. A desktop session without a suitable host, native-binding failure, or an unsupported platform produces an explicitly labeled **Floating** fallback. The placement status reflects the adapter result; selecting Desktop does not guarantee attachment.
+
+On Windows, notes, tasks, currency and focus controls always use independent focusable windows: cross-process desktop parenting can prevent normal text input. Showing an editor focuses it; restored startup widgets do not steal focus. macOS retains its supported interactive desktop-level windows.
 
 **Floating** placement keeps ordinary independent windows below always-on-top overlays. It does not pin them above other applications. Changing placement flushes pending note drafts before recreating windows. Hiding and quitting also attempt to flush drafts. If saving fails, DarkDesk keeps the affected window available so the user can retry rather than destroying an unsaved note.
 

@@ -132,7 +132,7 @@ function historicalOwnership(history, directory) {
   return result;
 }
 
-async function applyFolderAppearance(service, input) {
+async function applyFolderAppearance(service, input, categoryIds = null) {
   const settings = validateSettings(input);
   const result = { updated: 0, unchanged: 0, skipped: 0, failed: 0, details: [] };
   if (service.platform !== 'win32' || !service.folderIcons) {
@@ -155,7 +155,9 @@ async function applyFolderAppearance(service, input) {
       store = new JsonStore(file, { version: 1, folders: {} });
     const history = await service.history(),
       changed = [];
-    for (const category of settings.categories) {
+    for (const category of settings.categories.filter(
+      (category) => !categoryIds || categoryIds.includes(category.id),
+    )) {
       const directory = path.join(
         service.desktop,
         ...categorySegments(category.id, settings.categories),

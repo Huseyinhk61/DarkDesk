@@ -1,27 +1,27 @@
-## DarkDesk 3.8.2 — Update delivery and desktop polish
+## DarkDesk 3.9.0 — A personal widget workspace
 
 ### Downloads
 
-- **DarkDesk-Setup-3.8.2.exe**: recommended Windows installation and in-app updates.
-- **DarkDesk-Portable-3.8.2.exe**: portable Windows build; update manually.
-- **DarkDesk-3.8.2-x86_64.AppImage**: Linux x86-64 application with AppImage updates.
-- **DarkDesk-3.8.2-amd64.deb**: Ubuntu/Debian package; install new DEBs manually.
-- **SHA256SUMS.txt**: Windows/Linux artifact and update-feed checksums.
+- **DarkDesk-Setup-3.9.0.exe**: Windows installation and in-app updates.
+- **DarkDesk-Portable-3.9.0.exe**: Windows Portable; download updates manually.
+- **DarkDesk-3.9.0-x86_64.AppImage**: Linux with AppImage updates.
+- **DarkDesk-3.9.0-amd64.deb**: Ubuntu/Debian package; update manually.
+- **SHA256SUMS.txt**: package and update-feed checksums.
 
-### Updates that reach installed apps
+### Easier currency conversion
 
-This release includes the production-polish changes previously available in the review branch. Installed 3.8.1 builds can now discover a newer version. In Settings → Updates, choose **Check for updates**, **Download update**, then **Restart and update**. Old 3.4.1 private-feed builds require a manual Setup upgrade once.
+Open **Currency Converter** from the sidebar, choose an amount and currencies, then swap, refresh or copy. The same controls are available in a desktop widget. Results use the provider’s dated reference rates; offline snapshots and errors are labeled. These are not streaming trading quotes.
 
-- Retry failed checks after 15 minutes; check again after resume or returning to the app with a 30-minute cooldown. Keep six-hour background checks and explicit downloads/restarts.
-- Keep an update indicator in navigation even after its notice is dismissed. Add **What's new in this release** linking to the official version page.
-- Prevent a delayed initial-status error from replacing a newer update notification.
+### Widgets that work for you
 
-### Desktop improvements
+- Fix Windows note/task input by keeping editable widgets in independent, focusable windows instead of attaching them as Explorer children. Activate an editor and type; drafts persist through hide/restart.
+- Add **Clock & Date**, **Focus Timer** and **Currency Converter** to System Monitor, Sticky Note and To-do List. New widgets remain off until you enable them.
+- Reset positions into a tiled layout and avoid probing closing utility frames for note drafts during shutdown.
+- Choose background opacity and Compact/Comfortable/Large sizes per widget; resize native windows from an edge. Saved larger bounds are retained.
+- Select CPU history, core bars, hardware/memory details and desktop-volume capacity. Choose a 1/2/5/10-second sample interval. CPU readings, available RAM, app RSS, uptime and disk capacity come from native measurements; unavailable metrics are never fabricated.
 
-- Save an individual Gradient/Solid/Outline folder style or follow the global style. Share palette, style and artwork resolution between previews and owned Windows folder metadata.
-- Accept **USD to TRY** and **EUR** as one-unit currency queries, alongside explicit amounts and local unit conversion. Rates retain their published reference date and offline/error labeling; they are not streaming market quotes.
-- Improve command/application favorites guidance and prevent stationary-pointer hover from stealing keyboard selection.
-- Widen scanner cards, wrap long names and provide readable, expandable startup commands with large-text support.
-- Preserve AI-tool grouping, manual assignments, Linux app discovery and reversible file organization.
+### Folder personalization within reach
 
-[Installation and troubleshooting](https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/UPDATES.md) · [Validation](https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/VALIDATION.md)
+Right-click a Smart Group or choose **Color & style**. Pick preset/HEX/gradient colors, folder style, glyph and glyph size. Physical apply results now remain visible. If the Windows category folder is missing, explicitly create/apply just that category. Existing independently customized icon metadata is preserved.
+
+[Widget guide](https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/PRODUCTIVITY.md) · [Folder guide](https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/FOLDER-APPEARANCE.md) · [Validation](https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/VALIDATION.md)

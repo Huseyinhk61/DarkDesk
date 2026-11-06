@@ -207,3 +207,42 @@ test('custom folder appearance updates owned metadata and preserves independent 
     'manually chosen icon',
   );
 });
+
+test('glyph size persists and changes both the preview vector and native rendering path', async (t) => {
+  const settings = structuredClone(defaultSettings);
+  settings.categories[0].folderGlyphSize = 'large';
+  assert.equal(validateSettings(settings).categories[0].folderGlyphSize, 'large');
+  const large = folderSvg({ ...settings.categories[0], folderGlyphSize: 'large' });
+  assert.match(large, /scale\(4.2\)/);
+  assert.notEqual(large, folderSvg({ ...settings.categories[0], folderGlyphSize: 'small' }));
+  const data = await fs.mkdtemp(path.join(os.tmpdir(), 'darkdesk-glyph-'));
+  t.after(() => fs.rm(data, { recursive: true, force: true }));
+  let rendered;
+  const icons = new FolderIcons(data, 'win32', {
+    renderFolderIco: async (category) => {
+      rendered = category.folderGlyphSize;
+      return artwork();
+    },
+  });
+  await icons.folderContents(settings.categories[0], settings);
+  assert.equal(rendered, 'large');
+});
+
+test('explicit folder preparation creates only the chosen category and applies its saved appearance', async (t) => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'darkdesk-prepare-'));
+  t.after(() => fs.rm(root, { recursive: true, force: true }));
+  const desktop = path.join(root, 'Desktop');
+  await fs.mkdir(desktop);
+  await fs.writeFile(path.join(desktop, 'untouched.txt'), 'keep');
+  const { DesktopRuntime } = require('./runtime/controller.cjs');
+  const runtime = new DesktopRuntime({ desktop, data: path.join(root, 'data'), platform: 'win32' });
+  runtime.service.folderIcons.run = async () => {};
+  const result = await runtime.prepareCategoryFolder('software');
+  assert.equal(result.updated, 1);
+  const settings = await runtime.settings.read();
+  const folder = path.join(desktop, ...categorySegments('software', settings.categories));
+  assert.equal((await fs.stat(path.join(folder, '.darkdesk.ico'))).isFile(), true);
+  assert.equal(await fs.readFile(path.join(desktop, 'untouched.txt'), 'utf8'), 'keep');
+  assert.equal((await fs.readdir(desktop)).length, 2);
+  await assert.rejects(runtime.prepareCategoryFolder('../escape'), /CATEGORY_INVALID/);
+});

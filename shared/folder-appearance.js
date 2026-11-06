@@ -9,7 +9,7 @@ export function folderAppearanceVersion(settings) {
   return JSON.stringify({
     theme: settings.folderTheme,
     categories: settings.categories.map(
-      ({ id, folder, parentId, color, icon, customColor, folderTheme }) => ({
+      ({ id, folder, parentId, color, icon, customColor, folderTheme, folderGlyphSize }) => ({
         id,
         folder,
         parentId,
@@ -17,6 +17,7 @@ export function folderAppearanceVersion(settings) {
         icon,
         customColor,
         folderTheme,
+        folderGlyphSize,
       }),
     ),
   });
@@ -99,11 +100,13 @@ export function folderSvg({
   theme = 'gradient',
   icon = 'folder',
   customColor,
+  folderGlyphSize = 'normal',
 } = {}) {
   if (
     !folderColorIds.includes(color) ||
     !folderThemes.includes(theme) ||
-    !Object.hasOwn(glyphs, icon)
+    !Object.hasOwn(glyphs, icon) ||
+    !['small', 'normal', 'large'].includes(folderGlyphSize)
   )
     throw Error('FOLDER_APPEARANCE_INVALID');
   const custom = normalizeFolderColor(customColor);
@@ -135,8 +138,14 @@ export function folderSvg({
     custom && theme === 'outline'
       ? `<path d="${shape}" fill="none" stroke="${halo}" stroke-opacity=".7" stroke-width="8" stroke-linejoin="round"/>`
       : '';
+  const transform =
+    folderGlyphSize === 'small'
+      ? 'translate(97 122) scale(2.6)'
+      : folderGlyphSize === 'large'
+        ? 'translate(78 103) scale(4.2)'
+        : 'translate(87 112) scale(3.4)';
   const glyphHalo = custom
-    ? `<g transform="translate(87 112) scale(3.4)" fill="none" stroke="${halo}" stroke-opacity=".7" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="${glyphs[icon]}"/></g>`
+    ? `<g transform="${transform}" fill="none" stroke="${halo}" stroke-opacity=".7" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="${glyphs[icon]}"/></g>`
     : '';
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256"><defs><linearGradient id="${id}" x1="0" y1="0" x2=".75" y2="1"><stop stop-color="${palette.fill}"/><stop offset="1" stop-color="${palette.shade}"/></linearGradient></defs><path d="M25 91V72q0-18 18-18h63l21 21h86q18 0 18 18" fill="${palette.shade}" stroke="${stroke}" stroke-width="3"/>${outlineHalo}<path d="${shape}" fill="${fill}" fill-opacity="${opacity}" stroke="${stroke}" stroke-width="${theme === 'outline' ? 5 : 3}" stroke-linejoin="round"/><path d="M38 96h178" fill="none" stroke="${palette.stroke}" stroke-opacity="${theme === 'outline' ? '.45' : '.23'}" stroke-width="2"/>${glyphHalo}<g transform="translate(87 112) scale(3.4)" fill="none" stroke="${glyph}" stroke-width="${theme === 'solid' ? 2 : 1.8}" stroke-linecap="round" stroke-linejoin="round"><path d="${glyphs[icon]}"/></g></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256"><defs><linearGradient id="${id}" x1="0" y1="0" x2=".75" y2="1"><stop stop-color="${palette.fill}"/><stop offset="1" stop-color="${palette.shade}"/></linearGradient></defs><path d="M25 91V72q0-18 18-18h63l21 21h86q18 0 18 18" fill="${palette.shade}" stroke="${stroke}" stroke-width="3"/>${outlineHalo}<path d="${shape}" fill="${fill}" fill-opacity="${opacity}" stroke="${stroke}" stroke-width="${theme === 'outline' ? 5 : 3}" stroke-linejoin="round"/><path d="M38 96h178" fill="none" stroke="${palette.stroke}" stroke-opacity="${theme === 'outline' ? '.45' : '.23'}" stroke-width="2"/>${glyphHalo}<g transform="${transform}" fill="none" stroke="${glyph}" stroke-width="${theme === 'solid' ? 2 : 1.8}" stroke-linecap="round" stroke-linejoin="round"><path d="${glyphs[icon]}"/></g></svg>`;
 }

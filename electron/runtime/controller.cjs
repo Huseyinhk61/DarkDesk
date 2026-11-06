@@ -9,7 +9,7 @@ const { VisibilityAdapter } = require('./visibility.cjs');
 const { ActivityStore } = require('./activity.cjs');
 const { AutomationService } = require('./automation.cjs');
 const { ItemDetailsService } = require('./item-details.cjs');
-const { enrichItem } = require('../../shared/domain.js');
+const { enrichItem, categorySegments } = require('../../shared/domain.js');
 const { applyFolderAppearance } = require('../folder-appearance.cjs');
 const { LauncherCatalog } = require('./launcher-catalog.cjs');
 const { CommandUsage } = require('./command-usage.cjs');
@@ -194,6 +194,20 @@ class DesktopRuntime {
         return batch;
       }),
     );
+  }
+  async prepareCategoryFolder(id) {
+    if (this.platform !== 'win32') throw Error('FOLDER_PLATFORM_UNSUPPORTED');
+    return this.run('folder-appearance', async () => {
+      const settings = await this.settings.read();
+      if (!settings.categories.some((category) => category.id === id))
+        throw Error('CATEGORY_INVALID');
+      const target = path.join(this.desktop, ...categorySegments(id, settings.categories));
+      await this.service.exclusive(async () => {
+        this.service.settings = settings;
+        await this.service.safeDirectory(target, true);
+      });
+      return applyFolderAppearance(this.service, settings, [id]);
+    });
   }
   async applyFolderAppearance() {
     return this.run('folder-appearance', async () =>

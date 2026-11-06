@@ -17,6 +17,7 @@ import {
   Cpu,
   ChartNoAxesCombined,
   Download,
+  Coins,
 } from 'lucide-react';
 import { usePreferences } from '../preferences';
 import { formatBytes } from '../utils';
@@ -46,6 +47,7 @@ export default function Sidebar({ view, setView, stats, native, update }) {
           ['groups', LayoutGrid],
           ['profiles', Focus],
           ['launcher', Search],
+          ['currency', Coins],
           ['scan', ScanLine],
           ['categories', FolderTree],
           ['automation', Workflow],

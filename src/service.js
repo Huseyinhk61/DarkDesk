@@ -229,6 +229,9 @@ export const api = window.darkdesk || {
     platform: 'demo',
   }),
   getSettings: async () => structuredClone(settings),
+  prepareCategoryFolder: async () => {
+    throw Error('FOLDER_PLATFORM_UNSUPPORTED');
+  },
   applyFolderAppearance: async () => ({
     updated: 0,
     unchanged: 0,
@@ -324,6 +327,7 @@ export const api = window.darkdesk || {
     if (!demoIndexedItems().some((item) => item.id === id)) throw Error('SOURCE_MISSING');
     return { id, icon: null };
   },
+  copyText: (text) => navigator.clipboard.writeText(text),
   currencyQuote: async (query) => {
     let cached;
     try {

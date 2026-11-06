@@ -14,7 +14,14 @@ function savedView() {
     return sanitizeGroupView(null);
   }
 }
-export default function CategoryGrid({ items, filter, setFilter, onDropItem, disabled }) {
+export default function CategoryGrid({
+  items,
+  filter,
+  setFilter,
+  onDropItem,
+  disabled,
+  onCustomize,
+}) {
   const [hover, setHover] = useState(null);
   const [view, setView] = useState(savedView);
   const [edges, setEdges] = useState({ previous: false, next: false, overflow: false });
@@ -134,6 +141,14 @@ export default function CategoryGrid({ items, filter, setFilter, onDropItem, dis
           {t('groups.overview', { count: roots.length })}
         </p>
         <div className="group-view-controls">
+          <button
+            type="button"
+            className="text-btn"
+            disabled={disabled}
+            onClick={() => onCustomize?.(filter)}
+          >
+            {t('folderMore.customize')}
+          </button>
           <label className="group-sort">
             <span>{t('groups.sort')}</span>
             <select
@@ -194,6 +209,11 @@ export default function CategoryGrid({ items, filter, setFilter, onDropItem, dis
               className={`category ${category.color} ${category.customColor ? 'custom-folder-color' : ''} ${activeRoot?.id === category.id ? 'selected' : ''} ${hover === category.id ? 'drag-hover' : ''}`}
               style={folderAccentStyle(category)}
               {...dropProps(category.id)}
+              title={t('folderMore.quickHint')}
+              onContextMenu={(event) => {
+                event.preventDefault();
+                if (!disabled) onCustomize?.(category.id);
+              }}
               onClick={() => setFilter(filter === category.id ? null : category.id)}
             >
               <div className="category-top">

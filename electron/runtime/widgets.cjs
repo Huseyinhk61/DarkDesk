@@ -6,6 +6,7 @@ const {
   normalizeWidgetState,
   validateWidgetPatch,
   restoreWidgetBounds,
+  widgetPresetSize,
 } = require('../../shared/widget-model.js');
 const { attachDesktop: nativeAttach } = require('./widget-desktop.cjs');
 
@@ -68,7 +69,10 @@ class WidgetManager {
     const layout =
       patch &&
       typeof patch === 'object' &&
-      ('placement' in patch || 'resetPositions' in patch || 'collapsed' in patch);
+      ('placement' in patch ||
+        'resetPositions' in patch ||
+        'collapsed' in patch ||
+        'appearance' in patch);
     // Content flushes are required during stop; layout mutations can destroy
     // those same renderer windows and must wait until normal operation resumes.
     if (layout && this.stopping) throw Error('WIDGETS_UNAVAILABLE');
@@ -87,9 +91,29 @@ class WidgetManager {
       const previous = await this.read();
       const next = validateWidgetPatch(previous, patch);
       await this.persist(next);
+      if (patch.appearance) {
+        for (const [id, value] of Object.entries(patch.appearance)) {
+          if (!value.size) continue;
+          const saved = next.widgets[id].bounds;
+          const bounds = restoreWidgetBounds(
+            id,
+            {
+              ...(saved || restoreWidgetBounds(id, null, this.getDisplays())),
+              ...widgetPresetSize(id, next.appearance[id].size),
+            },
+            this.getDisplays(),
+          );
+          next.widgets[id].bounds = bounds;
+          const window = this.open.get(id);
+          if (window && !window.isDestroyed())
+            window.setBounds({ ...bounds, ...(next.collapsed[id] ? { height: 44 } : {}) });
+        }
+        await this.persist(next);
+      }
       if (patch.collapsed)
         for (const [id, window] of this.open) {
           if (!window.isDestroyed()) {
+            window.setMinimumSize?.(240, next.collapsed[id] ? 44 : 180);
             const normal = restoreWidgetBounds(id, next.widgets[id].bounds, this.getDisplays());
             window.setBounds({ ...normal, height: next.collapsed[id] ? 44 : normal.height });
           }
@@ -98,7 +122,14 @@ class WidgetManager {
         for (const [id, window] of this.open)
           if (!window.isDestroyed())
             window.setBounds({
-              ...restoreWidgetBounds(id, null, this.getDisplays()),
+              ...restoreWidgetBounds(
+                id,
+                {
+                  ...restoreWidgetBounds(id, null, this.getDisplays()),
+                  ...widgetPresetSize(id, next.appearance[id].size),
+                },
+                this.getDisplays(),
+              ),
               ...(next.collapsed[id] ? { height: 44 } : {}),
             });
       if ('placement' in patch && previous.placement !== next.placement) {
@@ -119,7 +150,8 @@ class WidgetManager {
   }
   async initialize() {
     const model = await this.read();
-    for (const id of widgetIds) if (model.widgets[id].enabled) await this.show(id);
+    for (const id of widgetIds)
+      if (model.widgets[id].enabled) await this.show(id, { focus: false });
     return this.state();
   }
   async create(id, model) {
@@ -130,7 +162,14 @@ class WidgetManager {
     const existing = this.open.get(id);
     if (existing && !existing.isDestroyed()) return existing;
     const task = (async () => {
-      const bounds = restoreWidgetBounds(id, model.widgets[id].bounds, this.getDisplays());
+      const bounds = restoreWidgetBounds(
+        id,
+        model.widgets[id].bounds || {
+          ...restoreWidgetBounds(id, null, this.getDisplays()),
+          ...widgetPresetSize(id, model.appearance[id].size),
+        },
+        this.getDisplays(),
+      );
       const window = this.createWindow({
         ...bounds,
         height: model.collapsed[id] ? 44 : bounds.height,
@@ -139,7 +178,12 @@ class WidgetManager {
         backgroundColor: '#00000000',
         show: false,
         skipTaskbar: true,
-        resizable: false,
+        resizable: true,
+        focusable: true,
+        minWidth: 240,
+        minHeight: model.collapsed[id] ? 44 : 180,
+        maxWidth: 700,
+        maxHeight: 900,
         minimizable: false,
         maximizable: false,
         hasShadow: true,
@@ -156,6 +200,7 @@ class WidgetManager {
       });
       this.open.set(id, window);
       window.setAlwaysOnTop?.(false);
+      window.setIgnoreMouseEvents?.(false);
       window.setVisibleOnAllWorkspaces?.(true, { visibleOnFullScreen: false });
       window.on?.('close', (event) => {
         if (!this.stopping) {
@@ -188,7 +233,13 @@ class WidgetManager {
           supported: false,
           reason: model.placement === 'floating' ? 'requested' : 'platform',
         };
-        if (model.placement === 'desktop')
+        if (
+          model.placement === 'desktop' &&
+          this.platform === 'win32' &&
+          !['system', 'clock'].includes(id)
+        )
+          placement = { mode: 'floating', supported: false, reason: 'editable' };
+        else if (model.placement === 'desktop')
           placement = await this.attachDesktop(window, { platform: this.platform });
         if (window.isDestroyed()) throw Error('WIDGETS_UNAVAILABLE');
         this.placements.set(id, placement);
@@ -208,12 +259,17 @@ class WidgetManager {
       this.loading.delete(id);
     }
   }
-  async show(id) {
+  async show(id, { focus = true } = {}) {
     if (!widgetIds.includes(id) || this.stopping) throw Error('WIDGETS_INVALID');
     const model = await this.read();
     const window = await this.create(id, model);
-    window.showInactive?.();
-    if (!window.showInactive) window.show();
+    if (focus && !['system', 'clock'].includes(id) && window.show) {
+      window.show();
+      window.focus?.();
+    } else {
+      window.showInactive?.();
+      if (!window.showInactive) window.show();
+    }
     return this.locked(async () => {
       const next = structuredClone(await this.read());
       next.widgets[id].enabled = true;
@@ -221,7 +277,13 @@ class WidgetManager {
         id,
         {
           ...window.getBounds(),
-          ...(next.collapsed[id] ? { height: next.widgets[id].bounds?.height || 236 } : {}),
+          ...(next.collapsed[id]
+            ? {
+                height:
+                  next.widgets[id].bounds?.height ||
+                  widgetPresetSize(id, next.appearance[id].size).height,
+              }
+            : {}),
         },
         this.getDisplays(),
       );
@@ -229,6 +291,9 @@ class WidgetManager {
     });
   }
   async flushWindow(window) {
+    // Only the note editor has debounced renderer drafts. Probing hidden or
+    // closing read-only frames can reject while Electron disposes the frame.
+    if (this.open.get('note') !== window) return;
     if (window.isDestroyed() || !window.webContents?.executeJavaScript) return;
     let timer;
     try {
@@ -262,7 +327,13 @@ class WidgetManager {
       id,
       {
         ...window.getBounds(),
-        ...(model.collapsed[id] ? { height: model.widgets[id].bounds?.height || 236 } : {}),
+        ...(model.collapsed[id]
+          ? {
+              height:
+                model.widgets[id].bounds?.height ||
+                widgetPresetSize(id, model.appearance[id].size).height,
+            }
+          : {}),
       },
       this.getDisplays(),
     );

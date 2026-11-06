@@ -6,6 +6,19 @@ const path = require('node:path');
 const os = require('node:os');
 const assert = require('node:assert/strict');
 
+async function closeApplication(application) {
+  let timedOut = false;
+  const timer = setTimeout(() => {
+    timedOut = true;
+    application.process()?.kill('SIGKILL');
+  }, 20000);
+  try {
+    await application.close();
+    if (timedOut) throw Error('Native widget shutdown timed out');
+  } finally {
+    clearTimeout(timer);
+  }
+}
 async function widgetPage(application, id) {
   await expect
     .poll(() => application.windows().some((page) => page.url().endsWith('#widget=' + id)))
@@ -232,7 +245,8 @@ async function widgetPage(application, id) {
         );
         assert.equal(attached.placements.note.supported, true);
       } else {
-        assert.ok(['desktop', 'floating'].includes(attached.placements.note.mode));
+        assert.equal(attached.placements.note.mode, 'floating');
+        assert.equal(attached.placements.note.reason, 'editable');
         assert.equal(
           attached.placements.note.supported,
           attached.placements.note.mode === 'desktop',
@@ -250,16 +264,63 @@ async function widgetPage(application, id) {
       await main.evaluate(() => window.darkdesk.showWidget('note'));
     }
 
+    for (const id of ['clock', 'focus'])
+      await main.evaluate((id) => window.darkdesk.showWidget(id), id);
+    const clock = await widgetPage(application, 'clock');
+    await expect(clock.locator('.clock-widget strong')).toHaveText(/\d{2}:\d{2}:\d{2}/);
+    const focus = await widgetPage(application, 'focus');
+    await focus.getByRole('button', { name: 'Başlat', exact: true }).click();
+    await expect(focus.getByRole('button', { name: 'Duraklat', exact: true })).toBeVisible();
+    await focus.getByRole('button', { name: 'Duraklat', exact: true }).click();
+    await main.evaluate(() =>
+      window.darkdesk.saveWidgets({ appearance: { note: { opacity: 55, size: 'large' } } }),
+    );
+    assert.equal(
+      (await main.evaluate(() => window.darkdesk.widgetState())).appearance.note.opacity,
+      55,
+    );
+    await application.evaluate(({}, packageBase) => {
+      const req = process
+        .getBuiltinModule('node:module')
+        .createRequire(packageBase + '/package.json');
+      const proto = req('./electron/runtime/currency.cjs').CurrencyService.prototype;
+      globalThis.__widgetOriginalRates = proto.rates;
+      proto.rates = async () => ({
+        date: new Date().toISOString().slice(0, 10),
+        rates: { USD: 1, TRY: 40, EUR: 0.8 },
+        cached: false,
+      });
+    }, base);
+    try {
+      await main.evaluate(() => window.darkdesk.showWidget('currency'));
+      const currency = await widgetPage(application, 'currency');
+      await expect(currency.locator('.currency-result')).toContainText('40 TRY');
+      await main.evaluate(() => window.darkdesk.hideWidget('currency'));
+    } finally {
+      await application.evaluate(({}, packageBase) => {
+        const req = process
+          .getBuiltinModule('node:module')
+          .createRequire(packageBase + '/package.json');
+        req('./electron/runtime/currency.cjs').CurrencyService.prototype.rates =
+          globalThis.__widgetOriginalRates;
+        delete globalThis.__widgetOriginalRates;
+      }, base);
+    }
+
     const savedState = await main.evaluate(() => window.darkdesk.widgetState());
-    assert.ok(Object.values(savedState.widgets).every((widget) => widget.enabled));
-    assert.ok(Object.values(savedState.widgets).every((widget) => widget.bounds.width >= 100));
-    await application.close();
+    assert.ok(['system', 'note', 'todos'].every((id) => savedState.widgets[id].enabled));
+    assert.ok(
+      Object.values(savedState.widgets)
+        .filter((widget) => widget.enabled)
+        .every((widget) => widget.bounds.width >= 100),
+    );
+    await closeApplication(application);
     application = null;
     const persisted = JSON.parse(await fs.readFile(path.join(root, 'data/widgets.json'), 'utf8'));
     assert.equal(persisted.note, savedState.note);
     assert.deepEqual(persisted.todos, savedState.todos);
     assert.ok(
-      Object.values(persisted.widgets).every((widget) => widget.enabled),
+      ['system', 'note', 'todos'].every((id) => persisted.widgets[id].enabled),
       'Quit preserves explicit widget visibility for next launch',
     );
     application = await electron.launch({
@@ -276,7 +337,7 @@ async function widgetPage(application, id) {
     const restoredTodos = await widgetPage(application, 'todos');
     await expect(restoredTodos.locator('.widget-todos li')).toHaveCount(1);
     assert.deepEqual(pageErrors, []);
-    await application.close();
+    await closeApplication(application);
     application = null;
     console.log(
       'PASS: isolated real widget windows, CPU/RAM metrics, note flush, todo persistence/restart, restricted widget IPC, native addon loading' +
@@ -287,7 +348,7 @@ async function widgetPage(application, id) {
             : '.'),
     );
   } finally {
-    if (application) await application.close().catch(() => {});
+    if (application) await closeApplication(application).catch(() => {});
     await fs.rm(root, { recursive: true, force: true });
   }
 })().catch((error) => {

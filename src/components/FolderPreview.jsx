@@ -8,6 +8,7 @@ export default function FolderPreview({ category, size = 48, theme }) {
     theme: theme || resolveFolderTheme(category, settings.folderTheme),
     icon: category?.icon || 'folder',
     customColor: category?.customColor,
+    folderGlyphSize: category?.folderGlyphSize,
   });
   return (
     <img

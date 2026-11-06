@@ -121,7 +121,7 @@ test('restored widget bounds remain visible after removing a monitor or on a neg
     restoreWidgetBounds('note', { x: 5000, y: 2000, width: 340, height: 340 }, [
       { x: 0, y: 0, width: 1024, height: 768 },
     ]),
-    { x: 732, y: 532, width: 292, height: 236 },
+    { x: 684, y: 428, width: 340, height: 340 },
   );
   assert.deepEqual(
     restoreWidgetBounds('note', { x: -1800, y: 100, width: 292, height: 236 }, [
@@ -305,4 +305,100 @@ test('collapse resizes native panels, preserves drafts and survives restart', as
   assert.equal((await persisted.state()).collapsed.note, true);
   assert.equal((await persisted.state()).note, 'keep me');
   await assert.rejects(persisted.save({ collapsed: { note: 'false' } }), /WIDGETS_INVALID/);
+});
+
+test('Windows editable widgets retain top-level focus instead of cross-process desktop parenting', async (t) => {
+  let attachments = 0;
+  const { manager, created } = await fixture(t, {
+    platform: 'win32',
+    attachDesktop: async () => {
+      attachments++;
+      return { mode: 'desktop', supported: true };
+    },
+  });
+  await manager.show('note');
+  await manager.show('todos');
+  assert.equal(attachments, 0);
+  assert.equal(created[0].options.focusable, true);
+  assert.equal((await manager.state()).placements.note.reason, 'editable');
+  await manager.show('system');
+  assert.equal(attachments, 1);
+});
+
+test('appearance and system preferences persist independently, resizing preserves drafts and new modules migrate', async (t) => {
+  const { manager, created, data } = await fixture(t);
+  await manager.show('note');
+  await manager.save({
+    note: 'keep draft',
+    appearance: { note: { opacity: 55, size: 'large' } },
+    system: { interval: 5, chart: false },
+  });
+  let state = await manager.state();
+  assert.equal(state.appearance.note.opacity, 55);
+  assert.equal(created[0].getBounds().width, 438);
+  assert.equal(state.note, 'keep draft');
+  const persisted = normalizeWidgetState(
+    JSON.parse(await fs.readFile(path.join(data, 'widgets.json'), 'utf8')),
+  );
+  assert.equal(persisted.system.interval, 5);
+  assert.equal(persisted.appearance.note.size, 'large');
+  const legacy = normalizeWidgetState({
+    note: 'legacy',
+    todos: [],
+    placement: 'desktop',
+    widgets: { note: { enabled: true, bounds: null } },
+  });
+  assert.equal(legacy.note, 'legacy');
+  assert.equal(legacy.widgets.currency.enabled, false);
+  for (const patch of [
+    { appearance: { note: { opacity: 0 } } },
+    { appearance: { note: { size: 'giant' } } },
+    { appearance: { bad: { opacity: 80 } } },
+    { system: { interval: 0 } },
+    { focus: { duration: 0 } },
+    { focus: { endsAt: NaN } },
+  ])
+    await assert.rejects(manager.save(patch), /WIDGETS_INVALID/);
+});
+
+test('focus timing survives elapsed wall time and clamps completion without interval drift', () => {
+  const { focusSeconds } = require('../shared/widget-model.js');
+  const timer = { duration: 25, remaining: 1500, endsAt: 100000 };
+  assert.equal(focusSeconds(timer, 88000), 12);
+  assert.equal(focusSeconds(timer, 101000), 0);
+  assert.equal(focusSeconds({ ...timer, endsAt: null, remaining: 60 }, 101000), 60);
+  assert.equal(focusSeconds(timer, -10000000), 1500);
+});
+
+test('read-only or task frames are not probed for note drafts during shutdown', async (t) => {
+  const { manager, created } = await fixture(t);
+  await manager.show('clock');
+  await manager.show('todos');
+  for (const window of created)
+    window.flush = async () => {
+      throw Error('Render frame was disposed');
+    };
+  await manager.stop();
+  assert.ok(created.every((window) => window.destroyed));
+});
+
+test('default widget positions tile without overlap on a standard desktop', () => {
+  const { widgetIds } = require('../shared/widget-model.js');
+  const bounds = widgetIds.map((id) =>
+    restoreWidgetBounds(id, null, [{ x: 0, y: 0, width: 1024, height: 768 }]),
+  );
+  for (let a = 0; a < bounds.length; a++)
+    for (let b = a + 1; b < bounds.length; b++) {
+      const x = Math.max(
+        0,
+        Math.min(bounds[a].x + bounds[a].width, bounds[b].x + bounds[b].width) -
+          Math.max(bounds[a].x, bounds[b].x),
+      );
+      const y = Math.max(
+        0,
+        Math.min(bounds[a].y + bounds[a].height, bounds[b].y + bounds[b].height) -
+          Math.max(bounds[a].y, bounds[b].y),
+      );
+      assert.equal(x * y, 0, widgetIds[a] + ' overlaps ' + widgetIds[b]);
+    }
 });

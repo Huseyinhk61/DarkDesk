@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.9.0 — November 7, 2026
+
+- Add a dedicated sidebar currency converter with amount/from/to controls, swap, refresh, copy, explicit error/cache labels and an equivalent desktop widget. Identical-currency calculations stay local.
+- Keep Windows text-entry widgets in independent focusable windows instead of reparenting them into Explorer. Focus note/task editors on activation, retain drafts and ignore obsolete initial snapshots.
+- Add clock/date and persistent focus-timer widgets. Migrate existing notes/tasks without enabling new modules automatically.
+- Tile reset positions to avoid covering editors; flush only note drafts during shutdown so closing utility frames cannot block exit.
+- Add per-widget background opacity, three size presets and native edge resizing with persisted bounds. Serialize appearance saves and retain existing content through layout changes.
+- Add selectable CPU details, per-core graphs, available memory, app RSS, disk capacity and uptime; cache real disk samples and provide configurable polling intervals.
+- Add right-click category customization, folder glyph sizes, visible physical-apply results and an explicit single-category create/apply action for Windows folders that do not exist yet. Preserve unrelated files and independently customized icons.
+
 ## 3.8.2 — November 6, 2026
 
 - Publish the previously reviewed production-polish changes with a new application version so installed builds can actually discover the update.

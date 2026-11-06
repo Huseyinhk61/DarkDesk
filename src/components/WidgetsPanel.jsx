@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
-import { Cpu, StickyNote, ListTodo, Monitor, RotateCcw } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Cpu, StickyNote, ListTodo, Monitor, RotateCcw, Coins, Clock3, Timer } from 'lucide-react';
 import { api, native } from '../service';
 import { usePreferences } from '../preferences';
 import { WidgetContent } from './WidgetWindow';
 import '../widgets.css';
+import { widgetIds } from '../../shared/widget-model';
 export default function WidgetsPanel({ busy }) {
   const { t, errorMessage } = usePreferences();
   const [state, setState] = useState(null),
@@ -79,6 +80,9 @@ export default function WidgetsPanel({ busy }) {
           ['system', Cpu],
           ['note', StickyNote],
           ['todos', ListTodo],
+          ['currency', Coins],
+          ['clock', Clock3],
+          ['focus', Timer],
         ].map(([id, Icon]) => (
           <section className="settings-panel widget-module-card" key={id}>
             <span className="widget-module-icon">
@@ -110,17 +114,75 @@ export default function WidgetsPanel({ busy }) {
                     : 'widgetPlus.previewButton',
               )}
             </button>
+            {state && (
+              <WidgetAppearanceControl
+                id={id}
+                value={state.appearance[id]}
+                disabled={!!pending || busy}
+                onSave={(patch) =>
+                  api.saveWidgets({ appearance: { [id]: patch } }).catch((reason) => {
+                    setError(errorMessage(reason));
+                    throw reason;
+                  })
+                }
+              />
+            )}
             {state?.placements?.[id]?.supported === false &&
               native &&
               state.placement === 'desktop' && (
-                <small className="muted">{t('widgetPlus.fallback')}</small>
+                <small className="muted">
+                  {t(
+                    state.placements[id].reason === 'editable'
+                      ? 'widgetMore.editableHint'
+                      : 'widgetPlus.fallback',
+                  )}
+                </small>
               )}
           </section>
         ))}
       </div>
+      {state && (
+        <section className="settings-panel widget-system-options">
+          <h2>{t('widgetMore.systemOptions')}</h2>
+          <div className="widget-system-toggles">
+            {['cores', 'chart', 'details', 'disk'].map((key) => (
+              <label key={key}>
+                <input
+                  type="checkbox"
+                  checked={state.system[key]}
+                  disabled={!!pending || busy}
+                  onChange={(e) =>
+                    run('system', () => api.saveWidgets({ system: { [key]: e.target.checked } }))
+                  }
+                />
+                {t('widgetMore.show.' + key)}
+              </label>
+            ))}
+          </div>
+          <label>
+            {t('widgetMore.refreshInterval')}
+            <select
+              aria-label={t('widgetMore.refreshInterval')}
+              value={state.system.interval}
+              disabled={!!pending || busy}
+              onChange={(e) =>
+                run('system', () =>
+                  api.saveWidgets({ system: { interval: Number(e.target.value) } }),
+                )
+              }
+            >
+              {[1, 2, 5, 10].map((value) => (
+                <option key={value} value={value}>
+                  {value} s
+                </option>
+              ))}
+            </select>
+          </label>
+        </section>
+      )}
       {!native && state && (
         <div className="widget-preview-grid">
-          {['system', 'note', 'todos']
+          {widgetIds
             .filter((id) => state.widgets[id].enabled)
             .map((id) => (
               <WidgetContent key={id} id={id} embedded />
@@ -128,5 +190,82 @@ export default function WidgetsPanel({ busy }) {
         </div>
       )}
     </>
+  );
+}
+
+function WidgetAppearanceControl({ id, value, disabled, onSave }) {
+  const { t } = usePreferences();
+  const [opacity, setOpacity] = useState(value.opacity);
+  const draft = useRef(value.opacity),
+    dirty = useRef(false),
+    revision = useRef(0),
+    queued = useRef(-1),
+    tail = useRef(Promise.resolve()),
+    save = useRef(onSave);
+  save.current = onSave;
+  useEffect(() => {
+    if (!dirty.current) {
+      draft.current = value.opacity;
+      setOpacity(value.opacity);
+    }
+  }, [value.opacity]);
+  const commit = () => {
+    if (!dirty.current || queued.current === revision.current) return tail.current;
+    const version = revision.current,
+      amount = draft.current;
+    queued.current = version;
+    const work = tail.current.catch(() => {}).then(() => save.current({ opacity: amount }));
+    tail.current = work;
+    return work
+      .then(() => {
+        if (version === revision.current) dirty.current = false;
+      })
+      .catch(() => {
+        if (version === revision.current) queued.current = -1;
+      });
+  };
+  useEffect(
+    () => () => {
+      if (dirty.current) commit();
+    },
+    [],
+  );
+  return (
+    <div className="widget-appearance-control">
+      <label>
+        {t('widgetMore.opacity')} <output>{opacity}%</output>
+        <input
+          type="range"
+          min="25"
+          max="100"
+          value={opacity}
+          aria-label={t('widgetMore.opacityFor', { name: t('widgetPlus.' + id) })}
+          onChange={(e) => {
+            draft.current = Number(e.target.value);
+            dirty.current = true;
+            revision.current++;
+            setOpacity(draft.current);
+          }}
+          onPointerUp={commit}
+          onKeyUp={commit}
+          onBlur={commit}
+        />
+      </label>
+      <label>
+        {t('widgetMore.size')}
+        <select
+          disabled={disabled}
+          aria-label={t('widgetMore.sizeFor', { name: t('widgetPlus.' + id) })}
+          value={value.size}
+          onChange={(e) => onSave({ size: e.target.value }).catch(() => {})}
+        >
+          {['compact', 'regular', 'large'].map((size) => (
+            <option key={size} value={size}>
+              {t('widgetMore.size.' + size)}
+            </option>
+          ))}
+        </select>
+      </label>
+    </div>
   );
 }

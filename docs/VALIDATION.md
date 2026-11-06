@@ -1,5 +1,18 @@
 # DarkDesk validation report
 
+## 3.9.0 — editable widgets, currency form and folder preparation
+
+Date: November 7, 2026 (Europe/Istanbul).
+
+- **319 Linux service/model tests passed.** Added migration of older notes/tasks, validated opacity/size/system preferences, retained custom bounds, non-overlapping default widget positions, Windows editable-window placement, wall-clock focus timing, cached disk-capacity sampling, glyph-size vectors/native dispatch and explicit one-category folder creation without modifying unrelated files.
+- **134 browser scenarios passed** in the full local run, including five new currency/widget/folder flows. The dedicated converter covers amount, swap, refresh and clipboard behavior; note/task input, opacity, presets, system controls, utility widgets, right-click customization and enlarged-text/narrow layouts are covered. Seventeen pre-existing widget/folder regressions also passed in a focused run.
+- Production build and isolated real source Electron file-operation smoke passed. Expanded native widget checks passed CPU/RAM readings, editor/task input and restart persistence, clock/focus/currency windows, restricted IPC and opacity/resize state. Shutdown now probes only note frames for debounced drafts; a disposed non-note frame no longer blocks exit, while genuine note-save failures still preserve the editor.
+- Folder tests create and inspect actual ICO/INI metadata with injected Windows attributes. The real Windows branch additionally exercises native icon rendering; final cross-platform packaging/publication evidence is added after completion below.
+
+The live FX provider is outside this managed cloud runtime's allowed hosts, so converter math, caching and transport responses use controlled dated data. This is not a successful live-provider probe. Windows interactive editors intentionally use focusable floating windows; system/clock panels can attach to the desktop. Native Explorer redraw and a real end-user Windows upgrade are not established by Linux checks. macOS retains its interactive desktop-level adapter, with platform checks in CI.
+
+Publication and final cross-platform release checks are pending at this source commit.
+
 ## 3.8.2 — published delivery and resilient update checks
 
 - **311 Linux service/model tests passed.** New scheduler cases cover the initial delay, the fifteen-minute error retry, six-hour normal checks, throttled wake signals, recent manual checks, download/install exclusion, deduplicated requests and disposal. Release-note links are limited to the official repository with validated version tags.

@@ -171,7 +171,12 @@ const { folders } = require('../electron/service.cjs');
         folderTheme: 'outline',
         categories: current.categories.map((category) =>
           category.id === 'office'
-            ? { ...category, color: 'teal', customColor: { from: '#2255ee', to: '#dd3388' } }
+            ? {
+                ...category,
+                color: 'teal',
+                folderGlyphSize: 'large',
+                customColor: { from: '#2255ee', to: '#dd3388' },
+              }
             : category,
         ),
       });

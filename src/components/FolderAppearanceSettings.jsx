@@ -5,10 +5,17 @@ import { usePreferences } from '../preferences';
 import FolderPreview from './FolderPreview';
 import { native } from '../service';
 
-export default function FolderAppearanceSettings({ onSave, onApply, busy, platform }) {
+export default function FolderAppearanceSettings({
+  onSave,
+  onApply,
+  busy,
+  platform,
+  externalResult,
+}) {
   const { settings, t, categoryLabel, errorMessage } = usePreferences();
-  const [result, setResult] = useState(null),
+  const [localResult, setResult] = useState(null),
     [applying, setApplying] = useState(false);
+  const result = externalResult || localResult;
   const appearanceVersion = folderAppearanceVersion(settings);
   useEffect(() => setResult(null), [appearanceVersion]);
   const supported = native && platform === 'win32';

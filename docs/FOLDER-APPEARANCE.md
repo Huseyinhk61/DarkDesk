@@ -4,10 +4,10 @@ DarkDesk supports preset colors, custom HEX colors, and two-color gradients for 
 
 ## Choose a folder appearance
 
-1. Open **Categories & Rules**, then edit a category or create a subgroup.
+1. Right-click a Smart Group to open its editor, or use **Color & style**. You can also open **Categories & Rules** and edit a category or create a subgroup.
 2. Choose its glyph and one of ten preset colors: Blue, Purple, Green, Orange, Slate, Pink, Cyan, Teal, Amber, or Red. Alternatively, use **Custom color & gradient** to pick any start and end color.
 3. Enter six-digit HEX values such as `#2255ee` and `#dd3388`, use the native color inputs, or select Aurora, Ocean, Sunset, Forest, Rose, or Graphite. **Use a single color** makes both ends match. Invalid HEX values cannot be saved.
-4. Save the category. Its card accents, icon background, and folder preview update. On Windows, DarkDesk also applies saved visual changes to existing category folders whose icon metadata it owns.
+4. Choose a Small, Standard or Large folder glyph, then save the category. Its card accents, icon background, and folder preview update. On Windows, DarkDesk also applies saved visual changes to existing category folders whose icon metadata it owns.
 5. In **Folder appearance**, choose the global **Gradient**, **Solid**, or **Outline** style. In an individual category editor, **Style for this folder** overrides it for that category. Select **Use global style** to follow later global changes again. Each group retains its own color and glyph. Gradient uses both custom colors; Solid uses the start color. New Windows category folders receive the chosen appearance when you organize files into them.
 
 The same validated SVG artwork powers interface previews and Windows folder icons. Ten preset colors use 360 bundled assets: three styles × ten colors × twelve glyphs. Custom colors are rendered locally into matching PNG-backed ICOs, without downloading artwork. Native folder artwork is distinct from the five interface icon packs. Choosing a preset color or **Restore preset color** clears the custom gradient.
@@ -18,7 +18,7 @@ The same validated SVG artwork powers interface previews and Windows folder icon
 
 ## Apply to existing Windows folders
 
-Saving a visual category change in the Windows desktop app updates existing DarkDesk-owned category folder icons automatically. To refresh explicitly or retry a failed update, open **Folder appearance** in **Categories & Rules** or **Automation & Settings**, then choose **Apply to desktop folders**. Both paths update appearance only: they do not organize, move, copy, delete, or launch folder contents, or create missing category folders just to show an icon.
+Saving a visual category change in the Windows desktop app updates existing DarkDesk-owned category folder icons automatically. To refresh explicitly or retry a failed update, open **Folder appearance** in **Categories & Rules** or **Automation & Settings**, then choose **Apply to desktop folders**. Both paths update appearance only: they do not organize, move, copy, delete, or launch folder contents, or create missing category folders automatically. Use a group’s explicit **Create folder and apply appearance** action to create its configured folder and apply its saved style. That action affects only the selected category and does not organize files.
 
 DarkDesk writes its `.darkdesk.ico` and `desktop.ini` metadata and the Explorer attributes needed to display the icon. It recognizes its own earlier metadata from operation history or its local appearance record. Manually customized or unrecognized icon metadata is skipped rather than overwritten. Symlinked or unverifiable paths are also skipped. No automatic elevation is requested.
 
@@ -26,7 +26,7 @@ The result shows how many folders were **updated**, **unchanged**, **skipped**, 
 
 | Result                                       | What to do                                                                                            |
 | :------------------------------------------- | :---------------------------------------------------------------------------------------------------- |
-| Category folder not created                  | Organize an item into that category when ready. Its chosen appearance will be used then.              |
+| Category folder not created                  | Use the group’s create/apply action, or organize an item into it when ready.                          |
 | Custom icon files preserved                  | Keep the existing custom icon, or manage that customization yourself in File Explorer.                |
 | Windows denied access                        | Check your access to that folder and retry when it is writable.                                       |
 | Icon file changed or path cannot be verified | Check the folder in File Explorer before retrying.                                                    |

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Plus,
   Pencil,
@@ -9,6 +9,7 @@ import {
   Workflow,
   Search,
   FolderPlus,
+  FolderSync,
 } from 'lucide-react';
 import { usePreferences } from '../preferences';
 import { icons, colors, categorySegments, normalize, matchesRule } from '../../shared/domain';
@@ -33,7 +34,16 @@ const gradientPresets = [
   { id: 'rose', from: '#fb7185', to: '#a21caf' },
   { id: 'graphite', from: '#94a3b8', to: '#334155' },
 ];
-export default function CategoryManager({ onSave, busy, items = [], onApplyFolders, platform }) {
+export default function CategoryManager({
+  onSave,
+  busy,
+  items = [],
+  onApplyFolders,
+  platform,
+  onPrepareFolder,
+  requestedCategory,
+  lastFolderResult,
+}) {
   const { settings, t, label } = usePreferences();
   const [query, setQuery] = useState('');
   const [editor, setEditor] = useState(null),
@@ -49,6 +59,12 @@ export default function CategoryManager({ onSave, busy, items = [], onApplyFolde
     setEditor(category);
     setColorDraft(category.customColor ? { ...category.customColor } : null);
   };
+  useEffect(() => {
+    if (requestedCategory) {
+      const category = settings.categories.find((value) => value.id === requestedCategory);
+      if (category) openEditor({ ...category, name: label(category) });
+    }
+  }, [requestedCategory]);
   const customValid =
     !colorDraft || (hexColor.test(colorDraft.from) && hexColor.test(colorDraft.to));
   const chooseCustom = (color) => {
@@ -146,11 +162,13 @@ export default function CategoryManager({ onSave, busy, items = [], onApplyFolde
       <h1 className="settings-title">{t('manager.title')}</h1>
       <p className="muted">{t('manager.body')}</p>
       <section className="settings-panel">
+        <p className="muted">{t('folderMore.prepareHint')}</p>
         <FolderAppearanceSettings
           onSave={onSave}
           onApply={onApplyFolders}
           busy={busy}
           platform={platform}
+          externalResult={lastFolderResult}
         />
       </section>
       <section className="settings-panel">
@@ -216,6 +234,16 @@ export default function CategoryManager({ onSave, busy, items = [], onApplyFolde
                 <b>{label(c)}</b>
                 <small>{categorySegments(c.id, settings.categories).join(' / ')}</small>
               </div>
+              <button
+                type="button"
+                className="tool-btn"
+                disabled={!!busy || platform !== 'win32' || !onPrepareFolder}
+                aria-label={t('folderMore.prepareFor', { name: label(c) })}
+                title={t('folderMore.prepare')}
+                onClick={() => onPrepareFolder(c.id)}
+              >
+                <FolderSync size={15} />
+              </button>
               <button
                 type="button"
                 disabled={!!busy || c.depth >= 15}
@@ -481,6 +509,26 @@ export default function CategoryManager({ onSave, busy, items = [], onApplyFolde
                 {folderThemes.map((theme) => (
                   <option key={theme} value={theme}>
                     {t('folders.theme.' + theme)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="category-style-field">
+              {t('folderMore.glyphSize')}
+              <select
+                aria-label={t('folderMore.glyphSize')}
+                disabled={!!busy}
+                value={editor.folderGlyphSize || 'normal'}
+                onChange={(e) =>
+                  setEditor({
+                    ...editor,
+                    folderGlyphSize: e.target.value === 'normal' ? undefined : e.target.value,
+                  })
+                }
+              >
+                {['small', 'normal', 'large'].map((size) => (
+                  <option key={size} value={size}>
+                    {t('folderMore.glyph.' + size)}
                   </option>
                 ))}
               </select>
