@@ -84,7 +84,7 @@ Use the [Releases page](https://github.com/Huseyinhk61/DarkDesk/releases) for pu
 Verify a downloaded installer:
 
 ```powershell
-Get-FileHash .\DarkDesk-Setup-3.7.0.exe -Algorithm SHA256
+Get-FileHash .\DarkDesk-Setup-3.8.2.exe -Algorithm SHA256
 ```
 
 Compare the result with `SHA256SUMS.txt` from the same release. Packages are currently unsigned, so Windows may show a publisher warning.

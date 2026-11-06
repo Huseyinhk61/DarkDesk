@@ -56,7 +56,7 @@ See the [Linux installation and platform guide](docs/LINUX.md) for DEB/AppImage 
 | **Custom desktop folders**                | Choose ten preset colors, any six-digit HEX color, or a two-color gradient. Three folder styles share live previews and native Windows artwork; existing custom icons are preserved.               |
 | **Useful usage estimates**                | Cards show recorded DarkDesk launch patterns when available, or clearly labeled category estimates such as Intensive use and Continuous use.                                                       |
 | **English and Turkish**                   | Change the interface language without restarting. Native tray text follows the selected language.                                                                                                  |
-| **In-app updates**                        | Installed Windows builds can check public GitHub Releases without a personal token. Get notified, then download and restart when you choose.                                                       |
+| **In-app updates**                        | Windows Setup and Linux AppImage builds can check public GitHub Releases without a personal token. Get notified, then download and restart when you choose.                                        |
 
 ### Organize in four steps
 
@@ -162,7 +162,7 @@ Screenshots show the English browser preview with sample data. Physical destinat
 
 **Windows is the primary platform.** DarkDesk uses the operating system's desktop location, including OneDrive-redirected desktops. The app stays available in the system tray after you close the window; use **Quit** from the tray to exit fully.
 
-Linux supports desktop operations, application discovery, and `.desktop` shortcuts; an AppImage build command is included. Native Windows folder-icon customization and the Windows installer updater are platform-specific. macOS supports the new widget windows and opt-in analytics, but deep application scanning, startup management, profile visibility, and signed/notarized distribution are not currently provided. Desktop widget attachment depends on the current desktop session; floating mode remains available when attachment fails.
+Linux supports desktop operations, application discovery, `.desktop` shortcuts, and published AppImage/DEB packages. Windows Setup and Linux AppImage support in-app updates; DEB and Portable packages update manually. Native folder-icon customization and startup controls are Windows-specific. macOS supports the new widget windows and opt-in analytics, but deep application scanning, startup management, profile visibility, and signed/notarized distribution are not currently provided. Desktop widget attachment depends on the current desktop session; floating mode remains available when attachment fails.
 
 Global shortcuts depend on the operating system and other apps. DarkDesk lets you record another combination when a shortcut is already taken. Native icons and executable metadata depend on the files and permissions available on your machine.
 

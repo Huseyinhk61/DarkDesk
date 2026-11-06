@@ -3,14 +3,23 @@
 ## 3.8.2 — published delivery and resilient update checks
 
 - **311 Linux service/model tests passed.** New scheduler cases cover the initial delay, the fifteen-minute error retry, six-hour normal checks, throttled wake signals, recent manual checks, download/install exclusion, deduplicated requests and disposal. Release-note links are limited to the official repository with validated version tags.
-- **14 focused update/layout UI scenarios passed**, including progress/install ordering, unsupported Portable builds, a retained navigation indicator after dismissal, release-note actions and protection against delayed status failures. The included production-polish source previously passed 125 full browser scenarios and 16 final focused checks; remote validation of the 3.8.2 release is recorded below after completion.
+- **129 browser scenarios passed locally and in GitHub Actions**, alongside 14 focused update/layout checks, including progress/install ordering, unsupported Portable builds, a retained navigation indicator after dismissal, release-note actions and protection against delayed status failures. The included production-polish source previously passed 125 full browser scenarios and 16 final focused checks.
 - The 3.8.2 production build, real source Electron/file-operation smoke and widget-window smoke passed. New release-notes IPC is present in the isolated preload. Actual updates remain explicit downloads/restarts; no unattended application installation was dispatched during these tests.
 
-Publication and remote cross-platform checks are pending at the time of this source commit. Live Windows upgrades and Explorer redraw cannot be established by Linux tests. Currency-provider live access is still outside this run's network permission; controlled response tests do not establish a successful provider request.
+**Published and verified:** [Desktop Installers](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42284298206) passed Windows Setup/Portable and Linux AppImage/DEB packaging, update metadata/checksums, packaged native smoke and publication. [Test & Build](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42284298297) passed Windows/Linux service/native checks, **129 browser scenarios**, and macOS widget IPC.
+
+[Release v3.8.2](https://github.com/Huseyinhk61/DarkDesk/releases/tag/v3.8.2) is public and its tag points to release source commit `c64b8a5`. Both latest update feeds report 3.8.2. Anonymous Setup, Portable, blockmap, AppImage and DEB requests returned HTTP 200. Complete Windows Setup and Linux AppImage downloads were streamed and their SHA-256 values matched the release manifest; their SHA-512 values also matched the actual public update feeds. The resulting sizes match the feed metadata.
+
+Live Windows installation/upgrade and Explorer redraw were not exercised in this Linux session. Currency-provider live access remains outside this run's network permission; controlled response tests do not establish a successful provider request.
+
+- DarkDesk-Setup-3.8.2.exe: 134,887,158 bytes; SHA-256 `8014afbc0567fa11d260959aadea2d55e00f300e19bffc43784856a92fdeb0a0`.
+- DarkDesk-Portable-3.8.2.exe: 121,516,179 bytes; SHA-256 `f53688f0e397790b8dbe3d521f935c3089e51c075387a6bac31044bf4eb9f03d`.
+- DarkDesk-3.8.2-x86_64.AppImage: 142,789,646 bytes; SHA-256 `a7863596b4dcba5b3a0efc22544b03f93a9c1f2c77830bb0e84394da16035a7c`.
+- DarkDesk-3.8.2-amd64.deb: 113,690,360 bytes; SHA-256 `1ea688f0e89df3223902b1088eac1a9da793c30ad0cfa38af9fc4b0264762280`.
 
 ## Production-polish source checks (included in 3.8.2)
 
-Date: November 6, 2026. Source changes prepared for review; published 3.8.1 assets are unchanged.
+Date: November 6, 2026. Earlier review-branch validation, before the 3.8.2 release described above.
 
 - **307 Linux service/model tests passed**, including real temporary-folder writes for individual style changes, global-style override preservation/reset, metadata checks and retained custom-icon ownership. Category style validation and appearance-signature invalidation share the renderer/native model. Existing AI migration, popular-tool recognition and manual override tests pass.
 - **125 browser scenarios passed** in the full run. After the final stationary-pointer selection fix, **16 focused launcher/production scenarios passed**, including actual pointer movement versus layout hover, command/application favorite persistence, amount-free FX inputs, custom palette/style restart and Windows apply dispatch, stale asynchronous results and large-text scanner/startup layouts.
