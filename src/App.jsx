@@ -706,6 +706,7 @@ export default function App() {
                 onPrepareFolder={prepareFolder}
                 lastFolderResult={folderResult}
                 requestedCategory={requestedCategory}
+                onCategoryOpened={() => setRequestedCategory(null)}
                 platform={stats?.platform}
               />
             ) : (

@@ -132,6 +132,9 @@ test('right-clicking a group opens its color editor and changes glyph artwork ac
   ).toContain('scale(4.2)');
   await dialog.getByRole('button', { name: 'Kategoriyi kaydet', exact: true }).click();
   await expect(dialog).toHaveCount(0);
+  await page.getByRole('button', { name: 'Akıllı Gruplar', exact: true }).click();
+  await page.getByRole('button', { name: 'Kategoriler & Kurallar', exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.reload();
   await expect(page.locator('.item-card')).toHaveCount(12);
   const saved = await page.evaluate(() =>

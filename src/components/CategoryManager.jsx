@@ -42,6 +42,7 @@ export default function CategoryManager({
   platform,
   onPrepareFolder,
   requestedCategory,
+  onCategoryOpened,
   lastFolderResult,
 }) {
   const { settings, t, label } = usePreferences();
@@ -63,6 +64,7 @@ export default function CategoryManager({
     if (requestedCategory) {
       const category = settings.categories.find((value) => value.id === requestedCategory);
       if (category) openEditor({ ...category, name: label(category) });
+      onCategoryOpened?.();
     }
   }, [requestedCategory]);
   const customValid =
