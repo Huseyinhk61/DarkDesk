@@ -994,5 +994,19 @@
   "widgetPlus.collapse": "{name} panelini daralt",
   "widgetPlus.expand": "{name} panelini genişlet",
   "widgetPlus.cores": "İşlemci çekirdekleri",
-  "widgetPlus.core": "Çekirdek {index}: {value}"
+  "widgetPlus.core": "Çekirdek {index}: {value}",
+  "categories.ai": "Yapay Zeka & AI Araçları",
+  "categories.aichat": "AI Asistanları",
+  "categories.aicode": "AI Kodlama",
+  "categories.ailocal": "Yerel Modeller",
+  "categories.aicreative": "AI Tasarım & Medya",
+  "launcherNext.all": "Tümü",
+  "launcherNext.favorites": "Favoriler",
+  "launcherNext.pin": "Seçili öğeyi sabitle / kaldır",
+  "launcherNext.currency": "Döviz",
+  "launcherNext.fxLoading": "Kur alınıyor…",
+  "launcherNext.fxError": "Kur alınamadı veya para birimi desteklenmiyor.",
+  "launcherNext.fxDate": "Referans kuru · {date}",
+  "launcherNext.fxCached": "Çevrimdışı önbellek",
+  "launcherNext.fxHelp": "Örnek: 50 USD to TRY · 100 EUR (Türkçe: TRY, İngilizce: USD). Kurlar sağlayıcının yayınladığı referans tarihine aittir."
 }

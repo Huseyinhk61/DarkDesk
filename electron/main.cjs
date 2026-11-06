@@ -1,3 +1,4 @@
+const { CurrencyService } = require('./runtime/currency.cjs');
 const {
   app,
   BrowserWindow,
@@ -35,6 +36,7 @@ const { attachMacDesktop } = require('./runtime/widget-desktop-macos.cjs');
 const { StartupManager } = require('./runtime/startup.cjs');
 const { ProductivityTracker } = require('./runtime/productivity.cjs');
 const { SystemMetrics } = require('./runtime/system-metrics.cjs');
+let currencyService;
 let widgetManager, startupManager, productivity, systemMetrics, productivityTimer;
 let systemLocked = false;
 const widgetMethods = new Set([
@@ -308,6 +310,7 @@ else {
       });
       await runtime.initialize();
       systemMetrics = new SystemMetrics();
+      currencyService = new CurrencyService({ data: app.getPath('userData') });
       startupManager = new StartupManager({ data: app.getPath('userData') });
       productivity = new ProductivityTracker({
         data: app.getPath('userData'),
@@ -517,6 +520,23 @@ else {
       handle('itemPurpose', (id) => runtime.itemPurpose(id));
       handle('recordLauncherCommand', (id) => runtime.recordLauncherCommand(id));
       handle('systemToolsSnapshot', () => systemMetrics.snapshot());
+      handle('currencyQuote', (query) => currencyService.quote(query));
+      handle('setCommandFavorite', (id, favorite) =>
+        runtime.run('command-favorite', async () => {
+          const settings = await runtime.settings.read();
+          if (typeof favorite !== 'boolean' || !runtime.commandUsage.allowed(id, settings))
+            throw Error('LAUNCHER_INPUT_INVALID');
+          const ids = new Set(settings.launcherCommandFavorites);
+          if (favorite) ids.add(id);
+          else ids.delete(id);
+          const saved = await runtime.settings.write({
+            ...settings,
+            launcherCommandFavorites: [...ids],
+          });
+          emit('settingsChanged', saved);
+          return saved;
+        }),
+      );
       handle('getStartupApps', () => startupManager.list());
       handle('setStartupAppEnabled', (id, enabled) =>
         runtime.run('startup', () => startupManager.setEnabled(id, enabled)),

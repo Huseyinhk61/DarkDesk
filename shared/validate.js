@@ -106,6 +106,28 @@ export function validateSettings(input) {
         value.categories.push(structuredClone(builtin));
     }
   }
+  if ((input.schemaVersion || 1) < 5) {
+    value.categories = [...value.categories];
+    for (const builtin of defaultCategories.filter((c) => c.id === 'ai' || c.parentId === 'ai')) {
+      if (
+        value.categories.length < 2000 &&
+        !value.categories.some(
+          (c) =>
+            c.id === builtin.id || (c.parentId === builtin.parentId && c.folder === builtin.folder),
+        ) &&
+        (!builtin.parentId || value.categories.some((c) => c.id === builtin.parentId))
+      )
+        value.categories.push(structuredClone(builtin));
+    }
+  }
+  if ((input.schemaVersion || 1) < 5 && value.categories.some((c) => c.id === 'aicode'))
+    value.profiles = value.profiles.map((profile) =>
+      profile.id === 'coding' &&
+      profile.labelKey === 'profiles.coding' &&
+      JSON.stringify(profile.categories) === JSON.stringify(['software', 'internet'])
+        ? { ...profile, categories: [...profile.categories, 'aicode'] }
+        : profile,
+    );
   const categories = value.categories.map((c) => {
     if (
       !c ||
@@ -326,9 +348,29 @@ export function validateSettings(input) {
         ? 'archive'
         : categories[0].id,
   };
+  const commandIds = new Set([
+    'command:show',
+    'command:organize',
+    'command:restore',
+    'system:lock',
+    'system:mute',
+    'system:shutdown',
+    'system:empty-trash',
+    ...profiles.map((p) => 'command:' + p.id),
+  ]);
+  if (
+    !Array.isArray(value.launcherCommandFavorites) ||
+    value.launcherCommandFavorites.length > 128 ||
+    value.launcherCommandFavorites.some((id) => typeof id !== 'string')
+  )
+    throw Error('SETTINGS_INVALID');
+  const launcherCommandFavorites = [
+    ...new Set(value.launcherCommandFavorites.filter((id) => commandIds.has(id))),
+  ];
   if (typeof value.smartTagging !== 'boolean') throw Error('SETTINGS_INVALID');
   return {
-    schemaVersion: 4,
+    schemaVersion: 5,
+    launcherCommandFavorites,
     profiles,
     launcherShortcut,
     scanFilters,

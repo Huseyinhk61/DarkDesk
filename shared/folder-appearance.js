@@ -48,7 +48,6 @@ export function folderPalette(category = {}) {
   return { fill: custom.from, shade: custom.to, stroke: mix(custom.from, '#ffffff', 0.65) };
 }
 export function folderAccentStyle(category = {}) {
-  if (!category.customColor) return undefined;
   const palette = folderPalette(category);
   return {
     '--color': `color-mix(in srgb, ${palette.fill}, var(--ink) 55%)`,

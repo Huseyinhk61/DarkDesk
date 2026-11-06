@@ -38,6 +38,40 @@ async function widgetPage(application, id) {
     );
     main.on('pageerror', (error) => pageErrors.push(error.message));
     await main.waitForFunction(() => typeof window.darkdesk?.widgetState === 'function');
+    await main.evaluate(() => window.darkdesk.setCommandFavorite('command:show', true));
+    assert.ok(
+      (await main.evaluate(() => window.darkdesk.getSettings())).launcherCommandFavorites.includes(
+        'command:show',
+      ),
+    );
+    await main.evaluate(() => window.darkdesk.setCommandFavorite('command:show', false));
+    await application.evaluate(({}, packageBase) => {
+      const req = process
+        .getBuiltinModule('node:module')
+        .createRequire(packageBase + '/package.json');
+      const proto = req('./electron/runtime/currency.cjs').CurrencyService.prototype;
+      globalThis.__oldCurrencyRates = proto.rates;
+      proto.rates = async () => ({
+        date: new Date().toISOString().slice(0, 10),
+        rates: { USD: 1, TRY: 40 },
+        cached: false,
+      });
+    }, base);
+    try {
+      const quote = await main.evaluate(() =>
+        window.darkdesk.currencyQuote({ amount: 50, from: 'USD', to: 'TRY' }),
+      );
+      assert.equal(quote.value, 2000);
+    } finally {
+      await application.evaluate(({}, packageBase) => {
+        const req = process
+          .getBuiltinModule('node:module')
+          .createRequire(packageBase + '/package.json');
+        req('./electron/runtime/currency.cjs').CurrencyService.prototype.rates =
+          globalThis.__oldCurrencyRates;
+        delete globalThis.__oldCurrencyRates;
+      }, base);
+    }
     const initial = await main.evaluate(() => window.darkdesk.widgetState());
     assert.equal(initial.note, '');
     assert.deepEqual(initial.todos, []);

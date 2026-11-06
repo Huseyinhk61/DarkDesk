@@ -38,8 +38,8 @@ Release downloads become available after the [Windows packaging workflow](https:
 | :---------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Real desktop organization**             | Move or copy selected desktop files into physical category folders. Review destinations and conflicts before applying changes.                                                                     |
 | **Three scanning sources**                | Switch between Desktop, Installed apps, and Downloads. Desktop discovery includes personal and common Windows shortcuts. Installed programs stay in place; organization creates shortcuts instead. |
-| **Smart groups and custom rules**         | Start with **10 main groups and 25 groups in total**. Browse nested categories with accurate parent totals, matching reasons, a review filter, and keyword or regex rules.                         |
-| **Original app icons and useful details** | Read native icons and Windows File Description metadata. Get offline descriptions for **114 apps**, name/type suggestions, or write your own explanation.                                          |
+| **Smart groups and custom rules**         | Start with **11 main groups and 30 groups in total**. Browse nested categories with accurate parent totals, matching reasons, a review filter, and keyword or regex rules.                         |
+| **Original app icons and useful details** | Read native icons and Windows File Description metadata. Get offline descriptions for **134 apps**, name/type suggestions, or write your own explanation.                                          |
 | **Focus profiles**                        | Keep relevant desktop items visible for coding, gaming, or creative work. Restore visibility when you leave the profile.                                                                           |
 | **Quick launcher**                        | Press **Alt+X** to search apps, calculate, convert units, or use `g`, `yt`, `gh`, `calc`, and `sys`. Open the prefix guide with `?`, Space, or F1; frequent items and commands stay close.         |
 | **Desktop widgets**                       | Keep CPU/RAM, a sticky note, and a to-do list in separate transparent windows. Restore their content and positions; desktop placement falls back to floating windows when unavailable.             |
@@ -106,6 +106,16 @@ These screenshots show the real browser preview. Desktop attachment, startup con
 ### Descriptions that explain the app
 
 Cards use your saved manual description first, then Windows **File Description** metadata for supported executable or shortcut targets, then the offline dictionary. The dictionary includes **Advanced IP Scanner**, **BCUninstaller**, **Any Command**, **DaVinci Resolve**, **VMware Workstation**, **FlutterFlow**, and other common apps. Unrecognized items receive a name/type hint or a prompt to add a description from their details panel. Each description shows its source. Metadata and filename matches do not independently verify a publisher or app identity.
+
+### AI tools and pinned favorites
+
+The **AI & Intelligent Tools** group includes assistants, coding tools, local models and AI media tools. Claude, ChatGPT, Cursor, Windsurf, Ollama, LM Studio and other recognized tools route here automatically; custom rules and manual choices keep precedence. Existing preferences migrate once, preserving user-defined groups.
+
+Quick Launcher has **All / Favorites** views for both applications and commands. Pin the selected result with **Ctrl+D**, or switch views with **Ctrl+1 / Ctrl+2**. Pinning a system command never runs it and destructive commands retain their confirmation.
+
+### Dated online currency conversion
+
+Type **50 USD to TRY** or **100 EUR**. An omitted target uses TRY in Turkish and USD in English. Frankfurter supplies institutional reference rates with their published date; these are not streaming market quotes. The app requests one fixed USD-based feed, without sending the typed amount, search query, filenames or app inventory. Quotes refresh after one hour; a valid cached snapshot can be used offline for up to seven days and is labeled as offline. Unsupported currencies and unavailable rates show an explicit error, not an invented number. Existing local unit conversions remain available.
 
 ### More than app search
 

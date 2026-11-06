@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.8.0 — November 6, 2026
+
+- Add persistent application and command favorites with dedicated launcher views and keyboard shortcuts.
+- Add currency conversion using dated institutional reference rates, one-hour caching and explicit offline/error states.
+- Introduce the AI root and four subgroups with one-time settings migration and 20 additional bilingual app descriptions.
+- Synchronize folder palette accents across cards and selectors and report pending physical icon refreshes.
+- Improve scanner text wrapping, card footer alignment and palette keyboard navigation.
+
 ## 3.7.1 — November 5, 2026
 
 - Compact desktop widgets with persistent collapse/expand state, per-core CPU samples and a RAM percentage bar. Preserve notes, tasks and expanded bounds across collapse and restart.

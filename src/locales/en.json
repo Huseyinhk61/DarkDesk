@@ -994,5 +994,19 @@
   "widgetPlus.collapse": "Collapse {name}",
   "widgetPlus.expand": "Expand {name}",
   "widgetPlus.cores": "CPU cores",
-  "widgetPlus.core": "Core {index}: {value}"
+  "widgetPlus.core": "Core {index}: {value}",
+  "categories.ai": "AI & Intelligent Tools",
+  "categories.aichat": "AI Assistants",
+  "categories.aicode": "AI Coding",
+  "categories.ailocal": "Local Models",
+  "categories.aicreative": "AI Design & Media",
+  "launcherNext.all": "All",
+  "launcherNext.favorites": "Favorites",
+  "launcherNext.pin": "Pin / unpin selected item",
+  "launcherNext.currency": "Currency",
+  "launcherNext.fxLoading": "Loading rates…",
+  "launcherNext.fxError": "Rates unavailable or currency unsupported.",
+  "launcherNext.fxDate": "Reference rate · {date}",
+  "launcherNext.fxCached": "Offline cache",
+  "launcherNext.fxHelp": "Try 50 USD to TRY · 100 EUR (Turkish: TRY, English: USD). Rates use the provider’s published reference date."
 }

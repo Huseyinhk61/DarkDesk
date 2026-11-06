@@ -69,6 +69,7 @@ export default function App() {
     [scanResult, setScanResult] = useState(null),
     [runtime, setRuntime] = useState(null),
     [launcherOpen, setLauncherOpen] = useState(false);
+  useEffect(() => api.onSettingsChanged?.((value) => setSettings(value)), [setSettings]);
   const update = useUpdates();
   const [updatesRequested, setUpdatesRequested] = useState(0);
   const backendBusy = useRef(null);
@@ -314,8 +315,14 @@ export default function App() {
       if (updateFolders) {
         try {
           const result = await api.applyFolderAppearance();
-          if (result.failed || result.details?.some((entry) => entry.code === 'FOLDER_CUSTOMIZED'))
-            appearanceWarning = t('folders.result', result);
+          if (
+            result.failed ||
+            result.refreshPending ||
+            result.details?.some((entry) => entry.code === 'FOLDER_CUSTOMIZED')
+          )
+            appearanceWarning =
+              t('folders.result', result) +
+              (result.refreshPending ? ' ' + t('folders.refreshPending') : '');
         } catch (error) {
           appearanceWarning = errorMessage(error);
         }

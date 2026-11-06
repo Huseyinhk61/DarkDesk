@@ -36,6 +36,8 @@ const methods = [
   'itemPurpose',
   'recordLauncherCommand',
   'systemToolsSnapshot',
+  'currencyQuote',
+  'setCommandFavorite',
   'getStartupApps',
   'setStartupAppEnabled',
   'widgetState',

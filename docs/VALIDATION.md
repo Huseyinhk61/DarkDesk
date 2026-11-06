@@ -1,5 +1,12 @@
 # DarkDesk validation report
 
+## 3.8.0 — AI groups, command favorites, and currency tools
+
+- **299 local service/model/settings tests passed.** New coverage includes fixed-endpoint FX requests, cross-rate arithmetic, request deduplication, offline restart, expired-cache rejection, AI schema migration, user override precedence and generic-metadata fallback.
+- **118 Chromium scenarios passed** in the full local run. Four final launcher cases additionally passed after the stale-response guard: command favorite persistence, dated conversion/copy, offline errors and delayed responses.
+- Production build and real Electron file-operation/widget checks passed. Native IPC covers command favorite writes and currency conversion using an injected reference snapshot. Formatting and whitespace checks passed.
+- The cloud network policy blocks the Frankfurter host. Currency arithmetic, cache, error states and HTTP response handling were tested with controlled responses; this is not a claim of a successful live-provider probe from this environment. The application uses the published reference date and never invents missing rates.
+
 ## 3.7.1 — compact widgets and folder appearance synchronization
 
 - 295 local service/model tests passed. Added persistence and real native-size invariants for collapsed widgets, immutable folder resource identities, cache integrity checks and per-core CPU samples.

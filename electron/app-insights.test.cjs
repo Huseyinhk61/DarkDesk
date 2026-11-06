@@ -307,3 +307,20 @@ test('filename estimates help explain unknown utilities and otherwise invite a m
   // File type wins over misleading words in a document's label.
   assert.equal(appInsight({ name: 'server tool.pdf' }, 'system').source, 'file-type');
 });
+
+test('bare product titles and Electron boilerplate use useful offline purpose text', () => {
+  const { resolveAppPurpose } = require('../shared/app-insights.js');
+  for (const description of ['Cursor', 'Electron', 'Application']) {
+    const value = resolveAppPurpose({ name: 'Cursor.exe', category: 'aicode' }, null, {
+      description,
+      metadataSource: 'windows-version-info',
+    });
+    assert.equal(value.source, 'local-catalog');
+    assert.match(value.description.en, /code editor/);
+  }
+  const meaningful = resolveAppPurpose({ name: 'Custom.exe', category: 'system' }, null, {
+    description: 'Manages inventory and warehouse receipts',
+    metadataSource: 'windows-version-info',
+  });
+  assert.equal(meaningful.source, 'windows-version-info');
+});

@@ -22,7 +22,7 @@ export const icons = [
 export const colors = folderColorIds;
 export const defaultCategories = catalog;
 export const defaultSettings = {
-  schemaVersion: 4,
+  schemaVersion: 5,
   ...runtimeDefaults,
   mode: 'move',
   autoScan: true,
@@ -32,6 +32,7 @@ export const defaultSettings = {
   itemDescriptions: {},
   categories: catalog,
   rules: [],
+  launcherCommandFavorites: [],
   theme: 'midnight',
   uiScale: 100,
   density: 'comfortable',
@@ -64,7 +65,7 @@ export function categorySegments(id, categories = catalog) {
 }
 export function categoryRoot(id) {
   return (
-    ['software', 'system', 'internet', 'learning', 'finance'].find((root) =>
+    ['software', 'system', 'internet', 'learning', 'finance', 'ai'].find((root) =>
       id?.startsWith(root),
     ) || id
   );

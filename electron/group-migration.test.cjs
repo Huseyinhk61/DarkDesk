@@ -42,9 +42,9 @@ test('v3 preferences gain useful new groups once and preserve prior user choices
   ];
   old.categories.find((category) => category.id === 'office').folder = 'My Documents';
   const value = validateSettings(old);
-  assert.equal(value.schemaVersion, 4);
-  assert.equal(value.categories.filter((category) => !category.parentId).length, 10);
-  assert.equal(value.categories.length, 25);
+  assert.equal(value.schemaVersion, 5);
+  assert.equal(value.categories.filter((category) => !category.parentId).length, 11);
+  assert.equal(value.categories.length, 30);
   assert.equal(value.mode, 'copy');
   assert.deepEqual(value.profiles[0].categories, ['software']);
   assert.equal(value.overrides['Chrome.lnk'], 'office');

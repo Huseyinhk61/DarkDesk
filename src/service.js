@@ -1,3 +1,4 @@
+import { validateRates, convertCurrency } from '../shared/currency';
 import {
   defaultWidgetState,
   normalizeWidgetState,
@@ -68,6 +69,7 @@ try {
   widgetModel = structuredClone(defaultWidgetState);
 }
 const widgetListeners = new Set();
+const settingsListeners = new Set();
 function previewWidgetState() {
   return {
     ...structuredClone(widgetModel),
@@ -230,9 +232,14 @@ export const api = window.darkdesk || {
     details: [],
     unsupported: true,
   }),
+  onSettingsChanged: (fn) => {
+    settingsListeners.add(fn);
+    return () => settingsListeners.delete(fn);
+  },
   setSettings: async (value) => {
     settings = validateSettings(value);
     localStorage.setItem('darkdesk-settings', JSON.stringify(settings));
+    settingsListeners.forEach((fn) => fn(structuredClone(settings)));
     return structuredClone(settings);
   },
   preview: async (items, mode) => {
@@ -311,6 +318,43 @@ export const api = window.darkdesk || {
   itemIcon: async (id, _refresh = false) => {
     if (!demoIndexedItems().some((item) => item.id === id)) throw Error('SOURCE_MISSING');
     return { id, icon: null };
+  },
+  currencyQuote: async (query) => {
+    let cached;
+    try {
+      cached = JSON.parse(localStorage.getItem('darkdesk-fx-cache'));
+      validateRates(cached);
+    } catch {
+      cached = null;
+    }
+    if (
+      cached &&
+      Number.isFinite(cached.fetchedAt) &&
+      cached.fetchedAt <= Date.now() &&
+      Date.now() - cached.fetchedAt < 3600000
+    )
+      return { ...convertCurrency(query, cached), cached: false };
+    try {
+      const response = await fetch('https://api.frankfurter.dev/v1/latest?base=USD', {
+        signal: AbortSignal.timeout(7000),
+      });
+      if (!response.ok) throw Error('FX_UNAVAILABLE');
+      const value = { ...validateRates(await response.json()), fetchedAt: Date.now() };
+      try {
+        localStorage.setItem('darkdesk-fx-cache', JSON.stringify(value));
+      } catch {}
+      return { ...convertCurrency(query, value), cached: false };
+    } catch {
+      if (cached) return { ...convertCurrency(query, cached), cached: true };
+      throw Error('FX_UNAVAILABLE');
+    }
+  },
+  setCommandFavorite: async (id, favorite) => {
+    if (!commandAllowed(id) || typeof favorite !== 'boolean') throw Error('LAUNCHER_INPUT_INVALID');
+    const ids = new Set(settings.launcherCommandFavorites);
+    if (favorite) ids.add(id);
+    else ids.delete(id);
+    return api.setSettings({ ...settings, launcherCommandFavorites: [...ids] });
   },
   itemPurpose: async (id) => {
     if (!demoIndexedItems().some((item) => item.id === id)) throw Error('SOURCE_MISSING');

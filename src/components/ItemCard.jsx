@@ -136,7 +136,7 @@ export default function ItemCard({
             <ExternalLink size={12} />
           </button>
         </div>
-        <div className={`select-wrap ${category.color}`}>
+        <div className={`select-wrap ${category.color}`} style={folderAccentStyle(category)}>
           <span className="color-dot" />
           <select
             disabled={disabled}

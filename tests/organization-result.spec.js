@@ -38,6 +38,6 @@ test('purpose search finds browsers while root group count reflects visible card
 }) => {
   await page.getByRole('textbox', { name: 'Öğe ara', exact: true }).fill('tarayıcı');
   await expect(page.locator('.item-card').filter({ hasText: 'Google Chrome' })).toBeVisible();
-  await expect(page.locator('.section-heading h2 span')).toHaveText('10');
-  await expect(page.locator('.category')).toHaveCount(10);
+  await expect(page.locator('.section-heading h2 span')).toHaveText('11');
+  await expect(page.locator('.category')).toHaveCount(11);
 });

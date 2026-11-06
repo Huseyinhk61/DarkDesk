@@ -1,3 +1,4 @@
+import { parseCurrencyInput } from '../../shared/currency';
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useDialog } from '../useDialog';
@@ -29,6 +30,8 @@ export default function Launcher({ onClose, onCommand }) {
   const { settings, setSettings, t, label, errorMessage, locale } = usePreferences();
   const [items, setItems] = useState([]),
     [query, setQuery] = useState(''),
+    [favoritesOnly, setFavoritesOnly] = useState(false),
+    [currencyResult, setCurrencyResult] = useState(null),
     [active, setActive] = useState(0),
     [busy, setBusy] = useState(false),
     [loading, setLoading] = useState(true),
@@ -177,7 +180,66 @@ export default function Launcher({ onClose, onCommand }) {
       searchText: t('launcherPlus.system.' + id) + ' ' + id,
     })),
   ];
-  const tool = useMemo(() => launcherTool(query, locale), [query, locale]);
+  const currencyQuery = useMemo(
+    () => parseCurrencyInput(query, settings.language === 'tr' ? 'TRY' : 'USD'),
+    [query, settings.language],
+  );
+  useEffect(() => {
+    let active = true;
+    setCurrencyResult(null);
+    if (!currencyQuery) return;
+    const timer = setTimeout(
+      () =>
+        api
+          .currencyQuote(currencyQuery)
+          .then((value) => {
+            if (active)
+              setCurrencyResult({
+                ...value,
+                type: 'currency',
+                id: 'currency:result',
+                status: 'success',
+                input: query,
+                displayValue: new Intl.NumberFormat(locale, { maximumFractionDigits: 4 }).format(
+                  value.value,
+                ),
+                toUnit: value.to,
+                copyText: String(value.value),
+              });
+          })
+          .catch(() => {
+            if (active)
+              setCurrencyResult({
+                ...currencyQuery,
+                type: 'currency',
+                id: 'currency:result',
+                status: 'error',
+                input: query,
+              });
+          }),
+      300,
+    );
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [currencyQuery, query, locale]);
+  const tool = useMemo(
+    () =>
+      currencyQuery
+        ? (currencyResult?.input === query &&
+          currencyResult?.from === currencyQuery.from &&
+          currencyResult?.to === currencyQuery.to
+            ? currencyResult
+            : null) || {
+            type: 'currency',
+            id: 'currency:result',
+            status: 'loading',
+            input: query,
+          }
+        : launcherTool(query, locale),
+    [query, locale, currencyQuery, currencyResult],
+  );
   const helpOnly = query.trim() === '?' || (query.length > 0 && !query.trim());
   const showGuide = helpOnly || !query.trim();
   const entries = useMemo(() => {
@@ -212,7 +274,9 @@ export default function Launcher({ onClose, onCommand }) {
           tool: true,
           name:
             tool.status !== 'success'
-              ? t('launcherTools.error.' + tool.error)
+              ? tool.type === 'currency'
+                ? t(tool.status === 'loading' ? 'launcherNext.fxLoading' : 'launcherNext.fxError')
+                : t('launcherTools.error.' + tool.error)
               : tool.type === 'web'
                 ? t('launcherPlus.webSearch', {
                     provider: { google: 'Google', youtube: 'YouTube', github: 'GitHub' }[
@@ -223,23 +287,30 @@ export default function Launcher({ onClose, onCommand }) {
                 : tool.displayValue + (tool.toUnit ? ' ' + tool.toUnit : ''),
         },
       ];
-    const result = searchEntries(query, [
-      ...commands,
-      ...items.map((item) => ({
-        ...item,
-        icon:
-          settings.itemIcons[item.id] ||
-          settings.categories.find((c) => c.id === item.category)?.icon ||
-          'file',
-        name: item.name.replace(/\.(lnk|exe|desktop)$/i, ''),
-        searchText:
-          item.name +
-          ' ' +
-          (item.target || '') +
-          ' ' +
-          (item.insight?.description?.[settings.language] || ''),
-      })),
-    ]);
+    const result = searchEntries(
+      query,
+      [
+        ...commands.map((command) => ({
+          ...command,
+          usage: { favorite: settings.launcherCommandFavorites?.includes(command.id) },
+        })),
+        ...items.map((item) => ({
+          ...item,
+          icon:
+            settings.itemIcons[item.id] ||
+            settings.categories.find((c) => c.id === item.category)?.icon ||
+            'file',
+          name: item.name.replace(/\.(lnk|exe|desktop)$/i, ''),
+          searchText:
+            item.name +
+            ' ' +
+            (item.target || '') +
+            ' ' +
+            (item.insight?.description?.[settings.language] || ''),
+        })),
+      ].filter((entry) => !favoritesOnly || entry.usage?.favorite),
+    );
+    if (favoritesOnly) return result;
     if (!query.trim()) {
       const count = (entry) =>
         Number.isSafeInteger(commandUsage[entry.id]?.count) && commandUsage[entry.id].count > 0
@@ -264,18 +335,48 @@ export default function Launcher({ onClose, onCommand }) {
       ].slice(0, 16);
     }
     return result;
-  }, [query, items, settings, t, tool, capabilities, commandUsage, helpOnly]);
+  }, [query, items, settings, t, tool, capabilities, commandUsage, helpOnly, favoritesOnly]);
   useEffect(() => {
     setActive(0);
     setActions(null);
     setNotice('');
     setError('');
-  }, [query]);
+  }, [query, favoritesOnly]);
   useEffect(() => {
     document.getElementById('result-' + entries[active]?.id)?.scrollIntoView({ block: 'nearest' });
   }, [active, query]);
   const selected = entries[Math.min(active, Math.max(0, entries.length - 1))];
   const isItem = (entry) => !!entry && !entry.command && !entry.tool;
+  const pinSelected = async () => {
+    if (!selected || selected.tool || busy) return;
+    const version = sessionVersion.current;
+    setBusy(true);
+    try {
+      if (selected.command) {
+        const saved = await api.setCommandFavorite(
+          selected.id,
+          !settings.launcherCommandFavorites?.includes(selected.id),
+        );
+        if (currentSession(version)) setSettings(saved);
+      } else {
+        const favorite = !selected.usage?.favorite;
+        await api.setLauncherFavorite(selected.id, favorite);
+        if (currentSession(version))
+          setItems((previous) =>
+            previous.map((item) =>
+              item.id === selected.id ? { ...item, usage: { ...item.usage, favorite } } : item,
+            ),
+          );
+      }
+    } catch (e) {
+      if (currentSession(version)) setError(errorMessage(e));
+    } finally {
+      if (currentSession(version)) {
+        setBusy(false);
+        input.current?.focus();
+      }
+    }
+  };
   const recordCommand = async (id, version) => {
     if (typeof api.recordLauncherCommand !== 'function') return;
     try {
@@ -424,6 +525,16 @@ export default function Launcher({ onClose, onCommand }) {
       return;
     }
     if (e.target !== input.current || busy) return;
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') {
+      e.preventDefault();
+      pinSelected();
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && ['1', '2'].includes(e.key)) {
+      e.preventDefault();
+      setFavoritesOnly(e.key === '2');
+      return;
+    }
     if (e.key === 'F1') {
       e.preventDefault();
       setQuery('?');
@@ -457,7 +568,7 @@ export default function Launcher({ onClose, onCommand }) {
         ? 'web'
         : entry.type === 'system'
           ? 'command'
-          : entry.type === 'conversion'
+          : ['conversion', 'currency'].includes(entry.type)
             ? 'conversion'
             : 'calculation'
       : entry.command
@@ -514,6 +625,49 @@ export default function Launcher({ onClose, onCommand }) {
             <X size={18} />
           </button>
         </div>
+        {!confirmation && (
+          <div
+            className="launcher-favorite-tabs"
+            role="group"
+            aria-label={t('launcherNext.favorites')}
+          >
+            <button
+              type="button"
+              aria-pressed={!favoritesOnly}
+              onClick={() => {
+                setFavoritesOnly(false);
+                input.current?.focus();
+              }}
+            >
+              {t('launcherNext.all')}
+            </button>
+            <button
+              type="button"
+              aria-pressed={favoritesOnly}
+              onClick={() => {
+                setFavoritesOnly(true);
+                input.current?.focus();
+              }}
+            >
+              <Star size={13} />
+              {t('launcherNext.favorites')}
+            </button>
+            <button
+              type="button"
+              className="launcher-pin-selected"
+              disabled={!selected || selected.tool || busy || loading}
+              aria-label={t('launcherNext.pin')}
+              aria-pressed={
+                !!selected?.usage?.favorite ||
+                !!settings.launcherCommandFavorites?.includes(selected?.id)
+              }
+              onClick={pinSelected}
+            >
+              <Star size={14} />
+              <kbd>Ctrl+D</kbd>
+            </button>
+          </div>
+        )}
         {confirmation ? (
           <div
             className="launcher-confirmation"
@@ -609,9 +763,13 @@ export default function Launcher({ onClose, onCommand }) {
                     </b>
                     <small>
                       {entry.tool
-                        ? entry.type === 'web'
-                          ? entry.url || t('launcherPlus.webHint')
-                          : entry.input
+                        ? entry.type === 'currency'
+                          ? entry.status === 'success'
+                            ? `${entry.provider} · ${t('launcherNext.fxDate', { date: entry.date })}${entry.cached ? ' · ' + t('launcherNext.fxCached') : ''}`
+                            : t('launcherNext.fxHelp')
+                          : entry.type === 'web'
+                            ? entry.url || t('launcherPlus.webHint')
+                            : entry.input
                         : entry.systemSuggestion
                           ? t('prefixPlus.chooseSystem')
                           : entry.unsupported

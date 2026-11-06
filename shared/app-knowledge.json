@@ -1194,5 +1194,205 @@
       "tr": "Ağ trafiğini paket düzeyinde incelemek, protokolleri anlamak ve bağlantı sorunlarını araştırmak için kullanılan analiz aracı.",
       "en": "A packet-analysis tool for inspecting network traffic, understanding protocols and diagnosing connection issues."
     }
+  },
+  {
+    "id": "chatgpt",
+    "name": "ChatGPT",
+    "categoryId": "aichat",
+    "aliases": ["chatgpt", "openai chatgpt"],
+    "description": {
+      "tr": "Soruları yanıtlama, metin üretme, içerik analizi ve fikir geliştirme için OpenAI yapay zeka asistanı.",
+      "en": "OpenAI’s assistant for questions, writing, content analysis and ideation."
+    }
+  },
+  {
+    "id": "claude",
+    "name": "Claude",
+    "categoryId": "aichat",
+    "aliases": ["claude", "claude desktop"],
+    "description": {
+      "tr": "Yazı, analiz ve kodlama görevlerinde yardımcı olan Anthropic yapay zeka asistanı.",
+      "en": "Anthropic’s assistant for writing, analysis and coding."
+    }
+  },
+  {
+    "id": "cursor",
+    "name": "Cursor",
+    "categoryId": "aicode",
+    "aliases": ["cursor"],
+    "description": {
+      "tr": "Kod tabanında gezinme, kod üretimi ve düzenleme için AI destekli kod editörü.",
+      "en": "An AI-assisted code editor for navigating, generating and editing code."
+    }
+  },
+  {
+    "id": "windsurf",
+    "name": "Windsurf",
+    "categoryId": "aicode",
+    "aliases": ["windsurf"],
+    "description": {
+      "tr": "AI destekli kod tamamlama ve çok dosyalı geliştirme akışları için kod editörü.",
+      "en": "A code editor with AI completion and multi-file development workflows."
+    }
+  },
+  {
+    "id": "ollama",
+    "name": "Ollama",
+    "categoryId": "ailocal",
+    "aliases": ["ollama"],
+    "description": {
+      "tr": "Dil modellerini bu bilgisayarda indirmek, çalıştırmak ve yerel uygulamalara sunmak için model çalıştırıcısı.",
+      "en": "Downloads and runs language models locally and exposes them to local applications."
+    }
+  },
+  {
+    "id": "lmstudio",
+    "name": "LM Studio",
+    "categoryId": "ailocal",
+    "aliases": ["lm studio", "lmstudio"],
+    "description": {
+      "tr": "Yerel dil modellerini keşfetmek, indirmek ve sohbet veya yerel API üzerinden kullanmak için arayüz.",
+      "en": "A desktop interface for discovering, downloading and using local language models through chat or a local API."
+    }
+  },
+  {
+    "id": "jan",
+    "name": "Jan",
+    "categoryId": "ailocal",
+    "aliases": ["jan", "jan ai"],
+    "description": {
+      "tr": "Yerel dil modelleriyle çevrimdışı sohbet ve isteğe bağlı model sağlayıcılarına bağlantı sunan AI istemcisi.",
+      "en": "An AI client for offline chats with local models and optional model-provider connections."
+    }
+  },
+  {
+    "id": "gpt4all",
+    "name": "GPT4All",
+    "categoryId": "ailocal",
+    "aliases": ["gpt4all"],
+    "description": {
+      "tr": "Yerel dil modellerini indirip bilgisayarda sohbet ve belge analizi için kullanmayı sağlayan uygulama.",
+      "en": "Downloads local language models for on-device chat and document analysis."
+    }
+  },
+  {
+    "id": "openwebui",
+    "name": "Open WebUI",
+    "categoryId": "ailocal",
+    "aliases": ["open webui", "openwebui"],
+    "description": {
+      "tr": "Yerel ve uzak model servislerine bağlanan sohbet ve model yönetimi arayüzü.",
+      "en": "A chat and model-management interface for local and remote model services."
+    }
+  },
+  {
+    "id": "anythingllm",
+    "name": "AnythingLLM",
+    "categoryId": "ailocal",
+    "aliases": ["anythingllm", "anything llm"],
+    "description": {
+      "tr": "Belgeler ve çalışma alanları üzerinde yerel veya uzak dil modelleriyle sohbet sağlayan araç.",
+      "en": "An application for chatting with documents and workspaces using local or remote language models."
+    }
+  },
+  {
+    "id": "comfyui",
+    "name": "ComfyUI",
+    "categoryId": "aicreative",
+    "aliases": ["comfyui", "comfy ui"],
+    "description": {
+      "tr": "Görsel ve medya üretimi için düğüm tabanlı yapay zeka iş akışı arayüzü.",
+      "en": "A node-based interface for AI image and media generation workflows."
+    }
+  },
+  {
+    "id": "perplexity",
+    "name": "Perplexity",
+    "categoryId": "aichat",
+    "aliases": ["perplexity"],
+    "description": {
+      "tr": "Web kaynaklarına dayalı yanıt ve araştırma için AI destekli arama asistanı.",
+      "en": "An AI search assistant for source-based answers and research."
+    }
+  },
+  {
+    "id": "cherrystudio",
+    "name": "Cherry Studio",
+    "categoryId": "aichat",
+    "aliases": ["cherry studio", "cherrystudio"],
+    "description": {
+      "tr": "Birden fazla model sağlayıcısıyla sohbet ve çalışma alanı yönetimi sunan masaüstü AI istemcisi.",
+      "en": "A desktop AI client for chat and workspace management across model providers."
+    }
+  },
+  {
+    "id": "msty",
+    "name": "Msty",
+    "categoryId": "ailocal",
+    "aliases": ["msty"],
+    "description": {
+      "tr": "Yerel ve çevrimiçi dil modelleriyle sohbet ve bilgi tabanı kullanımını birleştiren masaüstü arayüzü.",
+      "en": "A desktop interface combining local and online model chats with knowledge bases."
+    }
+  },
+  {
+    "id": "pinokio",
+    "name": "Pinokio",
+    "categoryId": "ailocal",
+    "aliases": ["pinokio"],
+    "description": {
+      "tr": "Yerel AI uygulamalarını kurma ve çalıştırma adımlarını yönetmeye yardımcı olan araç.",
+      "en": "A tool for managing installation and execution workflows for local AI applications."
+    }
+  },
+  {
+    "id": "void",
+    "name": "Void",
+    "categoryId": "aicode",
+    "aliases": ["void editor", "void"],
+    "description": {
+      "tr": "Model destekli kod düzenleme ve kod tabanı görevleri için açık kaynak kod editörü.",
+      "en": "An open-source code editor for model-assisted editing and codebase tasks."
+    }
+  },
+  {
+    "id": "aider",
+    "name": "Aider",
+    "categoryId": "aicode",
+    "aliases": ["aider"],
+    "description": {
+      "tr": "Terminal üzerinden model yardımıyla kod düzenleme ve Git tabanlı geliştirme aracı.",
+      "en": "A terminal-based tool for model-assisted code editing and Git workflows."
+    }
+  },
+  {
+    "id": "cline",
+    "name": "Cline",
+    "categoryId": "aicode",
+    "aliases": ["cline"],
+    "description": {
+      "tr": "Kodlama görevlerinde model destekli dosya düzenleme ve geliştirme akışları sunan araç.",
+      "en": "A tool for model-assisted file editing and software development tasks."
+    }
+  },
+  {
+    "id": "flowise",
+    "name": "Flowise",
+    "categoryId": "ailocal",
+    "aliases": ["flowise"],
+    "description": {
+      "tr": "Model ve veri bağlantılarını görsel akışlarla birleştiren AI uygulama geliştirme aracı.",
+      "en": "A visual builder for AI application workflows connecting models and data."
+    }
+  },
+  {
+    "id": "dify",
+    "name": "Dify",
+    "categoryId": "ailocal",
+    "aliases": ["dify"],
+    "description": {
+      "tr": "Dil modeli uygulamaları, bilgi tabanları ve otomasyon akışları geliştirme platformu.",
+      "en": "A platform for building language-model applications, knowledge bases and automation workflows."
+    }
   }
 ]

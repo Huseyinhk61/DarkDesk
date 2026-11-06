@@ -119,6 +119,10 @@ test('prefix help supports keyboard navigation, whitespace invocation and narrow
   await page.keyboard.press('Tab');
   await expect(page.getByRole('button', { name: 'Pencereyi kapat', exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: 'Tümü', exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: 'Favoriler', exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
   await expect(guide.getByRole('button', { name: 'g önekini kullan', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowRight');
   await expect(guide.getByRole('button', { name: 'yt önekini kullan', exact: true })).toBeFocused();
@@ -148,6 +152,8 @@ api.launcherEntries = async () => { await new Promise(resolve => window.__releas
   });
   const search = await open(page);
   await search.fill(' ');
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('Tab');
   await page.keyboard.press('Tab');
   await page.keyboard.press('Tab');
   const firstPrefix = page.getByRole('button', { name: 'g önekini kullan', exact: true });

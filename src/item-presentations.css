@@ -112,3 +112,40 @@
     grid-column: auto;
   }
 }
+/* Long executable metadata and category names must stay inside each card. */
+.item-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.item-card h3,
+.item-title-button {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.item-card .item-title-button {
+  width: 100%;
+  text-align: left;
+}
+.item-card .purpose-badge {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.item-card .classification-reason {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  align-items: flex-start;
+}
+.item-card select {
+  min-width: 0;
+  width: 100%;
+  text-overflow: ellipsis;
+}
+.item-card .destination {
+  margin-top: auto;
+  padding-top: 10px;
+}
+.item-card .item-purpose p {
+  color: var(--ink);
+}

@@ -223,5 +223,50 @@
     "parentId": "finance",
     "icon": "archive",
     "color": "orange"
+  },
+  {
+    "id": "ai",
+    "name": "Yapay Zeka & AI Araçları",
+    "labelKey": "categories.ai",
+    "folder": "Yapay Zeka & AI Araçları",
+    "parentId": null,
+    "icon": "rocket",
+    "color": "purple"
+  },
+  {
+    "id": "aichat",
+    "name": "AI Asistanları",
+    "labelKey": "categories.aichat",
+    "folder": "AI Asistanları",
+    "parentId": "ai",
+    "icon": "star",
+    "color": "purple"
+  },
+  {
+    "id": "aicode",
+    "name": "AI Kodlama",
+    "labelKey": "categories.aicode",
+    "folder": "AI Kodlama",
+    "parentId": "ai",
+    "icon": "code",
+    "color": "blue"
+  },
+  {
+    "id": "ailocal",
+    "name": "Yerel Modeller",
+    "labelKey": "categories.ailocal",
+    "folder": "Yerel Modeller",
+    "parentId": "ai",
+    "icon": "rocket",
+    "color": "teal"
+  },
+  {
+    "id": "aicreative",
+    "name": "AI Tasarım & Medya",
+    "labelKey": "categories.aicreative",
+    "folder": "AI Tasarım & Medya",
+    "parentId": "ai",
+    "icon": "palette",
+    "color": "pink"
   }
 ]

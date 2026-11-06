@@ -53,7 +53,7 @@ test('carousel keyboard navigation reaches the final group and disables controls
   page,
 }) => {
   const cards = page.locator('button.category');
-  await expect(cards).toHaveCount(10);
+  await expect(cards).toHaveCount(11);
   const controls = page.locator('.category-scroll-controls button');
   await expect(controls.first()).toBeDisabled();
   await expect(controls.last()).toBeEnabled();

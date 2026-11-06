@@ -349,8 +349,19 @@ export function resolveAppPurpose(item, manualDescription, metadata) {
           .trim()
           .slice(0, 1024)
       : '';
+  const titleOnly =
+    nativeDescription &&
+    [item.name, leafName(item.target), findKnownApp(item)?.name]
+      .filter(Boolean)
+      .some((name) => normalizeAppName(name) === normalizeAppName(nativeDescription));
+  const generic =
+    /^(electron|application|app|launcher|bootstrapper|updater|setup|installer|squirrel)( application)?$/i.test(
+      nativeDescription,
+    );
   if (
     nativeDescription &&
+    !titleOnly &&
+    !generic &&
     ['windows-version-info', 'windows-shortcut'].includes(source) &&
     (source !== 'windows-version-info' || !unrelatedLaunchHost(item))
   )
