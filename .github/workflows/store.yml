@@ -1,16 +1,29 @@
 name: Microsoft Store review package
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'build/store-identity.json'
+      - 'build/appx/**'
+      - 'public/icon.svg'
+      - 'scripts/generate-store-assets.mjs'
+      - 'electron-builder.store.cjs'
+      - 'scripts/store-config.cjs'
+      - 'scripts/verify-store-package.ps1'
+      - '.github/workflows/store.yml'
+      - 'package.json'
+      - 'package-lock.json'
   workflow_dispatch:
     inputs:
       identityName:
-        description: Exact Package Identity Name from Partner Center
-        required: true
+        description: Optional override for Package Identity Name (supply all three overrides)
+        required: false
       publisher:
-        description: Exact Publisher (CN=...) from Partner Center
-        required: true
+        description: Optional exact Publisher (CN=...) override
+        required: false
       publisherDisplayName:
-        description: Exact Publisher Display Name from Partner Center
-        required: true
+        description: Optional Publisher Display Name override
+        required: false
 permissions:
   contents: read
 jobs:
@@ -22,7 +35,8 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - name: Write identity as data
+      - name: Write optional identity overrides as data
+        if: inputs.identityName != '' || inputs.publisher != '' || inputs.publisherDisplayName != ''
         env:
           STORE_IDENTITY: ${{ inputs.identityName }}
           STORE_PUBLISHER: ${{ inputs.publisher }}
@@ -32,7 +46,13 @@ jobs:
       - run: npm run check:store
       - run: npm run test:ci
       - run: npm run dist:store
+      - name: Verify packaged identity, capabilities and checksum
+        run: ./scripts/verify-store-package.ps1
       - uses: actions/upload-artifact@v4
         with:
           name: DarkDesk-Store-Review
-          path: release/store/*.appx
+          path: |
+            release/store/*.appx
+            release/store/SHA256SUMS-Store.txt
+            release/store/store-validation.json
+          if-no-files-found: error

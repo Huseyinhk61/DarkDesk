@@ -24,7 +24,9 @@ function validateIdentity(value) {
 }
 function readIdentity(
   file = process.env.DARKDESK_STORE_IDENTITY ||
-    path.resolve(__dirname, '../build/store-identity.local.json'),
+    (fs.existsSync(path.resolve(__dirname, '../build/store-identity.local.json'))
+      ? path.resolve(__dirname, '../build/store-identity.local.json')
+      : path.resolve(__dirname, '../build/store-identity.json')),
 ) {
   let value;
   try {

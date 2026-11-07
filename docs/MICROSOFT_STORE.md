@@ -4,11 +4,21 @@ DarkDesk includes a separate x64 AppX build for Windows 10 (19041+) and Windows 
 
 ## Identity and package
 
-1. Reserve the product in Microsoft Partner Center. Copy the exact **Package Identity Name**, **Publisher (CN=...)**, and **Publisher Display Name** from Product identity. These are not signing secrets.
-2. Copy `build/store-identity.example.json` to `build/store-identity.local.json`, replace the placeholders, then run `npm ci`, `npm run check:store`, and `npm run dist:store` on Windows. The command refuses placeholder or missing identity values. The local identity file and signing certificates are ignored by Git.
-3. Alternatively run **Microsoft Store review package** in GitHub Actions using the three identity inputs. Download the AppX artifact. It is an unsigned review/submission package; do not disable Windows signature checking to install it.
-4. Review `AppxManifest.xml`, identity, version, assets, declared languages and `runFullTrust`/`internetClient` capabilities. Electron requires `runFullTrust` because DarkDesk performs user-approved filesystem operations and desktop integration. Explain this restricted capability to Microsoft during submission. Store acceptance is not guaranteed.
-5. Run Windows App Certification Kit on the final package, then test a signed package on a clean Windows 10/11 standard-user account: first launch, scan, organization preview/undo, tray/exit, shortcuts, widgets, network failures, uninstall and upgrade. No Store identity or certificate was available in the cloud test environment; Store installation and certification remain release-owner checks.
+The owner supplied these public Partner Center values, now saved in `build/store-identity.json`:
+
+- Package Identity Name: `HseyinKahveci.DarkDesk`
+- Publisher: `CN=50E56BFE-2CBC-43B2-B893-E523B134632E`
+- Publisher Display Name / app display name: `DarkDesk`
+
+1. Verify the values against **Product identity** in Partner Center before submission. They are identifiers, not signing secrets. No certificate or Microsoft account credential is committed.
+2. On Windows run `npm ci`, `npm run check:store`, then `npm run dist:store`. The committed identity is used by default. For another reserved product, copy `build/store-identity.example.json` to `build/store-identity.local.json` and replace every placeholder, or set `DARKDESK_STORE_IDENTITY` to a JSON file. Explicit invalid/missing overrides fail rather than falling back to another publisher.
+3. **Microsoft Store review package** runs on Store/package configuration pushes to main, or manually with optional identity overrides. Download **DarkDesk-Store-Review** from that workflow's artifacts. It includes the AppX, SHA-256 and manifest verification report. This is an **unsigned Store submission package**; do not disable signature checking to install it as a normal desktop installer. End users should use the GitHub Setup EXE until a Store listing is approved.
+4. The Windows verification script opens the final archive and checks exact identity/publisher/version, x64, executable, declared languages, branded tile assets and `runFullTrust`/`internetClient`. Electron requires `runFullTrust` for user-approved filesystem operations and desktop integration. Branded package tiles are generated from `public/icon.svg`; listing screenshots/artwork are reviewed separately. Store acceptance is not guaranteed by these checks.
+5. Upload the AppX to the reserved product's submission in Partner Center. Complete listing, privacy/support links and age rating; review restricted capabilities. Run Windows App Certification Kit and test a signed package on a clean Windows 10/11 standard-user account: first launch, scan, preview/undo, tray/exit, shortcuts, widgets, offline errors, uninstall and upgrade. **Signing/Store installation, certification and Microsoft's approval remain owner checks.**
+
+### Full-trust capability explanation for submission
+
+DarkDesk is an Electron desktop organizer. It needs full-trust desktop APIs to scan user desktop/application shortcuts, preview and carry out user-selected move/copy operations, create category folders, undo its changes, manage profile visibility, register keyboard shortcuts and display editable desktop widgets. Installed applications remain at their installation paths. Optional startup/automation and system actions are controlled by the user and remain subject to OS permissions. DarkDesk does not silently request elevation, require an account, send file lists to a DarkDesk server, or replace Microsoft Store updates with a third-party installer.
 
 The Store edition detects `process.windowsStore`, disables GitHub installer downloads/self-updates, and directs users to Microsoft Store updates. Store owns installation and updates. The GitHub Setup edition remains separate. Do not run two editions against the same desktop simultaneously; export/backup preferences before migration and verify the Store edition's data location.
 

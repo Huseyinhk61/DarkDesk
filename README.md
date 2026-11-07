@@ -22,7 +22,7 @@
 
 Pin your own currency pairs and choose the launcher's default conversion currency. Type `1 usd`, `1 usd tl`, or `50 eur to gbp`; the built-in guide shows examples. Pick from **34 category icons** and **seven folder styles**. Widgets now use fixed views, paged notes/tasks and consistent background opacity; System Monitor lets you inspect every detected drive. A free, manually configured **MET Norway weather widget** joins the gallery. Default Mode has an editable **Ctrl+Alt+0** shortcut.
 
-German, French and Spanish join Turkish/English as **beta core-interface translations**, with English fallback for advanced help. Native system actions detect available Linux/macOS providers; Windows audio uses explicit Core Audio operations. The separate [Microsoft Store submission workflow](docs/MICROSOFT_STORE.md) is ready for the owner's Partner Center identity and certification checks. DarkDesk is **not yet listed in Microsoft Store**.
+German, French and Spanish join Turkish/English as **beta core-interface translations**, with English fallback for advanced help. Native system actions detect available Linux/macOS providers; Windows audio uses explicit Core Audio operations. The separate [Microsoft Store submission workflow](docs/MICROSOFT_STORE.md) uses the owner's Partner Center identity, with a dedicated AppX build and certification checklist. DarkDesk is **not yet listed in Microsoft Store**.
 
 ## Get DarkDesk
 
