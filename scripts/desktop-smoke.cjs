@@ -279,7 +279,10 @@ const { folders } = require('../electron/service.cjs');
     }, selectedApps);
     try {
       await page.getByRole('button', { name: 'Konum seç ve tara', exact: true }).click();
-      await expect(page.locator('.scan-selected-location')).toContainText(selectedApps);
+      // Windows Temp can use an 8.3 alias; discovery intentionally returns the canonical path.
+      await expect(page.locator('.scan-selected-location')).toContainText(
+        await fs.realpath(selectedApps),
+      );
       await expect(page.locator('.item-card')).toHaveCount(1);
       await expect(page.locator('.item-card')).toContainText('Krita.exe');
       assert.equal(
