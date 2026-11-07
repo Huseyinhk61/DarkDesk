@@ -298,7 +298,10 @@ async function widgetPage(application, id) {
       (await main.evaluate(() => window.darkdesk.widgetState())).appearance.note.opacity,
       55,
     );
-    await expect(note.locator('.desktop-widget')).toHaveCSS('backdrop-filter', 'blur(7px)');
+    // Some native macOS compositors omit the backdrop-filter longhand from
+    // computed style. Verify the actual window receives the persisted value;
+    // browser tests separately exercise the standard blur declaration.
+    await expect(note.locator('.desktop-widget')).toHaveCSS('--widget-blur', '7px');
     await application.evaluate(({}, packageBase) => {
       const req = process
         .getBuiltinModule('node:module')

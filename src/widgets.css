@@ -551,6 +551,7 @@
 }
 
 .desktop-widget {
+  -webkit-backdrop-filter: blur(var(--widget-blur, 24px));
   backdrop-filter: blur(var(--widget-blur, 24px));
 }
 .focus-widget {
