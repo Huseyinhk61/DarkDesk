@@ -75,12 +75,17 @@ Closing and reopening the launcher starts a new session. A delayed response from
 
 Type `sys` to list supported actions, or enter an exact alias such as `sys lock`, `sys mute`, `sys empty trash`, or `sys shutdown`. English and Turkish aliases are supported. A partial phrase selects an example to complete the input; it does not dispatch a system action. Exact prefixed commands use the same platform checks and confirmations as ordinary command results.
 
-| Command               | Behavior                                                                                                                                                                                          |
-| :-------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Lock Screen**       | Requests the Windows lock screen after activation.                                                                                                                                                |
-| **Toggle Mute**       | Sends the system mute key; it toggles sound rather than claiming a known current mute state.                                                                                                      |
-| **Empty Recycle Bin** | Requests a separate confirmation before permanently clearing the bin. This is outside DarkDesk's file-operation undo.                                                                             |
-| **Shut Down**         | Requests confirmation before shutting down. Save open files first; DarkDesk flushes widget drafts and analytics, restores profile visibility, and saves window state before the shutdown request. |
+| Command                  | Behavior                                                                                                                                                                                          |
+| :----------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Lock Screen**          | Requests the Windows lock screen after activation.                                                                                                                                                |
+| **Mute / Unmute**        | Sets the default Windows multimedia output mute state explicitly through Core Audio.                                                                                                              |
+| **Volume up / down**     | Changes the default output by five percentage points. Raising volume also unmutes it.                                                                                                             |
+| **Screenshot**           | Hides the palette and opens the native Windows screen-snipping overlay.                                                                                                                           |
+| **Wi-Fi on / off**       | Requests radio state through WinRT; missing radios, policy or permission denial report failure.                                                                                                   |
+| **Night Light settings** | Opens the supported Windows Night Light control page; no undocumented registry toggle.                                                                                                            |
+| **Storage cleanup**      | Opens Windows Storage Sense; the user chooses cleanup, with no automatic file deletion.                                                                                                           |
+| **Empty Recycle Bin**    | Requests a separate confirmation before permanently clearing the bin. This is outside DarkDesk's file-operation undo.                                                                             |
+| **Shut Down**            | Requests confirmation before shutting down. Save open files first; DarkDesk flushes widget drafts and analytics, restores profile visibility, and saves window state before the shutdown request. |
 
 Recycle-bin and shutdown confirmations expire after 30 seconds and can be used once. Before dispatch, Cancel or **Esc** returns to search. After confirming, the command has been sent and Escape does not cancel it. If a confirmation expires, cancel and select the command again. Query text alone never runs a system command.
 

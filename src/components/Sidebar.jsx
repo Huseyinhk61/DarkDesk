@@ -66,7 +66,7 @@ export default function Sidebar({ view, setView, stats, native, update }) {
             onClick={() => setView(id)}
           >
             <Icon size={19} />
-            {t('nav.' + id)}
+            <span className="nav-label">{t('nav.' + id)}</span>
             {id === 'settings' &&
             ['available', 'downloading', 'downloaded'].includes(update?.state) ? (
               <span

@@ -8,6 +8,14 @@ const fixed = new Set([
   'system:lock',
   'system:shutdown',
   'system:mute',
+  'system:unmute',
+  'system:volume-up',
+  'system:volume-down',
+  'system:screenshot',
+  'system:wifi-on',
+  'system:wifi-off',
+  'system:night-light',
+  'system:clean-space',
 ]);
 class CommandUsage {
   constructor(data, { clock = () => Date.now() } = {}) {

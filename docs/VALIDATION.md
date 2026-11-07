@@ -1,5 +1,17 @@
 # DarkDesk validation report
 
+## 3.10.0 — desktop utilities and compact navigation
+
+Date: November 7, 2026 (Europe/Istanbul).
+
+- **323 Linux service/model tests passed; one Windows-only compilation check was skipped locally.** New cases cover one-time Pomodoro completion across concurrent renderers, work/break/cycle transitions, invalid settings, independent blur persistence, actual-size widget collision handling on negative-origin monitors, fixed Core Audio/WinRT dispatch, supported Windows tool URIs and native failure propagation.
+- **140 browser scenarios passed** in the complete final run. New checks cover every sidebar destination plus system/footer geometry at 1366×768, 1440×900 and 900×600 with 100%/130% text; persisted Pomodoro customization, a single synthesized bell, and independent fine opacity/blur controls. Nineteen focused utility/launcher/layout scenarios also passed after the final visual adjustments.
+- Production build and real source Electron/widget smoke tests passed. Widget IPC advances an expired focus deadline into a break, rejects stale completion claims and applies the blur setting to its actual window. Existing note/task typing, save/restart, source-specific scanning, move/Undo, native launcher dispatch and tray behavior remain covered.
+- The native automation fixture triggers a genuine file-watcher refresh. Its test now waits for an editable form interval and verifies both checkbox states before saving, instead of assuming the fieldset cannot become temporarily disabled between pointer-down/up.
+- The converter and compact widget were visually inspected; the English README screenshot uses a clearly labeled controlled sample rate. Currency-provider access remains outside this cloud's allowed hosts. Mocked dated responses establish conversion/refresh/error handling, not a successful live-provider request.
+
+Native sound/radio state, shutdown, lock and recycle-bin operations are tested with injected adapters, without changing this development host. Windows CI additionally compiles the Core Audio interop and parses the fixed Wi-Fi script without modifying device state. Night Light and storage cleanup intentionally open supported Windows control pages; they are not direct toggles or unattended deletion. Full displays retain clamped widget bounds and expose a crowding hint when no free position exists. Publication checks are recorded after the release below.
+
 ## 3.9.0 — editable widgets, currency form and folder preparation
 
 Date: November 7, 2026 (Europe/Istanbul).

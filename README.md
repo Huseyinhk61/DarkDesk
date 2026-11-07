@@ -18,6 +18,10 @@
   <p><sub>Actual browser-preview screenshot with sample data. Native file operations and original app icons require the Electron desktop app.</sub></p>
 </div>
 
+## New in 3.10.0
+
+A compact sidebar, clearer currency cards, a Pomodoro bell with break/cycle controls, and widget collision prevention with adjustable blur. The Windows launcher now controls audio directly and includes screenshot, Wi-Fi, Night Light settings and storage-cleanup actions. See the [release notes](.github/RELEASE_NOTES.md) for platform details and the [productivity guide](docs/PRODUCTIVITY.md) for setup.
+
 ## Get DarkDesk
 
 Open **[GitHub Releases](https://github.com/Huseyinhk61/DarkDesk/releases/latest)** and choose a Windows or Linux x86-64 package:
@@ -129,13 +133,17 @@ Quick Launcher has **All / Favorites** views for both applications and commands.
 
 Open **Currency Converter** in the sidebar for amount/from/to controls, swap, refresh and copy, or add its desktop widget. The launcher remains available: type **50 USD to TRY**, **100 EUR**, **USD to TRY**, or **EUR**. Omitting the amount means one unit. An omitted target uses TRY in Turkish and USD in English. Frankfurter supplies institutional reference rates with their published date; these are not streaming market quotes. The app requests one fixed USD-based feed, without sending the typed amount, search query, filenames or app inventory. Quotes refresh after one hour; a valid cached snapshot can be used offline for up to seven days and is labeled as offline. Unsupported currencies and unavailable rates show an explicit error, not an invented number. Existing local unit conversions remain available.
 
+![Currency Converter with readable amount and result cards](docs/assets/currency-converter-en.png)
+
+_Interface preview with a controlled sample reference rate._
+
 ### More than app search
 
 Type `120 * 45`, `calc 120 * 45`, or `10 km to m`, then press **Enter** to copy the result. Search the web with `g <query>`, `yt <query>`, or `gh <query>`. On an application result, **Tab** or **Ctrl+K** opens favorites, file location, and Windows administrator actions. An empty query puts your three most-used observed items first and suggests frequent successful commands. Type `?`, press Space, or use **F1** for the prefix guide. `sys lock`, `sys mute`, `sys empty trash`, and `sys shutdown` route to the same native actions and confirmations as command results.
 
 Files organized by DarkDesk remain available through verified operation history, including after Undo or a restart. Their favorites and launch counts retain the same identity. Missing or changed managed outputs are excluded until they can be verified; recovery does not recursively scan other folders.
 
-Windows system commands include Lock Screen, Toggle Mute, Empty Recycle Bin, and Shut Down. The last two require a separate confirmation. Read the [launcher guide](docs/LAUNCHER.md) for examples, keyboard controls, and platform support.
+Windows system commands include Lock Screen, Mute / Unmute and Volume controls, Empty Recycle Bin, and Shut Down. The last two require a separate confirmation. Read the [launcher guide](docs/LAUNCHER.md) for examples, keyboard controls, and platform support.
 
 |                            Calculate and convert                             |                                        Item actions                                        |
 | :--------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------: |

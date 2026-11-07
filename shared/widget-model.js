@@ -11,9 +11,22 @@ export const defaultWidgetState = {
   version: 1,
   note: '',
   todos: [],
-  appearance: Object.fromEntries(widgetIds.map((id) => [id, { opacity: 92, size: 'compact' }])),
+  appearance: Object.fromEntries(
+    widgetIds.map((id) => [id, { opacity: 92, size: 'compact', blur: 24 }]),
+  ),
   system: { cores: true, chart: true, details: true, disk: true, interval: 2 },
-  focus: { duration: 25, remaining: 1500, endsAt: null },
+  focus: {
+    duration: 25,
+    remaining: 1500,
+    endsAt: null,
+    breakDuration: 5,
+    cycles: 4,
+    completed: 0,
+    phase: 'work',
+    alarm: true,
+    volume: 65,
+    color: 'violet',
+  },
   placement: 'desktop',
   collapsed: Object.fromEntries(widgetIds.map((id) => [id, false])),
   widgets: Object.fromEntries(widgetIds.map((id) => [id, { enabled: false, bounds: null }])),
@@ -73,7 +86,13 @@ export function normalizeWidgetState(input = defaultWidgetState) {
           !['compact', 'regular', 'large'].includes(value.size)
         )
           invalid();
-        return [id, { opacity: value.opacity, size: value.size }];
+        if (
+          !Number.isInteger(value.blur ?? 24) ||
+          (value.blur ?? 24) < 0 ||
+          (value.blur ?? 24) > 32
+        )
+          invalid();
+        return [id, { opacity: value.opacity, size: value.size, blur: value.blur ?? 24 }];
       }),
     ),
     system: normalizeSystem(input.system),
@@ -144,12 +163,29 @@ export function validateWidgetPatch(current, patch) {
   if (
     'focus' in patch &&
     (!plain(patch.focus) ||
-      Object.keys(patch.focus).some((key) => !['duration', 'remaining', 'endsAt'].includes(key)))
+      Object.keys(patch.focus).some(
+        (key) =>
+          ![
+            'duration',
+            'remaining',
+            'endsAt',
+            'breakDuration',
+            'cycles',
+            'completed',
+            'phase',
+            'alarm',
+            'volume',
+            'color',
+          ].includes(key),
+      ))
   )
     invalid();
   const appearance = structuredClone(current.appearance);
   for (const [id, value] of Object.entries(patch.appearance || {})) {
-    if (!plain(value) || Object.keys(value).some((key) => !['opacity', 'size'].includes(key)))
+    if (
+      !plain(value) ||
+      Object.keys(value).some((key) => !['opacity', 'size', 'blur'].includes(key))
+    )
       invalid();
     appearance[id] = { ...appearance[id], ...value };
   }
@@ -248,6 +284,26 @@ function normalizeSystem(value = defaultWidgetState.system) {
   );
 }
 function normalizeFocus(value = defaultWidgetState.focus) {
+  if (!plain(value)) invalid();
+  value = { ...defaultWidgetState.focus, ...value };
+  if (
+    !Number.isInteger(value.breakDuration) ||
+    value.breakDuration < 1 ||
+    value.breakDuration > 60 ||
+    !Number.isInteger(value.cycles) ||
+    value.cycles < 1 ||
+    value.cycles > 12 ||
+    !Number.isInteger(value.completed) ||
+    value.completed < 0 ||
+    value.completed > value.cycles ||
+    !['work', 'break'].includes(value.phase) ||
+    typeof value.alarm !== 'boolean' ||
+    !Number.isInteger(value.volume) ||
+    value.volume < 0 ||
+    value.volume > 100 ||
+    !['violet', 'mint', 'blue', 'amber', 'rose'].includes(value.color)
+  )
+    invalid();
   if (
     !plain(value) ||
     !Number.isInteger(value.duration) ||
@@ -255,22 +311,43 @@ function normalizeFocus(value = defaultWidgetState.focus) {
     value.duration > 180 ||
     !Number.isInteger(value.remaining) ||
     value.remaining < 0 ||
-    value.remaining > value.duration * 60 ||
+    value.remaining > (value.phase === 'break' ? value.breakDuration : value.duration) * 60 ||
     !(
       value.endsAt === null ||
       (Number.isSafeInteger(value.endsAt) && value.endsAt >= 0 && value.endsAt <= 8640000000000000)
     )
   )
     invalid();
-  return { duration: value.duration, remaining: value.remaining, endsAt: value.endsAt };
+  return Object.fromEntries(Object.keys(defaultWidgetState.focus).map((key) => [key, value[key]]));
 }
 export function focusSeconds(value, now = Date.now()) {
   return value.endsAt === null
     ? value.remaining
-    : Math.max(0, Math.min(value.duration * 60, Math.ceil((value.endsAt - now) / 1000)));
+    : Math.max(
+        0,
+        Math.min(
+          (value.phase === 'break' ? value.breakDuration : value.duration) * 60,
+          Math.ceil((value.endsAt - now) / 1000),
+        ),
+      );
 }
 export function widgetPresetSize(id, size = 'compact') {
   const base = widgetSizes[id],
     scale = size === 'large' ? 1.5 : size === 'regular' ? 1.25 : 1;
   return { width: Math.round(base.width * scale), height: Math.round(base.height * scale) };
+}
+
+// Completion is claimed atomically by the native manager, across every renderer.
+export function completeFocus(value, deadline, now = Date.now()) {
+  if (!Number.isSafeInteger(deadline) || value.endsAt !== deadline || deadline > now) return null;
+  const completed = value.phase === 'break' ? value.completed : value.completed + 1;
+  const finished = completed >= value.cycles;
+  const phase = value.phase === 'work' && !finished ? 'break' : 'work';
+  return {
+    ...value,
+    completed: finished ? 0 : completed,
+    phase,
+    remaining: (phase === 'break' ? value.breakDuration : value.duration) * 60,
+    endsAt: null,
+  };
 }

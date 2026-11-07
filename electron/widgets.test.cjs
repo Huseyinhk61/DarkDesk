@@ -402,3 +402,79 @@ test('default widget positions tile without overlap on a standard desktop', () =
       assert.equal(x * y, 0, widgetIds[a] + ' overlaps ' + widgetIds[b]);
     }
 });
+
+test('Pomodoro completion is claimed once across renderers, advances breaks and ends the requested cycles', async (t) => {
+  const { manager } = await fixture(t);
+  await manager.save({
+    focus: { duration: 1, breakDuration: 2, cycles: 2, remaining: 0, endsAt: 1 },
+  });
+  const results = await Promise.all([manager.completeFocus(1), manager.completeFocus(1)]);
+  assert.equal(results.filter((r) => r.completed).length, 1);
+  let focus = (await manager.state()).focus;
+  assert.equal(focus.phase, 'break');
+  assert.equal(focus.remaining, 120);
+  assert.equal(focus.completed, 1);
+  await manager.save({ focus: { endsAt: 2 } });
+  await manager.completeFocus(2);
+  focus = (await manager.state()).focus;
+  assert.equal(focus.phase, 'work');
+  assert.equal(focus.remaining, 60);
+  assert.equal(focus.completed, 1);
+  await manager.save({ focus: { endsAt: 3 } });
+  await manager.completeFocus(3);
+  focus = (await manager.state()).focus;
+  assert.equal(focus.completed, 0);
+  assert.equal(focus.phase, 'work');
+  assert.equal(focus.endsAt, null);
+  await manager.save({ focus: { endsAt: Date.now() + 60000 } });
+  assert.equal((await manager.completeFocus(3)).completed, false);
+  for (const patch of [
+    { breakDuration: 0 },
+    { cycles: 13 },
+    { color: 'url(x)' },
+    { volume: 101 },
+    { alarm: 'yes' },
+  ])
+    await assert.rejects(manager.save({ focus: patch }), /WIDGETS_INVALID/);
+  await manager.save({ appearance: { focus: { blur: 0 } } });
+  assert.equal((await manager.state()).appearance.focus.blur, 0);
+  await assert.rejects(manager.save({ appearance: { focus: { blur: 33 } } }), /WIDGETS_INVALID/);
+});
+
+test('widget collision resolver uses actual resized rectangles and supports negative monitor origins', () => {
+  const { placeWidget } = require('../shared/widget-layout.js');
+  const overlaps = (a, b) =>
+    a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
+  const displays = [{ x: -1920, y: 0, width: 1920, height: 1080 }];
+  const placed = [];
+  for (let i = 0; i < 6; i++) {
+    const next = placeWidget({ x: -800, y: 100, width: 438, height: 350 }, placed, displays);
+    assert.ok(placed.every((other) => !overlaps(next, other)));
+    assert.ok(next.x >= -1920 && next.x + next.width <= 0);
+    assert.ok(next.y >= 0 && next.y + next.height <= 1080);
+    placed.push(next);
+  }
+  const full = { x: 0, y: 0, width: 320, height: 240 };
+  assert.deepEqual(placeWidget(full, [full], [full]), full);
+});
+
+test('native widget moves and enlargement avoid existing visible windows', async (t) => {
+  const { manager, created } = await fixture(t);
+  await manager.show('note');
+  await manager.show('todos');
+  const note = created[0],
+    todos = created[1];
+  todos.setBounds(note.getBounds());
+  await manager.saveBounds('todos', todos);
+  const a = note.getBounds(),
+    b = todos.getBounds();
+  assert.ok(
+    a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y,
+  );
+  await manager.save({ appearance: { todos: { size: 'large' } } });
+  const c = todos.getBounds();
+  assert.equal(c.width, 438);
+  assert.ok(
+    a.x + a.width <= c.x || c.x + c.width <= a.x || a.y + a.height <= c.y || c.y + c.height <= a.y,
+  );
+});

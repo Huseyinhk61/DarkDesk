@@ -31,7 +31,7 @@ test('sys aliases produce intentions only and partial commands remain non-execut
     ['sys çöpü boşalt', 'empty-trash'],
     ['sys cop kutusunu bosalt', 'empty-trash'],
     ['sys sessiz', 'mute'],
-    ['sys sesi aç', 'mute'],
+    ['sys sesi aç', 'unmute'],
   ]) {
     const result = launcherTool(query);
     assert.equal(result.type, 'system');
@@ -39,9 +39,11 @@ test('sys aliases produce intentions only and partial commands remain non-execut
     assert.equal(result.status, 'success');
     assert.equal(result.command, undefined);
   }
-  assert.deepEqual(launcherTool('sys').matches, ['empty-trash', 'lock', 'shutdown', 'mute']);
+  assert.equal(launcherTool('sys').matches.length, 12);
+  assert.ok(launcherTool('sys').matches.includes('screenshot'));
   assert.equal(launcherTool('sys').status, 'incomplete');
-  assert.deepEqual(launcherTool('sys s').matches, ['shutdown', 'mute']);
+  assert.ok(launcherTool('sys s').matches.includes('shutdown'));
+  assert.ok(launcherTool('sys s').matches.includes('volume-down'));
   assert.equal(launcherTool('sys s').system, undefined);
   assert.equal(launcherTool('sys arbitrary.exe').error, 'UNKNOWN_SYSTEM_COMMAND');
   assert.equal(launcherTool('sys lock; shutdown').error, 'UNKNOWN_SYSTEM_COMMAND');

@@ -94,3 +94,47 @@
   padding: 7px 8px;
   font-size: 11px;
 }
+
+.currency-converter {
+  max-width: 820px;
+}
+.currency-form {
+  padding: clamp(18px, 3vw, 30px);
+  gap: 22px;
+  box-shadow: 0 8px 30px #0000000c;
+}
+.currency-form > label input {
+  font-size: 28px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.currency-result {
+  margin: 16px 0;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  padding: clamp(20px, 3vw, 30px);
+  min-height: 150px;
+  align-content: center;
+}
+.currency-result strong {
+  font-size: clamp(28px, 4vw, 48px);
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+}
+.currency-converter.compact .currency-result {
+  padding: 12px;
+  min-height: 90px;
+  margin: 12px 0;
+}
+.currency-converter.compact .currency-result strong {
+  font-size: 25px;
+}
+.currency-pair button {
+  border-radius: 50%;
+  width: 40px;
+}
+.currency-converter .currency-actions .btn {
+  flex: 1;
+  justify-content: center;
+}

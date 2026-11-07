@@ -36,7 +36,7 @@ New installations use the global shortcut **Alt+X**. Change it in **Settings →
 - `g`, `yt`, and `gh` results open fixed Google, YouTube, or GitHub search URLs only after activation.
 - Tab or Ctrl+K opens item actions: persistent favorites, file location, and supported Windows administrator launch through UAC.
 - An empty query shows up to three items with the highest observed DarkDesk launch counts, then other favorites, without duplicating an item.
-- Windows Lock Screen and Toggle Mute run after selection. Empty Recycle Bin and Shut Down require a separate, single-use confirmation that expires after 30 seconds.
+- Windows Lock Screen and Mute / Unmute and Volume controls run after selection. Empty Recycle Bin and Shut Down require a separate, single-use confirmation that expires after 30 seconds.
 
 See [Quick Launcher](LAUNCHER.md) for examples and platform availability. Native system actions are fixed operations rather than arbitrary renderer-supplied commands. Tests inject adapters for disruptive OS actions; they do not shut down, lock, mute, or clear the development host's bin.
 

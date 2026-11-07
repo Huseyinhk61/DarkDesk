@@ -549,3 +549,59 @@
     grid-template-columns: 1fr;
   }
 }
+
+.desktop-widget {
+  backdrop-filter: blur(var(--widget-blur, 24px));
+}
+.focus-widget {
+  --focus-accent: var(--accent);
+}
+.focus-widget > strong {
+  color: var(--focus-accent);
+  font-variant-numeric: tabular-nums;
+}
+.focus-widget details {
+  width: 100%;
+  margin-top: 12px;
+  text-align: left;
+}
+.focus-widget summary {
+  cursor: pointer;
+  color: var(--muted);
+  padding-block: 5px;
+}
+.focus-options {
+  display: grid;
+  gap: 10px;
+  padding-top: 12px;
+}
+.focus-options label {
+  display: grid;
+  gap: 5px;
+  font-size: 12px;
+}
+.focus-options input,
+.focus-options select {
+  min-width: 0;
+  width: 100%;
+}
+.focus-options label:has(input[type='checkbox']) {
+  display: flex;
+  align-items: center;
+}
+.focus-options input[type='checkbox'] {
+  width: auto;
+}
+.widget-appearance-control input[type='range'] {
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.focus-options select {
+  padding: 7px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--field);
+  color: var(--ink);
+  font: inherit;
+}

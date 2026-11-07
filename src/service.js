@@ -6,6 +6,7 @@ import {
   normalizeWidgetState,
   validateWidgetPatch,
   widgetIds,
+  completeFocus,
 } from '../shared/widget-model';
 import { version as appVersion } from '../package.json';
 import { validateSettings } from '../shared/validate';
@@ -96,6 +97,14 @@ const commandIds = new Set([
   'system:lock',
   'system:shutdown',
   'system:mute',
+  'system:unmute',
+  'system:volume-up',
+  'system:volume-down',
+  'system:screenshot',
+  'system:wifi-on',
+  'system:wifi-off',
+  'system:night-light',
+  'system:clean-space',
 ]);
 function commandAllowed(id) {
   return commandIds.has(id) || settings.profiles.some((profile) => id === 'command:' + profile.id);
@@ -389,6 +398,13 @@ export const api = window.darkdesk || {
     throw Error('STARTUP_UNSUPPORTED');
   },
   widgetState: async () => previewWidgetState(),
+  completeFocus: async (deadline) => {
+    const focus = completeFocus(widgetModel.focus, deadline);
+    return {
+      completed: !!focus,
+      state: focus ? savePreviewWidgets({ ...widgetModel, focus }) : previewWidgetState(),
+    };
+  },
   saveWidgets: async (patch) => savePreviewWidgets(validateWidgetPatch(widgetModel, patch)),
   showWidget: async (id) => {
     if (!widgetIds.includes(id)) throw Error('WIDGETS_INVALID');

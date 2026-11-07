@@ -47,6 +47,7 @@ const widgetMethods = new Set([
   'getSettings',
   'widgetState',
   'saveWidgets',
+  'completeFocus',
   'showWidget',
   'hideWidget',
   'systemToolsSnapshot',
@@ -561,6 +562,7 @@ else {
       );
       handle('widgetState', () => widgetManager.state());
       handle('saveWidgets', (patch) => widgetManager.save(patch));
+      handle('completeFocus', (deadline) => widgetManager.completeFocus(deadline));
       handle('showWidget', (id) => widgetManager.show(id));
       handle('hideWidget', (id) => widgetManager.hide(id));
       handle('analyticsStatus', () => productivity.status());
@@ -583,6 +585,7 @@ else {
       handle('setLauncherFavorite', (id, value) => runtime.setFavorite(id, value));
       handle('launcherAction', async (value) => {
         const epoch = launcherEpoch;
+        if (value?.type === 'system' && value.id === 'screenshot') hideLauncher(epoch);
         const result = await runtime.run('launcher-action', () => launcherActions.action(value));
         if (result.type === 'admin') await runtime.activity.record(result.id);
         if (['web', 'system', 'admin', 'reveal'].includes(result.type)) hideLauncher(epoch);

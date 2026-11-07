@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.10.0 — November 7, 2026
+
+- Fit desktop sidebar destinations and system status without a scrolling menu; compact spacing follows available window height.
+- Redesign currency forms/results as readable cards, with a compact widget and cache-aware minute checks while visible. Dated reference rates, refresh, copy and offline/error states remain explicit; launcher inputs such as `50 usd to try` and `100 eur` are supported.
+- Add Pomodoro breaks, cycle counts, five accents, adjustable completion bells and a sound test. Persisted deadlines advance atomically across renderers, preventing duplicate bells; the next phase waits for Start.
+- Prevent widget collisions on show, move, resize and reset using actual bounds, nearest free placement and grid snapping. Keep panels on-screen and explain when their sizes exceed available space. Add independent 0–32px background blur and 1% opacity adjustments.
+- Replace simulated mute keys with Windows Core Audio: explicit mute/unmute and five-percentage-point volume steps. Add native screen snipping, Wi-Fi radio on/off, Night Light settings and storage-cleanup settings. OS access failures remain errors; no unsupported registry toggles or unattended disk deletion.
+
 ## 3.9.0 — November 7, 2026
 
 - Add a dedicated sidebar currency converter with amount/from/to controls, swap, refresh, copy, explicit error/cache labels and an equivalent desktop widget. Identical-currency calculations stay local.

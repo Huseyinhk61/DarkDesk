@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Play, Pause, RotateCcw } from 'lucide-react';
+import { armFocusAudio, playFocusBell } from '../focus-alarm';
 import { focusSeconds } from '../../shared/widget-model';
 import { api } from '../service';
 import { usePreferences } from '../preferences';
@@ -52,13 +53,35 @@ export function FocusWidget({ value, accept }) {
   useEffect(() => {
     if (value.endsAt !== null && remaining === 0 && !finishing.current) {
       finishing.current = true;
-      save({ ...value, remaining: 0, endsAt: null }).finally(() => {
-        finishing.current = false;
-      });
+      api
+        .completeFocus(value.endsAt)
+        .then(async (result) => {
+          accept(result.state);
+          if (result.completed && value.alarm) await playFocusBell(value.volume);
+        })
+        .catch(() => setError(t('focusPlus.soundError')))
+        .finally(() => {
+          finishing.current = false;
+        });
     }
   }, [remaining, value.endsAt]);
   return (
-    <div className="focus-widget">
+    <div
+      className="focus-widget"
+      style={{
+        '--focus-accent': {
+          violet: '#b9a4ff',
+          mint: '#79dfb4',
+          blue: '#8ebcff',
+          amber: '#ffd181',
+          rose: '#f4a5c4',
+        }[value.color || 'violet'],
+      }}
+    >
+      <small>
+        {t(value.phase === 'break' ? 'focusPlus.rest' : 'focusPlus.work')} · {t('focusPlus.cycle')}{' '}
+        {(value.completed || 0) + (value.phase === 'break' ? 0 : 1)}/{value.cycles || 4}
+      </small>
       <strong role="timer">
         {String(Math.floor(remaining / 60)).padStart(2, '0')}:
         {String(remaining % 60).padStart(2, '0')}
@@ -84,7 +107,13 @@ export function FocusWidget({ value, accept }) {
           onChange={(e) => {
             const duration = Number(e.target.value);
             if (Number.isInteger(duration) && duration >= 1 && duration <= 180)
-              save({ duration, remaining: duration * 60, endsAt: null });
+              save({
+                duration,
+                remaining: duration * 60,
+                endsAt: null,
+                phase: 'work',
+                completed: 0,
+              });
           }}
         />
       </label>
@@ -94,7 +123,9 @@ export function FocusWidget({ value, accept }) {
           className="btn secondary"
           disabled={busy}
           onClick={() => {
-            const seconds = remaining || value.duration * 60;
+            if (value.alarm) armFocusAudio().catch(() => setError(t('focusPlus.soundError')));
+            const seconds =
+              remaining || (value.phase === 'break' ? value.breakDuration : value.duration) * 60;
             save({
               ...value,
               remaining: seconds,
@@ -110,12 +141,121 @@ export function FocusWidget({ value, accept }) {
           className="tool-btn"
           disabled={busy}
           aria-label={t('widgetMore.reset')}
-          onClick={() => save({ ...value, remaining: value.duration * 60, endsAt: null })}
+          onClick={() =>
+            save({
+              ...value,
+              remaining: value.duration * 60,
+              endsAt: null,
+              phase: 'work',
+              completed: 0,
+            })
+          }
         >
           <RotateCcw size={15} />
         </button>
       </div>
+      <details>
+        <summary>{t('focusPlus.settings')}</summary>
+        <div className="focus-options">
+          {[
+            ['breakDuration', 'break', 60, 5],
+            ['cycles', 'cycles', 12, 4],
+          ].map(([key, label, max, fallback]) => (
+            <label key={key}>
+              {t('focusPlus.' + label)}
+              <input
+                type="number"
+                min="1"
+                max={max}
+                disabled={busy || value.endsAt !== null}
+                value={value[key] ?? fallback}
+                onChange={(e) => {
+                  const n = Number(e.target.value);
+                  if (Number.isInteger(n) && n >= 1 && n <= max)
+                    save({
+                      ...value,
+                      [key]: n,
+                      phase: 'work',
+                      completed: 0,
+                      remaining: value.duration * 60,
+                      endsAt: null,
+                    });
+                }}
+              />
+            </label>
+          ))}
+          <label>
+            {t('focusPlus.color')}
+            <select
+              aria-label={t('focusPlus.color')}
+              value={value.color || 'violet'}
+              disabled={busy}
+              onChange={(e) => save({ color: e.target.value })}
+            >
+              {['violet', 'mint', 'blue', 'amber', 'rose'].map((color) => (
+                <option key={color} value={color}>
+                  {t('focusPlus.color.' + color)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={value.alarm ?? true}
+              disabled={busy}
+              onChange={(e) => save({ alarm: e.target.checked })}
+            />
+            {t('focusPlus.alarm')}
+          </label>
+          <FocusVolume value={value.volume ?? 65} busy={busy} save={save} />
+          <button
+            type="button"
+            className="btn secondary"
+            onClick={() =>
+              playFocusBell(value.volume)
+                .then(() => setError(''))
+                .catch(() => setError(t('focusPlus.soundError')))
+            }
+          >
+            {t('focusPlus.test')}
+          </button>
+        </div>
+      </details>
       {error && <p role="alert">{error}</p>}
     </div>
+  );
+}
+
+function FocusVolume({ value, busy, save }) {
+  const { t } = usePreferences();
+  const [draft, setDraft] = useState(value);
+  const pending = useRef(null);
+  useEffect(() => setDraft(value), [value]);
+  const commit = (e) => {
+    const volume = Number(e.currentTarget.value);
+    if (volume === value || pending.current === volume) return;
+    pending.current = volume;
+    save({ volume }).finally(() => {
+      pending.current = null;
+    });
+  };
+  return (
+    <label>
+      {t('focusPlus.volume')} <output>{draft}%</output>
+      <input
+        type="range"
+        min="0"
+        max="100"
+        step="1"
+        aria-label={t('focusPlus.volume')}
+        value={draft}
+        disabled={busy}
+        onChange={(e) => setDraft(Number(e.target.value))}
+        onPointerUp={commit}
+        onKeyUp={commit}
+        onBlur={commit}
+      />
+    </label>
   );
 }

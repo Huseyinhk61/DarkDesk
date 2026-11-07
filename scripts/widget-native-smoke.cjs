@@ -273,12 +273,32 @@ async function widgetPage(application, id) {
     await expect(focus.getByRole('button', { name: 'Duraklat', exact: true })).toBeVisible();
     await focus.getByRole('button', { name: 'Duraklat', exact: true }).click();
     await main.evaluate(() =>
-      window.darkdesk.saveWidgets({ appearance: { note: { opacity: 55, size: 'large' } } }),
+      window.darkdesk.saveWidgets({
+        focus: {
+          alarm: false,
+          breakDuration: 2,
+          cycles: 2,
+          remaining: 1,
+          endsAt: Date.now() + 700,
+        },
+      }),
+    );
+    await expect(focus.getByRole('timer')).toHaveText('02:00');
+    const completedFocus = (await main.evaluate(() => window.darkdesk.widgetState())).focus;
+    assert.equal(completedFocus.phase, 'break');
+    assert.equal(completedFocus.completed, 1);
+    assert.equal((await main.evaluate(() => window.darkdesk.completeFocus(1))).completed, false);
+
+    await main.evaluate(() =>
+      window.darkdesk.saveWidgets({
+        appearance: { note: { opacity: 55, size: 'large', blur: 7 } },
+      }),
     );
     assert.equal(
       (await main.evaluate(() => window.darkdesk.widgetState())).appearance.note.opacity,
       55,
     );
+    await expect(note.locator('.desktop-widget')).toHaveCSS('backdrop-filter', 'blur(7px)');
     await application.evaluate(({}, packageBase) => {
       const req = process
         .getBuiltinModule('node:module')

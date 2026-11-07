@@ -138,7 +138,7 @@ test('fixed system adapters receive only their allowlisted arguments and profile
   await f.actions.action({ type: 'confirm-system', token: prepared.token });
   assert.equal(ordering[0][0], 'rundll32.exe');
   assert.deepEqual(ordering[0][1], ['user32.dll,LockWorkStation']);
-  assert.deepEqual(ordering[1], [MUTE_SCRIPT]);
+  assert.deepEqual(ordering[1], [MUTE_SCRIPT, { action: 'mute' }]);
   assert.equal(ordering[2], 'restore');
   assert.equal(ordering[3][0], 'shutdown.exe');
   assert.deepEqual(ordering[3][1], ['/s', '/t', '0']);
@@ -286,3 +286,42 @@ test('PowerShell receives fixed encoded source and bounded JSON stdin without a 
     /LAUNCHER_ACTION_FAILED/,
   );
 });
+
+test('audio and Wi-Fi actions use fixed native adapters; Windows tools use allowlisted settings URIs', async (t) => {
+  const { AUDIO_SCRIPT, WIFI_SCRIPT } = require('./runtime/windows-audio.cjs');
+  const f = await fixture(t);
+  for (const id of ['mute', 'unmute', 'volume-up', 'volume-down', 'wifi-on', 'wifi-off']) {
+    await f.actions.system(id);
+    assert.deepEqual(f.calls.at(-1), [
+      'ps',
+      id.startsWith('wifi-') ? WIFI_SCRIPT : AUDIO_SCRIPT,
+      { action: id },
+    ]);
+  }
+  for (const [id, uri] of Object.entries({
+    screenshot: 'ms-screenclip:',
+    'night-light': 'ms-settings:nightlight',
+    'clean-space': 'ms-settings:storagesense',
+  })) {
+    await f.actions.system(id);
+    assert.deepEqual(f.calls.at(-1), ['web', uri]);
+  }
+  const failed = await fixture(t, {
+    executePowerShell: async () => {
+      throw Error('DEVICE_UNAVAILABLE');
+    },
+  });
+  await assert.rejects(failed.actions.system('mute'), /DEVICE_UNAVAILABLE/);
+});
+
+test(
+  'Windows compiles Core Audio interop without modifying audio or radio state',
+  { skip: process.platform !== 'win32' },
+  async () => {
+    const { AUDIO_TYPES, WIFI_SCRIPT } = require('./runtime/windows-audio.cjs');
+    await powershell(
+      `$ErrorActionPreference='Stop';try{Add-Type -TypeDefinition @'\n${AUDIO_TYPES}\n'@; $tokens=$null; $errors=$null; [System.Management.Automation.Language.Parser]::ParseInput(([Console]::In.ReadToEnd()|ConvertFrom-Json),[ref]$tokens,[ref]$errors)>$null;if($errors.Count){exit 1}}catch{exit 1}`,
+      WIFI_SCRIPT,
+    );
+  },
+);

@@ -182,6 +182,7 @@ export function WidgetContent({ id, embedded = false }) {
       }
       style={{
         '--widget-opacity': (state?.appearance?.[id]?.opacity ?? 92) + '%',
+        '--widget-blur': (state?.appearance?.[id]?.blur ?? 24) + 'px',
         ...(embedded
           ? {
               height: state?.collapsed?.[id]

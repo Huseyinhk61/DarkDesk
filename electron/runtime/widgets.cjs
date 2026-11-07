@@ -1,4 +1,5 @@
 const path = require('node:path');
+const { placeWidget } = require('../../shared/widget-layout.js');
 const { JsonStore } = require('./json-store.cjs');
 const {
   defaultWidgetState,
@@ -7,6 +8,7 @@ const {
   validateWidgetPatch,
   restoreWidgetBounds,
   widgetPresetSize,
+  completeFocus,
 } = require('../../shared/widget-model.js');
 const { attachDesktop: nativeAttach } = require('./widget-desktop.cjs');
 
@@ -52,6 +54,7 @@ class WidgetManager {
     return {
       ...structuredClone(model),
       platform: this.platform,
+      crowded: this.crowded(),
       placements: Object.fromEntries([...this.placements].map(([id, value]) => [id, { ...value }])),
     };
   }
@@ -64,6 +67,15 @@ class WidgetManager {
     await this.store.write(next);
     this.model = next;
     return this.publish();
+  }
+  async completeFocus(deadline) {
+    if (!Number.isSafeInteger(deadline)) throw Error('WIDGETS_INVALID');
+    return this.locked(async () => {
+      const model = await this.read();
+      const focus = completeFocus(model.focus, deadline);
+      if (!focus) return { completed: false, state: await this.state() };
+      return { completed: true, state: await this.persist({ ...model, focus }) };
+    });
   }
   async save(patch) {
     const layout =
@@ -105,8 +117,13 @@ class WidgetManager {
           );
           next.widgets[id].bounds = bounds;
           const window = this.open.get(id);
-          if (window && !window.isDestroyed())
-            window.setBounds({ ...bounds, ...(next.collapsed[id] ? { height: 44 } : {}) });
+          if (window && !window.isDestroyed()) {
+            const placed = this.applyBounds(id, window, {
+              ...bounds,
+              ...(next.collapsed[id] ? { height: 44 } : {}),
+            });
+            next.widgets[id].bounds = { ...placed, height: bounds.height };
+          }
         }
         await this.persist(next);
       }
@@ -115,13 +132,17 @@ class WidgetManager {
           if (!window.isDestroyed()) {
             window.setMinimumSize?.(240, next.collapsed[id] ? 44 : 180);
             const normal = restoreWidgetBounds(id, next.widgets[id].bounds, this.getDisplays());
-            window.setBounds({ ...normal, height: next.collapsed[id] ? 44 : normal.height });
+            const placed = this.applyBounds(id, window, {
+              ...normal,
+              height: next.collapsed[id] ? 44 : normal.height,
+            });
+            next.widgets[id].bounds = { ...placed, height: normal.height };
           }
         }
       if (patch.resetPositions)
         for (const [id, window] of this.open)
-          if (!window.isDestroyed())
-            window.setBounds({
+          if (!window.isDestroyed()) {
+            const placed = this.applyBounds(id, window, {
               ...restoreWidgetBounds(
                 id,
                 {
@@ -132,6 +153,14 @@ class WidgetManager {
               ),
               ...(next.collapsed[id] ? { height: 44 } : {}),
             });
+            next.widgets[id].bounds = {
+              ...placed,
+              height: next.collapsed[id]
+                ? widgetPresetSize(id, next.appearance[id].size).height
+                : placed.height,
+            };
+          }
+      if (patch.resetPositions || patch.collapsed) await this.persist(next);
       if ('placement' in patch && previous.placement !== next.placement) {
         // Recreate only visible windows after their content is persisted. Native
         // reparenting cannot safely be undone by merely toggling always-on-top.
@@ -144,6 +173,34 @@ class WidgetManager {
       }
       return this.publish();
     });
+  }
+  crowded() {
+    const visible = [...this.open].filter(([, w]) => !w.isDestroyed() && w.isVisible?.() !== false);
+    return visible.some(([id, w]) =>
+      visible.some(([other, v]) => {
+        if (id === other) return false;
+        const a = w.getBounds(),
+          b = v.getBounds();
+        return (
+          a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y
+        );
+      }),
+    );
+  }
+  placed(id, bounds) {
+    const obstacles = [...this.open]
+      .filter(
+        ([key, window]) => key !== id && !window.isDestroyed() && window.isVisible?.() !== false,
+      )
+      .map(([, window]) => window.getBounds());
+    return placeWidget(bounds, obstacles, this.getDisplays());
+  }
+  applyBounds(id, window, bounds) {
+    const next = this.placed(id, bounds);
+    const current = window.getBounds();
+    if (['x', 'y', 'width', 'height'].some((key) => current[key] !== next[key]))
+      window.setBounds(next);
+    return next;
   }
   windows() {
     return [...this.open.values()].filter((window) => !window.isDestroyed());
@@ -162,13 +219,16 @@ class WidgetManager {
     const existing = this.open.get(id);
     if (existing && !existing.isDestroyed()) return existing;
     const task = (async () => {
-      const bounds = restoreWidgetBounds(
+      const bounds = this.placed(
         id,
-        model.widgets[id].bounds || {
-          ...restoreWidgetBounds(id, null, this.getDisplays()),
-          ...widgetPresetSize(id, model.appearance[id].size),
-        },
-        this.getDisplays(),
+        restoreWidgetBounds(
+          id,
+          model.widgets[id].bounds || {
+            ...restoreWidgetBounds(id, null, this.getDisplays()),
+            ...widgetPresetSize(id, model.appearance[id].size),
+          },
+          this.getDisplays(),
+        ),
       );
       const window = this.createWindow({
         ...bounds,
@@ -273,6 +333,7 @@ class WidgetManager {
     return this.locked(async () => {
       const next = structuredClone(await this.read());
       next.widgets[id].enabled = true;
+      this.applyBounds(id, window, window.getBounds());
       next.widgets[id].bounds = restoreWidgetBounds(
         id,
         {
@@ -339,7 +400,11 @@ class WidgetManager {
     );
     return this.locked(async () => {
       const next = structuredClone(await this.read());
-      next.widgets[id].bounds = bounds;
+      const placed = this.applyBounds(id, window, {
+        ...bounds,
+        ...(model.collapsed[id] ? { height: 44 } : {}),
+      });
+      next.widgets[id].bounds = { ...placed, height: bounds.height };
       return this.persist(next);
     });
   }

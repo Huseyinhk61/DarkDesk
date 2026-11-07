@@ -165,7 +165,20 @@ export default function Launcher({ onClose, onCommand }) {
       command: { type: 'profile', id: p.id },
       icon: p.icon,
     })),
-    ...['empty-trash', 'lock', 'shutdown', 'mute'].map((id) => ({
+    ...[
+      'empty-trash',
+      'lock',
+      'shutdown',
+      'mute',
+      'unmute',
+      'volume-up',
+      'volume-down',
+      'screenshot',
+      'wifi-on',
+      'wifi-off',
+      'night-light',
+      'clean-space',
+    ].map((id) => ({
       id: 'system:' + id,
       name: t('launcherPlus.system.' + id),
       system: id,

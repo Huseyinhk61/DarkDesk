@@ -208,7 +208,15 @@ const systemAliases = {
   ],
   lock: ['lock', 'lock screen', 'kilitle', 'ekranı kilitle'],
   shutdown: ['shutdown', 'shut down', 'power off', 'kapat', 'sistemi kapat', 'bilgisayarı kapat'],
-  mute: ['mute', 'unmute', 'toggle mute', 'sessiz', 'ses', 'sesi kapat', 'sesi aç'],
+  mute: ['mute', 'sessiz', 'sesi kapat'],
+  unmute: ['unmute', 'sesi aç'],
+  'volume-up': ['volume up', 'ses artır', 'sesi yükselt'],
+  'volume-down': ['volume down', 'ses azalt', 'sesi azalt'],
+  screenshot: ['screenshot', 'screen capture', 'ekran görüntüsü al'],
+  'wifi-on': ['wifi on', 'wi-fi on', 'wifi aç'],
+  'wifi-off': ['wifi off', 'wi-fi off', 'wifi kapat'],
+  'night-light': ['night light', 'gece ışığı'],
+  'clean-space': ['clean space', 'storage cleanup', 'boş alanı temizle'],
 };
 const normalizeCommand = (value) =>
   value

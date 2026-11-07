@@ -45,6 +45,7 @@ const methods = [
   'setStartupAppEnabled',
   'widgetState',
   'saveWidgets',
+  'completeFocus',
   'showWidget',
   'hideWidget',
   'analyticsStatus',

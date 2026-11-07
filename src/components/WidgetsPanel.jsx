@@ -66,6 +66,11 @@ export default function WidgetsPanel({ busy }) {
           </select>
         </label>
         <p className="muted">{t(native ? 'widgetPlus.nativeHint' : 'widgetPlus.previewHint')}</p>
+        {state?.crowded && (
+          <p className="notice warning" role="status">
+            {t('widgetMore.crowded')}
+          </p>
+        )}
         <button
           className="btn secondary"
           disabled={!!pending || busy || !native}
@@ -236,6 +241,8 @@ function WidgetAppearanceControl({ id, value, disabled, onSave }) {
         {t('widgetMore.opacity')} <output>{opacity}%</output>
         <input
           type="range"
+          disabled={disabled}
+          step="1"
           min="25"
           max="100"
           value={opacity}
@@ -249,6 +256,19 @@ function WidgetAppearanceControl({ id, value, disabled, onSave }) {
           onPointerUp={commit}
           onKeyUp={commit}
           onBlur={commit}
+        />
+      </label>
+      <label>
+        {t('widgetMore.blur')} <output>{value.blur ?? 24}px</output>
+        <input
+          type="range"
+          min="0"
+          max="32"
+          step="1"
+          disabled={disabled}
+          aria-label={t('widgetMore.blurFor', { name: t('widgetPlus.' + id) })}
+          value={value.blur ?? 24}
+          onChange={(e) => onSave({ blur: Number(e.target.value) }).catch(() => {})}
         />
       </label>
       <label>

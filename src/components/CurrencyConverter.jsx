@@ -50,6 +50,17 @@ export default function CurrencyConverter({ compact = false }) {
       ++request.current;
     };
   }, [number, valid, from, to, refresh, t]);
+  useEffect(() => {
+    const update = () => {
+      if (!document.hidden) setRefresh((n) => n + 1);
+    };
+    const timer = setInterval(update, 60000);
+    document.addEventListener('visibilitychange', update);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', update);
+    };
+  }, []);
   const copy = async () => {
     if (!result || loading) return;
     const version = request.current;

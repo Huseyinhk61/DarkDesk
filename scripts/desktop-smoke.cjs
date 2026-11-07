@@ -45,7 +45,22 @@ const { folders } = require('../electron/service.cjs');
     assert.equal(launcherData.capabilities.web, true);
     assert.deepEqual(
       launcherData.capabilities.system,
-      process.platform === 'win32' ? ['empty-trash', 'lock', 'shutdown', 'mute'] : [],
+      process.platform === 'win32'
+        ? [
+            'empty-trash',
+            'lock',
+            'shutdown',
+            'mute',
+            'unmute',
+            'volume-up',
+            'volume-down',
+            'screenshot',
+            'wifi-on',
+            'wifi-off',
+            'night-light',
+            'clean-space',
+          ]
+        : [],
     );
     const previousClipboard = await application.evaluate(({ clipboard }) => clipboard.readText());
     await page.evaluate(() => window.darkdesk.launcherAction({ type: 'copy', text: '5400' }));
@@ -423,8 +438,13 @@ const { folders } = require('../electron/service.cjs');
     await fs.utimes(oldFile, oldDate, oldDate);
     await fs.utimes(download, stable, stable);
     await page.getByRole('button', { name: 'Automation Center', exact: true }).click();
-    await page.getByRole('checkbox', { name: 'Archive idle files', exact: true }).check();
-    await page.getByRole('checkbox', { name: 'Downloads routing', exact: true }).check();
+    // The fixture file writes trigger the real watcher. A refresh can disable
+    // this fieldset between pointer-down and pointer-up; wait for an editable
+    // interval and verify both final checkbox states before saving.
+    await expect(async () => {
+      await page.getByRole('checkbox', { name: 'Archive idle files', exact: true }).check();
+      await page.getByRole('checkbox', { name: 'Downloads routing', exact: true }).check();
+    }).toPass({ timeout: 5000, intervals: [100, 250, 500] });
     await page.getByRole('button', { name: 'Save automation rules', exact: true }).click();
     await expect(page.locator('.activity-bar')).toHaveCount(0);
     await page.getByRole('button', { name: 'Run enabled rules now', exact: true }).click();

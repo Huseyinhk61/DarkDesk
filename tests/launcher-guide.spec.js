@@ -52,7 +52,8 @@ api.recordLauncherCommand=async id=>{window.__prefixRecorded ||= [];window.__pre
   });
   const search = await open(page);
   await search.fill('sys s');
-  await expect(page.getByRole('option')).toHaveCount(2);
+  await expect(page.getByRole('option', { name: /^Sistemi Kapat / })).toBeVisible();
+  await expect(page.getByRole('option', { name: /^Sesi azalt / })).toBeVisible();
   await search.press('Enter');
   await expect(search).toHaveValue('sys shutdown');
   expect(await page.evaluate(() => window.__prefixActions || [])).toEqual([]);

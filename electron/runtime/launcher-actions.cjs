@@ -7,7 +7,20 @@ const { StringDecoder } = require('node:string_decoder');
 const { buildWebSearch } = require('../../shared/launcher-tools.js');
 
 const executeFile = promisify(execFile);
-const systemActions = Object.freeze(['empty-trash', 'lock', 'shutdown', 'mute']);
+const systemActions = Object.freeze([
+  'empty-trash',
+  'lock',
+  'shutdown',
+  'mute',
+  'unmute',
+  'volume-up',
+  'volume-down',
+  'screenshot',
+  'wifi-on',
+  'wifi-off',
+  'night-light',
+  'clean-space',
+]);
 const confirmationActions = new Set(['empty-trash', 'shutdown']);
 const coded = (code) => Object.assign(Error(code), { code });
 const plain = (value) => !!value && typeof value === 'object' && !Array.isArray(value);
@@ -27,7 +40,8 @@ function webSearch(provider, query) {
 // passed as data to Start-Process, never interpolated into PowerShell source.
 const ADMIN_SCRIPT = `[Console]::InputEncoding=[Text.UTF8Encoding]::new($false);$ErrorActionPreference='Stop';try{$v=[Console]::In.ReadToEnd()|ConvertFrom-Json;$p=@{FilePath=[string]$v.target;Verb='RunAs';ErrorAction='Stop'};if($v.arguments){$p.ArgumentList=[string]$v.arguments};if($v.cwd){$p.WorkingDirectory=[string]$v.cwd};Start-Process @p}catch{exit 1}`;
 const TRASH_SCRIPT = `$ErrorActionPreference='Stop';try{$shell=New-Object -ComObject Shell.Application;$bin=$shell.Namespace(10);if($null -eq $bin){throw 'Recycle Bin unavailable'};if($bin.Items().Count -gt 0){Clear-RecycleBin -Force -ErrorAction Stop}}catch{exit 1}`;
-const MUTE_SCRIPT = `$ErrorActionPreference='Stop';try{Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public static class DarkDeskMuteKey{[DllImport("user32.dll")]public static extern void keybd_event(byte key,byte scan,uint flags,UIntPtr extra);}';[DarkDeskMuteKey]::keybd_event(0xAD,0,0,[UIntPtr]::Zero);[DarkDeskMuteKey]::keybd_event(0xAD,0,2,[UIntPtr]::Zero)}catch{exit 1}`;
+const { AUDIO_SCRIPT, WIFI_SCRIPT } = require('./windows-audio.cjs');
+const MUTE_SCRIPT = AUDIO_SCRIPT;
 
 function powershell(script, value, spawnProcess = spawn) {
   return new Promise((resolve, reject) => {
@@ -142,7 +156,16 @@ class LauncherActions {
     if (!systemActions.includes(id)) throw coded('LAUNCHER_INPUT_INVALID');
     if (confirmationActions.has(id) && !confirmed) throw coded('LAUNCHER_CONFIRM_REQUIRED');
     if (id === 'empty-trash') await this.executePowerShell(TRASH_SCRIPT);
-    if (id === 'mute') await this.executePowerShell(MUTE_SCRIPT);
+    if (['mute', 'unmute', 'volume-up', 'volume-down'].includes(id))
+      await this.executePowerShell(AUDIO_SCRIPT, { action: id });
+    if (['wifi-on', 'wifi-off'].includes(id))
+      await this.executePowerShell(WIFI_SCRIPT, { action: id });
+    const uri = {
+      screenshot: 'ms-screenclip:',
+      'night-light': 'ms-settings:nightlight',
+      'clean-space': 'ms-settings:storagesense',
+    }[id];
+    if (uri) await this.shell.openExternal(uri);
     if (id === 'lock')
       await this.execute('rundll32.exe', ['user32.dll,LockWorkStation'], {
         windowsHide: true,
