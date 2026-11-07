@@ -12,6 +12,15 @@ Date: November 7, 2026 (Europe/Istanbul).
 
 Rates remain dated provider snapshots, not streaming quotes. Live Frankfurter access is outside this cloud's allowed hosts, so conversion/transport tests use controlled responses. App matching is local and bounded: 191 known applications, supported Linux metadata and purpose hints complement manual choices/rules; unknown applications stay reviewable. The native picker scans supported applications/shortcuts read-only, not arbitrary documents, and organizing those results creates shortcuts rather than moving installed programs.
 
+**Published and verified:** [Desktop Installers](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42365892558) passed Windows Setup/Portable and Linux AppImage/DEB packaging, native packaged widget IPC, checksum/update metadata verification and publication. [Test & Build](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42365892482) passed **all 145 browser scenarios**, Windows/Linux services and native IPC, and macOS interactive desktop widgets. Windows selected-location checks compare canonical paths, including expansion of temporary-directory 8.3 aliases.
+
+[Release v3.11.0](https://github.com/Huseyinhk61/DarkDesk/releases/tag/v3.11.0) is public and its tag points to source commit `4f30b3c`. Windows and Linux latest update feeds report 3.11.0. Anonymous Setup, Portable, blockmap, AppImage and DEB requests returned HTTP 200. Complete Setup and AppImage downloads matched the published SHA-256 records and the update feeds’ SHA-512/size metadata. This verifies delivery and updater availability; an in-place installation on an end-user computer was not performed by this cloud session.
+
+- DarkDesk-Setup-3.11.0.exe: 134,926,366 bytes; SHA-256 `5bfb0ee200b256db75e24faacf72470498eb832734c0c1d15d58a7e9149cecea`.
+- DarkDesk-Portable-3.11.0.exe: 121,543,789 bytes; SHA-256 `40768a89f0f170c3f88c4c2cb6a67b2f967c433a4bcc0f8ad02a018406ca291b`.
+- DarkDesk-3.11.0-x86_64.AppImage: 142,826,249 bytes; SHA-256 `da9f5201270563ccf50fa9487fec626f7a3f29a172726f32b441c114ab2e3379`.
+- DarkDesk-3.11.0-amd64.deb: 113,718,112 bytes; SHA-256 `01be42620ff70c8617e4f830947a3e1fd48dc1a187d585d3fe75841aab67eb9b`.
+
 ## 3.10.0 — desktop utilities and compact navigation
 
 Date: November 7, 2026 (Europe/Istanbul).
