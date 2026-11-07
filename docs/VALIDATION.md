@@ -14,6 +14,19 @@ Live `api.met.no` access returned a cloud proxy CONNECT **403**. Provider respon
 
 **Remote verification:** [Desktop Installers](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42375753148) passed Windows Setup/Portable, Linux AppImage/DEB, native packaged widget IPC and publication. [Test & Build](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42375753196) passed Windows/Linux services, native IPC, macOS widget windows and **all 155 final browser scenarios**. The immutable v3.12.0 tag points to application source `49e3aab`; subsequent Store-identity/asset configuration changes do not modify that application release.
 
+**Final Store configuration and tests:** application code is unchanged after `49e3aab`; Store configuration source is `96d0d6c`. [Final Test & Build](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42383544561) passed the full **155-scenario browser suite**, Windows/Linux service checks and native Windows/Linux/macOS widget tests. [Final desktop packaging](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42383544575) also passed and correctly preserved the already published immutable release.
+
+[Microsoft Store review package](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42383544588) completed successfully on Windows using the owner's exact `HseyinKahveci.DarkDesk` identity and supplied Publisher. Its final archive passed identity/version/x64, executable, five-language, full-trust/network-capability, branded tile and SHA-256 checks. **DarkDesk-Store-Review** contains `DarkDesk-Store-3.12.0-x64.appx`, `SHA256SUMS-Store.txt` and `store-validation.json`. Downloading GitHub Actions artifacts requires a GitHub session. This is a Store submission artifact, not a certified listing or a signed installation test.
+
+**Public download verification:** both latest update feeds report **3.12.0**. Anonymous Setup, Portable, blockmap, AppImage and DEB requests returned HTTP 200. Complete Setup and AppImage downloads matched both their published SHA-256 and update-feed SHA-512/size records. This confirms delivery/update availability; no update was installed on the end user's own computer by this session.
+
+| Public artifact                 |       Bytes | SHA-256                                                            |
+| ------------------------------- | ----------: | ------------------------------------------------------------------ |
+| DarkDesk-Setup-3.12.0.exe       | 176,855,551 | `6ac9bdbdc21b22ca950ae9e3e0842b48a8e5409a4cf3ab37e9d8be4aea60eeb7` |
+| DarkDesk-Portable-3.12.0.exe    | 162,053,151 | `e600794fb35b6d4caa4a3e0aed879d5089bd2d7afb459074adbd5a03d9e079e8` |
+| DarkDesk-3.12.0-x86_64.AppImage | 192,521,724 | `c11325efa61f8338fa86936846e25df09f2602c97db50f4410ba61f94455c60e` |
+| DarkDesk-3.12.0-amd64.deb       | 154,811,576 | `90eab7de5b447e75518f7b5843a68ece13ae26af965a06c9a1f2cdde2d301c1b` |
+
 ## 3.11.0 — readable widgets, folder application and location discovery
 
 Date: November 7, 2026 (Europe/Istanbul).
