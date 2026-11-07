@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.11.0 — November 7, 2026
+
+- Redesign System Monitor with clear Overview/CPU/Memory/Disk views, labeled utilization bars, memory capacity and paged logical processors. Keep compact views within the widget and hide widget scrollbar tracks while retaining access to long text/lists.
+- Remove the background-blur preference; widgets use restrained fixed glass. Repair widget-gallery card/control grids and category action rows at narrow widths.
+- Add **Default Mode** as an explicit restore action rather than a hiding profile, preserving originally hidden items.
+- Add visible category customization, a Desktop destination preview and **Save and apply to Desktop**. Save settings before creating/styling the selected physical folder; expose failures and protect personal icons. Put global folder themes in an expandable section.
+- Add native directory selection for read-only application discovery. Custom locations retain an independent result set, depth/noise filters, cancellation and launcher indexing. Organizing installed/custom apps creates shortcuts and leaves their programs in place.
+- Expand the offline application dictionary from 134 to 191 entries; recognize adjacent version numbers and portable decorations. Use bounded purpose hints, Linux freedesktop categories and shortcut descriptions, with manual choices/rules taking precedence. Unknown applications retain an explicit review state.
+- Rebuild currency conversion as a responsive input/result workbench with common pair shortcuts, localized currency names, clear rate dates and a compact widget.
+
 ## 3.10.0 — November 7, 2026
 
 - Fit desktop sidebar destinations and system status without a scrolling menu; compact spacing follows available window height.

@@ -119,3 +119,17 @@ test(
     await assert.rejects(launchLinuxItem({ source: file }), /LAUNCH_FAILED/);
   },
 );
+
+test('unknown Linux applications use their declared freedesktop categories without executing their commands', async (t) => {
+  const root = await fixture(t),
+    file = path.join(root, 'org.private.work.desktop');
+  await fs.writeFile(
+    file,
+    '[Desktop Entry]\nType=Application\nName=Opaque Widget\nComment=Private app\nCategories=Network;WebBrowser;\nExec=sh -c "exit 99"\n',
+  );
+  const info = await readDesktopEntry(file);
+  assert.deepEqual(info.desktopCategories, ['Network', 'WebBrowser']);
+  const scanner = new DeepScanner({ platform: 'linux', roots: [{ path: root, label: 'custom' }] });
+  const result = await scanner.scan(defaultSettings);
+  assert.equal(result.items[0].category, 'internetbrowsers');
+});

@@ -149,6 +149,7 @@ export default function WidgetsPanel({ busy }) {
       {state && (
         <section className="settings-panel widget-system-options">
           <h2>{t('widgetMore.systemOptions')}</h2>
+          <p className="muted">{t('ux311.monitorHelp')}</p>
           <div className="widget-system-toggles">
             {['cores', 'chart', 'details', 'disk'].map((key) => (
               <label key={key}>
@@ -256,19 +257,6 @@ function WidgetAppearanceControl({ id, value, disabled, onSave }) {
           onPointerUp={commit}
           onKeyUp={commit}
           onBlur={commit}
-        />
-      </label>
-      <label>
-        {t('widgetMore.blur')} <output>{value.blur ?? 24}px</output>
-        <input
-          type="range"
-          min="0"
-          max="32"
-          step="1"
-          disabled={disabled}
-          aria-label={t('widgetMore.blurFor', { name: t('widgetPlus.' + id) })}
-          value={value.blur ?? 24}
-          onChange={(e) => onSave({ blur: Number(e.target.value) }).catch(() => {})}
         />
       </label>
       <label>

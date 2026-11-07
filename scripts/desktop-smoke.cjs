@@ -270,6 +270,32 @@ const { folders } = require('../electron/service.cjs');
       .click();
     await expect(page.locator('.activity-bar')).toHaveCount(0);
     await expect(page.locator('.item-card')).toHaveCount(0);
+    const selectedApps = path.join(root, 'Selected apps');
+    await fs.mkdir(selectedApps);
+    await fs.writeFile(path.join(selectedApps, 'Krita.exe'), 'selected program remains in place');
+    await application.evaluate(({ dialog }, directory) => {
+      globalThis.__originalLocationDialog = dialog.showOpenDialog;
+      dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [directory] });
+    }, selectedApps);
+    try {
+      await page.getByRole('button', { name: 'Konum seç ve tara', exact: true }).click();
+      await expect(page.locator('.scan-selected-location')).toContainText(selectedApps);
+      await expect(page.locator('.item-card')).toHaveCount(1);
+      await expect(page.locator('.item-card')).toContainText('Krita.exe');
+      assert.equal(
+        await fs.readFile(path.join(selectedApps, 'Krita.exe'), 'utf8'),
+        'selected program remains in place',
+      );
+      const chosenPath = await page.evaluate(() => window.darkdesk.scan('custom'));
+      assert.equal(chosenPath[0].category, 'design');
+      await page.getByRole('button', { name: 'Masaüstü', exact: true }).click();
+      await expect(page.locator('.item-card')).toHaveCount(2);
+    } finally {
+      await application.evaluate(({ dialog }) => {
+        dialog.showOpenDialog = globalThis.__originalLocationDialog;
+        delete globalThis.__originalLocationDialog;
+      });
+    }
     await page.getByRole('button', { name: 'Yüklü uygulamalar', exact: true }).click();
     await expect(page.locator('.activity-bar')).toHaveCount(0);
     await expect(page.locator('.item-card')).toHaveCount(1);

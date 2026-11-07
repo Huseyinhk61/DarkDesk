@@ -18,9 +18,9 @@
   <p><sub>Actual browser-preview screenshot with sample data. Native file operations and original app icons require the Electron desktop app.</sub></p>
 </div>
 
-## New in 3.10.0
+## New in 3.11.0
 
-A compact sidebar, clearer currency cards, a Pomodoro bell with break/cycle controls, and widget collision prevention with adjustable blur. The Windows launcher now controls audio directly and includes screenshot, Wi-Fi, Night Light settings and storage-cleanup actions. See the [release notes](.github/RELEASE_NOTES.md) for platform details and the [productivity guide](docs/PRODUCTIVITY.md) for setup.
+Clear CPU/RAM/disk widget views, a cleaner widget gallery, Default Mode, a redesigned currency workbench and explicit folder customization. Choose any application folder to scan without moving its programs. The offline catalog now recognizes 191 applications, with improved version matching and Linux desktop categories. See the [release notes](.github/RELEASE_NOTES.md) for platform details and the [productivity guide](docs/PRODUCTIVITY.md) for setup.
 
 ## Get DarkDesk
 
@@ -49,7 +49,7 @@ See the [Linux installation and platform guide](docs/LINUX.md) for DEB/AppImage 
 | **Real desktop organization**             | Move or copy selected desktop files into physical category folders. Review destinations and conflicts before applying changes.                                                                     |
 | **Three scanning sources**                | Switch between Desktop, Installed apps, and Downloads. Desktop discovery includes personal and common Windows shortcuts. Installed programs stay in place; organization creates shortcuts instead. |
 | **Smart groups and custom rules**         | Start with **11 main groups and 30 groups in total**. Browse nested categories with accurate parent totals, matching reasons, a review filter, and keyword or regex rules.                         |
-| **Original app icons and useful details** | Read native icons and Windows File Description metadata. Get offline descriptions for **134 apps**, name/type suggestions, or write your own explanation.                                          |
+| **Original app icons and useful details** | Read native icons and Windows File Description metadata. Get offline descriptions for **191 apps**, name/type suggestions, or write your own explanation.                                          |
 | **Focus profiles**                        | Keep relevant desktop items visible for coding, gaming, or creative work. Restore visibility when you leave the profile.                                                                           |
 | **Quick launcher**                        | Press **Alt+X** to search apps, calculate, convert units, or use `g`, `yt`, `gh`, `calc`, and `sys`. Open the prefix guide with `?`, Space, or F1; frequent items and commands stay close.         |
 | **Desktop widgets**                       | Keep CPU/RAM, a sticky note, and a to-do list in separate transparent windows. Restore their content and positions; desktop placement falls back to floating windows when unavailable.             |
@@ -119,7 +119,7 @@ Cards use your saved manual description first, then Windows **File Description**
 
 ### A personal widget workspace
 
-Choose System Monitor, Sticky Note, To-do List, Currency Converter, Clock & Date and Focus Timer. Each widget has independent background opacity and size presets; native windows also resize from their edges. Windows note/task editors stay in focusable windows for reliable typing. System panels can show real per-core CPU usage, memory, disk capacity, processor details and uptime. See [widget controls and platform behavior](docs/PRODUCTIVITY.md).
+Choose System Monitor, Sticky Note, To-do List, Currency Converter, Clock & Date and Focus Timer. Each widget has independent background opacity and size presets; native windows also resize from their edges. Windows note/task editors stay in focusable windows for reliable typing. System panels separate Overview, CPU, Memory and Disk views, with real per-core usage, clear utilization bars and process memory. Scrollbars are hidden while longer notes and lists remain accessible; background blur is fixed rather than configurable. See [widget controls and platform behavior](docs/PRODUCTIVITY.md).
 
 ### AI tools and pinned favorites
 
@@ -128,6 +128,14 @@ The **AI & Intelligent Tools** group includes assistants, coding tools, local mo
 Quick Launcher has **All / Favorites** views for both applications and commands. Pin the selected result with **Ctrl+D**, or switch views with **Ctrl+1 / Ctrl+2**. Pinning a system command never runs it and destructive commands retain their confirmation.
 
 ![Pinned application and command favorites](docs/assets/launcher-favorites-en.png)
+
+### Folder customization and custom scan locations
+
+Open **Categories & Rules**, select **Customize** on a category and choose a palette, style and icon. **Save and apply to Desktop** saves those preferences, creates the selected Windows category folder if necessary, and applies its physical icon. The editor shows the target Desktop path. Existing personal icon metadata remains protected; an unsuccessful apply is reported rather than presented as a successful color change. The simpler **Save category** action keeps interface preferences and refreshes existing owned folders. Global folder styles are in the expandable **Global folder theme** section.
+
+![Category customization with visible actions](docs/assets/category-customization-en.png)
+
+In **System Scanner**, use **Choose location and scan** to select a local application folder. The source is independent of Desktop, installed apps and Downloads. Discovery is read-only, observes depth/noise filters and indexes supported executables/shortcuts; organizing those results creates Desktop shortcuts instead of moving program files. Canceling the picker leaves the existing source unchanged. Custom results also enter Quick Launcher while indexed.
 
 ### Easy currency conversion
 

@@ -26,7 +26,7 @@ export default function Header({
           {t('hero.title')}
           <span>.</span>
         </h1>
-        <p>{t(scope === 'system' ? 'desktop.systemHint' : 'hero.body')}</p>
+        <p>{t(['system', 'custom'].includes(scope) ? 'desktop.systemHint' : 'hero.body')}</p>
         <div className="desktop-source-meta">
           <span>
             <Monitor size={13} />

@@ -22,7 +22,7 @@ async function readDesktopEntry(file, language = 'en') {
       }
       if (!section || /^\s*#/.test(line)) continue;
       const match = /^([A-Za-z]+(?:\[[A-Za-z_@.-]+\])?)=(.*)$/.exec(line);
-      if (match && /^(Name|Comment|Type|Hidden|NoDisplay)(\[.*\])?$/.test(match[1]))
+      if (match && /^(Name|Comment|Type|Hidden|NoDisplay|Categories)(\[.*\])?$/.test(match[1]))
         values[match[1]] = match[2];
     }
     const clean = (value) =>
@@ -35,6 +35,10 @@ async function readDesktopEntry(file, language = 'en') {
     return {
       productName: translated('Name'),
       desktopDescription: translated('Comment'),
+      desktopCategories: clean(values.Categories)
+        .split(';')
+        .filter((v) => /^[A-Za-z0-9-]{1,64}$/.test(v))
+        .slice(0, 32),
       hidden: values.Hidden === 'true' || values.NoDisplay === 'true',
       application: values.Type === 'Application',
     };

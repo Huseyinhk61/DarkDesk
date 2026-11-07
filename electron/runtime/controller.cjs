@@ -44,10 +44,14 @@ class DesktopRuntime {
       resolveShortcut,
       onProgress: (value) => emit('scanProgress', value),
     });
+    this.indexedApps = { catalog: new Map() };
+    this.locationScanner = null;
+    this.locationPath = null;
+    this.resolveShortcut = resolveShortcut;
     this.service = new DesktopService(desktop, data, {
       downloads,
       sharedDesktop,
-      scanner: this.scanner,
+      scanner: this.indexedApps,
       folderIcons: new FolderIcons(data, platform),
       resolveShortcut,
       platform,
@@ -138,11 +142,13 @@ class DesktopRuntime {
     const settings = await this.settings.read();
     this.service.settings = settings;
     const data =
-      scope === 'system'
-        ? [...this.scanner.catalog.values()].map((i) => enrichItem(i, settings))
-        : scope === 'downloads'
-          ? await this.service.scanDownloads()
-          : await this.service.scan(settings);
+      scope === 'custom'
+        ? [...(this.locationScanner?.catalog?.values() || [])].map((i) => enrichItem(i, settings))
+        : scope === 'system'
+          ? [...this.scanner.catalog.values()].map((i) => enrichItem(i, settings))
+          : scope === 'downloads'
+            ? await this.service.scanDownloads()
+            : await this.service.scan(settings);
     const items = await this.activity.annotate(data);
     this.acceptScanned(items, scope, generation, revision);
     return items;
@@ -151,7 +157,12 @@ class DesktopRuntime {
     if (generation !== this.catalogGeneration || revision !== this.catalogRevision) return;
     const ids = new Set(items.map((item) => item.id));
     for (const [id, item] of this.catalog) {
-      const belongs = scope === 'system' ? item.kind === 'installed' : item.scope === scope;
+      const belongs =
+        scope === 'system'
+          ? item.kind === 'installed' && item.origin !== 'custom'
+          : scope === 'custom'
+            ? item.origin === 'custom'
+            : item.scope === scope;
       if (belongs && !ids.has(id)) this.catalog.delete(id);
     }
     for (const item of items) {
@@ -167,12 +178,52 @@ class DesktopRuntime {
         revision = this.catalogRevision;
       const settings = await this.settings.read();
       const result = await this.scanner.scan(settings);
+      this.syncApplicationIndex();
       result.items = await this.activity.annotate(result.items.map((i) => enrichItem(i, settings)));
       this.acceptScanned(result.items, 'system', generation, revision);
       return result;
     });
   }
+  syncApplicationIndex() {
+    this.indexedApps.catalog = new Map([
+      ...this.scanner.catalog,
+      ...(this.locationScanner?.catalog || []),
+    ]);
+  }
+  async scanLocation(directory = this.locationPath) {
+    if (
+      typeof directory !== 'string' ||
+      directory.length > 32768 ||
+      directory.includes('\0') ||
+      !path.isAbsolute(directory)
+    )
+      throw Error('SCAN_LOCATION_INVALID');
+    return this.run('deep', async () => {
+      const stat = await fs.lstat(directory);
+      if (!stat.isDirectory() || stat.isSymbolicLink()) throw Error('SCAN_LOCATION_INVALID');
+      const root = await fs.realpath(directory);
+      const settings = await this.settings.read();
+      const scanner = new DeepScanner({
+        platform: this.platform,
+        resolveShortcut: this.resolveShortcut,
+        roots: [{ path: root, label: 'custom' }],
+        registryEnabled: false,
+        onProgress: (value) => this.emit('scanProgress', value),
+      });
+      this.locationScanner = scanner;
+      this.locationPath = root;
+      const result = await scanner.scan(settings);
+      result.items = await this.activity.annotate(
+        result.items.map((i) => enrichItem({ ...i, scope: 'custom' }, settings)),
+      );
+      scanner.catalog = new Map(result.items.map((i) => [i.id, i]));
+      this.syncApplicationIndex();
+      this.acceptScanned(result.items, 'custom', this.catalogGeneration, this.catalogRevision);
+      return { ...result, path: root };
+    });
+  }
   async preview(items, mode) {
+    this.syncApplicationIndex();
     this.service.settings = await this.settings.read();
     return this.service.preview(items, mode);
   }
@@ -268,9 +319,10 @@ class DesktopRuntime {
       this.service.settings = settings;
       const desktop = await this.service.scan(settings);
       const history = await this.service.history().catch(() => []);
+      this.syncApplicationIndex();
       const result = await this.launcherCatalog.rebuild({
         desktop,
-        installed: [...this.scanner.catalog.values()],
+        installed: [...this.indexedApps.catalog.values()],
         external: [...this.service.externalCatalog.values()],
         settings,
         history,
@@ -311,7 +363,10 @@ class DesktopRuntime {
   trustedItem(id) {
     if (typeof id !== 'string' || id.length > 512) throw Error('SOURCE_MISSING');
     const item =
-      this.catalog.get(id) || this.scanner.catalog.get(id) || this.service.externalCatalog.get(id);
+      this.catalog.get(id) ||
+      this.indexedApps.catalog.get(id) ||
+      this.scanner.catalog.get(id) ||
+      this.service.externalCatalog.get(id);
     if (!item) throw Error('SOURCE_MISSING');
     return item;
   }
@@ -404,6 +459,7 @@ class DesktopRuntime {
     this.stopping = true;
     clearInterval(this.timer);
     this.scanner.cancel();
+    this.locationScanner?.cancel();
     if (this.current) await this.current.catch(() => {});
     await this.activity.tail;
     await this.profiles.restore();

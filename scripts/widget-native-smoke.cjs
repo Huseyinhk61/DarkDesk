@@ -302,8 +302,8 @@ async function widgetPage(application, id) {
     // Placement changes recreate windows. Read the current renderer instead
     // of the closed note page captured before that transition.
     const currentNote = await widgetPage(application, 'note');
-    await expect(currentNote.locator('.desktop-widget')).toHaveCSS('--widget-blur', '7px');
-    await expect(currentNote.locator('.desktop-widget')).toHaveCSS('backdrop-filter', 'blur(7px)');
+    await expect(currentNote.locator('.desktop-widget')).toHaveCSS('--widget-blur', '16px');
+    await expect(currentNote.locator('.desktop-widget')).toHaveCSS('backdrop-filter', 'blur(16px)');
     await application.evaluate(({}, packageBase) => {
       const req = process
         .getBuiltinModule('node:module')

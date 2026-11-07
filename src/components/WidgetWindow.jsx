@@ -20,6 +20,7 @@ import { formatBytes } from '../utils';
 import '../widgets.css';
 import { widgetIds, widgetPresetSize } from '../../shared/widget-model';
 import CurrencyConverter from './CurrencyConverter';
+import SystemMonitorWidget from './SystemMonitorWidget';
 import { ClockWidget, FocusWidget } from './UtilityWidgets';
 export function WidgetContent({ id, embedded = false }) {
   const { t, setSettings, locale, errorMessage } = usePreferences();
@@ -182,7 +183,7 @@ export function WidgetContent({ id, embedded = false }) {
       }
       style={{
         '--widget-opacity': (state?.appearance?.[id]?.opacity ?? 92) + '%',
-        '--widget-blur': (state?.appearance?.[id]?.blur ?? 24) + 'px',
+        '--widget-blur': '16px',
         ...(embedded
           ? {
               height: state?.collapsed?.[id]
@@ -224,121 +225,7 @@ export function WidgetContent({ id, embedded = false }) {
       </header>
       <div className="widget-content" hidden={state?.collapsed?.[id]}>
         {id === 'system' ? (
-          <>
-            <div className="widget-metric-row">
-              <span>
-                CPU
-                <strong>
-                  {Number.isFinite(metrics?.cpuPercent)
-                    ? Math.round(metrics.cpuPercent) + '%'
-                    : '—'}
-                </strong>
-              </span>
-              <span>
-                {t('widgetPlus.memory')}
-                <strong>{metrics?.memory ? Math.round(metrics.memory.percent) + '%' : '—'}</strong>
-              </span>
-            </div>
-            <div
-              className="widget-memory-track"
-              role="progressbar"
-              aria-label={t('widgetPlus.memory')}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={metrics?.memory ? Math.round(metrics.memory.percent) : undefined}
-            >
-              <i style={{ width: (metrics?.memory?.percent || 0) + '%' }} />
-            </div>
-            {state?.system?.cores && (
-              <div className="widget-cores" aria-label={t('widgetPlus.cores')}>
-                {metrics?.cores?.map((value, index) => (
-                  <span
-                    key={index}
-                    title={t('widgetPlus.core', {
-                      index: index + 1,
-                      value: value === null ? '—' : Math.round(value) + '%',
-                    })}
-                  >
-                    <i style={{ height: (value || 0) + '%' }} />
-                  </span>
-                ))}
-              </div>
-            )}
-            {state?.system?.chart && (
-              <svg
-                className="widget-chart"
-                viewBox="0 0 280 72"
-                role="img"
-                aria-label={t('widgetPlus.cpuChart')}
-              >
-                <path d="M0 24H280M0 48H280" className="widget-gridline" />
-                {points.length > 1 && (
-                  <polyline
-                    fill="none"
-                    points={points
-                      .map(
-                        (value, index) =>
-                          `${(index * 280) / Math.max(1, points.length - 1)},${70 - value * 0.66}`,
-                      )
-                      .join(' ')}
-                  />
-                )}
-              </svg>
-            )}
-            <small>
-              {metrics?.memory
-                ? formatBytes(metrics.memory.used, locale) +
-                  ' / ' +
-                  formatBytes(metrics.memory.total, locale)
-                : t(native ? 'widgetPlus.warming' : 'widgetPlus.metricsDesktop')}
-            </small>
-            {state?.system?.details && metrics && !metrics.unsupported && (
-              <dl className="widget-system-details">
-                <div>
-                  <dt>{t('widgetMore.processor')}</dt>
-                  <dd>{metrics.cpuModel || '—'}</dd>
-                </div>
-                <div>
-                  <dt>{t('widgetPlus.cores')}</dt>
-                  <dd>
-                    {metrics.coreCount} · {metrics.speedMHz || '—'} MHz
-                  </dd>
-                </div>
-                <div>
-                  <dt>{t('widgetMore.freeMemory')}</dt>
-                  <dd>{metrics.memory ? formatBytes(metrics.memory.free, locale) : '—'}</dd>
-                </div>
-                <div>
-                  <dt>{t('widgetMore.appMemory')}</dt>
-                  <dd>{metrics.process ? formatBytes(metrics.process.rss, locale) : '—'}</dd>
-                </div>
-                <div>
-                  <dt>{t('widgetMore.uptime')}</dt>
-                  <dd>
-                    {Number.isFinite(metrics.uptimeSeconds)
-                      ? Math.floor(metrics.uptimeSeconds / 3600) +
-                        'h ' +
-                        Math.floor((metrics.uptimeSeconds % 3600) / 60) +
-                        'm'
-                      : '—'}
-                  </dd>
-                </div>
-              </dl>
-            )}
-            {state?.system?.disk && metrics?.disk && (
-              <div className="widget-disk">
-                <span>
-                  {t('widgetMore.diskFree')}: {formatBytes(metrics.disk.free, locale)} /{' '}
-                  {formatBytes(metrics.disk.total, locale)}
-                </span>
-                <progress
-                  aria-label={t('widgetMore.diskUsed')}
-                  max="100"
-                  value={metrics.disk.percent}
-                />
-              </div>
-            )}
-          </>
+          <SystemMonitorWidget metrics={metrics} points={points} options={state?.system} />
         ) : id === 'currency' ? (
           <CurrencyConverter compact />
         ) : id === 'clock' ? (

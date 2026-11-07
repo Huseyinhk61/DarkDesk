@@ -144,7 +144,15 @@ export const native = !!window.darkdesk;
 export const api = window.darkdesk || {
   scan: async (scope) => {
     await delay();
-    return (scope === 'system' ? apps : scope === 'downloads' ? downloadItems : demo)
+    return (
+      scope === 'custom'
+        ? []
+        : scope === 'system'
+          ? apps
+          : scope === 'downloads'
+            ? downloadItems
+            : demo
+    )
       .filter(
         (i) => !settings.excludedExtensions.includes('.' + i.name.split('.').at(-1).toLowerCase()),
       )
@@ -396,6 +404,12 @@ export const api = window.darkdesk || {
   getStartupApps: async () => ({ supported: false, platform: 'demo', items: [], warnings: [] }),
   setStartupAppEnabled: async () => {
     throw Error('STARTUP_UNSUPPORTED');
+  },
+  chooseScanLocation: async () => {
+    throw Error('SCAN_LOCATION_UNSUPPORTED');
+  },
+  scanLocation: async () => {
+    throw Error('SCAN_LOCATION_UNSUPPORTED');
   },
   widgetState: async () => previewWidgetState(),
   completeFocus: async (deadline) => {

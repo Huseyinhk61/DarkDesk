@@ -16,7 +16,7 @@ scanner.DeepScanner = class extends Original {
   constructor(options) {
     super({
       ...options,
-      roots: [
+      roots: options.roots || [
         { path: path.join(process.env.DARKDESK_TEST_ROOT, 'Program Files'), label: 'programFiles' },
       ],
     });

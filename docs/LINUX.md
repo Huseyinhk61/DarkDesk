@@ -4,19 +4,19 @@ DarkDesk provides x86-64 **AppImage** and **DEB** packages. Use a current Linux 
 
 ## Install
 
-On Ubuntu/Debian, download `DarkDesk-3.10.0-amd64.deb` from GitHub Releases and install with:
+On Ubuntu/Debian, download `DarkDesk-3.11.0-amd64.deb` from GitHub Releases and install with:
 
 ```sh
-sudo apt install ./DarkDesk-3.10.0-amd64.deb
+sudo apt install ./DarkDesk-3.11.0-amd64.deb
 ```
 
 The package installs DarkDesk under `/opt/DarkDesk` and adds a launcher to the application menu. It declares GIO and Electron desktop dependencies.
 
-For another compatible x86-64 desktop, download `DarkDesk-3.10.0-x86_64.AppImage`:
+For another compatible x86-64 desktop, download `DarkDesk-3.11.0-x86_64.AppImage`:
 
 ```sh
-chmod +x DarkDesk-3.10.0-x86_64.AppImage
-./DarkDesk-3.10.0-x86_64.AppImage
+chmod +x DarkDesk-3.11.0-x86_64.AppImage
+./DarkDesk-3.11.0-x86_64.AppImage
 ```
 
 AppImages require the distribution’s FUSE compatibility support. Use the DEB package on Ubuntu/Debian if mounting AppImages is unavailable; sandbox and TLS verification do not need to be disabled. Verify downloads against the release’s SHA256SUMS.txt.

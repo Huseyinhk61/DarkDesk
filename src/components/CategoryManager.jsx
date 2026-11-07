@@ -11,6 +11,7 @@ import {
   FolderPlus,
   FolderSync,
 } from 'lucide-react';
+import { native } from '../service';
 import { usePreferences } from '../preferences';
 import { icons, colors, categorySegments, normalize, matchesRule } from '../../shared/domain';
 import AppIcon from './AppIcon';
@@ -40,6 +41,7 @@ export default function CategoryManager({
   items = [],
   onApplyFolders,
   platform,
+  desktopPath,
   onPrepareFolder,
   requestedCategory,
   onCategoryOpened,
@@ -47,6 +49,7 @@ export default function CategoryManager({
 }) {
   const { settings, t, label } = usePreferences();
   const [query, setQuery] = useState('');
+  const [applyError, setApplyError] = useState('');
   const [editor, setEditor] = useState(null),
     [colorDraft, setColorDraft] = useState(null),
     [deleting, setDeleting] = useState(null),
@@ -57,6 +60,7 @@ export default function CategoryManager({
       enabled: true,
     });
   const openEditor = (category) => {
+    setApplyError('');
     setEditor(category);
     setColorDraft(category.customColor ? { ...category.customColor } : null);
   };
@@ -130,7 +134,17 @@ export default function CategoryManager({
     const categories = editor.isNew
       ? [...settings.categories, next]
       : settings.categories.map((c) => (c.id === editor.id ? next : c));
-    if (await onSave({ ...settings, categories }, { applyFolders: true })) setEditor(null);
+    const applyDesktop = e.nativeEvent.submitter?.dataset.applyDesktop === 'true';
+    if (await onSave({ ...settings, categories }, { applyFolders: true })) {
+      if (applyDesktop) {
+        const result = await onPrepareFolder?.(next.id);
+        if (!result || result.failed || result.skipped) {
+          setApplyError(t('ux311.applyFailed'));
+          return;
+        }
+      }
+      setEditor(null);
+    }
   };
   const remove = async () => {
     const excluded = descendants(deleting.id);
@@ -165,13 +179,16 @@ export default function CategoryManager({
       <p className="muted">{t('manager.body')}</p>
       <section className="settings-panel">
         <p className="muted">{t('folderMore.prepareHint')}</p>
-        <FolderAppearanceSettings
-          onSave={onSave}
-          onApply={onApplyFolders}
-          busy={busy}
-          platform={platform}
-          externalResult={lastFolderResult}
-        />
+        <details className="folder-global-settings">
+          <summary>{t('ux311.globalFolderStyle')}</summary>
+          <FolderAppearanceSettings
+            onSave={onSave}
+            onApply={onApplyFolders}
+            busy={busy}
+            platform={platform}
+            externalResult={lastFolderResult}
+          />
+        </details>
       </section>
       <section className="settings-panel">
         <div className="manager-heading">
@@ -219,6 +236,16 @@ export default function CategoryManager({
             {t('manager.noResults')}
           </p>
         )}
+        <div className="folder-customize-guide">
+          <FolderSync size={22} />
+          <div>
+            <b>{t('ux311.folderTitle')}</b>
+            <p>{t('ux311.folderSteps')}</p>
+            <small>
+              {t(native && platform === 'win32' ? 'ux311.folderWindows' : 'folders.platformNote')}
+            </small>
+          </div>
+        </div>
         <div className="managed-groups">
           {ordered.map((c) => (
             <div
@@ -236,52 +263,56 @@ export default function CategoryManager({
                 <b>{label(c)}</b>
                 <small>{categorySegments(c.id, settings.categories).join(' / ')}</small>
               </div>
-              <button
-                type="button"
-                className="tool-btn"
-                disabled={!!busy || platform !== 'win32' || !onPrepareFolder}
-                aria-label={t('folderMore.prepareFor', { name: label(c) })}
-                title={t('folderMore.prepare')}
-                onClick={() => onPrepareFolder(c.id)}
-              >
-                <FolderSync size={15} />
-              </button>
-              <button
-                type="button"
-                disabled={!!busy || c.depth >= 15}
-                className="tool-btn"
-                aria-label={t('manager.newChild', { name: label(c) })}
-                onClick={() =>
-                  openEditor({
-                    id: crypto.randomUUID(),
-                    name: '',
-                    folder: '',
-                    parentId: c.id,
-                    icon: 'folder',
-                    color: c.color,
-                    customColor: c.customColor ? { ...c.customColor } : undefined,
-                    isNew: true,
-                  })
-                }
-              >
-                <FolderPlus size={15} />
-              </button>
-              <button
-                disabled={!!busy}
-                className="tool-btn"
-                onClick={() => openEditor({ ...c, name: label(c) })}
-                aria-label={`${t('common.edit')} ${label(c)}`}
-              >
-                <Pencil size={14} />
-              </button>
-              <button
-                disabled={!!busy || descendants(c.id).size === settings.categories.length}
-                className="tool-btn"
-                aria-label={`${t('common.delete')} ${label(c)}`}
-                onClick={() => setDeleting(c)}
-              >
-                <Trash2 size={14} />
-              </button>
+              <div className="managed-group-actions">
+                <button
+                  type="button"
+                  className="btn secondary category-customize"
+                  disabled={!!busy}
+                  aria-label={`${t('common.edit')} ${label(c)}`}
+                  onClick={() => openEditor({ ...c, name: label(c) })}
+                >
+                  <Pencil size={14} />
+                  {t('ux311.customize')}
+                </button>
+                <button
+                  type="button"
+                  className="tool-btn"
+                  disabled={!!busy || platform !== 'win32' || !onPrepareFolder}
+                  aria-label={t('folderMore.prepareFor', { name: label(c) })}
+                  title={t('folderMore.prepare')}
+                  onClick={() => onPrepareFolder(c.id)}
+                >
+                  <FolderSync size={15} />
+                </button>
+                <button
+                  type="button"
+                  disabled={!!busy || c.depth >= 15}
+                  className="tool-btn"
+                  aria-label={t('manager.newChild', { name: label(c) })}
+                  onClick={() =>
+                    openEditor({
+                      id: crypto.randomUUID(),
+                      name: '',
+                      folder: '',
+                      parentId: c.id,
+                      icon: 'folder',
+                      color: c.color,
+                      customColor: c.customColor ? { ...c.customColor } : undefined,
+                      isNew: true,
+                    })
+                  }
+                >
+                  <FolderPlus size={15} />
+                </button>
+                <button
+                  disabled={!!busy || descendants(c.id).size === settings.categories.length}
+                  className="tool-btn"
+                  aria-label={`${t('common.delete')} ${label(c)}`}
+                  onClick={() => setDeleting(c)}
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -674,11 +705,41 @@ export default function CategoryManager({
               ))}
             </div>
             <p className="muted">{t('manager.folderNote')}</p>
+            {applyError && (
+              <p className="notice warning" role="alert">
+                {applyError}
+              </p>
+            )}
+            <p className="folder-save-hint">{t('ux311.saveHint')}</p>
+            {desktopPath && (
+              <div className="folder-target-preview">
+                <small>{t('ux311.folderTarget')}</small>
+                <code>
+                  {desktopPath.replace(/[\\/]+$/, '') +
+                    (platform === 'win32' ? '\\' : '/') +
+                    categorySegments(editor.id, [
+                      ...settings.categories.filter((c) => c.id !== editor.id),
+                      editor,
+                    ]).join(platform === 'win32' ? '\\' : '/')}
+                </code>
+              </div>
+            )}
             <div className="modal-actions">
               <button className="btn secondary" type="button" onClick={() => setEditor(null)}>
                 {t('common.cancel')}
               </button>
-              <button className="btn primary" disabled={!!busy || !customValid}>
+              {native && platform === 'win32' && onPrepareFolder && (
+                <button
+                  type="submit"
+                  data-apply-desktop="true"
+                  className="btn primary"
+                  disabled={!!busy || !customValid}
+                >
+                  <FolderSync size={16} />
+                  {t('ux311.saveApply')}
+                </button>
+              )}
+              <button className="btn secondary" disabled={!!busy || !customValid}>
                 {t('manager.save')}
               </button>
             </div>

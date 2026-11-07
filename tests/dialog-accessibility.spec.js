@@ -41,7 +41,7 @@ test('a modal blocks page-level profile and launcher shortcuts', async ({ page }
   await expect(page.getByRole('dialog')).toHaveCount(1);
   await expect(page.locator('.launcher-panel')).toHaveCount(0);
   await page.keyboard.press('Escape');
-  await expect(page.locator('.profile-card.active')).toHaveCount(0);
+  await expect(page.locator('.profile-card.active:not(.default-profile)')).toHaveCount(0);
 });
 
 test('Spotlight exposes a combobox, traps focus and has a keyboard-operable close control', async ({

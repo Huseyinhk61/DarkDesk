@@ -26,7 +26,7 @@ test('widget preview persists immediate note navigation and task completion with
       .getByRole('button', { name: en['widgetPlus.previewButton'] })
       .click();
   await expect(page.getByText(en['widgetPlus.metricsDesktop'])).toBeVisible();
-  await expect(page.locator('.widget-metric-row strong')).toHaveText(['—', '—']);
+  await expect(page.locator('.monitor-stat strong')).toHaveText(['—', '—']);
   await page
     .getByRole('textbox', { name: en['widgetPlus.noteLabel'] })
     .fill('Keep this draft after navigation');

@@ -1,28 +1,29 @@
-## DarkDesk 3.10.0 — A calmer desktop, smarter utilities
+## DarkDesk 3.11.0 — Clearer widgets and easier organization
 
 ### Downloads
 
-- **DarkDesk-Setup-3.10.0.exe**: Windows installation and in-app updates.
-- **DarkDesk-Portable-3.10.0.exe**: Windows Portable; update manually.
-- **DarkDesk-3.10.0-x86_64.AppImage**: Linux with AppImage updates.
-- **DarkDesk-3.10.0-amd64.deb**: Ubuntu/Debian package; update manually.
+- **DarkDesk-Setup-3.11.0.exe**: Windows installation and in-app updates.
+- **DarkDesk-Portable-3.11.0.exe**: Windows Portable; update manually.
+- **DarkDesk-3.11.0-x86_64.AppImage**: Linux with AppImage updates.
+- **DarkDesk-3.11.0-amd64.deb**: Ubuntu/Debian package; update manually.
 - **SHA256SUMS.txt**: package/update-feed checksums.
 
-### Desktop improvements
+### Widgets and profiles
 
-- All sidebar destinations fit without a vertical menu scrollbar at common desktop sizes.
-- A larger currency-result card and compact converter widget make amounts, swaps, rate dates and copying easy. The launcher accepts `50 usd to try` or `100 eur` as well.
-- Pomodoro offers work/break durations, cycle count, five accent colors and an adjustable completion bell with a test button. Completion advances once across windows; press Start for the next phase.
-- Widgets snap to a grid and seek free space when shown, moved, resized or reset. Background opacity has 1% steps; blur has 0–32px control. If the screen is full, reduce sizes or hide a panel.
+System Monitor now separates Overview, CPU, Memory and Disk. Read the main percentages immediately, inspect free/used memory, and page through up to 16 logical processors at a time. Widget scrollbars are hidden without cutting off longer notes and lists. The gallery uses consistent card/control spacing. Blur is fixed and its setting has been removed; opacity and size controls remain.
 
-### Windows launcher commands
+**Default Mode** restores desktop items hidden by DarkDesk. It does not hide unknown items or force previously hidden personal files to become visible.
 
-Use `sys mute`, `sys unmute`, `sys volume up` and `sys volume down` for direct default-output Core Audio control. Volume steps are five percentage points. `sys screenshot` opens native region capture; `sys wifi on` / `sys wifi off` request Wi-Fi radio state through WinRT. Device/policy denial is reported as an error.
+### Folder customization you can find
 
-`sys night light` opens Windows Night Light settings, and `sys clean space` opens Storage Sense. These settings actions let the user confirm changes in Windows; they do not claim a direct Night Light toggle or delete files automatically. Native commands remain unavailable in browser preview and unsupported platforms.
+Open **Categories & Rules → Customize** on a category. Choose color, gradient, style and icon. **Save and apply to Desktop** saves the preference, creates the chosen Windows category folder if absent, and applies its physical appearance. The editor shows the destination path and reports unsuccessful application. Existing personal icon metadata is preserved. Global styles are under **Global folder theme**. Physical folder icon changes remain Windows-only; interface previews work on every platform.
 
-### Rate and alarm details
+### Scan a chosen application folder
 
-Currencies use Frankfurter's dated institutional reference rates, not streaming market prices. Minute checks reuse the validated cache; Refresh requests fresh data. This cloud's provider permission remains blocked, so automated currency verification uses controlled dated responses. Installed applications use their own OS connection.
+Use **System Scanner → Choose location and scan**. Custom results remain independent of Desktop, installed apps and Downloads, and are searchable in Quick Launcher while indexed. The scanner observes depth/noise filters and skips symbolic-link roots/subdirectories. It discovers supported executables and shortcuts, not every arbitrary document. Organizing these results creates Desktop shortcuts; installed program files stay in place. Canceling the native picker retains the prior view.
 
-Use Test bell to check your output device. DarkDesk's own focus timer may sound while its process/widget is active; it cannot sound after the process exits or while the computer sleeps. An elapsed saved deadline is handled when its widget runs again.
+### Better matching and currency conversion
+
+The offline dictionary now covers **191 applications**, including creative tools, browsers, development/database utilities, device tools and games. Improved version matching, local purpose hints and Linux `.desktop` categories reduce generic System assignments. Your own choices and rules win; unrecognized items remain reviewable rather than receiving a fabricated confident classification.
+
+Currency Converter has a responsive two-panel workbench, quick pairs, localized currency names, prominent results, refresh and copy. Its widget stays compact. Frankfurter supplies dated reference rates, not streaming market prices; controlled response tests do not establish provider reachability in this cloud environment.

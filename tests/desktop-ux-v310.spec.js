@@ -116,25 +116,26 @@ test('focus settings persist, completion enters a break and plays a single audib
   expect(saved.volume).toBe(35);
 });
 
-test('widget blur and fine opacity apply independently', async ({ page }) => {
+test('widget opacity stays editable while the removed blur control is absent', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Masaüstü Widget’ları', exact: true }).click();
-  const card = page
+  await page
     .locator('.widget-module-card')
-    .filter({ has: page.getByRole('heading', { name: 'Hızlı not', exact: true }) });
-  await card.getByRole('button', { name: 'Önizlemeyi aç' }).click();
-  await page.getByRole('slider', { name: 'Hızlı not bulanıklığı', exact: true }).fill('7');
+    .filter({ has: page.getByRole('heading', { name: 'Hızlı not', exact: true }) })
+    .getByRole('button', { name: 'Önizlemeyi aç' })
+    .click();
+  await expect(page.getByRole('slider', { name: /bulanıklığı/ })).toHaveCount(0);
   const opacity = page.getByRole('slider', { name: 'Hızlı not opaklığı', exact: true });
   await opacity.fill('63');
   await opacity.blur();
   await expect
     .poll(() =>
       page.evaluate(
-        () => JSON.parse(localStorage.getItem('darkdesk-preview-widgets')).appearance.note,
+        () => JSON.parse(localStorage.getItem('darkdesk-preview-widgets')).appearance.note.opacity,
       ),
     )
-    .toMatchObject({ blur: 7, opacity: 63 });
+    .toBe(63);
   expect(
     await page.locator('.desktop-widget').evaluate((el) => getComputedStyle(el).backdropFilter),
-  ).toBe('blur(7px)');
+  ).toBe('blur(16px)');
 });

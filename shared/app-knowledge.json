@@ -1394,5 +1394,575 @@
       "tr": "Dil modeli uygulamaları, bilgi tabanları ve otomasyon akışları geliştirme platformu.",
       "en": "A platform for building language-model applications, knowledge bases and automation workflows."
     }
+  },
+  {
+    "id": "krita",
+    "name": "Krita",
+    "categoryId": "design",
+    "aliases": ["krita"],
+    "description": {
+      "tr": "Dijital çizim, boyama ve illüstrasyon hazırlama aracı.",
+      "en": "A digital painting and illustration application."
+    }
+  },
+  {
+    "id": "affinityphoto",
+    "name": "Affinity Photo",
+    "categoryId": "design",
+    "aliases": ["affinity photo", "affinityphoto"],
+    "description": {
+      "tr": "Fotoğraf düzenleme ve katmanlarla görsel işleme aracı.",
+      "en": "A photo editor for retouching and layered image work."
+    }
+  },
+  {
+    "id": "affinitydesigner",
+    "name": "Affinity Designer",
+    "categoryId": "design",
+    "aliases": ["affinity designer", "affinitydesigner"],
+    "description": {
+      "tr": "Vektör çizimleri ve grafik tasarımlar oluşturma aracı.",
+      "en": "A vector illustration and graphic design application."
+    }
+  },
+  {
+    "id": "paintnet",
+    "name": "Paint.NET",
+    "categoryId": "design",
+    "aliases": ["paint net", "paintdotnet"],
+    "description": {
+      "tr": "Fotoğraf ve resimleri katmanlarla düzenleyen görsel editör.",
+      "en": "An image editor with layers and photo adjustment tools."
+    }
+  },
+  {
+    "id": "darktable",
+    "name": "darktable",
+    "categoryId": "design",
+    "aliases": ["darktable"],
+    "description": {
+      "tr": "RAW fotoğrafları düzenleme ve fotoğraf arşivini yönetme aracı.",
+      "en": "A RAW photo editor and photography workflow manager."
+    }
+  },
+  {
+    "id": "capcut",
+    "name": "CapCut",
+    "categoryId": "design",
+    "aliases": ["capcut"],
+    "description": {
+      "tr": "Video kesme, altyazı, efekt ve sosyal medya videoları hazırlama aracı.",
+      "en": "A video editor for cuts, captions, effects and social content."
+    }
+  },
+  {
+    "id": "kdenlive",
+    "name": "Kdenlive",
+    "categoryId": "design",
+    "aliases": ["kdenlive"],
+    "description": {
+      "tr": "Çok kanallı video kurgu ve montaj uygulaması.",
+      "en": "A multitrack video editing application."
+    }
+  },
+  {
+    "id": "shotcut",
+    "name": "Shotcut",
+    "categoryId": "design",
+    "aliases": ["shotcut"],
+    "description": {
+      "tr": "Video ve ses kliplerini kesip düzenleyen video editörü.",
+      "en": "A video editor for cutting and arranging video and audio clips."
+    }
+  },
+  {
+    "id": "freecad",
+    "name": "FreeCAD",
+    "categoryId": "design",
+    "aliases": ["freecad"],
+    "description": {
+      "tr": "Parametrik üç boyutlu CAD modelleri ve teknik parçalar tasarlama aracı.",
+      "en": "A parametric 3D CAD application for models and mechanical parts."
+    }
+  },
+  {
+    "id": "autocad",
+    "name": "AutoCAD",
+    "categoryId": "design",
+    "aliases": ["autocad", "acad"],
+    "description": {
+      "tr": "Teknik çizim ve CAD projeleri oluşturma uygulaması.",
+      "en": "A CAD application for technical drafting and design."
+    }
+  },
+  {
+    "id": "sketchup",
+    "name": "SketchUp",
+    "categoryId": "design",
+    "aliases": ["sketchup"],
+    "description": {
+      "tr": "Mimari, iç mekân ve üç boyutlu modeller hazırlama aracı.",
+      "en": "A 3D modeling tool for architecture and spatial design."
+    }
+  },
+  {
+    "id": "godot",
+    "name": "Godot Engine",
+    "categoryId": "software",
+    "aliases": ["godot", "godot engine"],
+    "description": {
+      "tr": "İki ve üç boyutlu oyun geliştirme motoru ve editörü.",
+      "en": "An engine and editor for developing 2D and 3D games."
+    }
+  },
+  {
+    "id": "unity",
+    "name": "Unity",
+    "categoryId": "software",
+    "aliases": ["unity", "unity hub"],
+    "description": {
+      "tr": "Oyun ve etkileşimli üç boyutlu uygulamalar geliştirme platformu.",
+      "en": "A platform for developing games and interactive 3D applications."
+    }
+  },
+  {
+    "id": "unreal",
+    "name": "Unreal Engine",
+    "categoryId": "software",
+    "aliases": ["unreal engine", "unrealeditor", "ue4editor"],
+    "description": {
+      "tr": "Oyun ve gerçek zamanlı üç boyutlu deneyimler geliştirme motoru.",
+      "en": "An engine for games and real-time 3D experiences."
+    }
+  },
+  {
+    "id": "handbrake",
+    "name": "HandBrake",
+    "categoryId": "media",
+    "aliases": ["handbrake"],
+    "description": {
+      "tr": "Video dosyalarını farklı biçimlere dönüştürme ve sıkıştırma aracı.",
+      "en": "A tool for transcoding and compressing video files."
+    }
+  },
+  {
+    "id": "ffmpeg",
+    "name": "FFmpeg",
+    "categoryId": "media",
+    "aliases": ["ffmpeg"],
+    "description": {
+      "tr": "Ses ve video dosyalarını dönüştüren komut satırı medya aracı.",
+      "en": "A command-line tool for converting audio and video."
+    }
+  },
+  {
+    "id": "potplayer",
+    "name": "PotPlayer",
+    "categoryId": "media",
+    "aliases": ["potplayer", "potplayermini64", "potplayermini"],
+    "description": {
+      "tr": "Video ve ses dosyalarını oynatan medya uygulaması.",
+      "en": "A media player for video and audio files."
+    }
+  },
+  {
+    "id": "mpc",
+    "name": "Media Player Classic",
+    "categoryId": "media",
+    "aliases": ["mpc hc", "mpc hc64", "mpc be", "mpc be64"],
+    "description": {
+      "tr": "Video ve ses oynatmak için hafif medya oynatıcı.",
+      "en": "A lightweight player for video and audio."
+    }
+  },
+  {
+    "id": "aimp",
+    "name": "AIMP",
+    "categoryId": "media",
+    "aliases": ["aimp"],
+    "description": {
+      "tr": "Müzik dosyaları ve çalma listeleri için ses oynatıcı.",
+      "en": "An audio player for music files and playlists."
+    }
+  },
+  {
+    "id": "slack",
+    "name": "Slack",
+    "categoryId": "internetchat",
+    "aliases": ["slack"],
+    "description": {
+      "tr": "Ekip mesajlaşması, kanallar ve çalışma iletişimi uygulaması.",
+      "en": "A team messaging application with channels and work conversations."
+    }
+  },
+  {
+    "id": "signal",
+    "name": "Signal",
+    "categoryId": "internetchat",
+    "aliases": ["signal"],
+    "description": {
+      "tr": "Özel mesajlaşma, sesli ve görüntülü görüşme uygulaması.",
+      "en": "A private messaging application with voice and video calls."
+    }
+  },
+  {
+    "id": "element",
+    "name": "Element",
+    "categoryId": "internetchat",
+    "aliases": ["element"],
+    "description": {
+      "tr": "Matrix ağı üzerinde ekip mesajlaşması ve görüşme uygulaması.",
+      "en": "A messaging and calling client for the Matrix network."
+    }
+  },
+  {
+    "id": "thunderbird",
+    "name": "Thunderbird",
+    "categoryId": "internetchat",
+    "aliases": ["thunderbird", "mozilla thunderbird"],
+    "description": {
+      "tr": "E-posta hesaplarını, takvimi ve kişileri yöneten masaüstü istemcisi.",
+      "en": "A desktop email client with calendar and contact management."
+    }
+  },
+  {
+    "id": "webex",
+    "name": "Cisco Webex",
+    "categoryId": "internetmeetings",
+    "aliases": ["webex", "cisco webex", "webexmta"],
+    "description": {
+      "tr": "Çevrimiçi toplantı ve video konferans uygulaması.",
+      "en": "An application for online meetings and video conferencing."
+    }
+  },
+  {
+    "id": "zen",
+    "name": "Zen Browser",
+    "categoryId": "internetbrowsers",
+    "aliases": ["zen browser", "zen"],
+    "description": {
+      "tr": "Sekmelerle web sitelerine erişim sağlayan internet tarayıcısı.",
+      "en": "A web browser for browsing websites in tabs."
+    }
+  },
+  {
+    "id": "librewolf",
+    "name": "LibreWolf",
+    "categoryId": "internetbrowsers",
+    "aliases": ["librewolf"],
+    "description": {
+      "tr": "Gizlilik odaklı web tarayıcısı.",
+      "en": "A privacy-focused web browser."
+    }
+  },
+  {
+    "id": "tor",
+    "name": "Tor Browser",
+    "categoryId": "internetbrowsers",
+    "aliases": ["tor browser"],
+    "description": {
+      "tr": "Tor ağı üzerinden web sitelerine erişen tarayıcı.",
+      "en": "A browser for accessing websites through the Tor network."
+    }
+  },
+  {
+    "id": "arc",
+    "name": "Arc Browser",
+    "categoryId": "internetbrowsers",
+    "aliases": ["arc browser", "arc"],
+    "description": {
+      "tr": "Web sitelerini çalışma alanları ve sekmelerle yöneten tarayıcı.",
+      "en": "A web browser with workspaces and tab organization."
+    }
+  },
+  {
+    "id": "eclipse",
+    "name": "Eclipse IDE",
+    "categoryId": "softwareide",
+    "aliases": ["eclipse", "eclipse ide"],
+    "description": {
+      "tr": "Java ve diğer dillerde yazılım geliştirmek için IDE.",
+      "en": "An IDE for Java and other programming languages."
+    }
+  },
+  {
+    "id": "netbeans",
+    "name": "Apache NetBeans",
+    "categoryId": "softwareide",
+    "aliases": ["netbeans", "netbeans64", "apache netbeans"],
+    "description": {
+      "tr": "Kod yazma, hata ayıklama ve proje yönetimi için IDE.",
+      "en": "An IDE for coding, debugging and project management."
+    }
+  },
+  {
+    "id": "clion",
+    "name": "CLion",
+    "categoryId": "softwareide",
+    "aliases": ["clion", "clion64"],
+    "description": {
+      "tr": "C ve C++ projeleri geliştirme ve hata ayıklama ortamı.",
+      "en": "An IDE for developing and debugging C and C++ projects."
+    }
+  },
+  {
+    "id": "datagrip",
+    "name": "DataGrip",
+    "categoryId": "softwaredatabase",
+    "aliases": ["datagrip", "datagrip64"],
+    "description": {
+      "tr": "Veritabanlarına bağlanma ve SQL sorguları geliştirme aracı.",
+      "en": "A database IDE for connections and SQL development."
+    }
+  },
+  {
+    "id": "mongodbcompass",
+    "name": "MongoDB Compass",
+    "categoryId": "softwaredatabase",
+    "aliases": ["mongodb compass", "mongodbcompass"],
+    "description": {
+      "tr": "MongoDB verilerini ve sorgularını görsel olarak yöneten istemci.",
+      "en": "A graphical client for MongoDB data and queries."
+    }
+  },
+  {
+    "id": "heidisql",
+    "name": "HeidiSQL",
+    "categoryId": "softwaredatabase",
+    "aliases": ["heidisql"],
+    "description": {
+      "tr": "SQL sunucularına bağlanma ve veritabanı yönetimi aracı.",
+      "en": "A client for connecting to SQL servers and managing databases."
+    }
+  },
+  {
+    "id": "tableplus",
+    "name": "TablePlus",
+    "categoryId": "softwaredatabase",
+    "aliases": ["tableplus"],
+    "description": {
+      "tr": "Birden fazla veritabanını görsel olarak yönetme istemcisi.",
+      "en": "A graphical client for working with multiple databases."
+    }
+  },
+  {
+    "id": "ssms",
+    "name": "SQL Server Management Studio",
+    "categoryId": "softwaredatabase",
+    "aliases": ["sql server management studio", "ssms"],
+    "description": {
+      "tr": "Microsoft SQL Server veritabanlarını ve sorgularını yönetme aracı.",
+      "en": "A management and query tool for Microsoft SQL Server."
+    }
+  },
+  {
+    "id": "rstudio",
+    "name": "RStudio",
+    "categoryId": "softwareide",
+    "aliases": ["rstudio"],
+    "description": {
+      "tr": "R diliyle istatistik, veri analizi ve kod geliştirme ortamı.",
+      "en": "A development environment for R and statistical data analysis."
+    }
+  },
+  {
+    "id": "gitkraken",
+    "name": "GitKraken",
+    "categoryId": "software",
+    "aliases": ["gitkraken"],
+    "description": {
+      "tr": "Git depolarını ve sürüm dallarını görsel olarak yönetme aracı.",
+      "en": "A graphical tool for Git repositories and branches."
+    }
+  },
+  {
+    "id": "sublimemerge",
+    "name": "Sublime Merge",
+    "categoryId": "software",
+    "aliases": ["sublime merge", "smerge"],
+    "description": {
+      "tr": "Git değişikliklerini ve birleştirmelerini yönetme istemcisi.",
+      "en": "A Git client for reviewing changes and managing merges."
+    }
+  },
+  {
+    "id": "wireguard",
+    "name": "WireGuard",
+    "categoryId": "systemnetwork",
+    "aliases": ["wireguard"],
+    "description": {
+      "tr": "Şifreli VPN tünelleri ve ağ bağlantıları kurma aracı.",
+      "en": "A tool for configuring encrypted VPN tunnels."
+    }
+  },
+  {
+    "id": "tailscale",
+    "name": "Tailscale",
+    "categoryId": "systemnetwork",
+    "aliases": ["tailscale", "tailscale ipn"],
+    "description": {
+      "tr": "Cihazlar arasında özel ve şifreli ağ bağlantısı kurma aracı.",
+      "en": "A tool for building private encrypted connections between devices."
+    }
+  },
+  {
+    "id": "openvpn",
+    "name": "OpenVPN",
+    "categoryId": "systemnetwork",
+    "aliases": ["openvpn", "openvpn gui"],
+    "description": {
+      "tr": "VPN sunucularına şifreli bağlantı kuran ağ istemcisi.",
+      "en": "A network client for encrypted VPN connections."
+    }
+  },
+  {
+    "id": "protonvpn",
+    "name": "Proton VPN",
+    "categoryId": "systemnetwork",
+    "aliases": ["proton vpn", "protonvpn"],
+    "description": {
+      "tr": "İnternet bağlantısı için VPN istemcisi.",
+      "en": "A VPN client for internet connections."
+    }
+  },
+  {
+    "id": "malwarebytes",
+    "name": "Malwarebytes",
+    "categoryId": "systemnetwork",
+    "aliases": ["malwarebytes", "mbam"],
+    "description": {
+      "tr": "Zararlı yazılım tarama ve sistem koruma uygulaması.",
+      "en": "An application for malware scanning and system protection."
+    }
+  },
+  {
+    "id": "rufus",
+    "name": "Rufus",
+    "categoryId": "system",
+    "aliases": ["rufus"],
+    "description": {
+      "tr": "İşletim sistemi kurulumları için önyüklenebilir USB hazırlama aracı.",
+      "en": "A utility for creating bootable installation USB drives."
+    }
+  },
+  {
+    "id": "ventoy",
+    "name": "Ventoy",
+    "categoryId": "system",
+    "aliases": ["ventoy", "ventoy2disk"],
+    "description": {
+      "tr": "Bir USB bellekte birden fazla kurulum imajı başlatma aracı.",
+      "en": "A tool for booting multiple installation images from a USB drive."
+    }
+  },
+  {
+    "id": "etcher",
+    "name": "balenaEtcher",
+    "categoryId": "system",
+    "aliases": ["balenaetcher", "balena etcher"],
+    "description": {
+      "tr": "Disk imajlarını USB veya SD karta yazma aracı.",
+      "en": "A utility for writing disk images to USB drives and SD cards."
+    }
+  },
+  {
+    "id": "crystaldiskinfo",
+    "name": "CrystalDiskInfo",
+    "categoryId": "system",
+    "aliases": ["crystaldiskinfo", "diskinfo64", "diskinfo32"],
+    "description": {
+      "tr": "Disk sağlığı ve S.M.A.R.T. bilgilerini görüntüleme aracı.",
+      "en": "A tool for viewing drive health and S.M.A.R.T. information."
+    }
+  },
+  {
+    "id": "crystaldiskmark",
+    "name": "CrystalDiskMark",
+    "categoryId": "system",
+    "aliases": ["crystaldiskmark", "diskmark64", "diskmark32"],
+    "description": {
+      "tr": "Disklerin okuma ve yazma performansını ölçme aracı.",
+      "en": "A utility for benchmarking disk read and write performance."
+    }
+  },
+  {
+    "id": "googledrive",
+    "name": "Google Drive",
+    "categoryId": "system",
+    "aliases": ["google drive", "googledrivefs"],
+    "description": {
+      "tr": "Bulut dosyalarını yerel bilgisayarla eşitleme istemcisi.",
+      "en": "A client for syncing cloud files with the local computer."
+    }
+  },
+  {
+    "id": "dropbox",
+    "name": "Dropbox",
+    "categoryId": "system",
+    "aliases": ["dropbox"],
+    "description": {
+      "tr": "Dosyaları bulut depolama ile eşitleme ve paylaşma istemcisi.",
+      "en": "A client for syncing and sharing files with cloud storage."
+    }
+  },
+  {
+    "id": "onedrive",
+    "name": "Microsoft OneDrive",
+    "categoryId": "system",
+    "aliases": ["onedrive", "microsoft onedrive"],
+    "description": {
+      "tr": "Yerel klasörleri Microsoft bulut depolaması ile eşitleme istemcisi.",
+      "en": "A client for syncing local folders with Microsoft cloud storage."
+    }
+  },
+  {
+    "id": "ghub",
+    "name": "Logitech G HUB",
+    "categoryId": "systemdrivers",
+    "aliases": ["logitech g hub", "lghub"],
+    "description": {
+      "tr": "Logitech çevre birimlerinin tuş, profil ve aydınlatma ayarlarını yönetir.",
+      "en": "A utility for Logitech device buttons, profiles and lighting."
+    }
+  },
+  {
+    "id": "icue",
+    "name": "Corsair iCUE",
+    "categoryId": "systemdrivers",
+    "aliases": ["corsair icue", "icue"],
+    "description": {
+      "tr": "Corsair donanımı ve aydınlatma profillerini yönetme aracı.",
+      "en": "A utility for Corsair hardware settings and lighting profiles."
+    }
+  },
+  {
+    "id": "nvidiaapp",
+    "name": "NVIDIA App",
+    "categoryId": "systemdrivers",
+    "aliases": ["nvidia app", "nvidiaapp", "geforce experience"],
+    "description": {
+      "tr": "NVIDIA ekran kartı sürücüleri ve grafik ayarlarını yönetir.",
+      "en": "An application for NVIDIA graphics drivers and settings."
+    }
+  },
+  {
+    "id": "fortnite",
+    "name": "Fortnite",
+    "categoryId": "games",
+    "aliases": ["fortnite", "fortniteclient win64 shipping"],
+    "description": {
+      "tr": "Çok oyunculu çevrimiçi oyun.",
+      "en": "An online multiplayer game."
+    }
+  },
+  {
+    "id": "cs2",
+    "name": "Counter-Strike 2",
+    "categoryId": "games",
+    "aliases": ["counter strike 2", "cs2"],
+    "description": {
+      "tr": "Takım tabanlı rekabetçi nişancı oyunu.",
+      "en": "A team-based competitive shooter."
+    }
   }
 ]

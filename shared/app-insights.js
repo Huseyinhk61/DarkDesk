@@ -127,8 +127,12 @@ export function findKnownApp(item) {
     : [target, name, productName];
   for (const candidate of candidates) {
     const normalized = normalizeAppName(candidate);
-    const versionless = normalized
-      .replace(/\s+v?\d{1,4}(?:\s+\d{1,4}){0,2}$/, '')
+    const decorated = normalized.replace(
+      /\s+(?:portable|community edition|professional edition|x64|x86)$/,
+      '',
+    );
+    const versionless = decorated
+      .replace(/\s*v?\d{1,4}(?:\s+\d{1,4}){0,2}$/, '')
       .replace(/\s+v?\d{1,4}(?:\s+\d{1,4}){0,2}(?=\s+(?:pro|studio)$)/, '');
     const app = aliases.get(normalized) || aliases.get(versionless);
     if (app) return app;

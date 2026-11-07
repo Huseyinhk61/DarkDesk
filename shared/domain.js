@@ -2,6 +2,7 @@ import catalog from './catalog.json' with { type: 'json' };
 import { folderColorIds } from './folder-appearance.js';
 import runtimeDefaults from './runtime-defaults.json' with { type: 'json' };
 import { regexMatches } from './regex.js';
+import { purposeCategory } from './app-purpose-categories.js';
 import { fileTypeCategory } from './file-types.js';
 import { suggestTags } from './smart-tags.js';
 import { findKnownApp, appInsight, leafName, gameLaunchCategory } from './app-insights.js';
@@ -122,6 +123,11 @@ export function classify(item, settings = defaultSettings) {
     if (availableFallback) return availableFallback;
   }
   let inferred = defaultCategory(item.name, item.target, item.launchUrl);
+  if (inferred === 'system') {
+    const purpose = purposeCategory(item);
+    if (purpose && known.has(purpose)) return purpose;
+    if (purpose && known.has(categoryRoot(purpose))) return categoryRoot(purpose);
+  }
   const fileCategory = fileTypeCategory(item.name);
   const filename = normalize(leafName(item.name));
   const documentHint = !fileCategory || fileCategory === 'office';
@@ -160,7 +166,7 @@ export function classify(item, settings = defaultSettings) {
               ? 'softwaredatabase'
               : /terminal|powershell|cmd|putty|shell/.test(name)
                 ? 'softwareterminal'
-                : /vscode|visual studio|code|intellij|pycharm|webstorm|editor|android studio/.test(
+                : /\b(vscode|visual studio|code|intellij|pycharm|webstorm|editor|android studio)\b/.test(
                       name,
                     )
                   ? 'softwareide'

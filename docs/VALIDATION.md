@@ -1,5 +1,17 @@
 # DarkDesk validation report
 
+## 3.11.0 — readable widgets, folder application and location discovery
+
+Date: November 7, 2026 (Europe/Istanbul).
+
+- **327 Linux service/model tests passed; one Windows-only compilation check was skipped locally.** New cases cover independent custom/system/Desktop indexes, noisy-file exclusion, nested discovery, canonical paths, invalid/symbolic-link roots, replacement of a chosen location, launcher indexing and shortcut-only previews. Exact app matches, adjacent versions, purpose hints, explicit overrides and Linux freedesktop categories are checked.
+- The full local browser run passed **144 scenarios**; its remaining assertion still addressed the old system-monitor markup. After updating that assertion to the new overview cards, **14 focused widget/productivity/utility scenarios passed**. Another 16 folder/layout/launcher scenarios and 19 color/scanner/utility checks passed during implementation. Final full CI evidence is recorded below after publication.
+- Production build and real source Electron/native-widget checks passed. Native scanner UI opens an injected directory picker, lists the chosen application, returns to Desktop/system sources and verifies that the source program remains in place. Existing move/Undo, watchers, icons, tray behavior and preferences remain covered.
+- Compact System Monitor Overview and CPU layouts were measured at 292×230 without internal overflow. Widget scrollbar tracks are hidden; longer notes/lists remain accessible. Blur is fixed at 16px and no longer exposed as a setting. Updated English gallery/category/currency screenshots are interface previews; the currency illustration uses a controlled sample rate.
+- The category editor saves preferences before explicitly creating/styling its selected physical Windows folder. Browser tests verify that the saved palette reaches this operation, while existing filesystem tests verify real ICO/INI ownership, rollback and cache-safe artwork paths. Personal icon metadata remains protected. This Linux run does not establish a live Windows Explorer redraw.
+
+Rates remain dated provider snapshots, not streaming quotes. Live Frankfurter access is outside this cloud's allowed hosts, so conversion/transport tests use controlled responses. App matching is local and bounded: 191 known applications, supported Linux metadata and purpose hints complement manual choices/rules; unknown applications stay reviewable. The native picker scans supported applications/shortcuts read-only, not arbitrary documents, and organizing those results creates shortcuts rather than moving installed programs.
+
 ## 3.10.0 — desktop utilities and compact navigation
 
 Date: November 7, 2026 (Europe/Istanbul).

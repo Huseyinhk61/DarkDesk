@@ -7,6 +7,7 @@ import {
   AlertTriangle,
   Download,
 } from 'lucide-react';
+import { native } from '../service';
 import { usePreferences } from '../preferences';
 export default function ScannerPanel({
   scope,
@@ -19,9 +20,11 @@ export default function ScannerPanel({
   platform,
   desktopPath,
   downloadsPath,
+  chooseLocation,
+  locationPath,
 }) {
   const { t } = usePreferences();
-  const system = scope === 'system';
+  const system = scope === 'system' || scope === 'custom';
   const deepScanning = system && busy === 'deep';
   return (
     <section className="scanner-panel">
@@ -66,8 +69,28 @@ export default function ScannerPanel({
           <Download size={16} />
           {t('scan.downloads')}
         </button>
+        <button
+          disabled={!!busy || !native}
+          className={scope === 'custom' ? 'active' : ''}
+          aria-pressed={scope === 'custom'}
+          onClick={chooseLocation}
+          title={!native ? t('ux311.nativeScan') : undefined}
+        >
+          <FolderSearch size={16} />
+          {t('ux311.chooseLocation')}
+        </button>
       </div>
-      {system ? (
+      {scope === 'custom' && (
+        <div className="scan-selected-location">
+          <FolderSearch size={18} />
+          <div>
+            <b>{t('ux311.selectedLocation')}</b>
+            <code>{locationPath}</code>
+            <small>{t('ux311.customScanHint')}</small>
+          </div>
+        </div>
+      )}
+      {system && scope !== 'custom' ? (
         <div className="scan-source-chips">
           {(platform === 'linux'
             ? ['linuxSystem', 'linuxUser', 'linuxOpt']
@@ -78,7 +101,11 @@ export default function ScannerPanel({
         </div>
       ) : (
         <div className="scan-source-chips">
-          <span>{(scope === 'downloads' ? downloadsPath : desktopPath) || t('scan.' + scope)}</span>
+          <span>
+            {scope === 'custom'
+              ? locationPath
+              : (scope === 'downloads' ? downloadsPath : desktopPath) || t('scan.' + scope)}
+          </span>
         </div>
       )}
       <div className="scan-cta">

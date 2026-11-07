@@ -10,18 +10,18 @@ test('workspace profiles switch visibility simulation and can restore the deskto
   await page.getByRole('button', { name: 'Çalışma Profilleri', exact: true }).click();
   await page.locator('.profile-activate').filter({ hasText: 'Yazılım & Kodlama Modu' }).click();
   await settled(page);
-  await expect(page.locator('.profile-card.active')).toHaveCount(1);
+  await expect(page.locator('.profile-card.active:not(.default-profile)')).toHaveCount(1);
   await expect(page.locator('.profiles-heading')).toContainText('geçici gizli');
   await page.getByRole('button', { name: 'Tümünü geri göster', exact: true }).click();
   await settled(page);
-  await expect(page.locator('.profile-card.active')).toHaveCount(0);
+  await expect(page.locator('.profile-card.active:not(.default-profile)')).toHaveCount(0);
 });
 test('profile hotkeys work in the focused web demo and shortcut collisions are rejected', async ({
   page,
 }) => {
   await page.keyboard.press('Control+Alt+1');
   await settled(page);
-  await expect(page.locator('.profile-card.active')).toHaveCount(1);
+  await expect(page.locator('.profile-card.active:not(.default-profile)')).toHaveCount(1);
   await page.getByRole('button', { name: 'Çalışma Profilleri', exact: true }).click();
   await page.getByRole('button', { name: 'Düzenle Yazılım & Kodlama', exact: true }).click();
   const modal = page.getByRole('dialog');
@@ -41,7 +41,7 @@ test('profile hotkeys work in the focused web demo and shortcut collisions are r
   await settled(page);
   await page.keyboard.press('Control+Alt+K');
   await settled(page);
-  await expect(page.locator('.profile-card.active')).toHaveCount(1);
+  await expect(page.locator('.profile-card.active:not(.default-profile)')).toHaveCount(1);
 });
 test('Spotlight fuzzy search can select an application with Enter', async ({ page }) => {
   await page.keyboard.press('Control+Space');

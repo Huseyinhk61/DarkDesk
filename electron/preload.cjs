@@ -2,6 +2,8 @@ const { contextBridge, ipcRenderer, webUtils } = require('electron');
 const methods = [
   'scan',
   'scanSystem',
+  'chooseScanLocation',
+  'scanLocation',
   'cancelScan',
   'history',
   'preview',

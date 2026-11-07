@@ -41,6 +41,7 @@ api.applyFolderAppearance=async()=>{window.__applied ||= [];window.__applied.pus
   );
   expect(applied.folderTheme).toBe('outline');
   expect(applied.customColor).toEqual({ from: '#f59e0b', to: '#e11d48' });
+  await page.locator('.folder-global-settings > summary').click();
   await page.getByRole('button', { name: 'Düz Renk', exact: true }).click();
   await expect(page.locator('.activity-bar')).toHaveCount(0);
   await page.reload();

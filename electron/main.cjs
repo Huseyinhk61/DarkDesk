@@ -2,6 +2,7 @@ const { launchLinuxItem } = require('./runtime/linux-apps.cjs');
 const { CurrencyService } = require('./runtime/currency.cjs');
 const {
   app,
+  dialog,
   BrowserWindow,
   ipcMain,
   shell,
@@ -491,7 +492,19 @@ else {
         });
       handle('scan', (scope) => runtime.scan(scope));
       handle('scanSystem', () => runtime.scanSystem());
-      handle('cancelScan', () => runtime.scanner.cancel());
+      handle('chooseScanLocation', async () => {
+        if (runtime.busy || runtime.stopping) throw Error('OPERATION_BUSY');
+        const result = await dialog.showOpenDialog(win, {
+          properties: ['openDirectory', 'dontAddToRecent'],
+        });
+        if (result.canceled || !result.filePaths.length) return { cancelled: true };
+        return runtime.scanLocation(result.filePaths[0]);
+      });
+      handle('scanLocation', () => runtime.scanLocation());
+      handle('cancelScan', () => {
+        runtime.scanner.cancel();
+        runtime.locationScanner?.cancel();
+      });
       handle('history', () => runtime.service.history());
       handle('preview', (items, mode) => runtime.preview(items, mode));
       handle('organize', (token) => runtime.organize(token));

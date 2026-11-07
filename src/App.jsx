@@ -67,6 +67,7 @@ export default function App() {
     [sort, setSort] = useState('name'),
     [progress, setProgress] = useState(null),
     [scope, setScopeState] = useState('desktop'),
+    [locationPath, setLocationPath] = useState(''),
     [scanProgress, setScanProgress] = useState(null),
     [scanResult, setScanResult] = useState(null),
     [runtime, setRuntime] = useState(null),
@@ -241,11 +242,11 @@ export default function App() {
       await api.cancelScan();
       return;
     }
-    if (scopeRef.current !== 'system' || !start('deep')) return;
+    if (!['system', 'custom'].includes(scopeRef.current) || !start('deep')) return;
     setView('scan');
     setScanProgress({ visited: 0, found: 0 });
     try {
-      const result = await api.scanSystem();
+      const result = await (scopeRef.current === 'custom' ? api.scanLocation() : api.scanSystem());
       setScanResult(result);
       await refresh();
       notify(t('scan.complete', { count: result.items.length }));
@@ -255,7 +256,30 @@ export default function App() {
       finish();
     }
   };
-  const scan = () => (scopeRef.current === 'system' ? scanSystem() : scanDesktop());
+  const chooseLocation = async () => {
+    if (!start('deep')) return;
+    try {
+      const result = await api.chooseScanLocation();
+      if (!result || (result.cancelled && !result.path)) return;
+      scopeRef.current = 'custom';
+      setScopeState('custom');
+      setLocationPath(result.path);
+      setFilter(null);
+      setQuery('');
+      setType('all');
+      setReviewOnly(false);
+      setSelected(new Set());
+      setScanResult(result);
+      await refresh();
+      notify(t('scan.complete', { count: result.items.length }));
+    } catch (e) {
+      notify(errorMessage(e), 'error');
+    } finally {
+      finish();
+    }
+  };
+  const scan = () =>
+    ['system', 'custom'].includes(scopeRef.current) ? scanSystem() : scanDesktop();
   const setScope = async (value) => {
     if (
       !['desktop', 'system', 'downloads'].includes(value) ||
@@ -303,6 +327,7 @@ export default function App() {
       const result = await api.prepareCategoryFolder(id);
       setFolderResult(result);
       notify(t('folders.result', result), result.failed ? 'error' : 'info');
+      return result;
     } catch (error) {
       notify(errorMessage(error), 'error');
     } finally {
@@ -700,10 +725,11 @@ export default function App() {
             ) : view === 'categories' ? (
               <CategoryManager
                 onSave={saveSettings}
-                busy={busy}
+                busy={blocked}
                 items={items}
                 onApplyFolders={applyFolders}
                 onPrepareFolder={prepareFolder}
+                desktopPath={stats?.desktop}
                 lastFolderResult={folderResult}
                 requestedCategory={requestedCategory}
                 onCategoryOpened={() => setRequestedCategory(null)}
@@ -752,7 +778,16 @@ export default function App() {
                 {view === 'scan' && (
                   <ScannerPanel
                     platform={stats?.platform}
-                    {...{ scope, setScope, scanSystem, scan, scanProgress, scanResult }}
+                    {...{
+                      scope,
+                      setScope,
+                      scanSystem,
+                      scan,
+                      scanProgress,
+                      scanResult,
+                      chooseLocation,
+                      locationPath,
+                    }}
                     busy={blocked}
                     desktopPath={stats?.desktop}
                     downloadsPath={stats?.downloads}
@@ -998,7 +1033,7 @@ export default function App() {
                   {!visible.length && (
                     <EmptyState
                       filtered={items.length > 0}
-                      system={scope === 'system'}
+                      system={['system', 'custom'].includes(scope)}
                       downloads={scope === 'downloads'}
                       busy={busy}
                       clear={() => {

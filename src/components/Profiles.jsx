@@ -39,6 +39,23 @@ export default function Profiles({ runtime, onApply, onRestore, onSave, busy, co
         </button>
       </div>
       <div className="profile-cards">
+        <article className={'profile-card default-profile ' + (!status.activeId ? 'active' : '')}>
+          <button
+            type="button"
+            className="profile-activate"
+            disabled={!!busy}
+            aria-pressed={!status.activeId}
+            onClick={onRestore}
+          >
+            <span className="profile-icon">
+              <Eye size={21} />
+            </span>
+            <span>
+              <b>{t('ux311.defaultMode')}</b>
+              <small>{t('ux311.defaultBody')}</small>
+            </span>
+          </button>
+        </article>
         {settings.profiles.map((profile) => (
           <article
             key={profile.id}

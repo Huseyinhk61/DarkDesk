@@ -134,6 +134,9 @@ class DeepScanner {
           target,
           productName: detail.productName || '',
           desktopDescription: detail.desktopDescription || '',
+          desktopCategories: detail.desktopCategories || [],
+          fileDescription:
+            typeof detail.description === 'string' ? detail.description.slice(0, 1024) : '',
           launchUrl: detail.launchUrl || '',
           arguments: detail.args || '',
           workingDirectory: detail.cwd || '',
