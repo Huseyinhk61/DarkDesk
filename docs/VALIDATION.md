@@ -12,6 +12,15 @@ Date: November 7, 2026 (Europe/Istanbul).
 
 Native sound/radio state, shutdown, lock and recycle-bin operations are tested with injected adapters, without changing this development host. Windows CI additionally compiles the Core Audio interop and parses the fixed Wi-Fi script without modifying device state. Night Light and storage cleanup intentionally open supported Windows control pages; they are not direct toggles or unattended deletion. Full displays retain clamped widget bounds and expose a crowding hint when no free position exists. Publication checks are recorded after the release below.
 
+**Published and verified:** [Desktop Installers](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42361069341) passed Windows Setup/Portable and Linux AppImage/DEB builds, native packaged IPC, metadata/checksum validation and publication. [Test & Build](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42361069237) passed Windows/Linux services and native checks, **140 browser scenarios**, and macOS interactive desktop widgets. Widget tests now exercise window recreation on Linux too and reacquire the current note renderer before checking its blur preference and computed filter.
+
+[Release v3.10.0](https://github.com/Huseyinhk61/DarkDesk/releases/tag/v3.10.0) is public and its tag points to source commit `77ef617`. Windows and Linux latest update feeds both report 3.10.0. Anonymous Setup, Portable, blockmap, AppImage and DEB requests returned HTTP 200. Complete Setup and AppImage downloads matched the release SHA-256 records and the update feeds’ SHA-512/size metadata. These checks do not establish an in-place upgrade on an end-user computer or live audio/radio operation on physical hardware.
+
+- DarkDesk-Setup-3.10.0.exe: 134,901,950 bytes; SHA-256 `f9692df3376b9a74902823a279b8f5695aa09d13f62a00864406a2c7d64ffd32`.
+- DarkDesk-Portable-3.10.0.exe: 121,529,274 bytes; SHA-256 `0286f038cd9bb1211609dc70550d0f529e0564f70a58137a8c493b09467aedeb`.
+- DarkDesk-3.10.0-x86_64.AppImage: 142,809,749 bytes; SHA-256 `004e727b7897735e7610b938b736aa61bdc8349afd54435e3eb93d921b402d20`.
+- DarkDesk-3.10.0-amd64.deb: 113,707,088 bytes; SHA-256 `67317b7a3889872986125b905107844149ac0902ec4a17dbc2cd8a01712881e9`.
+
 ## 3.9.0 — editable widgets, currency form and folder preparation
 
 Date: November 7, 2026 (Europe/Istanbul).
