@@ -91,7 +91,7 @@ Compare the result with `SHA256SUMS.txt` from the same release. Packages are cur
 
 ## Appearance, language, groups, and scanning
 
-- Choose a theme, Turkish or English, and an icon pack under **Automation & Settings → Appearance & language**. Preferences stay on your device.
+- Choose a theme, Turkish/English or beta German/French/Spanish, and an icon pack under **Automation & Settings → Appearance & language**. Preferences stay on your device.
 - Manage groups, subgroups, matching rules, and per-group folder colors under **Categories & Rules**. Search categories by name or path and preview keyword/regex matches before saving. Manual item assignments take priority over rules.
 - **System Scanner** discovers desktop items and installed applications using Program Files, both Start Menu locations, and App Paths/Uninstall registry entries. It reports inaccessible locations and continues. It does not change the registry.
 - Installed `.exe` files stay in their original locations. After confirmation, DarkDesk creates a `.lnk` in the category folder. Undo removes that shortcut.

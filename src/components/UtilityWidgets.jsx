@@ -33,6 +33,8 @@ export function FocusWidget({ value, accept }) {
   const [now, setNow] = useState(Date.now),
     [busy, setBusy] = useState(false),
     [error, setError] = useState('');
+  const [settingsOpen, setSettingsOpen] = useState(false),
+    [settingsTab, setSettingsTab] = useState('timer');
   const finishing = useRef(false);
   const remaining = focusSeconds(value, now);
   const save = async (focus) => {
@@ -67,7 +69,7 @@ export function FocusWidget({ value, accept }) {
   }, [remaining, value.endsAt]);
   return (
     <div
-      className="focus-widget"
+      className={'focus-widget ' + (settingsOpen ? 'focus-settings-open' : '')}
       style={{
         '--focus-accent': {
           violet: '#b9a4ff',
@@ -154,14 +156,30 @@ export function FocusWidget({ value, accept }) {
           <RotateCcw size={15} />
         </button>
       </div>
-      <details>
+      <details open={settingsOpen} onToggle={(event) => setSettingsOpen(event.currentTarget.open)}>
         <summary>{t('focusPlus.settings')}</summary>
-        <div className="focus-options">
+        <div className="focus-settings-tabs">
+          <button
+            type="button"
+            aria-pressed={settingsTab === 'timer'}
+            onClick={() => setSettingsTab('timer')}
+          >
+            {t('widgetMore.minutes')}
+          </button>
+          <button
+            type="button"
+            aria-pressed={settingsTab === 'sound'}
+            onClick={() => setSettingsTab('sound')}
+          >
+            {t('focusPlus.alarm')}
+          </button>
+        </div>
+        <div className={'focus-options focus-options-' + settingsTab}>
           {[
             ['breakDuration', 'break', 60, 5],
             ['cycles', 'cycles', 12, 4],
           ].map(([key, label, max, fallback]) => (
-            <label key={key}>
+            <label className="focus-timer-option" key={key}>
               {t('focusPlus.' + label)}
               <input
                 type="number"
@@ -184,7 +202,7 @@ export function FocusWidget({ value, accept }) {
               />
             </label>
           ))}
-          <label>
+          <label className="focus-timer-option">
             {t('focusPlus.color')}
             <select
               aria-label={t('focusPlus.color')}
@@ -199,7 +217,7 @@ export function FocusWidget({ value, accept }) {
               ))}
             </select>
           </label>
-          <label>
+          <label className="focus-sound-option">
             <input
               type="checkbox"
               checked={value.alarm ?? true}
@@ -211,7 +229,7 @@ export function FocusWidget({ value, accept }) {
           <FocusVolume value={value.volume ?? 65} busy={busy} save={save} />
           <button
             type="button"
-            className="btn secondary"
+            className="btn secondary focus-sound-option"
             onClick={() =>
               playFocusBell(value.volume)
                 .then(() => setError(''))
@@ -241,7 +259,7 @@ function FocusVolume({ value, busy, save }) {
     });
   };
   return (
-    <label>
+    <label className="focus-sound-option">
       {t('focusPlus.volume')} <output>{draft}%</output>
       <input
         type="range"

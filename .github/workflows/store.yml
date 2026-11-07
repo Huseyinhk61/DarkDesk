@@ -1,0 +1,38 @@
+name: Microsoft Store review package
+on:
+  workflow_dispatch:
+    inputs:
+      identityName:
+        description: Exact Package Identity Name from Partner Center
+        required: true
+      publisher:
+        description: Exact Publisher (CN=...) from Partner Center
+        required: true
+      publisherDisplayName:
+        description: Exact Publisher Display Name from Partner Center
+        required: true
+permissions:
+  contents: read
+jobs:
+  store-review:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Write identity as data
+        env:
+          STORE_IDENTITY: ${{ inputs.identityName }}
+          STORE_PUBLISHER: ${{ inputs.publisher }}
+          STORE_DISPLAY: ${{ inputs.publisherDisplayName }}
+        run: node -e "require('fs').writeFileSync('build/store-identity.local.json', JSON.stringify({identityName:process.env.STORE_IDENTITY,publisher:process.env.STORE_PUBLISHER,publisherDisplayName:process.env.STORE_DISPLAY,displayName:'DarkDesk'}))"
+      - run: npm ci
+      - run: npm run check:store
+      - run: npm run test:ci
+      - run: npm run dist:store
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DarkDesk-Store-Review
+          path: release/store/*.appx

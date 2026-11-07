@@ -1,29 +1,33 @@
-## DarkDesk 3.11.0 — Clearer widgets and easier organization
+## DarkDesk 3.12.0 — Your tools, your workspace
 
 ### Downloads
 
-- **DarkDesk-Setup-3.11.0.exe**: Windows installation and in-app updates.
-- **DarkDesk-Portable-3.11.0.exe**: Windows Portable; update manually.
-- **DarkDesk-3.11.0-x86_64.AppImage**: Linux with AppImage updates.
-- **DarkDesk-3.11.0-amd64.deb**: Ubuntu/Debian package; update manually.
-- **SHA256SUMS.txt**: package/update-feed checksums.
+- **DarkDesk-Setup-3.12.0.exe**: Windows installation with in-app updates.
+- **DarkDesk-Portable-3.12.0.exe**: Windows Portable; update manually.
+- **DarkDesk-3.12.0-x86_64.AppImage**: Linux with AppImage updates.
+- **DarkDesk-3.12.0-amd64.deb**: Ubuntu/Debian; update manually.
+- **SHA256SUMS.txt**: package/update metadata checksums.
 
-### Widgets and profiles
+### More personal, easier to use
 
-System Monitor now separates Overview, CPU, Memory and Disk. Read the main percentages immediately, inspect free/used memory, and page through up to 16 logical processors at a time. Widget scrollbars are hidden without cutting off longer notes and lists. The gallery uses consistent card/control spacing. Blur is fixed and its setting has been removed; opacity and size controls remain.
+Choose from **34 icons** across the five existing packs and **seven folder styles**: Gradient, Solid, Outline, Pastel, Glass, Neon and Paper. Open **Categories & Rules → Customize** for a category, or expand **Global folder theme** for the default style. Save/apply updates Windows category folders and interface previews; personal icon metadata is protected. Physical folder artwork remains Windows-only.
 
-**Default Mode** restores desktop items hidden by DarkDesk. It does not hide unknown items or force previously hidden personal files to become visible.
+In **Currency Converter**, choose a pair and pin it, remove unwanted pairs, and set **Default currency in Quick Launcher**. The choice persists across windows and restarts. `1 usd` uses that target; `1 usd tl` and `50 eur to gbp` specify another. The launcher guide shows short examples. Frankfurter supplies dated institutional reference rates, not streaming trading quotes.
 
-### Folder customization you can find
+### Fixed, readable widgets
 
-Open **Categories & Rules → Customize** on a category. Choose color, gradient, style and icon. **Save and apply to Desktop** saves the preference, creates the chosen Windows category folder if absent, and applies its physical appearance. The editor shows the destination path and reports unsuccessful application. Existing personal icon metadata is preserved. Global styles are under **Global folder theme**. Physical folder icon changes remain Windows-only; interface previews work on every platform.
+Notes and tasks use pages, without vertical widget scrolling. Full content stays saved; text is never truncated in storage. System Monitor shows every detected disk and pages between them, including unavailable volumes. Opacity controls change the shared background rather than dimming text; inner forms no longer cover it with opaque panels. Focus settings have separate timing/sound views. Blur remains fixed.
 
-### Scan a chosen application folder
+The **Weather** widget is opt-in and free, with no API key. Select a city or enter coordinates and choose Celsius/Fahrenheit. Forecasts are provided by **MET Norway**, CC BY 4.0. Manual location avoids automatic GPS/IP geolocation. A 15-minute cache and bounded requests reduce traffic; unavailable data is reported rather than fabricated. Live provider access was blocked by this cloud environment's network policy; response parsing, caching, offline behavior and UI were tested with controlled data.
 
-Use **System Scanner → Choose location and scan**. Custom results remain independent of Desktop, installed apps and Downloads, and are searchable in Quick Launcher while indexed. The scanner observes depth/noise filters and skips symbolic-link roots/subdirectories. It discovers supported executables and shortcuts, not every arbitrary document. Organizing these results creates Desktop shortcuts; installed program files stay in place. Canceling the native picker retains the prior view.
+### Shortcuts, systems and languages
 
-### Better matching and currency conversion
+**Ctrl+Alt+0** returns to Default Mode. Change it in **Work Profiles → Global shortcuts**, with the same key recorder and collision protection as the launcher. **Alt+X** remains the launcher default.
 
-The offline dictionary now covers **191 applications**, including creative tools, browsers, development/database utilities, device tools and games. Improved version matching, local purpose hints and Linux `.desktop` categories reduce generic System assignments. Your own choices and rules win; unrecognized items remain reviewable rather than receiving a fabricated confident classification.
+Windows system commands use fixed native adapters; audio and Wi-Fi failures provide clearer guidance. Linux discovers available PipeWire/PulseAudio, session lock, Wi-Fi and screenshot providers; macOS offers native audio/screenshot adapters. Commands requiring unavailable hardware/session permissions remain unavailable. Night Light and cleanup commands open the operating system's supported settings instead of claiming to apply undocumented toggles.
 
-Currency Converter has a responsive two-panel workbench, quick pairs, localized currency names, prominent results, refresh and copy. Its widget stays compact. Frankfurter supplies dated reference rates, not streaming market prices; controlled response tests do not establish provider reachability in this cloud environment.
+German, French and Spanish are **beta core-interface translations**. Turkish and English remain the complete primary languages; advanced guidance may fall back to English. Automation/settings layouts now use clearer spacing and safer independent preference saves.
+
+### Microsoft Store preparation
+
+A separate **AppX** configuration, identity validator, manual GitHub build workflow, privacy notice and submission checklist are included. Store packages use Store-managed updates rather than GitHub installers. A Partner Center identity, signed installation test, Windows certification and Microsoft review are still required. **No Microsoft Store listing is published by this release.**

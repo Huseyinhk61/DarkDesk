@@ -103,7 +103,9 @@ export default function UpdatePanel({ update, busy = false }) {
     const result = await act('clearUpdateAccess');
     if (result?.accessConfigured === false) setAccessToken('');
   };
-  const reason = ['development', 'portable', 'platform', 'unavailable'].includes(value?.reason)
+  const reason = ['development', 'portable', 'platform', 'unavailable', 'store'].includes(
+    value?.reason,
+  )
     ? value.reason
     : 'unavailable';
   const checked = value?.lastChecked ? new Date(value.lastChecked) : null;
@@ -239,6 +241,17 @@ export default function UpdatePanel({ update, busy = false }) {
         </p>
       )}
       <div className="update-actions">
+        {reason === 'store' && (
+          <button
+            type="button"
+            className="btn primary"
+            disabled={working}
+            onClick={() => act('openStoreUpdates')}
+          >
+            <ExternalLink size={16} />
+            {t('ux312.openStore')}
+          </button>
+        )}
         {!unsupported && (
           <button
             type="button"
@@ -281,15 +294,17 @@ export default function UpdatePanel({ update, busy = false }) {
           <ExternalLink size={15} />
           {t('update.releaseNotes')}
         </button>
-        <button
-          type="button"
-          className="text-btn update-manual"
-          disabled={pending}
-          onClick={() => act('openDownloads')}
-        >
-          <ExternalLink size={15} />
-          {t('update.manual')}
-        </button>
+        {reason !== 'store' && (
+          <button
+            type="button"
+            className="text-btn update-manual"
+            disabled={pending}
+            onClick={() => act('openDownloads')}
+          >
+            <ExternalLink size={15} />
+            {t('update.manual')}
+          </button>
+        )}
       </div>
       {state === 'downloaded' && busy && (
         <p className="muted update-busy-note">{t('update.waitForFiles')}</p>

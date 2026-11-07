@@ -1,5 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
-import { Cpu, StickyNote, ListTodo, Monitor, RotateCcw, Coins, Clock3, Timer } from 'lucide-react';
+import {
+  Cpu,
+  StickyNote,
+  ListTodo,
+  Monitor,
+  RotateCcw,
+  Coins,
+  Clock3,
+  Timer,
+  CloudSun,
+} from 'lucide-react';
 import { api, native } from '../service';
 import { usePreferences } from '../preferences';
 import { WidgetContent } from './WidgetWindow';
@@ -88,6 +98,7 @@ export default function WidgetsPanel({ busy }) {
           ['currency', Coins],
           ['clock', Clock3],
           ['focus', Timer],
+          ['weather', CloudSun],
         ].map(([id, Icon]) => (
           <section className="settings-panel widget-module-card" key={id}>
             <span className="widget-module-icon">
@@ -202,6 +213,7 @@ export default function WidgetsPanel({ busy }) {
 function WidgetAppearanceControl({ id, value, disabled, onSave }) {
   const { t } = usePreferences();
   const [opacity, setOpacity] = useState(value.opacity);
+  const liveTimer = useRef(null);
   const draft = useRef(value.opacity),
     dirty = useRef(false),
     revision = useRef(0),
@@ -232,6 +244,7 @@ function WidgetAppearanceControl({ id, value, disabled, onSave }) {
   };
   useEffect(
     () => () => {
+      clearTimeout(liveTimer.current);
       if (dirty.current) commit();
     },
     [],
@@ -253,6 +266,8 @@ function WidgetAppearanceControl({ id, value, disabled, onSave }) {
             dirty.current = true;
             revision.current++;
             setOpacity(draft.current);
+            clearTimeout(liveTimer.current);
+            liveTimer.current = setTimeout(commit, 80);
           }}
           onPointerUp={commit}
           onKeyUp={commit}

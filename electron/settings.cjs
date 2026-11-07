@@ -9,8 +9,8 @@ const {
   categorySegments,
   categoryId,
 } = require('../shared/domain.js');
-const defaults = defaultSettings;
 const { validateSettings } = require('../shared/validate.js');
+const defaults = validateSettings(defaultSettings);
 
 class SettingsStore {
   constructor(directory) {

@@ -4,3 +4,6 @@ dist/
 release/
 playwright-report/
 test-results/
+build/store-identity.local.json
+*.pfx
+*.p12

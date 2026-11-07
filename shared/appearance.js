@@ -1,3 +1,5 @@
+import languages from './languages.json' with { type: 'json' };
+export { languages };
 import themes from './themes.json' with { type: 'json' };
 import { folderThemes } from './folder-appearance.js';
 export { themes };
@@ -22,7 +24,7 @@ export const appearanceKeys = [
 ];
 const options = {
   theme: themeIds,
-  language: ['tr', 'en'],
+  language: Object.keys(languages),
   iconPack: iconPacks,
   fontFamily: fontIds,
   folderTheme: folderThemes,

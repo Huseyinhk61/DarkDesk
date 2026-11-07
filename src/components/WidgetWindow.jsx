@@ -1,3 +1,5 @@
+import PagedNoteEditor from './PagedNoteEditor';
+import WeatherWidget from './WeatherWidget';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Cpu,
@@ -13,6 +15,9 @@ import {
   Coins,
   Clock3,
   Timer,
+  CloudSun,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { api, native } from '../service';
 import { usePreferences } from '../preferences';
@@ -28,6 +33,7 @@ export function WidgetContent({ id, embedded = false }) {
     [error, setError] = useState(''),
     [note, setNote] = useState(''),
     [newTask, setNewTask] = useState(''),
+    [todoPage, setTodoPage] = useState(0),
     [busy, setBusy] = useState(false),
     [metrics, setMetrics] = useState(null),
     [points, setPoints] = useState([]);
@@ -173,6 +179,7 @@ export function WidgetContent({ id, embedded = false }) {
     currency: Coins,
     clock: Clock3,
     focus: Timer,
+    weather: CloudSun,
   }[id];
   return (
     <section
@@ -192,6 +199,7 @@ export function WidgetContent({ id, embedded = false }) {
             }
           : {}),
       }}
+      data-widget={id}
       aria-label={title}
     >
       <header className="widget-drag">
@@ -232,19 +240,20 @@ export function WidgetContent({ id, embedded = false }) {
           <ClockWidget />
         ) : id === 'focus' ? (
           state && <FocusWidget value={state.focus} accept={accept} />
+        ) : id === 'weather' ? (
+          state && <WeatherWidget value={state.weather} accept={accept} />
         ) : id === 'note' ? (
           <>
             <label className="sr-only" htmlFor={'widget-note-' + (embedded ? 'preview' : 'native')}>
               {t('widgetPlus.noteLabel')}
             </label>
-            <textarea
+            <PagedNoteEditor
               id={'widget-note-' + (embedded ? 'preview' : 'native')}
               value={note}
               disabled={!state}
               maxLength={20000}
               placeholder={t('widgetPlus.notePlaceholder')}
-              onChange={(event) => {
-                const value = event.target.value;
+              onChange={(value) => {
                 draft.current = value;
                 dirty.current = true;
                 revision.current++;
@@ -292,38 +301,67 @@ export function WidgetContent({ id, embedded = false }) {
               </button>
             </form>
             <ul className="widget-todos">
-              {state?.todos.map((todo) => (
-                <li key={todo.id} className={todo.done ? 'done' : ''}>
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={todo.done}
+              {state?.todos
+                .slice(
+                  Math.min(todoPage, Math.max(0, Math.ceil(state.todos.length / 3) - 1)) * 3,
+                  Math.min(todoPage, Math.max(0, Math.ceil(state.todos.length / 3) - 1)) * 3 + 3,
+                )
+                .map((todo) => (
+                  <li key={todo.id} className={todo.done ? 'done' : ''}>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={todo.done}
+                        disabled={busy}
+                        onChange={() =>
+                          updateTodos(
+                            state.todos.map((item) =>
+                              item.id === todo.id ? { ...item, done: !item.done } : item,
+                            ),
+                          )
+                        }
+                      />
+                      <span title={todo.text}>{todo.text}</span>
+                    </label>
+                    <button
                       disabled={busy}
-                      onChange={() =>
-                        updateTodos(
-                          state.todos.map((item) =>
-                            item.id === todo.id ? { ...item, done: !item.done } : item,
-                          ),
-                        )
-                      }
-                    />
-                    <span>{todo.text}</span>
-                  </label>
-                  <button
-                    disabled={busy}
-                    aria-label={t('widgetPlus.removeTask', { name: todo.text })}
-                    onClick={() => updateTodos(state.todos.filter((item) => item.id !== todo.id))}
-                  >
-                    <Trash2 size={13} />
-                  </button>
-                </li>
-              ))}
+                      aria-label={t('widgetPlus.removeTask', { name: todo.text })}
+                      onClick={() => updateTodos(state.todos.filter((item) => item.id !== todo.id))}
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </li>
+                ))}
             </ul>
             {!state?.todos.length && (
               <p className="widget-empty">
                 <Check size={22} />
                 {t('widgetPlus.emptyTodos')}
               </p>
+            )}
+            {state?.todos.length > 3 && (
+              <div className="widget-page-controls">
+                <button
+                  type="button"
+                  disabled={!todoPage}
+                  aria-label={t('ux311.previous')}
+                  onClick={() => setTodoPage(Math.max(0, todoPage - 1))}
+                >
+                  <ChevronLeft size={14} />
+                </button>
+                <small>
+                  {Math.min(todoPage + 1, Math.ceil(state.todos.length / 3))} /{' '}
+                  {Math.ceil(state.todos.length / 3)}
+                </small>
+                <button
+                  type="button"
+                  disabled={todoPage >= Math.ceil(state.todos.length / 3) - 1}
+                  aria-label={t('ux311.next')}
+                  onClick={() => setTodoPage(todoPage + 1)}
+                >
+                  <ChevronRight size={14} />
+                </button>
+              </div>
             )}
             <small>
               {t('widgetPlus.taskCount', {

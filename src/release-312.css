@@ -1,0 +1,145 @@
+.currency-quick-pairs {
+  flex-wrap: wrap;
+}
+.saved-currency-pair {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.currency-quick-pairs .saved-currency-pair button {
+  border: 0;
+  border-radius: 0;
+}
+.currency-quick-pairs .saved-currency-pair button + button {
+  border-left: 1px solid var(--border);
+  padding: 7px;
+}
+.currency-preferences {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin-bottom: 20px;
+}
+.currency-preferences label {
+  display: grid;
+  gap: 6px;
+  min-width: 200px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.currency-preferences select {
+  background: var(--field);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px;
+  color: var(--ink);
+}
+.currency-preferences small {
+  flex-basis: 100%;
+  color: var(--muted);
+  font-size: 12px;
+}
+.launcher-prefix-heading {
+  flex-wrap: wrap;
+}
+.launcher-prefix-heading > small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+  flex-basis: 100%;
+}
+.folder-theme-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 12px;
+}
+.folder-theme-option {
+  min-width: 0;
+}
+.automation-grid {
+  gap: 20px;
+  align-items: stretch;
+}
+.automation-grid > .settings-panel {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0;
+  padding: 22px;
+}
+.automation-grid .toggle-setting {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 88px;
+  padding: 12px 0;
+}
+.automation-grid .toggle-setting > span:first-child {
+  flex: 1;
+  min-width: 0;
+}
+.automation-grid .toggle-setting small {
+  display: block;
+  line-height: 1.7;
+}
+.automation-grid .toggle-setting .switch {
+  flex: none;
+  align-self: center;
+}
+.automation-grid .field-label {
+  margin-top: 18px;
+}
+.automation-grid .settings-input {
+  width: 100%;
+  min-width: 0;
+}
+.settings-panel > h2 {
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.appearance-panel .theme-options {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+.appearance-panel .appearance-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 18px;
+  align-items: start;
+}
+.appearance-panel .appearance-fields > label {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+.appearance-panel .appearance-fields select {
+  width: 100%;
+  min-width: 0;
+}
+.profiles-shortcuts-panel .profile-shortcut-editor {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) minmax(180px, 2fr);
+  align-items: center;
+  gap: 12px;
+}
+.profiles-shortcuts-panel .profile-shortcut-editor > .btn {
+  grid-column: 1/-1;
+  justify-self: start;
+}
+.settings-panel :is(input, select, textarea) {
+  max-width: 100%;
+}
+@media (max-width: 700px) {
+  .automation-grid {
+    grid-template-columns: 1fr;
+  }
+  .profiles-shortcuts-panel .profile-shortcut-editor {
+    grid-template-columns: 1fr;
+  }
+  .currency-preferences > :is(button, label) {
+    width: 100%;
+  }
+}

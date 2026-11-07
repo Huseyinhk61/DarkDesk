@@ -4,19 +4,19 @@ DarkDesk provides x86-64 **AppImage** and **DEB** packages. Use a current Linux 
 
 ## Install
 
-On Ubuntu/Debian, download `DarkDesk-3.11.0-amd64.deb` from GitHub Releases and install with:
+On Ubuntu/Debian, download `DarkDesk-3.12.0-amd64.deb` from GitHub Releases and install with:
 
 ```sh
-sudo apt install ./DarkDesk-3.11.0-amd64.deb
+sudo apt install ./DarkDesk-3.12.0-amd64.deb
 ```
 
 The package installs DarkDesk under `/opt/DarkDesk` and adds a launcher to the application menu. It declares GIO and Electron desktop dependencies.
 
-For another compatible x86-64 desktop, download `DarkDesk-3.11.0-x86_64.AppImage`:
+For another compatible x86-64 desktop, download `DarkDesk-3.12.0-x86_64.AppImage`:
 
 ```sh
-chmod +x DarkDesk-3.11.0-x86_64.AppImage
-./DarkDesk-3.11.0-x86_64.AppImage
+chmod +x DarkDesk-3.12.0-x86_64.AppImage
+./DarkDesk-3.12.0-x86_64.AppImage
 ```
 
 AppImages require the distribution’s FUSE compatibility support. Use the DEB package on Ubuntu/Debian if mounting AppImages is unavailable; sandbox and TLS verification do not need to be disabled. Verify downloads against the release’s SHA256SUMS.txt.
@@ -36,3 +36,9 @@ Desktop-layer widgets fall back to ordinary floating windows on Linux. Global sh
 The native app uses Electron’s network stack and operating-system proxy configuration. Type `50 USD to TRY`, or `100 EUR`, and use **Refresh rates** to request a fresh snapshot. Published reference dates are shown; an offline fallback is labeled and expires after seven days. No API key is needed, and the typed amount or filenames are not sent to the provider.
 
 The Codex cloud environment has its own network allowlist, separate from the installed app. The `api.frankfurter.dev` allowlist addition was saved as a configuration draft. The environment owner must review/save it in Environment Settings and publish the environment before live-provider validation in that cloud instance can proceed. Saving a draft alone does not change runtime networking.
+
+## Native system actions (3.12)
+
+Quick Launcher detects installed, functioning providers when DarkDesk starts. Audio supports PipeWire (`wpctl`) or PulseAudio (`pactl`); locking uses your logind session; Wi-Fi uses NetworkManager (`nmcli`); screenshots use GNOME Screenshot or Spectacle in a graphical session. Commands are shown as unavailable when their provider/session is missing. Desktop permissions still apply. Linux shutdown, recycle-bin clearing, Night Light and cleanup are not claimed as supported actions by these adapters.
+
+Weather uses MET Norway (`api.met.no`) with a manually selected location and no API key. Cloud validation requires this hostname and `api.frankfurter.dev` to be allowed in the cloud environment; those restrictions do not alter the installed app's own network configuration.

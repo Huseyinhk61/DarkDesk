@@ -8,7 +8,11 @@ export default function AutomationPanel({ runtime, onSave, onRun, busy }) {
   const [draft, setDraft] = useState(settings),
     [preview, setPreview] = useState(null),
     [error, setError] = useState('');
-  useEffect(() => setDraft(settings), [settings]);
+  const configVersion = JSON.stringify({
+    automation: settings.automation,
+    scanFilters: settings.scanFilters,
+  });
+  useEffect(() => setDraft(settings), [configVersion]);
   const update = (value) => setDraft({ ...draft, automation: { ...draft.automation, ...value } });
   const filters = (value) =>
     setDraft({ ...draft, scanFilters: { ...draft.scanFilters, ...value } });
@@ -32,7 +36,11 @@ export default function AutomationPanel({ runtime, onSave, onRun, busy }) {
         onSubmit={async (e) => {
           e.preventDefault();
           setError('');
-          await onSave(draft);
+          await onSave({
+            ...settings,
+            automation: draft.automation,
+            scanFilters: draft.scanFilters,
+          });
         }}
       >
         <fieldset disabled={!!busy}>

@@ -47,7 +47,15 @@ function powershell(script, value, spawnProcess = spawn) {
   return new Promise((resolve, reject) => {
     let settled = false;
     const child = spawnProcess(
-      'powershell.exe',
+      process.platform === 'win32'
+        ? path.win32.join(
+            process.env.SystemRoot || 'C:\\Windows',
+            'System32',
+            'WindowsPowerShell',
+            'v1.0',
+            'powershell.exe',
+          )
+        : 'powershell.exe',
       [
         '-NoProfile',
         '-NonInteractive',
@@ -57,7 +65,16 @@ function powershell(script, value, spawnProcess = spawn) {
       { windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] },
     );
     const decoder = new StringDecoder('utf8');
-    let bytes = 0;
+    let bytes = 0,
+      output = '';
+    const failure = () =>
+      coded(
+        /DD_AUDIO_UNAVAILABLE/.test(output)
+          ? 'LAUNCHER_AUDIO_UNAVAILABLE'
+          : /DD_RADIO_UNAVAILABLE/.test(output)
+            ? 'LAUNCHER_RADIO_UNAVAILABLE'
+            : 'LAUNCHER_ACTION_FAILED',
+      );
     const finish = (error) => {
       if (settled) return;
       settled = true;
@@ -70,7 +87,7 @@ function powershell(script, value, spawnProcess = spawn) {
     }, 60000);
     const read = (chunk) => {
       bytes += chunk.length;
-      decoder.write(chunk);
+      output += decoder.write(chunk);
       if (bytes > 64 * 1024) {
         child.kill();
         finish(coded('LAUNCHER_ACTION_FAILED'));
@@ -81,7 +98,7 @@ function powershell(script, value, spawnProcess = spawn) {
     child.on('error', () => finish(coded('LAUNCHER_ACTION_FAILED')));
     child.on('close', (code) => {
       decoder.end();
-      finish(code === 0 ? null : coded('LAUNCHER_ACTION_FAILED'));
+      finish(code === 0 ? null : failure());
     });
     child.stdin.on('error', () => {});
     child.stdin.end(value ? JSON.stringify(value) : '');
@@ -114,15 +131,28 @@ class LauncherActions {
       token,
     });
     this.pending = new Map();
+    this.platformActions = {};
+  }
+  async initialize(options = {}) {
+    this.platformActions = await require('./platform-actions.cjs').discoverActions({
+      platform: this.platform,
+      ...options,
+    });
+    return this.capabilities();
   }
   capabilities() {
     return {
-      system: this.platform === 'win32' ? [...systemActions] : [],
+      system: this.platform === 'win32' ? [...systemActions] : Object.keys(this.platformActions),
       admin: this.platform === 'win32',
       reveal: typeof this.shell?.showItemInFolder === 'function',
       web: typeof this.shell?.openExternal === 'function',
       copy: typeof this.clipboard?.writeText === 'function',
     };
+  }
+  windowsBinary(name) {
+    return this.execute === executeFile
+      ? path.win32.join(process.env.SystemRoot || 'C:\\Windows', 'System32', name)
+      : name;
   }
   async trusted(id) {
     if (!text(id, 512)) throw coded('SOURCE_MISSING');
@@ -152,7 +182,17 @@ class LauncherActions {
     return { token, id, expiresAt };
   }
   async system(id, confirmed = false) {
-    if (this.platform !== 'win32') throw coded('LAUNCHER_UNSUPPORTED');
+    if (this.platform !== 'win32') {
+      if (!systemActions.includes(id)) throw coded('LAUNCHER_INPUT_INVALID');
+      const action = this.platformActions[id];
+      if (!action) throw coded('LAUNCHER_UNSUPPORTED');
+      try {
+        await action();
+      } catch {
+        throw coded('LAUNCHER_ACTION_FAILED');
+      }
+      return { type: 'system', id, requested: true };
+    }
     if (!systemActions.includes(id)) throw coded('LAUNCHER_INPUT_INVALID');
     if (confirmationActions.has(id) && !confirmed) throw coded('LAUNCHER_CONFIRM_REQUIRED');
     if (id === 'empty-trash') await this.executePowerShell(TRASH_SCRIPT);
@@ -167,13 +207,16 @@ class LauncherActions {
     }[id];
     if (uri) await this.shell.openExternal(uri);
     if (id === 'lock')
-      await this.execute('rundll32.exe', ['user32.dll,LockWorkStation'], {
+      await this.execute(this.windowsBinary('rundll32.exe'), ['user32.dll,LockWorkStation'], {
         windowsHide: true,
         timeout: 15000,
       });
     if (id === 'shutdown') {
       await this.beforeShutdown();
-      await this.execute('shutdown.exe', ['/s', '/t', '0'], { windowsHide: true, timeout: 15000 });
+      await this.execute(this.windowsBinary('shutdown.exe'), ['/s', '/t', '0'], {
+        windowsHide: true,
+        timeout: 15000,
+      });
     }
     return { type: 'system', id, requested: true };
   }

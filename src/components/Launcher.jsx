@@ -197,8 +197,12 @@ export default function Launcher({ onClose, onCommand }) {
   ];
   useEffect(() => setCurrencyRefresh(0), [query]);
   const currencyQuery = useMemo(
-    () => parseCurrencyInput(query, settings.language === 'tr' ? 'TRY' : 'USD'),
-    [query, settings.language],
+    () =>
+      parseCurrencyInput(
+        query,
+        settings.currency?.target || (settings.language === 'tr' ? 'TRY' : 'USD'),
+      ),
+    [query, settings.language, settings.currency?.target],
   );
   useEffect(() => {
     let active = true;
@@ -846,6 +850,9 @@ export default function Launcher({ onClose, onCommand }) {
           >
             <div className="launcher-prefix-heading">
               <b>{t('prefixPlus.title')}</b>
+              <small>
+                {t('ux312.launcherHint', { target: settings.currency?.target || 'TRY' })}
+              </small>
               <span>{t('prefixPlus.helpHint')}</span>
             </div>
             <div

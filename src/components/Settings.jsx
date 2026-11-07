@@ -140,10 +140,13 @@ export default function Settings({ onSave, stats, history, undo, busy, update, o
               label={t('launcher.shortcut')}
               value={draft.launcherShortcut}
               currentId="launcher"
-              assignments={settings.profiles.map((p) => ({
-                id: 'profile:' + p.id,
-                accelerator: p.shortcut,
-              }))}
+              assignments={[
+                { id: 'restore', accelerator: settings.restoreShortcut },
+                ...settings.profiles.map((p) => ({
+                  id: 'profile:' + p.id,
+                  accelerator: p.shortcut,
+                })),
+              ]}
               disabled={!!busy}
               onChange={(launcherShortcut) => setDraft({ ...draft, launcherShortcut })}
             />

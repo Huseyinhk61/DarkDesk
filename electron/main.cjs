@@ -41,7 +41,7 @@ const { attachMacDesktop } = require('./runtime/widget-desktop-macos.cjs');
 const { StartupManager } = require('./runtime/startup.cjs');
 const { ProductivityTracker } = require('./runtime/productivity.cjs');
 const { SystemMetrics } = require('./runtime/system-metrics.cjs');
-let currencyService;
+let currencyService, weatherService;
 let widgetManager, startupManager, productivity, systemMetrics, productivityTimer;
 let systemLocked = false;
 const widgetMethods = new Set([
@@ -53,6 +53,8 @@ const widgetMethods = new Set([
   'hideWidget',
   'systemToolsSnapshot',
   'currencyQuote',
+  'saveCurrencyPreferences',
+  'weatherQuote',
   'copyText',
 ]);
 function startProductivityTimer() {
@@ -225,7 +227,10 @@ async function updateTray() {
   if (!tray) return;
   const settings = await runtime.settings.read(),
     state = await runtime.profiles.status();
-  const dictionary = require('../src/locales/' + settings.language + '.json');
+  const dictionary = {
+    ...require('../src/locales/en.json'),
+    ...require('../src/locales/' + settings.language + '.json'),
+  };
   const t = (key) => dictionary[key] || key;
   tray.setContextMenu(
     Menu.buildFromTemplate([
@@ -319,9 +324,16 @@ else {
         },
       });
       await runtime.initialize();
-      systemMetrics = new SystemMetrics({ diskPath: app.getPath('desktop') });
+      systemMetrics = new SystemMetrics({
+        diskPath: app.getPath('desktop'),
+        listVolumes: () =>
+          require('./runtime/volumes.cjs').listVolumes({ fallback: app.getPath('desktop') }),
+      });
       currencyService = new CurrencyService({
         data: app.getPath('userData'),
+        fetch: (url, options) => net.fetch(url, options),
+      });
+      weatherService = new (require('./runtime/weather.cjs').WeatherService)({
         fetch: (url, options) => net.fetch(url, options),
       });
       startupManager = new StartupManager({ data: app.getPath('userData') });
@@ -373,11 +385,14 @@ else {
           await windowStore?.flush();
         },
       });
+      await launcherActions.initialize();
       const updateEnabled =
         app.isPackaged &&
+        !process.windowsStore &&
         ((process.platform === 'win32' && !process.env.PORTABLE_EXECUTABLE_FILE) ||
           (process.platform === 'linux' && !!process.env.APPIMAGE));
       updates = createUpdates({
+        windowsStore: process.windowsStore === true,
         accessStore: new UpdateAccessStore({ directory: app.getPath('userData'), safeStorage }),
         autoUpdater: updateEnabled ? require('electron-updater').autoUpdater : undefined,
         appVersion: app.getVersion(),
@@ -391,7 +406,10 @@ else {
         notify: async (version) => {
           if (!Notification.isSupported()) return;
           const settings = await runtime.settings.read();
-          const dictionary = require('../src/locales/' + settings.language + '.json');
+          const dictionary = {
+            ...require('../src/locales/en.json'),
+            ...require('../src/locales/' + settings.language + '.json'),
+          };
           const notification = new Notification({
             title: dictionary['update.noticeAvailable'].replace('{version}', version),
             body: dictionary['update.noticeBody'],
@@ -423,6 +441,7 @@ else {
       });
       await updates.initialize();
       shortcutManager = new ShortcutManager(globalShortcut, {
+        restore: () => runtime.restoreProfile().catch(report),
         launcher: () => openLauncher().catch(report),
         profile: (id) => runtime.applyProfile(id).catch(report),
         onStatus: (rows) => {
@@ -547,6 +566,16 @@ else {
       handle('itemPurpose', (id) => runtime.itemPurpose(id));
       handle('recordLauncherCommand', (id) => runtime.recordLauncherCommand(id));
       handle('systemToolsSnapshot', () => systemMetrics.detailedSnapshot());
+      handle('saveCurrencyPreferences', (currency) =>
+        runtime.run('currency-settings', async () => {
+          if (savingSettings) throw Error('OPERATION_BUSY');
+          const current = await runtime.settings.read();
+          const saved = await runtime.settings.write(validateSettings({ ...current, currency }));
+          emit('settingsChanged', saved);
+          return saved;
+        }),
+      );
+      handle('weatherQuote', (location) => weatherService.quote(location));
       handle('currencyQuote', (query) => currencyService.quote(query));
       handle('copyText', (text) => {
         if (typeof text !== 'string' || text.length > 256) throw Error('LAUNCHER_INPUT_INVALID');
@@ -681,12 +710,17 @@ else {
       handle('checkUpdates', () => updates.check());
       handle('downloadUpdate', () => updates.download());
       handle('installUpdate', () => updates.install());
+      handle('openStoreUpdates', () => {
+        if (!process.windowsStore) throw Error('UPDATE_ACCESS_UNAVAILABLE');
+        return shell.openExternal('ms-windows-store://downloadsandupdates');
+      });
       handle('openReleaseNotes', () =>
         shell.openExternal(releaseNotesUrl(updates.status().version || app.getVersion())),
       );
-      handle('openDownloads', () =>
-        shell.openExternal('https://github.com/Huseyinhk61/DarkDesk/releases/latest'),
-      );
+      handle('openDownloads', () => {
+        if (process.windowsStore) throw Error('UPDATE_STORE_MANAGED');
+        return shell.openExternal('https://github.com/Huseyinhk61/DarkDesk/releases/latest');
+      });
       handle('windowState', windowState);
       handle('window', (action) => {
         if (action === 'minimize') win.minimize();

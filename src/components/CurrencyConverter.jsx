@@ -1,14 +1,27 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeftRight, Copy, RefreshCw, Coins, ArrowUpRight } from 'lucide-react';
-import { currencies } from '../../shared/currency';
+import { currencies, normalizeCurrencyPreferences } from '../../shared/currency';
 import { api } from '../service';
 import { usePreferences } from '../preferences';
 import '../currency.css';
 export default function CurrencyConverter({ compact = false }) {
-  const { t, locale, language } = usePreferences();
+  const { t, locale, language, settings, setSettings, errorMessage } = usePreferences();
+  const preferences = normalizeCurrencyPreferences(settings.currency, language);
+  const [saving, setSaving] = useState(false);
+  const save = async (value) => {
+    setSaving(true);
+    try {
+      setSettings(await api.saveCurrencyPreferences(value));
+      setError('');
+    } catch (reason) {
+      setError(errorMessage(reason));
+    } finally {
+      setSaving(false);
+    }
+  };
   const [amount, setAmount] = useState('1'),
     [from, setFrom] = useState('USD'),
-    [to, setTo] = useState(language === 'tr' ? 'TRY' : 'EUR');
+    [to, setTo] = useState(preferences.target);
   const [result, setResult] = useState(null),
     [error, setError] = useState(''),
     [loading, setLoading] = useState(false),
@@ -96,26 +109,66 @@ export default function CurrencyConverter({ compact = false }) {
       )}
       {!compact && (
         <div className="currency-quick-pairs" role="group" aria-label={t('ux311.quickPairs')}>
-          {[
-            ['USD', 'TRY'],
-            ['EUR', 'TRY'],
-            ['USD', 'EUR'],
-            ['GBP', 'TRY'],
-          ].map(([base, quote]) => (
-            <button
-              key={base + quote}
-              type="button"
-              aria-pressed={from === base && to === quote}
-              onClick={() => {
-                setFrom(base);
-                setTo(quote);
-              }}
-            >
-              {base}
-              <ArrowUpRight size={13} />
-              {quote}
-            </button>
+          {preferences.pairs.map(([base, quote]) => (
+            <span className="saved-currency-pair" key={base + quote}>
+              <button
+                key={base + quote}
+                type="button"
+                aria-pressed={from === base && to === quote}
+                onClick={() => {
+                  setFrom(base);
+                  setTo(quote);
+                }}
+              >
+                {base}
+                <ArrowUpRight size={13} />
+                {quote}
+              </button>
+              <button
+                type="button"
+                disabled={saving}
+                aria-label={t('ux312.removePair', { pair: base + ' / ' + quote })}
+                onClick={() =>
+                  save({
+                    ...preferences,
+                    pairs: preferences.pairs.filter(
+                      (pair) => pair[0] !== base || pair[1] !== quote,
+                    ),
+                  })
+                }
+              >
+                ×
+              </button>
+            </span>
           ))}
+        </div>
+      )}
+      {!compact && (
+        <div className="currency-preferences">
+          <button
+            className="btn secondary"
+            type="button"
+            disabled={
+              saving ||
+              from === to ||
+              preferences.pairs.length >= 12 ||
+              preferences.pairs.some((pair) => pair[0] === from && pair[1] === to)
+            }
+            onClick={() => save({ ...preferences, pairs: [...preferences.pairs, [from, to]] })}
+          >
+            {t('ux312.addPair', { from, to })}
+          </button>
+          <label>
+            {t('ux312.defaultCurrency')}
+            <select
+              value={preferences.target}
+              disabled={saving}
+              onChange={(event) => save({ ...preferences, target: event.target.value })}
+            >
+              {options}
+            </select>
+          </label>
+          <small>{t('ux312.currencyHint', { target: preferences.target })}</small>
         </div>
       )}
       <div className="conversion-workbench">

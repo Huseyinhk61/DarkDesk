@@ -1,4 +1,5 @@
-export const widgetIds = ['system', 'note', 'todos', 'currency', 'clock', 'focus'];
+import { normalizeWeather } from './weather.js';
+export const widgetIds = ['system', 'note', 'todos', 'currency', 'clock', 'focus', 'weather'];
 export const widgetSizes = {
   system: { width: 292, height: 230 },
   note: { width: 292, height: 236 },
@@ -6,9 +7,11 @@ export const widgetSizes = {
   currency: { width: 320, height: 380 },
   clock: { width: 292, height: 210 },
   focus: { width: 292, height: 250 },
+  weather: { width: 292, height: 320 },
 };
 export const defaultWidgetState = {
   version: 1,
+  weather: { location: null, unit: 'celsius' },
   note: '',
   todos: [],
   appearance: Object.fromEntries(
@@ -95,6 +98,7 @@ export function normalizeWidgetState(input = defaultWidgetState) {
         return [id, { opacity: value.opacity, size: value.size, blur: value.blur ?? 24 }];
       }),
     ),
+    weather: normalizeWeather(input.weather),
     system: normalizeSystem(input.system),
     focus: normalizeFocus(input.focus),
     collapsed: Object.fromEntries(widgetIds.map((id) => [id, input.collapsed?.[id] === true])),
@@ -125,6 +129,7 @@ export function validateWidgetPatch(current, patch) {
     Object.keys(patch).some(
       (key) =>
         ![
+          'weather',
           'note',
           'todos',
           'placement',
@@ -217,6 +222,42 @@ function overlap(a, b) {
     Math.max(0, Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y))
   );
 }
+function packedDefaults(screen) {
+  const count = Math.max(1, Math.min(4, Math.floor((screen.width - 20) / 332))),
+    bins = Array.from({ length: count }, () => ({ height: 0, items: [] }));
+  const sorted = [...widgetIds].sort((a, b) => widgetSizes[b].height - widgetSizes[a].height);
+  const fit = (index) => {
+    if (index === sorted.length) return true;
+    const id = sorted[index],
+      height = widgetSizes[id].height;
+    const seen = new Set();
+    for (const bin of bins) {
+      if (seen.has(bin.height)) continue;
+      seen.add(bin.height);
+      const before = bin.height,
+        next = before + (before ? 12 : 0) + height;
+      if (next > screen.height - 32) continue;
+      bin.items.push({ id, top: before + (before ? 12 : 0) });
+      bin.height = next;
+      if (fit(index + 1)) return true;
+      bin.items.pop();
+      bin.height = before;
+    }
+    return false;
+  };
+  if (!fit(0)) return null;
+  return Object.fromEntries(
+    bins.flatMap((bin, column) =>
+      bin.items.map(({ id, top }) => [
+        id,
+        {
+          x: screen.x + screen.width - widgetSizes[id].width - 16 - column * 332,
+          y: screen.y + 16 + top,
+        },
+      ]),
+    ),
+  );
+}
 export function restoreWidgetBounds(id, saved, displays = []) {
   if (!widgetIds.includes(id)) invalid();
   const available = displays.map((display) => display.workArea || display).filter(area);
@@ -234,13 +275,16 @@ export function restoreWidgetBounds(id, saved, displays = []) {
   const width = Math.round(
     Math.min(
       screen.width,
-      Math.max(Math.min(240, screen.width), Math.min(previous?.width || size.width, 700)),
+      Math.max(Math.min(size.width, screen.width), Math.min(previous?.width || size.width, 700)),
     ),
   );
   const height = Math.round(
     Math.min(
       screen.height,
-      Math.max(Math.min(180, screen.height), Math.min(previous?.height || size.height, 900)),
+      Math.max(
+        Math.min(size.height, screen.height),
+        Math.min(previous?.height || size.height, 900),
+      ),
     ),
   );
   const columns = Math.max(1, Math.min(3, Math.floor((screen.width - 20) / 332))),
@@ -254,19 +298,23 @@ export function restoreWidgetBounds(id, saved, displays = []) {
           .slice(previousRow * columns, (previousRow + 1) * columns)
           .map((key) => widgetSizes[key].height),
       ) + 16;
+  const packed = !previous ? packedDefaults(screen)?.[id] : null;
   const x = Math.round(
     Math.max(
       screen.x,
       Math.min(
         screen.x + screen.width - width,
-        previous?.x ?? screen.x + screen.width - width - 16 - column * 332,
+        previous?.x ?? packed?.x ?? screen.x + screen.width - width - 16 - column * 332,
       ),
     ),
   );
   const y = Math.round(
     Math.max(
       screen.y,
-      Math.min(screen.y + screen.height - height, previous?.y ?? screen.y + 32 + rowOffset),
+      Math.min(
+        screen.y + screen.height - height,
+        previous?.y ?? packed?.y ?? screen.y + 32 + rowOffset,
+      ),
     ),
   );
   return { x, y, width, height };

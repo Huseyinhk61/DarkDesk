@@ -261,6 +261,15 @@ export const api = window.darkdesk || {
     settingsListeners.add(fn);
     return () => settingsListeners.delete(fn);
   },
+  weatherQuote: async () => {
+    throw Error('WEATHER_DESKTOP_ONLY');
+  },
+  saveCurrencyPreferences: async (currency) => {
+    settings = validateSettings({ ...settings, currency });
+    localStorage.setItem('darkdesk-settings', JSON.stringify(settings));
+    settingsListeners.forEach((fn) => fn(structuredClone(settings)));
+    return structuredClone(settings);
+  },
   setSettings: async (value) => {
     settings = validateSettings(value);
     localStorage.setItem('darkdesk-settings', JSON.stringify(settings));

@@ -29,7 +29,15 @@ async function fixture(t, options = {}) {
 }
 test('all folder colors and themes have safe previews and distinct valid Windows ICO artwork', async () => {
   assert.equal(folderColorIds.length, 10);
-  assert.deepEqual(folderThemes, ['gradient', 'solid', 'outline']);
+  assert.deepEqual(folderThemes, [
+    'gradient',
+    'solid',
+    'outline',
+    'pastel',
+    'glass',
+    'neon',
+    'paper',
+  ]);
   const images = new Set();
   for (const theme of folderThemes)
     for (const color of folderColorIds)

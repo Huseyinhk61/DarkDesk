@@ -571,15 +571,20 @@ export default function App() {
       const launcherKey =
         matchesAccelerator(settings.launcherShortcut, e, mac) ||
         matchesAccelerator('Control+Space', e, mac);
+      const restoreKey = matchesAccelerator(settings.restoreShortcut, e, mac);
       const profile = settings.profiles.find((p) => matchesAccelerator(p.shortcut, e, mac));
       if (document.querySelector('[role="dialog"][aria-modal="true"]')) {
         // Suppress Space's default button activation while a page shortcut is blocked.
-        if (launcherKey || profile) e.preventDefault();
+        if (launcherKey || profile || restoreKey) e.preventDefault();
         return;
       }
       if (launcherKey) {
         e.preventDefault();
         setLauncherOpen((open) => !open);
+      }
+      if (restoreKey) {
+        e.preventDefault();
+        commandRef.current({ type: 'restore' });
       }
       if (profile) {
         e.preventDefault();
@@ -592,7 +597,7 @@ export default function App() {
       offCommand();
       window.removeEventListener('keydown', keydown);
     };
-  }, [settings.profiles, settings.launcherShortcut, acceptRuntime]);
+  }, [settings.profiles, settings.launcherShortcut, settings.restoreShortcut, acceptRuntime]);
   useEffect(() => {
     if (view === 'settings' && updatesRequested)
       document.getElementById('updates')?.scrollIntoView({ block: 'start', behavior: 'instant' });

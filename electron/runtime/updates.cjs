@@ -58,8 +58,44 @@ class PublicUpdates extends UpdateService {
   }
 }
 
+class StoreUpdates {
+  constructor({ appVersion }) {
+    this.appVersion = appVersion;
+  }
+  status() {
+    return {
+      state: 'unsupported',
+      reason: 'store',
+      currentVersion: this.appVersion,
+      version: null,
+      authenticationRequired: false,
+      accessConfigured: false,
+      accessSupported: false,
+    };
+  }
+  async initialize() {
+    return this.status();
+  }
+  async check() {
+    return this.status();
+  }
+  async download() {
+    throw Error('UPDATE_STORE_MANAGED');
+  }
+  async install() {
+    throw Error('UPDATE_STORE_MANAGED');
+  }
+  async saveAccess() {
+    throw Error('UPDATE_ACCESS_UNAVAILABLE');
+  }
+  async clearAccess() {
+    throw Error('UPDATE_ACCESS_UNAVAILABLE');
+  }
+  dispose() {}
+}
 function createUpdates(options, updateSource = source) {
+  if (options.windowsStore === true) return new StoreUpdates(options);
   return updateSource.private === true ? new PrivateUpdates(options) : new PublicUpdates(options);
 }
 
-module.exports = { PublicUpdates, createUpdates };
+module.exports = { PublicUpdates, StoreUpdates, createUpdates };

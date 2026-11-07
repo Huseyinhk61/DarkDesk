@@ -11,6 +11,7 @@ class SystemMetrics {
     uptime = () => os.uptime(),
     diskPath = os.homedir(),
     statfs = fs.statfs,
+    listVolumes = null,
   } = {}) {
     Object.assign(this, {
       readCpus: cpus,
@@ -22,8 +23,10 @@ class SystemMetrics {
       uptime,
       diskPath,
       statfs,
+      listVolumes,
     });
     this.diskCache = null;
+    this.disks = [];
     this.diskRead = null;
     this.diskAt = -Infinity;
     this.last = null;
@@ -86,21 +89,48 @@ class SystemMetrics {
     if (this.clock() - this.diskAt >= 15000 || this.clock() < this.diskAt) {
       if (!this.diskRead)
         this.diskRead = Promise.resolve()
-          .then(() => this.statfs(this.diskPath))
-          .then((value) => {
-            const total = value.blocks * value.bsize,
-              free = value.bavail * value.bsize;
-            this.diskCache =
-              Number.isFinite(total) &&
-              Number.isFinite(free) &&
-              total > 0 &&
-              free >= 0 &&
-              free <= total
-                ? { total, free, percent: (100 * (total - free)) / total }
-                : null;
+          .then(async () => {
+            const volumes = this.listVolumes
+              ? await this.listVolumes().catch(() => [
+                  { path: this.diskPath, label: this.diskPath },
+                ])
+              : [{ path: this.diskPath, label: this.diskPath }];
+            this.disks = await Promise.all(
+              volumes.slice(0, 64).map(async (volume) => {
+                try {
+                  let total = volume.total,
+                    free = volume.free;
+                  if (!Number.isFinite(total) || total <= 0 || !Number.isFinite(free)) {
+                    const value = await this.statfs(volume.path);
+                    total = value.blocks * value.bsize;
+                    free = value.bavail * value.bsize;
+                  }
+                  if (
+                    !Number.isFinite(total) ||
+                    !Number.isFinite(free) ||
+                    total <= 0 ||
+                    free < 0 ||
+                    free > total
+                  )
+                    throw Error('DISK_UNAVAILABLE');
+                  return { ...volume, total, free, percent: (100 * (total - free)) / total };
+                } catch {
+                  return { path: volume.path, label: volume.label, unavailable: true };
+                }
+              }),
+            );
+            const selected =
+              this.disks.find(
+                (v) =>
+                  this.diskPath.toLowerCase().startsWith(v.path.toLowerCase()) && !v.unavailable,
+              ) || this.disks.find((v) => !v.unavailable);
+            this.diskCache = selected
+              ? { total: selected.total, free: selected.free, percent: selected.percent }
+              : null;
           })
           .catch(() => {
             this.diskCache = null;
+            this.disks = [];
           })
           .finally(() => {
             this.diskAt = this.clock();
@@ -108,7 +138,7 @@ class SystemMetrics {
           });
       await this.diskRead;
     }
-    return { ...this.snapshot(), disk: this.diskCache };
+    return { ...this.snapshot(), disk: this.diskCache, disks: this.disks };
   }
 }
 module.exports = { SystemMetrics };

@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.12.0 — November 7, 2026
+
+- Expand category/profile artwork to 34 icons across the existing five packs. Add Pastel, Glass, Neon and Paper folder styles alongside Gradient, Solid and Outline, using matching preview/native artwork.
+- Persist up to 12 custom currency pairs and a default launcher target. Parse TL aliases and explicit short targets; expose concise launcher examples and saved-currency guidance.
+- Replace widget scrolling with fixed utility views, note pagination and three-task pages. Keep full content in storage, preserve cursor edits and isolate opacity to a consistent background layer. Separate focus timing/sound settings into fixed views.
+- Show all detected local/mapped/removable Windows volumes, mounted Linux block volumes and macOS volumes; retain inaccessible drives as unavailable and cache sampling.
+- Add opt-in, API-key-free MET Norway forecast weather with selected cities/manual coordinates, Celsius/Fahrenheit, attribution, bounded requests and honest offline states.
+- Register editable Default Mode shortcut Ctrl+Alt+0 with conflict detection, capture/resume and browser-preview handling.
+- Resolve Windows system binaries independently of PATH, verify audio mute changes, parse complete PowerShell scripts in Windows tests, and expose audio/radio failure reasons. Detect available Linux PipeWire/PulseAudio, session locking, NetworkManager and screenshot tools; add macOS native audio/screenshot support.
+- Add German, French and Spanish beta core translations with English fallback, correct locale formatting and native-tray fallback. Improve automation/settings spacing and preserve unrelated preferences while saving automation/currency changes.
+- Prepare a separate identity-validated Microsoft Store AppX build/workflow, Store-managed updating, privacy notice and submission checklist. Store identity, signing, clean-machine certification and Microsoft approval remain owner steps.
+
 ## 3.11.0 — November 7, 2026
 
 - Redesign System Monitor with clear Overview/CPU/Memory/Disk views, labeled utilization bars, memory capacity and paged logical processors. Keep compact views within the widget and hide widget scrollbar tracks while retaining access to long text/lists.

@@ -4,6 +4,7 @@ const { JsonStore } = require('./json-store.cjs');
 const {
   defaultWidgetState,
   widgetIds,
+  widgetSizes,
   normalizeWidgetState,
   validateWidgetPatch,
   restoreWidgetBounds,
@@ -130,8 +131,11 @@ class WidgetManager {
       if (patch.collapsed)
         for (const [id, window] of this.open) {
           if (!window.isDestroyed()) {
-            window.setMinimumSize?.(240, next.collapsed[id] ? 44 : 180);
             const normal = restoreWidgetBounds(id, next.widgets[id].bounds, this.getDisplays());
+            window.setMinimumSize?.(
+              Math.min(widgetSizes[id].width, normal.width),
+              next.collapsed[id] ? 44 : Math.min(widgetSizes[id].height, normal.height),
+            );
             const placed = this.applyBounds(id, window, {
               ...normal,
               height: next.collapsed[id] ? 44 : normal.height,
@@ -240,8 +244,8 @@ class WidgetManager {
         skipTaskbar: true,
         resizable: true,
         focusable: true,
-        minWidth: 240,
-        minHeight: model.collapsed[id] ? 44 : 180,
+        minWidth: Math.min(widgetSizes[id].width, bounds.width),
+        minHeight: model.collapsed[id] ? 44 : Math.min(widgetSizes[id].height, bounds.height),
         maxWidth: 700,
         maxHeight: 900,
         minimizable: false,

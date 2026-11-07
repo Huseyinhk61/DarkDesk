@@ -1,10 +1,14 @@
 import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import tr from './locales/tr.json';
 import en from './locales/en.json';
+import de from './locales/de.json';
+import fr from './locales/fr.json';
+import es from './locales/es.json';
+import languages from '../shared/languages.json';
 import { defaultSettings, categorySegments } from '../shared/domain';
 import { sanitizeAppearance, resolveTheme, fonts } from '../shared/appearance';
 const Context = createContext(null);
-const dictionaries = { tr, en };
+const dictionaries = { tr, en, de: { ...en, ...de }, fr: { ...en, ...fr }, es: { ...en, ...es } };
 export function PreferencesProvider({ children }) {
   const [settings, setSettings] = useState(() => {
     try {
@@ -35,7 +39,7 @@ export function PreferencesProvider({ children }) {
     };
   }, []);
   const language = settings.language,
-    locale = language === 'tr' ? 'tr-TR' : 'en-US';
+    locale = languages[language]?.locale || 'en-US';
   const t = useMemo(
     () =>
       (key, params = {}) => {

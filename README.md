@@ -18,9 +18,11 @@
   <p><sub>Actual browser-preview screenshot with sample data. Native file operations and original app icons require the Electron desktop app.</sub></p>
 </div>
 
-## New in 3.11.0
+## New in 3.12.0
 
-Clear CPU/RAM/disk widget views, a cleaner widget gallery, Default Mode, a redesigned currency workbench and explicit folder customization. Choose any application folder to scan without moving its programs. The offline catalog now recognizes 191 applications, with improved version matching and Linux desktop categories. See the [release notes](.github/RELEASE_NOTES.md) for platform details and the [productivity guide](docs/PRODUCTIVITY.md) for setup.
+Pin your own currency pairs and choose the launcher's default conversion currency. Type `1 usd`, `1 usd tl`, or `50 eur to gbp`; the built-in guide shows examples. Pick from **34 category icons** and **seven folder styles**. Widgets now use fixed views, paged notes/tasks and consistent background opacity; System Monitor lets you inspect every detected drive. A free, manually configured **MET Norway weather widget** joins the gallery. Default Mode has an editable **Ctrl+Alt+0** shortcut.
+
+German, French and Spanish join Turkish/English as **beta core-interface translations**, with English fallback for advanced help. Native system actions detect available Linux/macOS providers; Windows audio uses explicit Core Audio operations. The separate [Microsoft Store submission workflow](docs/MICROSOFT_STORE.md) is ready for the owner's Partner Center identity and certification checks. DarkDesk is **not yet listed in Microsoft Store**.
 
 ## Get DarkDesk
 
@@ -44,23 +46,23 @@ See the [Linux installation and platform guide](docs/LINUX.md) for DEB/AppImage 
 
 ## Features
 
-| Capability                                | What it does                                                                                                                                                                                       |
-| :---------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Real desktop organization**             | Move or copy selected desktop files into physical category folders. Review destinations and conflicts before applying changes.                                                                     |
-| **Three scanning sources**                | Switch between Desktop, Installed apps, and Downloads. Desktop discovery includes personal and common Windows shortcuts. Installed programs stay in place; organization creates shortcuts instead. |
-| **Smart groups and custom rules**         | Start with **11 main groups and 30 groups in total**. Browse nested categories with accurate parent totals, matching reasons, a review filter, and keyword or regex rules.                         |
-| **Original app icons and useful details** | Read native icons and Windows File Description metadata. Get offline descriptions for **191 apps**, name/type suggestions, or write your own explanation.                                          |
-| **Focus profiles**                        | Keep relevant desktop items visible for coding, gaming, or creative work. Restore visibility when you leave the profile.                                                                           |
-| **Quick launcher**                        | Press **Alt+X** to search apps, calculate, convert units, or use `g`, `yt`, `gh`, `calc`, and `sys`. Open the prefix guide with `?`, Space, or F1; frequent items and commands stay close.         |
-| **Desktop widgets**                       | Keep CPU/RAM, a sticky note, and a to-do list in separate transparent windows. Restore their content and positions; desktop placement falls back to floating windows when unavailable.             |
-| **Startup manager**                       | Review Windows startup entries and toggle supported current-user entries without deleting their commands or shortcuts. Machine-wide entries remain read-only.                                      |
-| **Opt-in focus analytics**                | Compare sampled foreground time, open-app time, and time in profiles. History stays on this device for 90 days; tracking starts only when enabled.                                                 |
-| **Optional automation**                   | Enable archive rules for older files and routing for stable Downloads files. File operations are logged and can be undone.                                                                         |
-| **Make it comfortable**                   | Choose **13 color palettes plus the system theme**, **4 font-family choices**, and **5 icon packs**. Adjust text size, density, and motion.                                                        |
-| **Custom desktop folders**                | Choose ten preset colors, any six-digit HEX color, or a two-color gradient. Three folder styles share live previews and native Windows artwork; existing custom icons are preserved.               |
-| **Useful usage estimates**                | Cards show recorded DarkDesk launch patterns when available, or clearly labeled category estimates such as Intensive use and Continuous use.                                                       |
-| **English and Turkish**                   | Change the interface language without restarting. Native tray text follows the selected language.                                                                                                  |
-| **In-app updates**                        | Windows Setup and Linux AppImage builds can check public GitHub Releases without a personal token. Get notified, then download and restart when you choose.                                        |
+| Capability                                | What it does                                                                                                                                                                                                                   |
+| :---------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Real desktop organization**             | Move or copy selected desktop files into physical category folders. Review destinations and conflicts before applying changes.                                                                                                 |
+| **Independent scanning sources**          | Switch between Desktop, Installed apps, Downloads and a chosen application folder. Desktop discovery includes personal and common Windows shortcuts. Installed programs stay in place; organization creates shortcuts instead. |
+| **Smart groups and custom rules**         | Start with **11 main groups and 30 groups in total**. Browse nested categories with accurate parent totals, matching reasons, a review filter, and keyword or regex rules.                                                     |
+| **Original app icons and useful details** | Read native icons and Windows File Description metadata. Get offline descriptions for **191 apps**, name/type suggestions, or write your own explanation.                                                                      |
+| **Focus profiles**                        | Keep relevant desktop items visible for coding, gaming, or creative work. Restore visibility when you leave the profile.                                                                                                       |
+| **Quick launcher**                        | Press **Alt+X** to search apps, calculate, convert units, or use `g`, `yt`, `gh`, `calc`, and `sys`. Open the prefix guide with `?`, Space, or F1; frequent items and commands stay close.                                     |
+| **Desktop widgets**                       | Keep system readings, notes, tasks, currency, clock, focus and weather in compact transparent windows. Restore their content and positions; desktop placement falls back to floating windows when unavailable.                 |
+| **Startup manager**                       | Review Windows startup entries and toggle supported current-user entries without deleting their commands or shortcuts. Machine-wide entries remain read-only.                                                                  |
+| **Opt-in focus analytics**                | Compare sampled foreground time, open-app time, and time in profiles. History stays on this device for 90 days; tracking starts only when enabled.                                                                             |
+| **Optional automation**                   | Enable archive rules for older files and routing for stable Downloads files. File operations are logged and can be undone.                                                                                                     |
+| **Make it comfortable**                   | Choose **13 color palettes plus the system theme**, **4 font-family choices**, and **5 icon packs**. Adjust text size, density, and motion.                                                                                    |
+| **Custom desktop folders**                | Choose ten preset colors, any six-digit HEX color, or a two-color gradient. Seven folder styles share live previews and native Windows artwork; existing custom icons are preserved.                                           |
+| **Useful usage estimates**                | Cards show recorded DarkDesk launch patterns when available, or clearly labeled category estimates such as Intensive use and Continuous use.                                                                                   |
+| **Five language choices**                 | Full Turkish/English plus beta German/French/Spanish core translations. Native tray text follows the selected language.                                                                                                        |
+| **In-app updates**                        | Windows Setup and Linux AppImage builds can check public GitHub Releases without a personal token. Get notified, then download and restart when you choose.                                                                    |
 
 ### Organize in four steps
 
@@ -84,7 +86,7 @@ See the [Linux installation and platform guide](docs/LINUX.md) for DEB/AppImage 
 
 See why each item was grouped, filter uncertain matches for review, and open a subgroup without losing its parent context. Sort groups by name or item count and hide empty groups when you want a shorter overview. Manual choices remain in control; custom rule previews show matching items before saving.
 
-Choose **Gradient**, **Solid**, or **Outline** folders independently from the application theme. Each group has its own color and glyph. In its editor, **Style for this folder** can override the global style or follow it; the same saved style powers previews and Windows folder artwork. Start with ten preset colors or choose custom HEX values and one of six gradient palettes. Saving a visual change updates existing DarkDesk-owned Windows folder icons automatically; **Apply to desktop folders** is also available for an explicit refresh. The app retains 360 bundled preset icons and generates matching custom artwork locally. Original application logos are preserved. See the [folder appearance guide](docs/FOLDER-APPEARANCE.md) for existing folders, skipped custom icons, and undo behavior.
+Choose **Gradient**, **Solid**, **Outline**, **Pastel**, **Glass**, **Neon** or **Paper** folders independently from the application theme. Each group has its own color and glyph. In its editor, **Style for this folder** can override the global style or follow it; the same saved style powers previews and Windows folder artwork. Start with ten preset colors or choose custom HEX values and one of six gradient palettes. Saving a visual change updates existing DarkDesk-owned Windows folder icons automatically; **Apply to desktop folders** is also available for an explicit refresh. The app retains 360 bundled preset icons and generates matching custom artwork locally. Original application logos are preserved. See the [folder appearance guide](docs/FOLDER-APPEARANCE.md) for existing folders, skipped custom icons, and undo behavior.
 
 <table>
   <tr>

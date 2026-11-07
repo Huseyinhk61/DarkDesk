@@ -45,7 +45,7 @@ test('notes and tasks remain editable while widget appearance and system options
 }) => {
   await open(page);
   await page.getByRole('button', { name: 'Masaüstü Widget’ları', exact: true }).click();
-  await expect(page.locator('.widget-module-card')).toHaveCount(6);
+  await expect(page.locator('.widget-module-card')).toHaveCount(7);
   for (const title of ['Hızlı not', 'Yapılacaklar'])
     await (
       await module(page, title)

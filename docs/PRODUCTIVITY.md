@@ -23,7 +23,7 @@ Open **Desktop Widgets** in the sidebar and show any combination of:
 
 Choose each widget’s **Background opacity** (25–100%) and **Size** in its gallery card. Opacity uses 1% steps. Background blur is fixed at 16px and is no longer a user setting. Widget scrollbar tracks are hidden; long notes and task lists retain wheel, touchpad and keyboard access. Release the opacity slider or finish a keyboard adjustment to save. Opacity changes the background while text remains readable. Drag a native window edge for custom dimensions; saved larger dimensions are retained. Show/hide and layout changes do not erase content.
 
-The system options let you choose core bars, history, details and disk capacity, and a 1/2/5/10-second CPU polling interval. CPU model, logical processor count, free RAM and DarkDesk main-process RSS come from native APIs. Disk capacity uses the Desktop volume and is cached for 15 seconds; it is not a disk throughput measurement. Unavailable metrics remain unavailable.
+The system options let you choose core bars, history, details and disk capacity, and a 1/2/5/10-second CPU polling interval. CPU model, logical processor count, free RAM and DarkDesk main-process RSS come from native APIs. Disk capacity covers detected mounted volumes, with per-drive pages, and is cached for 15 seconds; it is not a disk throughput measurement. Unavailable metrics remain unavailable.
 
 Drag a widget by its header. The text fields, checkboxes, and buttons remain interactive. Hiding a widget retains its contents. Enabled widgets, their bounds, the note, tasks, and placement mode are stored in `widgets.json` under Electron's application-data directory. Enabled widgets return at the next normal launch. Saved bounds are clamped to available work areas if a monitor has been removed. Showing, moving, resizing or resetting widgets snaps their positions to an 8px grid and seeks nearby free space with a 12px gap using actual window dimensions. Positions remain clamped to the current monitor work area, including monitors with negative coordinates. A full screen can have no valid placement; the gallery then asks you to reduce sizes or hide panels rather than pushing them off-screen.
 
@@ -31,7 +31,7 @@ Drag a widget by its header. The text fields, checkboxes, and buttons remain int
 
 **Desktop** placement uses an Explorer desktop-host adapter for read-only system/clock panels on Windows and an interactive native window-level adapter on macOS. The adapters operate on DarkDesk's own widget windows. A desktop session without a suitable host, native-binding failure, or an unsupported platform produces an explicitly labeled **Floating** fallback. The placement status reflects the adapter result; selecting Desktop does not guarantee attachment.
 
-On Windows, notes, tasks, currency and focus controls always use independent focusable windows: cross-process desktop parenting can prevent normal text input. Showing an editor focuses it; restored startup widgets do not steal focus. macOS retains its supported interactive desktop-level windows.
+On Windows, notes, tasks, currency, weather and focus controls always use independent focusable windows: cross-process desktop parenting can prevent normal text input. Showing an editor focuses it; restored startup widgets do not steal focus. macOS retains its supported interactive desktop-level windows.
 
 **Floating** placement keeps ordinary independent windows below always-on-top overlays. It does not pin them above other applications. Changing placement flushes pending note drafts before recreating windows. Hiding and quitting also attempt to flush drafts. If saving fails, DarkDesk keeps the affected window available so the user can retry rather than destroying an unsaved note.
 
@@ -93,3 +93,14 @@ A normal quit flushes pending aggregate records. Forced termination can lose the
 Each panel can collapse to a 44-pixel header without discarding its note or tasks. Collapse state survives restart, and expanding restores compact content bounds. The system panel shows per-core CPU samples and a memory percentage bar; its polling pauses while collapsed.
 
 Folder artwork now uses immutable content-addressed files in DarkDesk’s local `folder-artwork` cache. Windows `desktop.ini` references this cache so Explorer distinguishes color and style changes from its previous icon identity. Existing custom folder metadata remains protected. Saving an unchanged category also retries the appearance update for older folders.
+
+## Currency, fixed widgets and the Store edition (3.12)
+
+- In Currency Converter, select a source/target and use **Pin pair**. Keep up to 12 pairs and remove each with its × button. **Default currency in Quick Launcher** controls expressions without a target: `1 usd` → your saved currency. Explicit targets override it, including `1 usd tl`.
+- Notes and tasks page automatically inside fixed widgets. Use their Previous/Next buttons; content remains complete. Focus settings switch between timing and sound views instead of growing the widget. Widget opacity controls the background only; text remains legible.
+- System Monitor's Disk view includes a per-volume Previous/Next control. Unmounted drives are not discoverable; inaccessible detected volumes show unavailable. Disk readings refresh at most every 15 seconds.
+- Enable **Weather**, select a city or supply coordinates, then Save. No account/API key is needed. The manually selected coordinates go to MET Norway; notes and tasks remain local. Forecasts refresh every 15 minutes while active. See [privacy details](PRIVACY.md).
+- **Ctrl+Alt+0** restores Default Mode. Change it through Work Profiles → Global shortcuts. If another program owns the key, choose a different combination; the previous registration is retained when a replacement fails.
+- Seven global folder styles are available under Categories & Rules → Global folder theme. Per-category overrides take precedence. Use Customize → Save and apply to Desktop for a specific physical Windows folder.
+- German, French and Spanish are beta core-interface translations, with English fallback for technical help. Turkish/English remain the primary full translations.
+- Store submission preparation is documented in [MICROSOFT_STORE.md](MICROSOFT_STORE.md). The app is not yet published in Store.

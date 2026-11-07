@@ -11,8 +11,11 @@ export default function Profiles({ runtime, onApply, onRestore, onSave, busy, co
   const [editor, setEditor] = useState(null);
   const [launcherDraft, setLauncherDraft] = useState(settings.launcherShortcut);
   useEffect(() => setLauncherDraft(settings.launcherShortcut), [settings.launcherShortcut]);
+  const [restoreDraft, setRestoreDraft] = useState(settings.restoreShortcut);
+  useEffect(() => setRestoreDraft(settings.restoreShortcut), [settings.restoreShortcut]);
   const assignments = [
-    { id: 'launcher', accelerator: settings.launcherShortcut },
+    { id: 'restore', accelerator: restoreDraft },
+    { id: 'launcher', accelerator: launcherDraft },
     ...settings.profiles.map((p) => ({ id: 'profile:' + p.id, accelerator: p.shortcut })),
   ];
   const editProfile = (profile) =>
@@ -54,6 +57,9 @@ export default function Profiles({ runtime, onApply, onRestore, onSave, busy, co
               <b>{t('ux311.defaultMode')}</b>
               <small>{t('ux311.defaultBody')}</small>
             </span>
+            <kbd>
+              {displayAccelerator(settings.restoreShortcut, /Mac/i.test(navigator.platform))}
+            </kbd>
           </button>
         </article>
         {settings.profiles.map((profile) => (
@@ -160,11 +166,33 @@ export default function Profiles({ runtime, onApply, onRestore, onSave, busy, co
                 disabled={!!busy}
                 onChange={setLauncherDraft}
               />
+              <label className="field-label" htmlFor="profile-restore-shortcut">
+                {t('ux311.defaultMode')}
+              </label>
+              <KeyBinder
+                id="profile-restore-shortcut"
+                label={t('ux311.defaultMode')}
+                value={restoreDraft}
+                currentId="restore"
+                assignments={assignments}
+                disabled={!!busy}
+                onChange={setRestoreDraft}
+              />
               <button
                 type="button"
                 className="btn secondary"
-                disabled={!!busy || launcherDraft === settings.launcherShortcut}
-                onClick={() => onSave({ ...settings, launcherShortcut: launcherDraft })}
+                disabled={
+                  !!busy ||
+                  (launcherDraft === settings.launcherShortcut &&
+                    restoreDraft === settings.restoreShortcut)
+                }
+                onClick={() =>
+                  onSave({
+                    ...settings,
+                    launcherShortcut: launcherDraft,
+                    restoreShortcut: restoreDraft,
+                  })
+                }
               >
                 <Save size={15} />
                 {t('common.save')}
@@ -181,7 +209,7 @@ export default function Profiles({ runtime, onApply, onRestore, onSave, busy, co
                       ? profile.labelKey
                         ? t(profile.labelKey)
                         : profile.name
-                      : t('launcher.title')}
+                      : t(entry.id === 'restore' ? 'ux311.defaultMode' : 'launcher.title')}
                   </span>
                   <kbd>
                     {displayAccelerator(entry.accelerator, /Mac/i.test(navigator.platform))}

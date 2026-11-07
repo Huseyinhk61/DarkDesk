@@ -1,0 +1,22 @@
+{
+  "tr": {
+    "name": "Türkçe",
+    "locale": "tr-TR"
+  },
+  "en": {
+    "name": "English",
+    "locale": "en-US"
+  },
+  "de": {
+    "name": "Deutsch · Beta",
+    "locale": "de-DE"
+  },
+  "fr": {
+    "name": "Français · Beta",
+    "locale": "fr-FR"
+  },
+  "es": {
+    "name": "Español · Beta",
+    "locale": "es-ES"
+  }
+}

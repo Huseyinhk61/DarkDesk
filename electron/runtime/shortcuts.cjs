@@ -3,9 +3,12 @@ const { randomUUID } = require('node:crypto');
 // Own only this application's registrations. New combinations are reserved before
 // old ones are released, so an unavailable replacement never destroys a working key.
 class ShortcutManager {
-  constructor(adapter, { launcher, profile, onStatus = () => {}, captureTimeout = 30000 } = {}) {
+  constructor(
+    adapter,
+    { launcher, profile, restore, onStatus = () => {}, captureTimeout = 30000 } = {},
+  ) {
     this.adapter = adapter;
-    this.actions = { launcher, profile };
+    this.actions = { launcher, profile, restore };
     this.onStatus = onStatus;
     this.captureTimeout = captureTimeout;
     this.entries = new Map();
@@ -40,6 +43,9 @@ class ShortcutManager {
     if (this.capture) this.resume(this.capture.token);
     const list = [
       { id: 'launcher', accelerator: settings.launcherShortcut, action: this.actions.launcher },
+      ...(settings.restoreShortcut
+        ? [{ id: 'restore', accelerator: settings.restoreShortcut, action: this.actions.restore }]
+        : []),
       ...settings.profiles.map((p) => ({
         id: 'profile:' + p.id,
         accelerator: p.shortcut,

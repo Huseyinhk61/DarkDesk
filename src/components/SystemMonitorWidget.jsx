@@ -6,6 +6,14 @@ import { native } from '../service';
 export default function SystemMonitorWidget({ metrics, points, options = {} }) {
   const { t, locale } = usePreferences();
   const [tab, setTab] = useState('overview');
+  const [diskPage, setDiskPage] = useState(0);
+  const disks = metrics?.disks?.length
+    ? metrics.disks
+    : metrics?.disk
+      ? [{ ...metrics.disk, label: t('ux311.monitor.disk') }]
+      : [];
+  const diskIndex = Math.min(diskPage, Math.max(0, disks.length - 1));
+  const disk = disks[diskIndex];
   const [corePage, setCorePage] = useState(0);
   const percent = (value) => (Number.isFinite(value) ? Math.round(value) + '%' : '—');
   const meter = (name, value) => (
@@ -165,16 +173,44 @@ export default function SystemMonitorWidget({ metrics, points, options = {} }) {
       {activeTab === 'disk' && (
         <div className="monitor-disk">
           <div className="monitor-heading">
-            <b>{t('ux311.monitor.disk')}</b>
-            <strong>{percent(metrics?.disk?.percent)}</strong>
+            <b className="disk-label" title={disk?.path}>
+              {disk?.path || disk?.label || t('ux311.monitor.disk')}
+            </b>
+            <strong>{percent(disk?.percent)}</strong>
           </div>
-          {meter(t('widgetMore.diskUsed'), metrics?.disk?.percent)}
+          {meter(t('widgetMore.diskUsed'), disk?.percent)}
           <small>{t('widgetMore.diskFree')}</small>
           <b>
-            {metrics?.disk
-              ? `${formatBytes(metrics.disk.free, locale)} / ${formatBytes(metrics.disk.total, locale)}`
+            {disk && !disk.unavailable
+              ? `${formatBytes(disk.free, locale)} / ${formatBytes(disk.total, locale)}`
               : '—'}
           </b>
+          <small className="disk-volume-name" title={disk?.label}>
+            {disk?.label || '—'}
+          </small>
+          {disks.length > 1 && (
+            <div className="monitor-pagination">
+              <button
+                type="button"
+                disabled={!diskIndex}
+                aria-label={t('ux311.previous')}
+                onClick={() => setDiskPage(diskIndex - 1)}
+              >
+                <ChevronLeft size={14} />
+              </button>
+              <small>
+                {diskIndex + 1} / {disks.length}
+              </small>
+              <button
+                type="button"
+                disabled={diskIndex === disks.length - 1}
+                aria-label={t('ux311.next')}
+                onClick={() => setDiskPage(diskIndex + 1)}
+              >
+                <ChevronRight size={14} />
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

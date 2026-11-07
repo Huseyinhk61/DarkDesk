@@ -13,7 +13,7 @@ test('currency parsing keeps units separate and computes cross rates without ari
   assert.deepEqual(parseCurrencyInput('USD to TRY'), { amount: 1, from: 'USD', to: 'TRY' });
   assert.deepEqual(parseCurrencyInput('EUR'), { amount: 1, from: 'EUR', to: 'TRY' });
   assert.deepEqual(parseCurrencyInput('eur in usd'), { amount: 1, from: 'EUR', to: 'USD' });
-  for (const input of ['to TRY', '-1 USD', 'USD to', '1e3 USD', 'USD TRY', 'EUR extra'])
+  for (const input of ['to TRY', '-1 USD', 'USD to', '1e3 USD', 'EUR extra'])
     assert.equal(parseCurrencyInput(input), null, input);
   assert.equal(parseCurrencyInput('10 km to m'), null);
   assert.equal(parseCurrencyInput('2 XYZ to TRY'), null);

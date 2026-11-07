@@ -8,7 +8,8 @@ import {
   categoryId,
 } from './domain.js';
 import { compileRule } from './regex.js';
-import { themeIds, iconPacks, fontIds } from './appearance.js';
+import { normalizeCurrencyPreferences } from './currency.js';
+import { languages, themeIds, iconPacks, fontIds } from './appearance.js';
 import { folderThemes, normalizeFolderColor } from './folder-appearance.js';
 const defaults = defaultSettings;
 export function validateSettings(input) {
@@ -21,7 +22,7 @@ export function validateSettings(input) {
     ![100, 115, 130].includes(value.uiScale) ||
     !['comfortable', 'compact'].includes(value.density) ||
     !['system', 'reduced'].includes(value.motion) ||
-    !['tr', 'en'].includes(value.language) ||
+    !Object.hasOwn(languages, value.language) ||
     !iconPacks.includes(value.iconPack) ||
     !fontIds.includes(value.fontFamily) ||
     !folderThemes.includes(value.folderTheme)
@@ -308,11 +309,26 @@ export function validateSettings(input) {
     };
   });
   const launcherShortcut = accelerator(value.launcherShortcut);
+  const usedShortcuts = new Set([launcherShortcut, ...profiles.map((profile) => profile.shortcut)]);
+  const restoreShortcut =
+    input.restoreShortcut === undefined
+      ? [
+          defaults.restoreShortcut,
+          'CommandOrControl+Alt+Shift+0',
+          ...Array.from({ length: 24 }, (_, index) => 'CommandOrControl+Alt+Shift+F' + (index + 1)),
+        ]
+          .map(accelerator)
+          .find((key) => !usedShortcuts.has(key))
+      : accelerator(value.restoreShortcut);
+  const currency = normalizeCurrencyPreferences(value.currency, value.language);
   if (
     new Set(profiles.map((p) => p.id)).size !== profiles.length ||
-    new Set([launcherShortcut.toLowerCase(), ...profiles.map((p) => p.shortcut.toLowerCase())])
-      .size !==
-      profiles.length + 1
+    new Set([
+      launcherShortcut.toLowerCase(),
+      restoreShortcut.toLowerCase(),
+      ...profiles.map((p) => p.shortcut.toLowerCase()),
+    ]).size !==
+      profiles.length + 2
   )
     throw Error('SHORTCUT_DUPLICATE');
   const filters = value.scanFilters;
@@ -386,6 +402,8 @@ export function validateSettings(input) {
     launcherCommandFavorites,
     profiles,
     launcherShortcut,
+    restoreShortcut,
+    currency,
     scanFilters,
     automation,
     smartTagging: value.smartTagging,

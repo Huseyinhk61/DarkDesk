@@ -270,7 +270,7 @@ test('PowerShell receives fixed encoded source and bounded JSON stdin without a 
       return child;
     },
   );
-  assert.equal(call[0], 'powershell.exe');
+  assert.equal(require('node:path').win32.basename(call[0]), 'powershell.exe');
   assert.deepEqual(call[1].slice(0, 3), ['-NoProfile', '-NonInteractive', '-EncodedCommand']);
   assert.equal(Buffer.from(call[1][3], 'base64').toString('utf16le'), ADMIN_SCRIPT);
   assert.equal(JSON.parse(input).arguments, '$(malicious)');
@@ -318,10 +318,10 @@ test(
   'Windows compiles Core Audio interop without modifying audio or radio state',
   { skip: process.platform !== 'win32' },
   async () => {
-    const { AUDIO_TYPES, WIFI_SCRIPT } = require('./runtime/windows-audio.cjs');
+    const { AUDIO_TYPES, AUDIO_SCRIPT, WIFI_SCRIPT } = require('./runtime/windows-audio.cjs');
     await powershell(
       `$ErrorActionPreference='Stop';try{Add-Type -TypeDefinition @'\n${AUDIO_TYPES}\n'@; $tokens=$null; $errors=$null; [System.Management.Automation.Language.Parser]::ParseInput(([Console]::In.ReadToEnd()|ConvertFrom-Json),[ref]$tokens,[ref]$errors)>$null;if($errors.Count){exit 1}}catch{exit 1}`,
-      WIFI_SCRIPT,
+      AUDIO_SCRIPT + '\n' + WIFI_SCRIPT,
     );
   },
 );

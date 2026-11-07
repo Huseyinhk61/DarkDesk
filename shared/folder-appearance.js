@@ -1,6 +1,6 @@
 import glyphs from './minimal-icons.json' with { type: 'json' };
 
-export const folderThemes = ['gradient', 'solid', 'outline'];
+export const folderThemes = ['gradient', 'solid', 'outline', 'pastel', 'glass', 'neon', 'paper'];
 export function resolveFolderTheme(category, fallback = 'gradient') {
   return category?.folderTheme ?? fallback;
 }
@@ -115,19 +115,29 @@ export function folderSvg({
       ? `dd-${theme}-${custom.from.slice(1)}-${custom.to.slice(1)}-${icon}`
       : `dd-${theme}-${color}-${icon}`;
   const shape = 'M25 72q0-18 18-18h63l21 21h86q18 0 18 18v112q0 20-20 20H45q-20 0-20-20Z';
-  const fill =
-    theme === 'gradient' ? `url(#${id})` : theme === 'outline' ? palette.shade : palette.fill;
-  const opacity = theme === 'outline' ? '.12' : '1';
+  const fill = ['gradient', 'glass', 'neon'].includes(theme)
+    ? `url(#${id})`
+    : theme === 'outline'
+      ? palette.shade
+      : theme === 'pastel'
+        ? mix(palette.fill, '#ffffff', 0.7)
+        : theme === 'paper'
+          ? '#f8f4e8'
+          : palette.fill;
+  const opacity = theme === 'outline' ? '.12' : theme === 'glass' ? '.55' : '1';
   const stroke = theme === 'outline' ? palette.fill : palette.stroke;
-  const glyph =
-    custom && theme !== 'outline'
-      ? contrastingGlyph(palette, theme)
-      : theme === 'outline'
-        ? palette.fill
-        : theme === 'solid' &&
-            ['amber', 'orange', 'green', 'cyan', 'teal', 'slate', 'red'].includes(color)
-          ? '#152333'
-          : '#ffffff';
+  const glyph = ['pastel', 'paper'].includes(theme)
+    ? palette.shade
+    : theme === 'neon'
+      ? '#ffffff'
+      : custom && theme !== 'outline'
+        ? contrastingGlyph(palette, theme)
+        : theme === 'outline'
+          ? palette.fill
+          : theme === 'solid' &&
+              ['amber', 'orange', 'green', 'cyan', 'teal', 'slate', 'red'].includes(color)
+            ? '#152333'
+            : '#ffffff';
   const halo =
     glyph === '#ffffff'
       ? '#000000'
@@ -147,5 +157,5 @@ export function folderSvg({
   const glyphHalo = custom
     ? `<g transform="${transform}" fill="none" stroke="${halo}" stroke-opacity=".7" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="${glyphs[icon]}"/></g>`
     : '';
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256"><defs><linearGradient id="${id}" x1="0" y1="0" x2=".75" y2="1"><stop stop-color="${palette.fill}"/><stop offset="1" stop-color="${palette.shade}"/></linearGradient></defs><path d="M25 91V72q0-18 18-18h63l21 21h86q18 0 18 18" fill="${palette.shade}" stroke="${stroke}" stroke-width="3"/>${outlineHalo}<path d="${shape}" fill="${fill}" fill-opacity="${opacity}" stroke="${stroke}" stroke-width="${theme === 'outline' ? 5 : 3}" stroke-linejoin="round"/><path d="M38 96h178" fill="none" stroke="${palette.stroke}" stroke-opacity="${theme === 'outline' ? '.45' : '.23'}" stroke-width="2"/>${glyphHalo}<g transform="${transform}" fill="none" stroke="${glyph}" stroke-width="${theme === 'solid' ? 2 : 1.8}" stroke-linecap="round" stroke-linejoin="round"><path d="${glyphs[icon]}"/></g></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256"><defs><linearGradient id="${id}" x1="0" y1="0" x2=".75" y2="1"><stop stop-color="${palette.fill}"/><stop offset="1" stop-color="${palette.shade}"/></linearGradient></defs><path d="M25 91V72q0-18 18-18h63l21 21h86q18 0 18 18" fill="${palette.shade}" stroke="${stroke}" stroke-width="3"/>${outlineHalo}<path d="${shape}" fill="${fill}" fill-opacity="${opacity}" stroke="${stroke}" stroke-width="${theme === 'outline' ? 5 : 3}" stroke-linejoin="round"/><path d="M38 96h178" fill="none" stroke="${palette.stroke}" stroke-opacity="${theme === 'outline' ? '.45' : '.23'}" stroke-width="2"/>${theme === 'paper' ? `<path d="M40 117h176M40 139h176M40 161h176M40 183h176" stroke="${palette.fill}" stroke-opacity=".2"/>` : ''}${theme === 'neon' ? `<path d="${shape}" fill="none" stroke="${palette.fill}" stroke-opacity=".25" stroke-width="13"/>` : ''}${glyphHalo}<g transform="${transform}" fill="none" stroke="${glyph}" stroke-width="${theme === 'solid' ? 2 : 1.8}" stroke-linecap="round" stroke-linejoin="round"><path d="${glyphs[icon]}"/></g></svg>`;
 }

@@ -40,6 +40,10 @@ public static class DarkDeskAudio {
     Marshal.ThrowExceptionForHR(volume.SetMasterVolumeLevelScalar(Math.Max(0f, Math.Min(1f, current + (action == "volume-up" ? .05f : -.05f))), ref context));
     if (action == "volume-up") Marshal.ThrowExceptionForHR(volume.SetMute(false, ref context));
    } else throw new ArgumentException("Unsupported audio action");
+   if (action == "mute" || action == "unmute") {
+    bool actual; Marshal.ThrowExceptionForHR(volume.GetMute(out actual));
+    if (actual != (action == "mute")) throw new InvalidOperationException("Audio state did not change");
+   }
   } finally {
    if (endpoint != null) Marshal.ReleaseComObject(endpoint);
    if (device != null) Marshal.ReleaseComObject(device);
@@ -49,7 +53,8 @@ public static class DarkDeskAudio {
 }`;
 const AUDIO_SCRIPT = `[Console]::InputEncoding=[Text.UTF8Encoding]::new($false);$ErrorActionPreference='Stop';try{Add-Type -TypeDefinition @'
 ${AUDIO_TYPES}
-'@;$v=[Console]::In.ReadToEnd()|ConvertFrom-Json;[DarkDeskAudio]::Apply([string]$v.action)}catch{exit 1}`;
+'@
+$v=[Console]::In.ReadToEnd()|ConvertFrom-Json;[DarkDeskAudio]::Apply([string]$v.action)}catch{[Console]::Error.Write('DD_AUDIO_UNAVAILABLE');exit 1}`;
 // WinRT controls Wi-Fi radios without altering network adapter configuration.
 // Access denial or unavailable hardware is an error, never a claimed success.
 const WIFI_SCRIPT = `[Console]::InputEncoding=[Text.UTF8Encoding]::new($false);$ErrorActionPreference='Stop';try{
@@ -61,5 +66,5 @@ $access=Wait-Radio ([Windows.Devices.Radios.Radio]::RequestAccessAsync()) ([Wind
 $radios=Wait-Radio ([Windows.Devices.Radios.Radio]::GetRadiosAsync()) ([System.Collections.Generic.IReadOnlyList[Windows.Devices.Radios.Radio]])
 $v=[Console]::In.ReadToEnd()|ConvertFrom-Json;if($v.action -eq 'wifi-on'){$state=[Windows.Devices.Radios.RadioState]::On}elseif($v.action -eq 'wifi-off'){$state=[Windows.Devices.Radios.RadioState]::Off}else{throw 'Invalid radio action'}
 $found=$false;foreach($radio in $radios){if([string]$radio.Kind -eq 'WiFi'){$found=$true;$result=Wait-Radio ($radio.SetStateAsync($state)) ([Windows.Devices.Radios.RadioAccessStatus]);if([string]$result -ne 'Allowed'){throw 'Radio change denied'}}};if(-not $found){throw 'No Wi-Fi radio'}
-}catch{exit 1}`;
+}catch{[Console]::Error.Write('DD_RADIO_UNAVAILABLE');exit 1}`;
 module.exports = { AUDIO_TYPES, AUDIO_SCRIPT, WIFI_SCRIPT };

@@ -92,11 +92,13 @@ test('focus settings persist, completion enters a break and plays a single audib
   await focus.getByLabel('Mola süresi (dk)').fill('3');
   await focus.getByLabel('Çalışma döngüsü', { exact: true }).fill('2');
   await focus.getByLabel('Vurgu rengi', { exact: true }).selectOption('mint');
+  await focus.getByRole('button', { name: 'Süre bitiminde zil', exact: true }).click();
   const volume = focus.getByRole('slider', { name: 'Zil seviyesi', exact: true });
   await volume.fill('35');
   await volume.blur();
   await focus.getByRole('button', { name: 'Zili dene', exact: true }).click();
   expect(await page.evaluate(() => window.__bellTones)).toBe(3);
+  await focus.locator('summary').click();
   await page.evaluate(async () => {
     const { api } = await import('/src/service.js');
     await api.saveWidgets({ focus: { remaining: 1, endsAt: Date.now() + 600 } });

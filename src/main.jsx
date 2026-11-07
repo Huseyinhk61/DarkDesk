@@ -12,6 +12,7 @@ import './receipt.css';
 import './desktop.css';
 import './workspace-polish.css';
 import './release-311.css';
+import './release-312.css';
 import { PreferencesProvider } from './preferences';
 const launcher = window.location.hash === '#launcher';
 const widget = /^#widget=(system|note|todos|currency|clock|focus)$/.test(window.location.hash);

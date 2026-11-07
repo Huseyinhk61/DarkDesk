@@ -1,5 +1,5 @@
 import { Check, Globe, Paintbrush, RotateCcw, Accessibility } from 'lucide-react';
-import { themes, resolveTheme, iconPacks, fontIds } from '../../shared/appearance';
+import { themes, resolveTheme, iconPacks, fontIds, languages } from '../../shared/appearance';
 import { usePreferences } from '../preferences';
 import AppIcon from './AppIcon';
 import FolderAppearanceSettings from './FolderAppearanceSettings';
@@ -137,8 +137,11 @@ export default function AppearanceSettings({ onSave, busy, onApplyFolders, platf
             disabled={!!busy}
             onChange={(event) => update({ language: event.target.value })}
           >
-            <option value="tr">{t('languages.tr')}</option>
-            <option value="en">{t('languages.en')}</option>
+            {Object.entries(languages).map(([id, language]) => (
+              <option key={id} value={id}>
+                {language.name}
+              </option>
+            ))}
           </select>
         </label>
         <label>

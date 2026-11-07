@@ -68,5 +68,6 @@
     "downloadsEnabled": false,
     "downloadMode": "copy",
     "settleSeconds": 10
-  }
+  },
+  "restoreShortcut": "CommandOrControl+Alt+0"
 }

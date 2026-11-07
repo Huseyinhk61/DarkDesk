@@ -1,3 +1,4 @@
+import glyphs from './minimal-icons.json' with { type: 'json' };
 import catalog from './catalog.json' with { type: 'json' };
 import { folderColorIds } from './folder-appearance.js';
 import runtimeDefaults from './runtime-defaults.json' with { type: 'json' };
@@ -6,20 +7,7 @@ import { purposeCategory } from './app-purpose-categories.js';
 import { fileTypeCategory } from './file-types.js';
 import { suggestTags } from './smart-tags.js';
 import { findKnownApp, appInsight, leafName, gameLaunchCategory } from './app-insights.js';
-export const icons = [
-  'code',
-  'palette',
-  'gamepad',
-  'file',
-  'wrench',
-  'music',
-  'folder',
-  'star',
-  'rocket',
-  'globe',
-  'archive',
-  'heart',
-];
+export const icons = Object.keys(glyphs);
 export const colors = folderColorIds;
 export const defaultCategories = catalog;
 export const defaultSettings = {
