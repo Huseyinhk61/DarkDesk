@@ -234,7 +234,8 @@ async function widgetPage(application, id) {
     await todoInput.press('Enter');
     await expect(todos.locator('.widget-todos li')).toHaveCount(1);
 
-    if (['win32', 'darwin'].includes(process.platform)) {
+    {
+      // Exercise window recreation on every platform, including Linux.
       await main.evaluate(() => window.darkdesk.saveWidgets({ placement: 'desktop' }));
       const attached = await main.evaluate(() => window.darkdesk.widgetState());
       if (process.platform === 'darwin') {
@@ -244,7 +245,7 @@ async function widgetPage(application, id) {
           'macOS must attach its own normal interactive NSWindow',
         );
         assert.equal(attached.placements.note.supported, true);
-      } else {
+      } else if (process.platform === 'win32') {
         assert.equal(attached.placements.note.mode, 'floating');
         assert.equal(attached.placements.note.reason, 'editable');
         assert.equal(
@@ -298,10 +299,11 @@ async function widgetPage(application, id) {
       (await main.evaluate(() => window.darkdesk.widgetState())).appearance.note.opacity,
       55,
     );
-    // Some native macOS compositors omit the backdrop-filter longhand from
-    // computed style. Verify the actual window receives the persisted value;
-    // browser tests separately exercise the standard blur declaration.
-    await expect(note.locator('.desktop-widget')).toHaveCSS('--widget-blur', '7px');
+    // Placement changes recreate windows. Read the current renderer instead
+    // of the closed note page captured before that transition.
+    const currentNote = await widgetPage(application, 'note');
+    await expect(currentNote.locator('.desktop-widget')).toHaveCSS('--widget-blur', '7px');
+    await expect(currentNote.locator('.desktop-widget')).toHaveCSS('backdrop-filter', 'blur(7px)');
     await application.evaluate(({}, packageBase) => {
       const req = process
         .getBuiltinModule('node:module')
