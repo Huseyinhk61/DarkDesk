@@ -7,3 +7,6 @@ test-results/
 build/store-identity.local.json
 *.pfx
 *.p12
+weather-live-report.json
+
+__pycache__/

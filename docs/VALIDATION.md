@@ -1,5 +1,15 @@
 # DarkDesk validation report
 
+## 3.12.1 — connected weather and verified Store delivery
+
+- Fixed an actual native routing bug: the entry point's six-name regex excluded `weather`, opening the main app inside the weather window. Window selection now comes from the shared widget registry. A standalone-window browser regression and actual Electron weather IPC/parser/manual-refresh smoke check cover this failure.
+- **348 Linux service/model tests passed**, with the Windows-only audio compilation/parser check skipped locally. New checks cover manual weather refresh/cooldown, provider Retry-After, bounded offline cache, closest forecast interval and bounded/same-origin preview requests.
+- The local full browser suite passed **157 scenarios** before the final routing safeguard; the three final weather scenarios then passed, including the new standalone-window regression. The full final suite contains 158 scenarios and runs in CI.
+- Production build and isolated native Electron tests passed. The weather native check exercises real widget boot, restricted IPC, actual provider-response parsing and manual refresh with a controlled transport. Move/undo and existing native widget persistence checks remain covered.
+- Live provider access and public Store ZIP/AppX delivery are checked in independent GitHub workflows. Before publication the Store ZIP is reopened, each of its four flat files is extracted, and each extracted hash must match its source. The public download verifier independently downloads both assets anonymously, checks both outer/inner ZIP CRCs, full file hashes, source provenance, executable and exact Partner Center identity. Live/published results are recorded below after those workflows finish.
+
+The original Actions artifact was listed as 219 MB; that alone could not establish why a particular user download appeared empty. The replacement delivery path provides explicit versioned release assets and an independently checked standard ZIP, with no Actions login needed. Store approval and signed installation/certification remain separate owner steps.
+
 ## 3.12.0 — personal tools and Microsoft Store preparation
 
 Local validation on Linux:

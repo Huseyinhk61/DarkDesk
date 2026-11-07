@@ -1180,7 +1180,7 @@
   "ux312.latitude": "Latitude",
   "ux312.longitude": "Longitude",
   "ux312.temperatureUnit": "Temperature unit",
-  "ux312.weatherUnavailable": "Forecast unavailable. Check your connection and reopen after a minute.",
+  "ux312.weatherUnavailable": "Weather is unavailable. Check your connection; an automatic retry is scheduled.",
   "ux312.weatherInvalid": "Check the location name and coordinates.",
   "ux312.humidity": "Humidity",
   "ux312.wind": "Wind",
@@ -1197,5 +1197,13 @@
   "errors.WEATHER_DESKTOP_ONLY": "Weather is available in the native desktop app.",
   "errors.WEATHER_INVALID": "Invalid weather location.",
   "errors.LAUNCHER_AUDIO_UNAVAILABLE": "Audio output unavailable. Select an output device in Windows sound settings and retry.",
-  "errors.LAUNCHER_RADIO_UNAVAILABLE": "Wi-Fi hardware is unavailable or access was denied. Check network settings."
+  "errors.LAUNCHER_RADIO_UNAVAILABLE": "Wi-Fi hardware is unavailable or access was denied. Check network settings.",
+  "weather.settings": "Weather settings",
+  "weather.loading": "Fetching forecast…",
+  "weather.refresh": "Refresh now",
+  "weather.retry": "Retry connection",
+  "weather.countdown": "Refresh in {seconds}s",
+  "weather.city": "Weather city",
+  "weather.activateHelp": "Choose your city and open the panel. Forecasts update online; no API key is needed.",
+  "weather.updated": "Updated"
 }

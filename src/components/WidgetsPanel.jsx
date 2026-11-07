@@ -1,3 +1,4 @@
+import { weatherCities } from '../../shared/weather';
 import { useEffect, useRef, useState } from 'react';
 import {
   Cpu,
@@ -115,21 +116,38 @@ export default function WidgetsPanel({ busy }) {
                   )
                 : t('widgetPlus.off')}
             </span>
-            <button
-              className={'btn ' + (state?.widgets[id].enabled ? 'secondary' : 'primary')}
-              disabled={!state || !!pending || busy}
-              onClick={() =>
-                run(id, () => (state.widgets[id].enabled ? api.hideWidget(id) : api.showWidget(id)))
-              }
-            >
-              {t(
-                state?.widgets[id].enabled
-                  ? 'widgetPlus.hideButton'
-                  : native
-                    ? 'widgetPlus.showButton'
-                    : 'widgetPlus.previewButton',
-              )}
-            </button>
+            {id === 'weather' ? (
+              <WeatherQuickSetup
+                state={state}
+                disabled={!state || !!pending || busy}
+                onToggle={(location) =>
+                  run(id, async () => {
+                    if (state.widgets.weather.enabled) return api.hideWidget('weather');
+                    await api.saveWidgets({ weather: { ...state.weather, location } });
+                    return api.showWidget('weather');
+                  })
+                }
+              />
+            ) : (
+              <button
+                className={'btn ' + (state?.widgets[id].enabled ? 'secondary' : 'primary')}
+                disabled={!state || !!pending || busy}
+                onClick={() =>
+                  run(id, () =>
+                    state.widgets[id].enabled ? api.hideWidget(id) : api.showWidget(id),
+                  )
+                }
+              >
+                {t(
+                  state?.widgets[id].enabled
+                    ? 'widgetPlus.hideButton'
+                    : native
+                      ? 'widgetPlus.showButton'
+                      : 'widgetPlus.previewButton',
+                )}
+              </button>
+            )}
+
             {state && (
               <WidgetAppearanceControl
                 id={id}
@@ -289,6 +307,54 @@ function WidgetAppearanceControl({ id, value, disabled, onSave }) {
           ))}
         </select>
       </label>
+    </div>
+  );
+}
+
+function WeatherQuickSetup({ state, disabled, onToggle }) {
+  const { t } = usePreferences();
+  const location = state?.weather?.location;
+  const [selected, setSelected] = useState('0');
+  useEffect(() => {
+    if (!location) return;
+    const index = weatherCities.findIndex(
+      (city) => city.latitude === location.latitude && city.longitude === location.longitude,
+    );
+    setSelected(index < 0 ? 'custom' : String(index));
+  }, [location?.latitude, location?.longitude]);
+  const enabled = state?.widgets?.weather?.enabled;
+  return (
+    <div className="weather-quick-setup">
+      <label>
+        {t('weather.city')}
+        <select
+          aria-label={t('weather.city')}
+          disabled={disabled || enabled}
+          value={selected}
+          onChange={(event) => setSelected(event.target.value)}
+        >
+          {location && <option value="custom">{location.name}</option>}
+          {weatherCities.map((city, index) => (
+            <option value={index} key={city.name}>
+              {city.name}
+            </option>
+          ))}
+        </select>
+      </label>
+      <small className="muted">{t('weather.activateHelp')}</small>
+      <button
+        className={'btn ' + (enabled ? 'secondary' : 'primary')}
+        disabled={disabled}
+        onClick={() => onToggle(selected === 'custom' ? location : weatherCities[Number(selected)])}
+      >
+        {t(
+          enabled
+            ? 'widgetPlus.hideButton'
+            : native
+              ? 'widgetPlus.showButton'
+              : 'widgetPlus.previewButton',
+        )}
+      </button>
     </div>
   );
 }

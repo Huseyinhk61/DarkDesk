@@ -261,8 +261,15 @@ export const api = window.darkdesk || {
     settingsListeners.add(fn);
     return () => settingsListeners.delete(fn);
   },
-  weatherQuote: async () => {
-    throw Error('WEATHER_DESKTOP_ONLY');
+  weatherQuote: async (location, options = {}) => {
+    const response = await fetch('/__darkdesk/weather', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ location, options }),
+      signal: AbortSignal.timeout(12000),
+    });
+    if (!response.ok) throw Error('WEATHER_UNAVAILABLE');
+    return response.json();
   },
   saveCurrencyPreferences: async (currency) => {
     settings = validateSettings({ ...settings, currency });

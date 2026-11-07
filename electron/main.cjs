@@ -575,7 +575,7 @@ else {
           return saved;
         }),
       );
-      handle('weatherQuote', (location) => weatherService.quote(location));
+      handle('weatherQuote', (location, options) => weatherService.quote(location, options));
       handle('currencyQuote', (query) => currencyService.quote(query));
       handle('copyText', (text) => {
         if (typeof text !== 'string' || text.length > 256) throw Error('LAUNCHER_INPUT_INVALID');

@@ -101,5 +101,13 @@
   "launcher.title": "Lanceur rapide",
   "launcher.placeholder": "Rechercher une application, un fichier ou une commande…",
   "launcher.shortcut": "Raccourci du lanceur",
-  "launcherNext.favorites": "Favoris"
+  "launcherNext.favorites": "Favoris",
+  "weather.settings": "Paramètres météo",
+  "weather.loading": "Chargement des prévisions…",
+  "weather.refresh": "Actualiser",
+  "weather.retry": "Réessayer la connexion",
+  "weather.countdown": "Actualiser dans {seconds}s",
+  "weather.city": "Ville météo",
+  "weather.activateHelp": "Choisissez une ville et ouvrez le panneau. Prévisions sans clé API.",
+  "weather.updated": "Actualisé"
 }

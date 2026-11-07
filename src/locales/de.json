@@ -101,5 +101,13 @@
   "launcher.title": "Schnellstarter",
   "launcher.placeholder": "App, Datei oder Befehl suchen…",
   "launcher.shortcut": "Tastenkürzel des Schnellstarters",
-  "launcherNext.favorites": "Favoriten"
+  "launcherNext.favorites": "Favoriten",
+  "weather.settings": "Wettereinstellungen",
+  "weather.loading": "Vorhersage wird geladen…",
+  "weather.refresh": "Jetzt aktualisieren",
+  "weather.retry": "Verbindung erneut versuchen",
+  "weather.countdown": "In {seconds}s aktualisieren",
+  "weather.city": "Wetterstadt",
+  "weather.activateHelp": "Stadt auswählen und Panel öffnen. Online-Vorhersage ohne API-Schlüssel.",
+  "weather.updated": "Aktualisiert"
 }

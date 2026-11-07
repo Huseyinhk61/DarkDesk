@@ -73,10 +73,14 @@ export function weatherCategory(symbol = '') {
   return 'cloudy';
 }
 export function validateWeatherResponse(data, now = Date.now()) {
-  const entry = data?.properties?.timeseries?.find((row) => {
-    const time = Date.parse(row?.time);
-    return Number.isFinite(time) && time >= now - 3 * 3600000 && time <= now + 3600000;
-  });
+  const rows = data?.properties?.timeseries;
+  if (!Array.isArray(rows) || rows.length > 2000) throw Error('WEATHER_UNAVAILABLE');
+  const entry = rows
+    .filter((row) => {
+      const time = Date.parse(row?.time);
+      return Number.isFinite(time) && time >= now - 3 * 3600000 && time <= now + 3600000;
+    })
+    .sort((a, b) => Math.abs(Date.parse(a.time) - now) - Math.abs(Date.parse(b.time) - now))[0];
   const d = entry?.data?.instant?.details,
     date = entry?.time;
   if (

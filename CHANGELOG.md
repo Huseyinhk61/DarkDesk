@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.12.1 — November 7, 2026
+
+- Fix native weather windows booting the main application instead of their widget. Resolve window modes from the shared widget registry, with standalone/native regression coverage.
+
+- Make Store delivery available through explicit anonymous release assets: a standalone AppX and standard, flat ZIP with extraction instructions. Verify nonempty inputs, source/report checksums and a full extract/hash round trip before publishing; keep Store submission prereleases separate from app updates.
+- Add weather city selection directly to the widget gallery before activation. Replace the disabled browser-preview stub with a bounded same-origin endpoint using the same native provider service.
+- Add manual weather refresh, request cooldown, automatic reconnect, online/visibility recovery and retrieval timestamps. Honor provider Retry-After and choose the closest forecast interval instead of the first older interval. Preserve honest cached/offline states.
+- Add actual provider connectivity checks in a separate GitHub workflow, service/middleware tests, offline/recovery UI coverage and native weather IPC/parser/refresh checks. Respect configured developer proxies without direct-connection fallback.
+
 ## 3.12.0 — November 7, 2026
 
 - Expand category/profile artwork to 34 icons across the existing five packs. Add Pastel, Glass, Neon and Paper folder styles alongside Gradient, Solid and Outline, using matching preview/native artwork.

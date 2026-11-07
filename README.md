@@ -18,7 +18,13 @@
   <p><sub>Actual browser-preview screenshot with sample data. Native file operations and original app icons require the Electron desktop app.</sub></p>
 </div>
 
-## New in 3.12.0
+## New in 3.12.1
+
+Choose a city directly in the widget gallery to activate online weather. Native Electron and browser preview use the same identified MET Norway service, with manual refresh, automatic retry, cache labels and update times. A dedicated workflow checks the real provider separately from controlled UI tests.
+
+Store submissions now have [direct AppX and checked ZIP downloads](https://github.com/Huseyinhk61/DarkDesk/releases/tag/store-v3.12.1), without the Actions-artifact login step. ZIP files contain a flat AppX/report/readme layout and are extracted and hash-checked before publication. Upload the extracted **AppX**, not GitHub’s source-code ZIP, to Partner Center.
+
+### Also included from 3.12.0
 
 Pin your own currency pairs and choose the launcher's default conversion currency. Type `1 usd`, `1 usd tl`, or `50 eur to gbp`; the built-in guide shows examples. Pick from **34 category icons** and **seven folder styles**. Widgets now use fixed views, paged notes/tasks and consistent background opacity; System Monitor lets you inspect every detected drive. A free, manually configured **MET Norway weather widget** joins the gallery. Default Mode has an editable **Ctrl+Alt+0** shortcut.
 

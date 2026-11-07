@@ -43,5 +43,5 @@ try {
 } finally { $zip.Dispose() }
 $hash = (Get-FileHash -Algorithm SHA256 $package).Hash.ToLowerInvariant()
 "$hash  $(Split-Path -Leaf $package)" | Set-Content -Encoding utf8 (Join-Path $root 'release/store/SHA256SUMS-Store.txt')
-@{identityName=$identity.identityName; publisher=$identity.publisher; publisherDisplayName=$identity.publisherDisplayName; version="$version.0"; architecture='x64'; languages=$languages; signed=$signed; sha256=$hash; certification='Not performed; Store submission and clean-machine installation review are required.'} | ConvertTo-Json -Depth 4 | Set-Content -Encoding utf8 (Join-Path $root 'release/store/store-validation.json')
+@{sourceCommit=$env:GITHUB_SHA; identityName=$identity.identityName; publisher=$identity.publisher; publisherDisplayName=$identity.publisherDisplayName; version="$version.0"; architecture='x64'; languages=$languages; signed=$signed; sha256=$hash; certification='Not performed; Store submission and clean-machine installation review are required.'} | ConvertTo-Json -Depth 4 | Set-Content -Encoding utf8 (Join-Path $root 'release/store/store-validation.json')
 Write-Output "PASS: $($identity.identityName), $version.0, exact publisher, x64, five languages, full-trust/network capabilities, executable and SHA-256. Store certification remains required."

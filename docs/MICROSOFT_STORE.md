@@ -12,7 +12,7 @@ The owner supplied these public Partner Center values, now saved in `build/store
 
 1. Verify the values against **Product identity** in Partner Center before submission. They are identifiers, not signing secrets. No certificate or Microsoft account credential is committed.
 2. On Windows run `npm ci`, `npm run check:store`, then `npm run dist:store`. The committed identity is used by default. For another reserved product, copy `build/store-identity.example.json` to `build/store-identity.local.json` and replace every placeholder, or set `DARKDESK_STORE_IDENTITY` to a JSON file. Explicit invalid/missing overrides fail rather than falling back to another publisher.
-3. **Microsoft Store review package** runs on Store/package configuration pushes to main, or manually with optional identity overrides. Download **DarkDesk-Store-Review** from that workflow's artifacts. It includes the AppX, SHA-256 and manifest verification report. This is an **unsigned Store submission package**; do not disable signature checking to install it as a normal desktop installer. End users should use the GitHub Setup EXE until a Store listing is approved.
+3. Prefer the public [Store submission release](https://github.com/Huseyinhk61/DarkDesk/releases/tag/store-v3.12.1). Download **DarkDesk-Store-3.12.1-x64.appx** directly, or **DarkDesk-Store-Submission-3.12.1-x64.zip** and extract it. GitHub login is not required for these release assets. **Do not download the automatically generated Source code (zip)** for a Store submission. Actions artifacts remain a signed-in fallback. This is an unsigned submission package; normal end users should use the stable Setup EXE until Store approval.
 4. The Windows verification script opens the final archive and checks exact identity/publisher/version, x64, executable, declared languages, branded tile assets and `runFullTrust`/`internetClient`. Electron requires `runFullTrust` for user-approved filesystem operations and desktop integration. Branded package tiles are generated from `public/icon.svg`; listing screenshots/artwork are reviewed separately. Store acceptance is not guaranteed by these checks.
 5. Upload the AppX to the reserved product's submission in Partner Center. Complete listing, privacy/support links and age rating; review restricted capabilities. Run Windows App Certification Kit and test a signed package on a clean Windows 10/11 standard-user account: first launch, scan, preview/undo, tray/exit, shortcuts, widgets, startup management, automation, filesystem/registry behavior outside the package, offline errors, uninstall and upgrade. **Signing/Store installation, certification and Microsoft's approval remain owner checks.**
 
@@ -22,9 +22,23 @@ DarkDesk is an Electron desktop organizer. It needs full-trust desktop APIs to s
 
 The Store edition detects `process.windowsStore`, disables GitHub installer downloads/self-updates, and directs users to Microsoft Store updates. Store owns installation and updates. The GitHub Setup edition remains separate. Do not run two editions against the same desktop simultaneously; export/backup preferences before migration and verify the Store edition's data location.
 
-## Generated package
+## Download and upload
 
-The configured Windows [Store workflow run](https://github.com/Huseyinhk61/DarkDesk/actions/runs/42383544588) passed. Open **Artifacts → DarkDesk-Store-Review** while signed into GitHub to download the AppX, checksum and verification report. The package identity matches the owner-supplied values above. Upload `DarkDesk-Store-3.12.0-x64.appx` in the reserved product's **Submission → Packages** section, then complete listing, privacy, age-rating and certification requirements. The workflow does not log in to Partner Center or submit/publish the listing.
+- [Direct AppX](https://github.com/Huseyinhk61/DarkDesk/releases/download/store-v3.12.1/DarkDesk-Store-3.12.1-x64.appx)
+- [Verified Store ZIP](https://github.com/Huseyinhk61/DarkDesk/releases/download/store-v3.12.1/DarkDesk-Store-Submission-3.12.1-x64.zip)
+- [ZIP SHA-256](https://github.com/Huseyinhk61/DarkDesk/releases/download/store-v3.12.1/DarkDesk-Store-Submission-3.12.1-x64.zip.sha256)
+
+These files appear after the Store workflow succeeds. The standard ZIP is checked by reopening it, extracting each file and comparing hashes against the original source. Its flat layout contains the AppX, `SHA256SUMS-Store.txt`, `store-validation.json` and `README-STORE.txt`. A missing/empty/mismatched file fails the build.
+
+For a local ZIP check in Windows PowerShell:
+
+```powershell
+Get-FileHash .\DarkDesk-Store-Submission-3.12.1-x64.zip -Algorithm SHA256
+```
+
+Compare the hash with the downloaded `.zip.sha256`. Extract the ZIP, then upload **DarkDesk-Store-3.12.1-x64.appx** under **Partner Center → Apps and games → DarkDesk → Submission → Packages**. Complete listing, privacy, age-rating and certification requirements. The workflow does not sign in to Partner Center or publish the listing. The `store-v…` release is marked prerelease and excluded from normal application updates.
+
+If a download is 0 bytes, discard that incomplete download and use the explicit AppX/ZIP asset links above. An HTML login page or source archive is not an AppX package. The original Actions output was listed as 219 MB; this does not establish the content of an individual failed browser download.
 
 ## Listing draft (English)
 

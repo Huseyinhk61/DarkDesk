@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import { widgetIds } from '../shared/widget-model';
 const Launcher = React.lazy(() => import('./components/Launcher'));
 const WidgetWindow = React.lazy(() => import('./components/WidgetWindow'));
 import './styles.css';
@@ -15,7 +16,7 @@ import './release-311.css';
 import './release-312.css';
 import { PreferencesProvider } from './preferences';
 const launcher = window.location.hash === '#launcher';
-const widget = /^#widget=(system|note|todos|currency|clock|focus)$/.test(window.location.hash);
+const widget = widgetIds.some((id) => window.location.hash === '#widget=' + id);
 if (widget) document.documentElement.dataset.window = 'widget';
 if (launcher) document.documentElement.dataset.window = 'launcher';
 createRoot(document.getElementById('root')).render(

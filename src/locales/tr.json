@@ -1180,7 +1180,7 @@
   "ux312.latitude": "Enlem",
   "ux312.longitude": "Boylam",
   "ux312.temperatureUnit": "Sıcaklık birimi",
-  "ux312.weatherUnavailable": "Tahmin alınamadı. İnternet bağlantını kontrol et; bir dakika sonra yeniden aç.",
+  "ux312.weatherUnavailable": "Hava durumu alınamadı. İnternet bağlantını kontrol et; otomatik olarak yeniden denenecek.",
   "ux312.weatherInvalid": "Konum adı ve koordinatlarını kontrol et.",
   "ux312.humidity": "Nem",
   "ux312.wind": "Rüzgâr",
@@ -1197,5 +1197,13 @@
   "errors.WEATHER_DESKTOP_ONLY": "Hava durumu yerel masaüstü sürümünde kullanılabilir.",
   "errors.WEATHER_INVALID": "Hava durumu konumu geçersiz.",
   "errors.LAUNCHER_AUDIO_UNAVAILABLE": "Ses çıkışına erişilemedi. Windows ses ayarlarında bir çıkış aygıtı seç ve yeniden dene.",
-  "errors.LAUNCHER_RADIO_UNAVAILABLE": "Wi-Fi donanımı kullanılamıyor veya sistem erişim izni vermedi. Ağ ayarlarını kontrol et."
+  "errors.LAUNCHER_RADIO_UNAVAILABLE": "Wi-Fi donanımı kullanılamıyor veya sistem erişim izni vermedi. Ağ ayarlarını kontrol et.",
+  "weather.settings": "Hava durumu ayarları",
+  "weather.loading": "Güncel tahmin alınıyor…",
+  "weather.refresh": "Şimdi yenile",
+  "weather.retry": "Bağlantıyı yeniden dene",
+  "weather.countdown": "{seconds} sn sonra yenile",
+  "weather.city": "Hava durumu şehri",
+  "weather.activateHelp": "Şehrini seçip paneli aç. Güncel tahmin internetten alınır; API anahtarı gerekmez.",
+  "weather.updated": "Güncelleme"
 }

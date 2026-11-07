@@ -1,0 +1,31 @@
+name: Live weather connectivity
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'electron/runtime/weather.cjs'
+      - 'shared/weather.js'
+      - 'scripts/weather-live-smoke.cjs'
+      - 'scripts/weather-network.cjs'
+      - '.github/workflows/weather.yml'
+  schedule:
+    - cron: '23 */12 * * *'
+permissions:
+  contents: read
+jobs:
+  live-provider:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Verify real free weather response
+        run: node scripts/weather-live-smoke.cjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DarkDesk-Live-Weather-Proof
+          path: weather-live-report.json
+          if-no-files-found: error

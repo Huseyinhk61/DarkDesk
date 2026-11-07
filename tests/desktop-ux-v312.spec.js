@@ -110,6 +110,7 @@ test('weather settings and all disk pages remain fixed and editable', async ({ p
   await enable(page, 'Sistem göstergesi');
   const weather = page.locator('[data-widget=weather]');
   await fits(weather.locator('.widget-content'));
+  await weather.getByRole('button', { name: 'Hava durumu ayarları', exact: true }).click();
   await weather.getByRole('combobox', { name: 'Şehir seç', exact: true }).selectOption('5');
   await weather.getByRole('button', { name: 'Ayarları kaydet', exact: true }).click();
   await expect(weather).toContainText('Trabzon');
@@ -165,6 +166,19 @@ for (const [language, title] of [
 test('every compact widget has a fixed canvas and one consistent opacity layer', async ({
   page,
 }) => {
+  await page.route('**/__darkdesk/weather', (route) =>
+    route.fulfill({
+      json: {
+        temperature: 18,
+        humidity: 62,
+        wind: 3,
+        date: new Date().toISOString(),
+        category: 'rain',
+        provider: 'Test',
+        updatedAt: new Date().toISOString(),
+      },
+    }),
+  );
   await page.route('https://api.frankfurter.dev/**', (route) =>
     route.fulfill({
       json: { base: 'USD', date: new Date().toISOString().slice(0, 10), rates: { TRY: 40 } },

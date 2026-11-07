@@ -332,6 +332,88 @@ async function widgetPage(application, id) {
       }, base);
     }
 
+    // Exercise the real weather IPC + renderer + parser with an isolated transport.
+    // A separate live-provider workflow verifies Internet reachability.
+    await application.evaluate(({}, packageBase) => {
+      const req = process
+        .getBuiltinModule('node:module')
+        .createRequire(packageBase + '/package.json');
+      const proto = req('./electron/runtime/weather.cjs').WeatherService.prototype;
+      globalThis.__weatherOriginalQuote = proto.quote;
+      globalThis.__weatherCalls = [];
+      proto.quote = function (location, options) {
+        globalThis.__weatherInstance = this;
+        if (!globalThis.__weatherOriginalFetch) globalThis.__weatherOriginalFetch = this.fetch;
+        this.fetch = async (url, request) => {
+          globalThis.__weatherCalls.push({
+            url,
+            headers: request.headers,
+            refresh: options?.refresh,
+          });
+          return Response.json({
+            properties: {
+              timeseries: [
+                {
+                  time: new Date().toISOString(),
+                  data: {
+                    instant: {
+                      details: {
+                        air_temperature: globalThis.__weatherCalls.length === 1 ? 18 : 22,
+                        relative_humidity: 60,
+                        wind_speed: 2,
+                      },
+                    },
+                    next_1_hours: { summary: { symbol_code: 'clearsky_day' } },
+                  },
+                },
+              ],
+            },
+          });
+        };
+        return globalThis.__weatherOriginalQuote.call(this, location, options);
+      };
+    }, base);
+    try {
+      await main.evaluate(async () => {
+        await window.darkdesk.saveWidgets({
+          weather: {
+            location: { name: 'Trabzon', latitude: 41, longitude: 39.72 },
+            unit: 'celsius',
+          },
+        });
+        await window.darkdesk.showWidget('weather');
+      });
+      const weather = await widgetPage(application, 'weather');
+      await expect(weather.locator('.weather-temperature strong')).toContainText('18');
+      await expect(weather.locator('.weather-widget')).toContainText('Trabzon');
+      const refresh = weather.getByRole('button', { name: 'Şimdi yenile', exact: true });
+      await expect(refresh).toBeEnabled({ timeout: 10000 });
+      await refresh.click();
+      await expect(weather.locator('.weather-temperature strong')).toContainText('22');
+      const calls = await application.evaluate(() => globalThis.__weatherCalls);
+      assert.equal(calls.length, 2);
+      assert.equal(calls[1].refresh, true);
+      assert.match(
+        calls[0].url,
+        /^https:\/\/api.met.no\/weatherapi\/locationforecast\/2.0\/compact\?lat=41&lon=39.72$/,
+      );
+      assert.match(calls[0].headers['User-Agent'], /^DarkDesk\//);
+      await main.evaluate(() => window.darkdesk.hideWidget('weather'));
+    } finally {
+      await application.evaluate(({}, packageBase) => {
+        const req = process
+          .getBuiltinModule('node:module')
+          .createRequire(packageBase + '/package.json');
+        req('./electron/runtime/weather.cjs').WeatherService.prototype.quote =
+          globalThis.__weatherOriginalQuote;
+        if (globalThis.__weatherInstance)
+          globalThis.__weatherInstance.fetch = globalThis.__weatherOriginalFetch;
+        delete globalThis.__weatherOriginalQuote;
+        delete globalThis.__weatherOriginalFetch;
+        delete globalThis.__weatherInstance;
+        delete globalThis.__weatherCalls;
+      }, base);
+    }
     const savedState = await main.evaluate(() => window.darkdesk.widgetState());
     assert.ok(['system', 'note', 'todos'].every((id) => savedState.widgets[id].enabled));
     assert.ok(
@@ -365,7 +447,7 @@ async function widgetPage(application, id) {
     await closeApplication(application);
     application = null;
     console.log(
-      'PASS: isolated real widget windows, CPU/RAM metrics, note flush, todo persistence/restart, restricted widget IPC, native addon loading' +
+      'PASS: isolated real widget windows, CPU/RAM metrics, note flush, todo persistence/restart, restricted widget IPC, weather IPC/parser/manual refresh, native addon loading' +
         (process.platform === 'win32'
           ? ', Windows desktop bridge C# compilation.'
           : process.platform === 'darwin'

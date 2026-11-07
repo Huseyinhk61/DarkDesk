@@ -104,3 +104,9 @@ Folder artwork now uses immutable content-addressed files in DarkDesk’s local 
 - Seven global folder styles are available under Categories & Rules → Global folder theme. Per-category overrides take precedence. Use Customize → Save and apply to Desktop for a specific physical Windows folder.
 - German, French and Spanish are beta core-interface translations, with English fallback for technical help. Turkish/English remain the primary full translations.
 - Store submission preparation is documented in [MICROSOFT_STORE.md](MICROSOFT_STORE.md). The app is not yet published in Store.
+
+## Connected weather (3.12.1)
+
+In Desktop Widgets, choose **Weather city** on the Weather card, then open the panel. This saves the chosen coordinates and starts forecast requests. Weather settings also support manual coordinates and Celsius/Fahrenheit. Use Refresh now to request a new reading; a short cooldown prevents repeated requests. Failed connections retry automatically after a minute and when the network comes back. The widget labels cached readings and shows the retrieval time.
+
+The native app uses Electron IPC/networking. `npm run dev` and `npm run preview` use a same-origin, bounded local weather endpoint with the same provider service. Static hosting without a backend does not provide this endpoint. With a developer proxy, use current Node 24 so the existing proxy and NO_PROXY settings can be honored. The Live weather connectivity workflow verifies a real provider request separately from fixture-based tests.
