@@ -1,18 +1,33 @@
 # DarkDesk validation report
 
+## 3.13.1 — immediate note persistence
+
+The full [3.13.0 CI run](https://github.com/Huseyinhk61/DarkDesk/actions/runs/43713879222) passed 164 browser scenarios and exposed one note-persistence failure: immediate reload could occur before the 400 ms autosave timer fired. The note editor now commits on blur, and browser pagehide/hidden handlers write the latest draft without waiting for that timer. Native close/quit retains the existing awaited IPC flush.
+
+A new frozen-timer browser regression covers both blur persistence and immediate reload with Unicode text. All **23 affected browser scenarios**, **355 Linux service tests**, the production build and isolated native Electron/widget checks passed locally. The final complete suite contains 166 scenarios. Stable publication now waits for a successful complete Test & Build run for the exact source commit. Final 3.13.1 checks and package evidence follow after publication.
+
 ## 3.13.0 — detailed weather and end-user help
 
 Date: November 15, 2026.
 
 - **355 Linux service/model tests passed**, with one Windows-only native audio check skipped locally. New checks cover optional weather values versus real zeros, pressure/gust/rain interval parsing, bounded/sorted/deduplicated forecasts, feels-like estimation, city time zones, daylight-saving boundaries, partial local-day ranges, support-information privacy and proxy-preserving Electron download repair.
-- **164 browser scenarios passed** across the full application. After the compact editor fix, **20 focused scenarios passed** for weather, notes/tasks, disks, currency settings, Default Mode and beta languages. The new compact-editor overlap regression increases the final complete suite to 165 scenarios, run in CI. A final weather-only check covers the last styling and missing-condition safeguards.
+- **164 browser scenarios passed** across the full application. After the compact editor fix, **20 focused scenarios passed** for weather, notes/tasks, disks, currency settings, Default Mode and beta languages. The new compact-editor overlap regression increases the final complete suite to 165 scenarios, run in CI. **Seven final weather/Help scenarios passed** after the last styling and missing-condition safeguards.
 - Production build and isolated **real Electron** service/widget checks passed. Coverage includes actual move/undo, chosen scan locations, installed-app shortcuts, notes/tasks persistence, restricted IPC, native weather parsing/refresh and all four forecast views. Support IPC is exercised with bounded metadata, clipboard output and rejection of arbitrary help URLs.
 - Weather panels were checked at **292×320, 365×400 and 438×480**. Forecast cards, page buttons and attribution remain within the frame; custom-coordinate time-zone and Save controls do not overlap. Tab views support arrows/Home/End. Screenshots were captured from the running interface with controlled demonstration data and visually reviewed.
 - README and new English/Turkish user guides use existing local links and screenshots. Normal installers are separated from source archives and unsigned publisher-only Store packages. Store identity and packaging remain separately validated by the publication workflow.
 
 Deterministic weather checks use controlled transport responses; they do not establish Internet reachability. The dedicated Live weather connectivity workflow checks the real MET Norway endpoint separately. No cloud network restriction is bypassed, and no shutdown, trash-emptying, radio or audio mutation is performed by these tests. Windows Explorer redraw and an end-user in-place upgrade require a real user session.
 
-Published package/workflow results are recorded after the 3.13.0 build completes.
+The real [MET Norway connectivity check](https://github.com/Huseyinhk61/DarkDesk/actions/runs/43713879079) passed for source `bee3d1e7ddd89b87050cfe03befd876f58c69c14`. The [Store build and anonymous public-download check](https://github.com/Huseyinhk61/DarkDesk/actions/runs/43713879062) also passed. A second independent Python verification from this workspace downloaded both public assets and validated outer/inner ZIP CRCs, all four nonempty entries, executable bytes, source commit and exact Partner Center identity:
+
+| Store asset |       Bytes | SHA-256                                                            |
+| ----------- | ----------: | ------------------------------------------------------------------ |
+| ZIP         | 230,109,768 | `a78e22ab959e615b9d93dbeafaf9b28e64df47e7a1b2b3ef536debd06cae0f31` |
+| AppX        | 230,107,689 | `d2c15a47949b780efd2a204f1fa7a8a3901e4581b131e2e5db8d8e7e32c4997b` |
+
+The `store-v3.13.0` tag points to the same source commit. These are unsigned publisher submission files; Microsoft Store certification remains a separate step.
+
+Stable Windows/Linux publication results are recorded when packaging completes.
 
 ## 3.12.1 — connected weather and verified Store delivery
 

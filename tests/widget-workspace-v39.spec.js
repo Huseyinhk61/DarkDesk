@@ -162,3 +162,33 @@ test('the currency form and widget controls fit narrow windows with enlarged tex
     );
   }
 });
+
+test('a note survives immediate reload and blur before its autosave timer fires', async ({
+  page,
+}) => {
+  await open(page);
+  await page.getByRole('button', { name: 'Masaüstü Widget’ları', exact: true }).click();
+  await (
+    await module(page, 'Hızlı not')
+  )
+    .getByRole('button', { name: 'Önizlemeyi aç', exact: true })
+    .click();
+  const note = page.getByRole('textbox', { name: 'Kişisel hızlı not', exact: true });
+  await expect(note).toBeEditable();
+  await page.clock.install();
+  await page.clock.pauseAt(new Date(Date.now() + 1000));
+  await note.fill('Hemen sakla — İstanbul 日本語');
+  await note.blur();
+  await expect
+    .poll(() =>
+      page.evaluate(() => JSON.parse(localStorage.getItem('darkdesk-preview-widgets')).note),
+    )
+    .toBe('Hemen sakla — İstanbul 日本語');
+  await note.fill('Yenilemeden önce sakla ✓');
+  // Keep virtual timers frozen: pagehide must flush the actual unsaved draft.
+  await page.reload();
+  await page.clock.resume();
+  await expect(page.locator('.item-card')).toHaveCount(12);
+  await page.getByRole('button', { name: 'Masaüstü Widget’ları', exact: true }).click();
+  await expect(note).toHaveValue('Yenilemeden önce sakla ✓');
+});

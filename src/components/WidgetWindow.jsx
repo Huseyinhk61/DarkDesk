@@ -120,6 +120,25 @@ export function WidgetContent({ id, embedded = false }) {
       if (window.__darkdeskWidgetFlush === commit) delete window.__darkdeskWidgetFlush;
     };
   }, [accept, commit, embedded, id, setSettings]);
+  // Browser preview writes localStorage synchronously. A pending debounce must
+  // not be the only copy of a note when the page is reloaded or closed.
+  useEffect(() => {
+    if (id !== 'note') return;
+    const flush = () => {
+      if (!dirty.current) return;
+      if (!native) api.saveWidgets({ note: draft.current }).catch(() => {});
+      else commit().catch(() => {});
+    };
+    const hidden = () => {
+      if (document.hidden) flush();
+    };
+    window.addEventListener('pagehide', flush);
+    document.addEventListener('visibilitychange', hidden);
+    return () => {
+      window.removeEventListener('pagehide', flush);
+      document.removeEventListener('visibilitychange', hidden);
+    };
+  }, [commit, id]);
   useEffect(() => {
     if (id !== 'system' || state?.collapsed?.[id]) return;
     let active = true;
@@ -252,6 +271,7 @@ export function WidgetContent({ id, embedded = false }) {
               value={note}
               disabled={!state}
               maxLength={20000}
+              onBlur={() => commit().catch(() => {})}
               placeholder={t('widgetPlus.notePlaceholder')}
               onChange={(value) => {
                 draft.current = value;

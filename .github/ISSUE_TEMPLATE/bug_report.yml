@@ -9,7 +9,7 @@ body:
     id: platform
     attributes:
       label: Operating system and DarkDesk version
-      placeholder: Windows 11, DarkDesk 3.13.0
+      placeholder: Windows 11, DarkDesk 3.13.1
     validations:
       required: true
   - type: dropdown

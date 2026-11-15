@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+const { version } = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 async function open(page, options = {}) {
   const now = Date.now();
   const forecast = Array.from({ length: 144 }, (_, i) => ({
@@ -163,7 +165,7 @@ test('Help copies a bounded support summary and includes the current Default Mod
   await page.getByRole('button', { name: 'Yardım & Başlangıç', exact: true }).click();
   await page.getByRole('button', { name: 'Destek bilgilerini kopyala', exact: true }).click();
   const text = await page.evaluate(() => navigator.clipboard.readText());
-  expect(text).toContain('version: 3.13.0');
+  expect(text).toContain('version: ' + version);
   expect(text).toContain('channel: preview');
   expect(text).not.toMatch(/Desktop|Users|token/i);
   await expect(page.locator('.help-shortcuts')).toContainText('Varsayılan Mod');

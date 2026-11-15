@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.13.1 — November 15, 2026
+
+- Require the complete Test & Build workflow for the exact source commit before publishing stable installers or changing the update feed.
+- Flush quick-note drafts on editor blur and page exit. Immediate reloads no longer discard text waiting for the autosave debounce; native widget close/quit still awaits its controlled IPC flush.
+- Add a browser regression with frozen timers to cover blur and immediate reload, including Unicode text. This fixes the persistence failure found by the full 3.13.0 CI run.
+
 ## 3.13.0 — November 15, 2026
 
 - Redesign Weather with fixed Now, Hourly, 5 Days and Details views. Add paged forecasts, local-day temperature ranges, estimated feels-like temperature, wind gust/direction, pressure, clouds and precipitation when the provider supplies them. Missing values stay explicit.

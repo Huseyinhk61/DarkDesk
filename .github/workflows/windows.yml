@@ -94,8 +94,10 @@ jobs:
   release:
     needs: [package, linux]
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     permissions:
       contents: write
+      actions: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -107,6 +109,20 @@ jobs:
           name: DarkDesk-Linux
           path: release
       - run: cat release/LINUX_SHA256SUMS.txt >> release/SHA256SUMS.txt
+      - name: Require complete CI for this source commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          run_id=""
+          for attempt in 1 2 3 4 5 6; do
+            run_id="$(gh run list --workflow ci.yml --commit "$RELEASE_SHA" --event push --limit 1 --json databaseId --jq '.[0].databaseId // empty')"
+            [ -n "$run_id" ] && break
+            sleep 5
+          done
+          [ -n "$run_id" ] || { echo "No matching source CI run; refusing publication."; exit 1; }
+          gh run watch "$run_id" --exit-status --interval 15
       - name: Publish tagged release
         env:
           GH_TOKEN: ${{ github.token }}

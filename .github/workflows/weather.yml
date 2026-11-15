@@ -6,6 +6,7 @@ on:
     paths:
       - 'electron/runtime/weather.cjs'
       - 'shared/weather.js'
+      - 'package.json'
       - 'scripts/weather-live-smoke.cjs'
       - 'scripts/weather-network.cjs'
       - '.github/workflows/weather.yml'
