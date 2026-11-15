@@ -1,5 +1,19 @@
 # DarkDesk validation report
 
+## 3.13.0 — detailed weather and end-user help
+
+Date: November 15, 2026.
+
+- **355 Linux service/model tests passed**, with one Windows-only native audio check skipped locally. New checks cover optional weather values versus real zeros, pressure/gust/rain interval parsing, bounded/sorted/deduplicated forecasts, feels-like estimation, city time zones, daylight-saving boundaries, partial local-day ranges, support-information privacy and proxy-preserving Electron download repair.
+- **164 browser scenarios passed** across the full application. After the compact editor fix, **20 focused scenarios passed** for weather, notes/tasks, disks, currency settings, Default Mode and beta languages. The new compact-editor overlap regression increases the final complete suite to 165 scenarios, run in CI. A final weather-only check covers the last styling and missing-condition safeguards.
+- Production build and isolated **real Electron** service/widget checks passed. Coverage includes actual move/undo, chosen scan locations, installed-app shortcuts, notes/tasks persistence, restricted IPC, native weather parsing/refresh and all four forecast views. Support IPC is exercised with bounded metadata, clipboard output and rejection of arbitrary help URLs.
+- Weather panels were checked at **292×320, 365×400 and 438×480**. Forecast cards, page buttons and attribution remain within the frame; custom-coordinate time-zone and Save controls do not overlap. Tab views support arrows/Home/End. Screenshots were captured from the running interface with controlled demonstration data and visually reviewed.
+- README and new English/Turkish user guides use existing local links and screenshots. Normal installers are separated from source archives and unsigned publisher-only Store packages. Store identity and packaging remain separately validated by the publication workflow.
+
+Deterministic weather checks use controlled transport responses; they do not establish Internet reachability. The dedicated Live weather connectivity workflow checks the real MET Norway endpoint separately. No cloud network restriction is bypassed, and no shutdown, trash-emptying, radio or audio mutation is performed by these tests. Windows Explorer redraw and an end-user in-place upgrade require a real user session.
+
+Published package/workflow results are recorded after the 3.13.0 build completes.
+
 ## 3.12.1 — connected weather and verified Store delivery
 
 - Fixed an actual native routing bug: the entry point's six-name regex excluded `weather`, opening the main app inside the weather window. Window selection now comes from the shared widget registry. A standalone-window browser regression and actual Electron weather IPC/parser/manual-refresh smoke check cover this failure.

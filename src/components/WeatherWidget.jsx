@@ -1,23 +1,13 @@
 import { useEffect, useState, useRef } from 'react';
-import {
-  CloudSun,
-  Sun,
-  CloudRain,
-  CloudSnow,
-  CloudLightning,
-  CloudFog,
-  Settings2,
-  ArrowLeft,
-  RefreshCw,
-} from 'lucide-react';
-import { weatherCities } from '../../shared/weather';
+import { CloudSun, Settings2, RefreshCw, ExternalLink } from 'lucide-react';
+import { weatherTimeZone } from '../../shared/weather';
 import { api } from '../service';
 import { usePreferences } from '../preferences';
+import WeatherSettings from './WeatherSettings';
+import WeatherForecast from './WeatherForecast';
 export default function WeatherWidget({ value, accept }) {
-  const { t, locale, errorMessage } = usePreferences(),
-    [editing, setEditing] = useState(!value.location),
-    [draft, setDraft] = useState(value.location || weatherCities[0]),
-    [unit, setUnit] = useState(value.unit),
+  const { t, locale, errorMessage } = usePreferences();
+  const [editing, setEditing] = useState(!value.location),
     [result, setResult] = useState(null),
     [error, setError] = useState(''),
     [saving, setSaving] = useState(false),
@@ -25,9 +15,14 @@ export default function WeatherWidget({ value, accept }) {
     [loading, setLoading] = useState(false),
     [retryAt, setRetryAt] = useState(0),
     [now, setNow] = useState(Date.now),
-    [saveError, setSaveError] = useState('');
-  const force = useRef(false);
+    [saveError, setSaveError] = useState(''),
+    [linkError, setLinkError] = useState(''),
+    [view, setView] = useState('current');
+  const force = useRef(false),
+    tabList = useRef(null);
   const key = value.location ? `${value.location.latitude},${value.location.longitude}` : '';
+  const timeZone = weatherTimeZone(value.location),
+    views = ['current', 'hourly', 'daily', 'details'];
   useEffect(() => {
     setResult(null);
     setError('');
@@ -45,18 +40,28 @@ export default function WeatherWidget({ value, accept }) {
     setLoading(true);
     setError('');
     setRetryAt(Date.now() + 5000);
+    const schedule = (delay) => {
+      timer = setTimeout(() => {
+        if (document.hidden) schedule(60000);
+        else setRefresh((n) => n + 1);
+      }, delay);
+    };
     api
       .weatherQuote(value.location, { refresh: requested })
       .then((data) => {
         if (!active) return;
         setResult(data);
-        timer = setTimeout(() => setRefresh((n) => n + 1), 900000);
+        schedule(data.cached ? 60000 : 900000);
       })
       .catch(() => {
         if (!active) return;
-        setResult(null);
+        setResult((previous) =>
+          previous && Date.now() - Date.parse(previous.updatedAt || previous.date) < 3600000
+            ? { ...previous, cached: true }
+            : null,
+        );
         setError(t('ux312.weatherUnavailable'));
-        timer = setTimeout(() => setRefresh((n) => n + 1), 60000);
+        schedule(60000);
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -74,118 +79,67 @@ export default function WeatherWidget({ value, accept }) {
     };
   }, [key, refresh, t]);
   const retrySeconds = Math.max(0, Math.ceil((retryAt - now) / 1000));
-  const Icon =
-    {
-      clear: Sun,
-      rain: CloudRain,
-      snow: CloudSnow,
-      thunder: CloudLightning,
-      fog: CloudFog,
-      cloudy: CloudSun,
-    }[result?.category] || CloudSun;
+  const expired = result && now - Date.parse(result.updatedAt || result.date) >= 3600000;
+  const display = expired ? null : result,
+    problem = expired ? t('weather313.expired') : error;
+  const save = async (weather) => {
+    setSaving(true);
+    setSaveError('');
+    try {
+      accept(await api.saveWidgets({ weather }));
+      setEditing(false);
+      setError('');
+    } catch (reason) {
+      setSaveError(errorMessage(reason));
+    } finally {
+      setSaving(false);
+    }
+  };
+  const onTabKey = (event) => {
+    if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const index = views.indexOf(view),
+      next =
+        event.key === 'Home'
+          ? 0
+          : event.key === 'End'
+            ? 3
+            : (index + (event.key === 'ArrowRight' ? 1 : 3)) % 4;
+    setView(views[next]);
+    tabList.current?.querySelectorAll('[role=tab]')[next]?.focus();
+  };
   return (
-    <div className="weather-widget" aria-busy={loading}>
+    <div
+      className={'weather-widget weather-detailed ' + (editing ? 'weather-editing' : '')}
+      aria-busy={loading}
+    >
       {editing ? (
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault();
-            setSaving(true);
-            setSaveError('');
-            try {
-              accept(
-                await api.saveWidgets({
-                  weather: {
-                    location: {
-                      name: draft.name,
-                      latitude: Number(draft.latitude),
-                      longitude: Number(draft.longitude),
-                    },
-                    unit,
-                  },
-                }),
-              );
-              setEditing(false);
-              setError('');
-            } catch (reason) {
-              setSaveError(errorMessage(reason));
-            } finally {
-              setSaving(false);
-            }
-          }}
-        >
-          <div className="weather-heading">
-            <b>{t('ux312.weatherLocation')}</b>
-            {value.location && (
-              <button
-                type="button"
-                aria-label={t('common.cancel')}
-                onClick={() => setEditing(false)}
-              >
-                <ArrowLeft size={15} />
-              </button>
-            )}
-          </div>
-          <select
-            aria-label={t('ux312.weatherCity')}
-            value={weatherCities.findIndex((c) => c.name === draft.name)}
-            onChange={(e) => {
-              const city = weatherCities[Number(e.target.value)];
-              if (city) setDraft(city);
-            }}
-          >
-            <option value="-1">{t('ux312.weatherCustom')}</option>
-            {weatherCities.map((city, index) => (
-              <option key={city.name} value={index}>
-                {city.name}
-              </option>
-            ))}
-          </select>
-          <input
-            required
-            maxLength={80}
-            aria-label={t('ux312.locationName')}
-            value={draft.name}
-            onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-          />
-          <div className="weather-coordinates">
-            {['latitude', 'longitude'].map((axis, i) => (
-              <label key={axis}>
-                {t('ux312.' + axis)}
-                <input
-                  required
-                  type="number"
-                  step=".001"
-                  min={i ? -180 : -90}
-                  max={i ? 180 : 90}
-                  value={draft[axis]}
-                  onChange={(e) => setDraft({ ...draft, [axis]: e.target.value })}
-                />
-              </label>
-            ))}
-          </div>
-          <div className="weather-heading">
-            <select
-              aria-label={t('ux312.temperatureUnit')}
-              value={unit}
-              onChange={(e) => setUnit(e.target.value)}
-            >
-              <option value="celsius">°C</option>
-              <option value="fahrenheit">°F</option>
-            </select>
-            <button className="btn primary" disabled={saving}>
-              {t('common.save')}
-            </button>
-          </div>
-        </form>
+        <WeatherSettings
+          value={value}
+          busy={saving}
+          error={saveError}
+          onSave={save}
+          onClose={value.location ? () => setEditing(false) : undefined}
+        />
       ) : (
         <>
-          <div className="weather-heading">
-            <b title={value.location?.name}>{value.location?.name}</b>
+          <div className="weather-heading weather-location-heading">
+            <div>
+              <b title={value.location?.name}>{value.location?.name}</b>
+              <small title={timeZone}>
+                {new Date(now).toLocaleTimeString(locale, {
+                  timeZone,
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  hour12: false,
+                })}{' '}
+                · {timeZone}
+              </small>
+            </div>
             <button
+              type="button"
               aria-label={t('weather.settings')}
               onClick={() => {
-                setDraft(value.location);
-                setUnit(value.unit);
                 setSaveError('');
                 setEditing(true);
               }}
@@ -193,54 +147,75 @@ export default function WeatherWidget({ value, accept }) {
               <Settings2 size={16} />
             </button>
           </div>
-          {!error && (
-            <>
-              <div className="weather-temperature">
-                <Icon size={36} />
-                <strong>
-                  {result
-                    ? Math.round(
-                        value.unit === 'fahrenheit'
-                          ? result.temperature * 1.8 + 32
-                          : result.temperature,
-                      )
-                    : '—'}
-                  <small>°{value.unit === 'fahrenheit' ? 'F' : 'C'}</small>
-                </strong>
+          <div
+            className="weather-tabs"
+            role="tablist"
+            ref={tabList}
+            aria-label={t('weather313.views')}
+            onKeyDown={onTabKey}
+          >
+            {views.map((id) => (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                id={'weather-tab-' + id}
+                aria-controls="weather-view-panel"
+                aria-selected={view === id}
+                tabIndex={view === id ? 0 : -1}
+                onClick={() => setView(id)}
+              >
+                {t('weather313.' + id)}
+              </button>
+            ))}
+          </div>
+          <div
+            className="weather-view-panel"
+            id="weather-view-panel"
+            role="tabpanel"
+            aria-labelledby={'weather-tab-' + view}
+          >
+            {problem && !display ? (
+              <div className="weather-offline">
+                <CloudSun size={28} />
+                <p role="alert">{problem}</p>
               </div>
-              <b>
-                {result
-                  ? t('ux312.weather.' + result.category)
-                  : error
-                    ? '—'
-                    : t('launcherNext.fxLoading')}
-              </b>
-              <div className="weather-heading">
-                <small>
-                  {t('ux312.humidity')}: {result?.humidity ?? '—'}%
-                </small>
-                <small>
-                  {t('ux312.wind')}: {result ? (result.wind * 3.6).toFixed(1) : '—'} km/h
-                </small>
-              </div>
-              {result && (
-                <small>
-                  {t('weather.updated')} ·{' '}
-                  {new Date(result.updatedAt || result.date).toLocaleString(locale, {
+            ) : (
+              <WeatherForecast
+                key={key}
+                view={view}
+                result={display}
+                unit={value.unit}
+                timeZone={timeZone}
+                now={now}
+              />
+            )}
+          </div>
+          <div
+            className={'weather-data-status ' + (display?.cached ? 'is-cached' : '')}
+            role={linkError ? 'alert' : 'status'}
+            title={linkError || undefined}
+          >
+            {linkError ? (
+              linkError
+            ) : loading ? (
+              t('weather.loading')
+            ) : display ? (
+              <>
+                <i />
+                {t(display.cached ? 'weather313.cached' : 'weather313.updated', {
+                  time: new Date(display.updatedAt || display.date).toLocaleTimeString(locale, {
+                    timeZone,
                     hour: '2-digit',
                     minute: '2-digit',
-                  })}
-                  {result.cached ? ' · ' + t('launcherNext.fxCached') : ''}
-                </small>
-              )}
-            </>
-          )}
-          {error && (
-            <div className="weather-offline">
-              <CloudSun size={28} />
-              <p role="alert">{error}</p>
-            </div>
-          )}
+                    hour12: false,
+                  }),
+                })}
+              </>
+            ) : (
+              t('weather313.disconnected')
+            )}
+          </div>
           <button
             className="weather-refresh"
             type="button"
@@ -255,16 +230,24 @@ export default function WeatherWidget({ value, accept }) {
               ? t('weather.loading')
               : retrySeconds > 0
                 ? t('weather.countdown', { seconds: retrySeconds })
-                : t(error ? 'weather.retry' : 'weather.refresh')}
+                : t(problem ? 'weather.retry' : 'weather.refresh')}
           </button>
         </>
       )}
-      {editing && saveError && (
-        <p role="alert" className="widget-error">
-          {saveError}
-        </p>
-      )}
-      <small className="weather-credit">MET Norway · CC BY 4.0</small>
+      <button
+        type="button"
+        className="weather-credit"
+        aria-label={t('support.provider')}
+        onClick={() => {
+          setLinkError('');
+          api.openHelpLink('weather').catch((reason) => {
+            if (editing) setSaveError(errorMessage(reason));
+            else setLinkError(errorMessage(reason));
+          });
+        }}
+      >
+        MET Norway · CC BY 4.0 <ExternalLink size={10} aria-hidden="true" />
+      </button>
     </div>
   );
 }

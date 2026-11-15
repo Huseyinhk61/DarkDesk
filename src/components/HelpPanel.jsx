@@ -1,3 +1,4 @@
+import SupportPanel from './SupportPanel';
 import {
   ArrowRight,
   BookOpen,
@@ -48,6 +49,7 @@ export default function HelpPanel({ onNavigate, busy = false }) {
           </li>
         ))}
       </ol>
+      <SupportPanel busy={busy} onNavigate={onNavigate} />
       <div className="help-sections">
         <section className="settings-panel" aria-labelledby="help-shortcuts">
           <h2 id="help-shortcuts">
@@ -72,6 +74,12 @@ export default function HelpPanel({ onNavigate, busy = false }) {
               <dt>{t('help.closeDialog')}</dt>
               <dd>
                 <kbd>Escape</kbd>
+              </dd>
+            </div>
+            <div>
+              <dt>{t('ux311.defaultMode')}</dt>
+              <dd>
+                <kbd>{displayAccelerator(settings.restoreShortcut, mac)}</kbd>
               </dd>
             </div>
             {settings.profiles.map((profile) => (

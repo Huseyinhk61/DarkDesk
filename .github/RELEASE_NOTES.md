@@ -1,23 +1,29 @@
-## DarkDesk 3.12.1 — Connected weather and verified Store downloads
+## DarkDesk 3.13.0 — Weather at a glance
 
-### Downloads
+### Download
 
-- **DarkDesk-Setup-3.12.1.exe**: Windows installation and in-app updates.
-- **DarkDesk-Portable-3.12.1.exe**: Windows Portable; update manually.
-- **DarkDesk-3.12.1-x86_64.AppImage**: Linux with AppImage updates.
-- **DarkDesk-3.12.1-amd64.deb**: Ubuntu/Debian; update manually.
-- **SHA256SUMS.txt**: package/update metadata checksums.
+- **DarkDesk-Setup-3.13.0.exe** — recommended Windows installation, with in-app updates.
+- **DarkDesk-Portable-3.13.0.exe** — Windows without installation; update manually.
+- **DarkDesk-3.13.0-x86_64.AppImage** — Linux AppImage, with AppImage updates.
+- **DarkDesk-3.13.0-amd64.deb** — Ubuntu/Debian package; update manually.
+- **SHA256SUMS.txt** — package and update metadata checksums.
 
-### Activate online weather
+You do not need Node.js or Git. Download an installer above; GitHub's automatic **Source code (zip)** is for developers. See the [English getting-started guide](https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/QUICK_START.md) or [Türkçe kullanım rehberi](https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/KULLANIM.md).
 
-The native window entry now recognizes the Weather widget instead of opening the main application inside its frame. Open **Desktop Widgets**, choose a **Weather city**, then open the weather panel. Native desktop requests and browser preview use the same fixed MET Norway forecast service, with application identification, bounded responses and no API key. Choose Celsius/Fahrenheit in Weather settings. Refresh manually, see the retrieval time, or let the widget retry a failed connection automatically. Stale fallback readings are explicitly labeled; unknown readings are never invented. Forecasts are not live weather-station observations.
+### More useful weather
 
-The provider remains **MET Norway**, CC BY 4.0. Only manually selected coordinates are sent. An independent **Live weather connectivity** workflow checks real provider access; service/UI tests use controlled responses. Developer preview honors configured proxies. Cloud access still requires `api.met.no` in that environment's effective network policy; a saved draft alone does not apply the change.
+Open **Desktop Widgets → Weather**, select a city and activate the panel. Switch between **Now**, **Hourly**, **5 days** and **Details** without scrolling. See upcoming temperatures and rain, estimated feels-like temperature, wind gusts/direction, pressure, cloud cover and rain probability when supplied. Hourly forecasts have previous/next controls. The clock and daily forecast follow your chosen city's time zone; custom coordinates have an editable time zone.
 
-### Store files you can download directly
+A recent reading stays visible during refresh failures and is marked cached. Old readings expire after an hour. Forecasts are MET Norway model predictions, not live weather-station measurements. Daily ranges are calculated from available forecast samples; today's range is partial. No API key or subscription is needed. Only manually selected coordinates are sent to the weather provider. [Weather guide and attribution](https://github.com/Huseyinhk61/DarkDesk/blob/main/docs/WEATHER.md).
 
-The separate [Store submission release](https://github.com/Huseyinhk61/DarkDesk/releases/tag/store-v3.12.1) provides a standalone **DarkDesk-Store-3.12.1-x64.appx** and **DarkDesk-Store-Submission-3.12.1-x64.zip**. These public assets avoid the Actions-artifact login requirement. The ZIP contains four flat, nonempty files: AppX, checksum, identity verification report and extraction/upload instructions. Its extracted payloads must match their source SHA-256 values before publishing.
+### Easier help and setup
 
-For Partner Center upload the **AppX**. GitHub's automatic **Source code (zip)** contains project sources and is not a Store package. The Store bundle uses the configured `HseyinKahveci.DarkDesk` identity. This is an unsigned submission package, with Store approval/certification still required. The Store prerelease does not replace the stable application update feed.
+Help now includes user-guide/privacy/report links, a visible Default Mode shortcut and **Copy support information**. The copied text includes version, platform, architecture, update channel, language and theme; it excludes file paths, notes and credentials. The GitHub page now focuses on installation and everyday use. The Windows source launcher and Electron download repair respect configured Node proxies; the development guide includes proxy setup for an initial install.
 
-All 3.12.0 features remain: 34 icons, seven folder styles, saved currency pairs/default conversion target, paged fixed widgets, all detected drives, editable Default Mode shortcut and beta German/French/Spanish core translations.
+### Updating
+
+Installed Windows and Linux AppImage users can check **Automation & Settings → Updates**. Portable and DEB users replace the app manually. Preferences remain local. Microsoft Store builds use Store-managed updates.
+
+### Publisher files
+
+The separate [Store submission release](https://github.com/Huseyinhk61/DarkDesk/releases/tag/store-v3.13.0) provides the unsigned AppX and verified ZIP for Partner Center. These are publisher submission files; Microsoft certification and Store listing approval are separate steps. Use the stable Setup EXE for normal Windows installation.

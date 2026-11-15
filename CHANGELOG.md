@@ -1,5 +1,14 @@
 # Changelog
 
+## 3.13.0 — November 15, 2026
+
+- Redesign Weather with fixed Now, Hourly, 5 Days and Details views. Add paged forecasts, local-day temperature ranges, estimated feels-like temperature, wind gust/direction, pressure, clouds and precipitation when the provider supplies them. Missing values stay explicit.
+- Add city time zones and an editable IANA time zone for custom coordinates. Format the clock, hourly forecast and daily groups for the chosen location, including daylight-saving transitions. Existing saved locations remain compatible.
+- Keep a recent reading visible during refresh failures, retry cached/offline responses, pause scheduled requests in hidden windows and expire readings after one hour. Preserve provider cooldowns and attribution.
+- Add Help links to the usage guide, privacy notice and structured bug report. Copy bounded version/platform/channel/preferences information without paths, notes or credentials; document the Default Mode shortcut.
+- Replace the developer-heavy repository landing page with clear Windows/Linux downloads, a four-step guide and weather previews. Add English/Turkish user guides, a weather interpretation guide and separate development instructions.
+- Make Electron download repair respect configured Node proxy settings; enable proxy support in the Windows source launcher and document initial-install proxy setup.
+
 ## 3.12.1 — November 7, 2026
 
 - Fix native weather windows booting the main application instead of their widget. Resolve window modes from the shared widget registry, with standalone/native regression coverage.

@@ -1,3 +1,4 @@
+const { supportLinks, supportInfo, formatSupportInfo } = require('../shared/support.js');
 const { launchLinuxItem } = require('./runtime/linux-apps.cjs');
 const { CurrencyService } = require('./runtime/currency.cjs');
 const {
@@ -55,6 +56,7 @@ const widgetMethods = new Set([
   'currencyQuote',
   'saveCurrencyPreferences',
   'weatherQuote',
+  'openHelpLink',
   'copyText',
 ]);
 function startProductivityTimer() {
@@ -575,6 +577,35 @@ else {
           return saved;
         }),
       );
+      const getSupportInfo = async () => {
+        const settings = await runtime.settings.read();
+        return supportInfo({
+          version: app.getVersion(),
+          platform: process.platform,
+          architecture: process.arch,
+          channel: process.windowsStore
+            ? 'store'
+            : !app.isPackaged
+              ? 'development'
+              : process.env.PORTABLE_EXECUTABLE_FILE
+                ? 'portable'
+                : process.platform === 'linux' && !process.env.APPIMAGE
+                  ? 'linux-manual'
+                  : 'github',
+          language: settings.language,
+          theme: settings.theme,
+        });
+      };
+      handle('supportInfo', getSupportInfo);
+      handle('copySupportInfo', async () => {
+        clipboard.writeText(formatSupportInfo(await getSupportInfo()));
+        return true;
+      });
+      handle('openHelpLink', (id) => {
+        if (typeof id !== 'string' || !Object.hasOwn(supportLinks, id))
+          throw Error('LAUNCHER_INPUT_INVALID');
+        return shell.openExternal(supportLinks[id]);
+      });
       handle('weatherQuote', (location, options) => weatherService.quote(location, options));
       handle('currencyQuote', (query) => currencyService.quote(query));
       handle('copyText', (text) => {

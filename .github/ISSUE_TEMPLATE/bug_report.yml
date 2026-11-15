@@ -9,7 +9,7 @@ body:
     id: platform
     attributes:
       label: Operating system and DarkDesk version
-      placeholder: Windows 11, DarkDesk 3.4.2
+      placeholder: Windows 11, DarkDesk 3.13.0
     validations:
       required: true
   - type: dropdown
@@ -38,6 +38,12 @@ body:
       description: Explain what you expected and what happened instead.
     validations:
       required: true
+  - type: textarea
+    id: support
+    attributes:
+      label: Support information
+      description: In Help & Getting Started, choose Copy support information. This includes app version, platform and update channel.
+      render: text
   - type: textarea
     id: logs
     attributes:

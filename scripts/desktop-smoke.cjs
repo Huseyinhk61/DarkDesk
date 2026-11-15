@@ -63,6 +63,37 @@ const { folders } = require('../electron/service.cjs');
         : [],
     );
     const previousClipboard = await application.evaluate(({ clipboard }) => clipboard.readText());
+    const info = await page.evaluate(() => window.darkdesk.supportInfo());
+    assert.deepEqual(Object.keys(info).sort(), [
+      'architecture',
+      'channel',
+      'language',
+      'platform',
+      'theme',
+      'version',
+    ]);
+    assert.equal(info.version, await application.evaluate(({ app }) => app.getVersion()));
+    assert.equal(info.platform, process.platform);
+    assert.equal(info.channel, 'development');
+    await page.evaluate(() => window.darkdesk.copySupportInfo());
+    const copiedSupport = await application.evaluate(({ clipboard }) => clipboard.readText());
+    assert.match(copiedSupport, /DarkDesk support information/);
+    assert.ok(
+      !copiedSupport.includes(root),
+      'Support text must exclude the isolated user-data path',
+    );
+    for (const id of ['__proto__', 'file:///etc/passwd', 'https://example.com']) {
+      const failure = await page.evaluate(async (id) => {
+        try {
+          await window.darkdesk.openHelpLink(id);
+          return null;
+        } catch (error) {
+          return error.message;
+        }
+      }, id);
+      assert.match(failure, /LAUNCHER_INPUT_INVALID/);
+    }
+
     await page.evaluate(() => window.darkdesk.launcherAction({ type: 'copy', text: '5400' }));
     assert.equal(await application.evaluate(({ clipboard }) => clipboard.readText()), '5400');
     await application.evaluate(

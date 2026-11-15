@@ -1,5 +1,7 @@
 @echo off
 setlocal
+if defined HTTPS_PROXY set NODE_USE_ENV_PROXY=1
+if defined HTTP_PROXY set NODE_USE_ENV_PROXY=1
 chcp 65001 >nul
 cd /d "%~dp0"
 title DarkDesk

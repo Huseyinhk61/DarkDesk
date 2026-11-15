@@ -1,3 +1,4 @@
+import { supportLinks, supportInfo, formatSupportInfo } from '../shared/support';
 import { releaseNotesUrl } from '../shared/update-links';
 import { readCurrencyResponse } from '../shared/currency-response';
 import { validateRates, convertCurrency } from '../shared/currency';
@@ -260,6 +261,30 @@ export const api = window.darkdesk || {
   onSettingsChanged: (fn) => {
     settingsListeners.add(fn);
     return () => settingsListeners.delete(fn);
+  },
+  supportInfo: async () =>
+    supportInfo({
+      version: appVersion,
+      platform: /Win/i.test(navigator.platform)
+        ? 'win32'
+        : /Mac/i.test(navigator.platform)
+          ? 'darwin'
+          : /Linux/i.test(navigator.platform)
+            ? 'linux'
+            : 'browser',
+      architecture: 'unknown',
+      channel: 'preview',
+      language: settings.language,
+      theme: settings.theme,
+    }),
+  copySupportInfo: async () => {
+    await navigator.clipboard.writeText(formatSupportInfo(await api.supportInfo()));
+    return true;
+  },
+  openHelpLink: async (id) => {
+    if (!Object.hasOwn(supportLinks, id)) throw Error('LAUNCHER_INPUT_INVALID');
+    window.open(supportLinks[id], '_blank', 'noopener,noreferrer');
+    return true;
   },
   weatherQuote: async (location, options = {}) => {
     const response = await fetch('/__darkdesk/weather', {

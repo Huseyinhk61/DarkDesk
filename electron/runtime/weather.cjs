@@ -1,4 +1,8 @@
-const { normalizeWeather, validateWeatherResponse } = require('../../shared/weather.js');
+const {
+  normalizeWeather,
+  validateWeatherResponse,
+  weatherTimeZone,
+} = require('../../shared/weather.js');
 const { version } = require('../../package.json');
 const endpoint = 'https://api.met.no/weatherapi/locationforecast/2.0/compact';
 class WeatherService {
@@ -25,6 +29,7 @@ class WeatherService {
       saved = this.cache.get(key);
     const decorate = (record, cached) => ({
       ...record.value,
+      timeZone: weatherTimeZone(location),
       cached,
       updatedAt: new Date(record.at).toISOString(),
     });

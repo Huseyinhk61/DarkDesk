@@ -386,6 +386,17 @@ async function widgetPage(application, id) {
       const weather = await widgetPage(application, 'weather');
       await expect(weather.locator('.weather-temperature strong')).toContainText('18');
       await expect(weather.locator('.weather-widget')).toContainText('Trabzon');
+      await expect(weather.locator('.weather-location-heading small')).toContainText(
+        'Europe/Istanbul',
+      );
+      await weather.getByRole('tab').nth(1).click();
+      await expect(weather.locator('.weather-hour')).toHaveCount(1);
+      await weather.getByRole('tab').nth(2).click();
+      await expect(weather.locator('.weather-day')).toHaveCount(1);
+      await weather.getByRole('tab').nth(3).click();
+      await expect(weather.locator('.weather-details')).toContainText('60%');
+      await weather.getByRole('tab').nth(0).click();
+
       const refresh = weather.getByRole('button', { name: 'Şimdi yenile', exact: true });
       await expect(refresh).toBeEnabled({ timeout: 10000 });
       await refresh.click();
