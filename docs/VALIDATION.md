@@ -4,7 +4,28 @@
 
 The full [3.13.0 CI run](https://github.com/Huseyinhk61/DarkDesk/actions/runs/43713879222) passed 164 browser scenarios and exposed one note-persistence failure: immediate reload could occur before the 400 ms autosave timer fired. The note editor now commits on blur, and browser pagehide/hidden handlers write the latest draft without waiting for that timer. Native close/quit retains the existing awaited IPC flush.
 
-A new frozen-timer browser regression covers both blur persistence and immediate reload with Unicode text. All **23 affected browser scenarios**, **355 Linux service tests**, the production build and isolated native Electron/widget checks passed locally. The final complete suite contains 166 scenarios. Stable publication now waits for a successful complete Test & Build run for the exact source commit. Final 3.13.1 checks and package evidence follow after publication.
+A new frozen-timer browser regression covers both blur persistence and immediate reload with Unicode text. All **23 affected browser scenarios**, **355 Linux service tests**, the production build and isolated native Electron/widget checks passed locally. The final complete suite contains 166 scenarios. Stable publication now waits for a successful complete Test & Build run for the exact source commit. The real [weather provider check](https://github.com/Huseyinhk61/DarkDesk/actions/runs/43714888707) and [Store packaging/public download verification](https://github.com/Huseyinhk61/DarkDesk/actions/runs/43714888753) passed for source `45881dd1125de30d7711d7ec03f014de0bbd106e`.
+
+A separate full anonymous download from this workspace verified both ZIP CRC layers, four nonempty entries, exact identity, executable and source provenance:
+
+| Store asset |       Bytes | SHA-256                                                            |
+| ----------- | ----------: | ------------------------------------------------------------------ |
+| ZIP         | 230,110,033 | `c3ca5806d2a45915e5b771d7558881184b126b269a7092ef7b447aeb7cff0aae` |
+| AppX        | 230,107,954 | `0f0375883911771b5ce3a4f58ea34cbc0d24edf939477dde44ae1b013faf50d9` |
+
+These are unsigned Partner Center submission files, not certified Store installations. [Test & Build](https://github.com/Huseyinhk61/DarkDesk/actions/runs/43714888797) passed all **166 browser scenarios**, Windows/Linux services and native IPC, and macOS interactive widgets. [Desktop Installers](https://github.com/Huseyinhk61/DarkDesk/actions/runs/43714888716) passed Setup/Portable, AppImage/DEB, packaged native widget/IPC checks and the new exact-commit CI publication gate.
+
+[Stable release v3.13.1](https://github.com/Huseyinhk61/DarkDesk/releases/tag/v3.13.1) is public; its tag points to source `45881dd1125de30d7711d7ec03f014de0bbd106e`, matching all four workflow runs and the Store provenance report. Both versioned and global latest update feeds return **3.13.1**. Complete anonymous Setup and AppImage downloads matched the manifest SHA-256 and updater SHA-512/byte counts. The remaining package/blockmap endpoints returned HTTP 200; their table hashes are published manifest values.
+
+| Asset                              |       Bytes | SHA-256                                                            | Independent check                     |
+| ---------------------------------- | ----------: | ------------------------------------------------------------------ | ------------------------------------- |
+| DarkDesk-Setup-3.13.1.exe          | 176,856,497 | `67b3e4113254a3dafc84ed4441a6e0029667d6d5ffbab54906549bfe5870de7e` | Full SHA-256, update SHA-512 and size |
+| DarkDesk-3.13.1-x86_64.AppImage    | 192,542,269 | `20df4566567d558501561e3ea4d2d8a1d13bf7601c70834d7309af0c0ab4b944` | Full SHA-256, update SHA-512 and size |
+| DarkDesk-Portable-3.13.1.exe       | 162,073,187 | `2f52d811efb149fbca2260a9d79df83a0af180556bec31ccf47ac63b33cd2368` | HTTP 200; published manifest hash     |
+| DarkDesk-3.13.1-amd64.deb          | 154,824,208 | `cfbb70633d4d4f157aa1b2b6a80c19c66ea55be486655de38b02912d5679566c` | HTTP 200; published manifest hash     |
+| DarkDesk-Setup-3.13.1.exe.blockmap |     184,466 | `e0c5b99e99f16d5c445141be487e573f7e169c0016cac183e0ce0a1a237ab9ed` | HTTP 200; published manifest hash     |
+
+An isolated local Xvfb launcher-visibility assertion timed out once; it passed on repeat and the final platform/package workflows passed. An actual user-machine in-place upgrade and Store certification are outside these checks. No live shutdown, trash, radio or audio mutation was performed.
 
 ## 3.13.0 — detailed weather and end-user help
 
@@ -27,7 +48,7 @@ The real [MET Norway connectivity check](https://github.com/Huseyinhk61/DarkDesk
 
 The `store-v3.13.0` tag points to the same source commit. These are unsigned publisher submission files; Microsoft Store certification remains a separate step.
 
-Stable Windows/Linux publication results are recorded when packaging completes.
+The 3.13.0 browser run exposed the note-persistence failure described above. The corrected, fully tested 3.13.1 release supersedes this build; use 3.13.1 for normal installation.
 
 ## 3.12.1 — connected weather and verified Store delivery
 
